@@ -35,7 +35,21 @@ jdocbook {
 gradle.taskGraph.whenReady { graph ->
   graph.allTasks.findAll { it.name.startsWith('renderDocBook_') }.each { task ->
     task.inputs.dir file('src/main/docbook')
+    task.dependsOn 'generateImages'
   }
 }
 
 defaultTasks 'buildDocs'
+
+task generateImages {
+  def baseDir = file('src/main/docbook/restApiDevelopment/en-US')
+  def figuresDir = new File(baseDir, 'figures') 
+  def imagesDir = new File(baseDir, 'images')
+  doLast {
+    figuresDir.listFiles().findAll { it.name.endsWith('.svg') }.each {
+      def target = new File(imagesDir, it.name.substring(0, it.name.lastIndexOf('.') + 1) + 'png')
+      def proc = "inkscape -D -e=$target $it.path".execute()
+      proc.waitFor()
+    }
+  }
+}
