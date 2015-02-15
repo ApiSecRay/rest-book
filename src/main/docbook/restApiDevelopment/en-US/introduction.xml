@@ -1,0 +1,471 @@
+<chapter>
+  <title>Introduction</title>
+
+  <section>
+    <title>Application Programming Interfaces (APIs)</title>
+    <para>
+      Our society depends more and more on software. Some people even claim that in today's world every company is a 
+      software company.
+      At the same time, the number of ways people use software is increasing. The traditional mainframe (1st platform) 
+      and client/sever (2nd platform) applications are now flanked by applications running in browsers, on mobile 
+      phones and tablets, in game consoles, in cars, etc. (3rd platform).
+    </para>
+    <figure xml:id="3rd-platform">
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/3rd-platform.png" width="15cm"/>
+        </imageobject>
+      </mediaobject>
+      <title>Evolution of computing platforms</title>
+    </figure>
+    <para>
+      Customers have different consumption preferences that also change depending on where they are, who they are with, 
+      and what time of day it is. But in all that change they expect their data to be constantly available, no matter
+      what.
+    </para>
+    <para>
+      To make that possible, we must break up our applications into <firstterm>modules</firstterm>. At the very least, 
+      we need a <firstterm>server</firstterm> that stores the data and multiple <firstterm>clients</firstterm> that 
+      live on the different devices.
+      The kinds of conversations possible between the many clients and the one server are determined by the 
+      capabilities of the latter. We call this language the <firstterm>Application Programming Interface</firstterm>, 
+      or API.
+    </para>
+    <para>
+      The breakdown in server and clients is the minimum we can get away with, but further dividing up modules may
+      have additional advantages. Each module can be scaled independently of the others, can be built using the most
+      effective and efficient technology, can be maintained by a dedicated team, etc. These advantages have led to a 
+      movement to break up servers into <firstterm>microservices</firstterm>. Microservices also communicate with each 
+      other and thus also expose APIs.
+    </para>
+    <para>
+      A single company may be responsible for both the producer and consumer of an API, as with most microservices.
+      However, an API may also be publicly available to others. Public APIs allow third parties to unleash 
+      their creativity in ways the providers could never have imagined. The API allows provider and consumer to 
+      innovate independently.
+    </para>
+    <para>
+      Companies like eBay, Amazon, Salesforce, Google, and Twitter provide valuable services via APIs, and software 
+      developers are using those APIs to create new kinds of applications that run on a variety of devices.
+      These services are valuable enough that API consumers are willing to pay for them.
+      We now live in the <firstterm>API Economy</firstterm>.
+    </para>
+    <para>
+      With a public API, providers may have little knowledge of the clients that use them, but they need to ensure 
+      that these clients can continue to function as they evolve their servers. At the same time, API providers may 
+      need to support large numbers of users, so their APIs must scale well. Providers must thus design their APIs to 
+      simultaneously support evolvability and scalablility in their distributed systems. That is not an easy task.
+    </para>
+    <para>
+      Fortunately, this is precisely the problem that the REST architectural style was designed to solve.
+    </para>
+  </section>
+
+  <section>
+    <title>Representational State Transfer (REST)</title>
+    
+    <section>
+      <title>What is REST?</title>
+      <para>
+        REST is an architectural style, modeled after the World Wide Web. It is formally defined in Roy Fielding's 
+        thesis <citation>Fielding00</citation> by the following six constraints:
+        <orderedlist>
+          <listitem>Client/Server</listitem>
+          <listitem>Stateless</listitem>
+          <listitem>Cache</listitem>
+          <listitem>Uniform interface</listitem>
+          <listitem>Layered system</listitem>
+          <listitem>Code-on-demand (optional)</listitem>
+        </orderedlist>
+      </para>
+      <para>
+        The client/server constraint demands that we divide our system in multiple modules, since monolithic
+        applications cannot be made to scale. As we've already seem, each module can be further divided as needed. 
+        For instance, the client can be a browser and the server a web application. We can then further divide the 
+        web application into a web server for the CPU-intensive processing and a database server for I/O-intensive 
+        processing. Distributing capabilities over multiple modules provides us with the opportunity to give each the 
+        resources it needs, without wasting money by giving it too much.
+      </para>
+      <para>
+        The layered system constraint additionally requires that the client cannot see beyond its immediate server.
+        This allows us to change our server landscape without breaking the client. We could, for example, insert proxy 
+        servers to aid with scaling, or we could break a microservice out of the monolithic server.
+      </para>
+      <para>
+        We can further improve scalability by moving some of the load from the server to the client. The
+        stateless constraint moves the responsibility for maintaining some data to the client so that the server no 
+        longer needs to worry about it. We can't just move any data to the client, however, since some data needs to
+        be available from multiple clients and between client sessions. We call that data 
+        <firstterm>resource state</firstterm>. But there is other data associated with the path the client has taken
+        in pursuit of its goal. We call this data <firstterm>application state</firstterm>. The stateless constraint
+        deals only with application state.
+      </para>
+      <para>
+        The code-on-demand constraint additionally pushes processing to the client. We see this when web servers send
+        JavaScript to the browser for local execution. This optional constraint is very common on the Web, but mostly
+        absent from REST APIs.
+      </para>
+      <para>
+        The cache constraint also helps with scalability. The server indicates how long data that it sends is valid,
+        so that the client does not have to keep asking for it. If clients do so anyway, the layered system constraint 
+        allows us to insert caching proxy servers to keep our servers available for useful work.
+      </para>
+      <para>
+        The uniform interface constraint is the one that really distinguishes REST from other approaches. It mandates
+        that we stick to a predefined set of standard operations. Anybody who has played with Legos knows the power of a
+        universal interface. Since the uniform interface is so central to REST, we will look into it in more detail.
+      </para>
+    </section>
+    
+    <section id="uniform-interface">
+      <title>The Essence of REST: Hypermedia</title>
+      <para>
+        The uniform interface is enabled by the following mechanisms:
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term>Identification of resources</term>
+          <listitem>
+            <para>
+              <blockquote>
+                <attribution>Roy Fielding <citation>Fielding00</citation></attribution>
+                <para>
+                  The key abstraction of information in REST is a <firstterm>resource</firstterm>. Any information that 
+                  can be named can be a resource: a document or image, a temporal service (e.g. "today's weather in 
+                  Los Angeles"), a collection of other resources, a non-virtual object (e.g. a person), and so on.
+                </para>
+              </blockquote>
+              We name things to be able to talk about them easily and we should do the same with resources. In
+              practice, we use <firstterm>Uniform Resource Identifiers</firstterm> <citation>RFC 3986</citation>
+              for this purpose.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Manipulation of resources through representations</term>
+          <listitem>
+            <para>
+              A resource is a conceptual entity, an idea. To interact with it, we need something more concrete.
+              <blockquote>
+                <attribution>Roy Fielding <citation>Fielding00</citation></attribution>
+                <para>
+                  A <firstterm>representation</firstterm> is a sequence of bytes, plus representation metadata to 
+                  describe those bytes. Other commonly used but less precise names for a representation include: 
+                  document, file, and HTTP message entity, instance, or variant.
+                </para>
+              </blockquote>
+              A representation of a resource is an encoding of the information contained in the resource. It allows us
+              to transmit the information from client to server and vice versa. The data format of a representation is 
+              known as its <firstterm>media type</firstterm> <citation>RFC 2048</citation>.
+            </para>
+            <para>
+              Next to the data of the resource itself, a representation may also contain
+              <firstterm>meta-data</firstterm>: data about the data. For example, we could specify when the data was 
+              last updated.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Self-descriptive messages</term>
+          <listitem>
+            <para>
+              To implement the stateless constraint, it's important that the server doesn't need to remember
+              application state. A clients that wants the server to do something on its behalf must therefore give the
+              server all the information it needs to do its job. In other words, the message that the client sends to 
+              the server must be self-contained and self-descriptive, because the server has no memory of previous
+              interactions beyond the resource state it stores.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Hypermedia as the engine of application state (HATEOAS)</term>
+          <listitem>
+            <para>
+              Sending isolated messages doesn't get us very far because we often need to refer to other resources in a 
+              message to make it self-descriptive. We've already seen that we use resource identifiers like URIs to 
+              refer to other resources. When we including a URI in a message, we effectively add a 
+              <firstterm>hyperlink</firstterm> to that resource, and therefore we speak of a 
+              <firstterm>hypermedia</firstterm> message.
+            </para>
+            <para>
+              Hyperlinks allow the server to guide the client in its next possible moves. The client selects from this
+              "menu" of choices whatever gets it closer to its goal. The links thus act as road signs directing
+              the client while it's building up its application state. This is what is meant by the somewhat 
+              enigmatic term HATEOAS.
+            </para>
+            <para>
+              For this scheme to work, the client has to be able to understand and differentiate between the provided 
+              links. The mechanism that powers that is the <firstterm>link relation</firstterm>. Link relations can be
+              explicit, like in this piece of HTML:
+              <code>&lt;link rel="stylesheet" type="text/css" href="foo.css"/></code>, where the <literal>rel</literal>
+              attribute contains the link relation. Link relations can also be implicit, like in this piece of HTML:
+              <code>&lt;script type="text/javascript" src="bar.js"></code>, where the <literal>script</literal> element
+              defines the link relation. 
+            </para>
+            <para>
+              When a client is purely guided by the "menu" of choices the server provides through its links, it no 
+              longer needs to know about the URIs maintained by the server. It knows how to discover the URIs from the 
+              links via link relations. In the examples above, the URIs can be found in the 
+              <literal>href</literal> attribute of the <literal>link</literal> element and the <literal>src</literal>
+              attribute of the <literal>script</literal> element. The only thing that is needed is a single URI to
+              bootstrap the whole process. Mike Amundsen calls this URI the <firstterm>billboard URI</firstterm>, 
+              because it's what you would put on a billboard if you were advertising for your service.
+              The client sends a message to the billboard URI and receives a response with links (typed by link 
+              relations) from where it can start its journey through the API.
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </section>
+    
+    <section>
+      <title>REST Maturity</title>
+      <para>
+        The REST architectural style was defined in a PhD thesis, and as such it is both abstract and generic.
+        Unfortunately, that has led to some confusion of how to apply the constraints concretely in software development 
+        projects. The HATEOAS part in particular has proven difficult to digest. The end result is that there are now 
+        published APIs that call themselves RESTful, but adhere to the REST constraints with varying levels of success.
+      </para>
+      <para>
+        Some people seem to think that if your API is accessible over HTTP, then it must be a REST API. In fact, none 
+        of the REST constraints mention HTTP ()or any other communication protocol, for that matter). They deal with
+        self-descriptive, hyperlinked messages, but not with the mode of transport of these messages. While today HTTP
+        is the default choice, it helps to remember that there is nothing inherently HTTP-ish about REST. When services
+        are accessed over HTTP, we call them <firstterm>web services</firstterm> to make that clear.
+      </para>
+      <para>
+        In 2008, Leonard Richardson published his Maturity Heuristic <citation>Richardson08</citation> that classified 
+        web services into three levels based on their use of URI, HTTP, and hypermedia. As is common with maturity 
+        models, the levels build on each other.
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term>Level 0</term>
+          <listitem>
+            <para>
+              The API offers one resource, i.e. one URI, and one HTTP method to send messages to it.
+            </para>
+            <para>
+              This is the domain of XML-RPC <citation>XML-RPC</citation> and SOAP <citation>SOAP</citation>, where the 
+              operations to perform are either encoded into the URI or into the message. 
+              Since there is only one URI in the entire service, it is impossible to use bookmarks.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Level 1</term>
+          <listitem>
+            <para>
+              The API offers more than one resource, at different URIs, but still uses only one HTTP method.
+            </para>
+            <para>
+              Since there are multiple resources, we can actually bookmark them. But we could also modify them with the 
+              <literal>GET</literal> HTTP method, even though that is supposed to be safe, thereby breaking caching.
+              (See the sidebar "<xref linkend="http-methods"/>" for the definition of "safe").
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Level 2</term>
+          <listitem>
+            <para>
+              The API offers more than one resource, at different URIs, and correctly uses the HTTP methods.
+            </para>
+            <para>
+              This is the domain of the so-called "pragmatic REST". Although this is a vast improvement over level 1,
+              we're still basically inventing a new protocol for every new service: a client must learn about all the
+              different URIs and what methods they support.
+            </para>
+            <para>
+              We dislike the term “pragmatic REST”. It’s a cheap rhetoric trick to put opponents (“dogmatists”)
+              on the defensive without having to provide good arguments.
+              More importantly, it creates semantic diffusion: "pragmatic REST" is not actually REST according to 
+              Fielding's definition, and shouldn't be called such. Using the same term for different things is bound to
+              cause misunderstandings.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Level 3</term>
+          <listitem>
+            <para>
+              The API's resources describe their capabilities using hypermedia. This is where truely RESTful APIs
+              live.
+            </para>
+            <para>
+              The difference between plain media types, like <literal>image/jpeg</literal>, and hypermedia types, like 
+              <literal>text/html</literal>, is of course the “hyper” part. Links allow a client to discover 
+              functionality without being coupled to the server’s URI structure, as we saw in 
+              <xref linkend="uniform-interface"/>.
+            </para>
+            <para>
+              There is more to hypermedia than links, however. Richardson points out that two technologies are required
+              at this level: URIs to implement the links, and <firstterm>forms</firstterm> to tell the client how to
+              follow those links. For instance, we still need to know what HTTP method to use to send a message to the
+              URI. We may assume <literal>GET</literal> as the default, but we also need a way to specify deviations 
+              from the default.
+            </para>
+            <para>
+              There are different form technologies, like HTML Forms, URI Templates, and XForms. Which one to use
+              doesn't matter much for this discussion, as long as the media type is able to express forms.
+            </para>
+            <para>
+              Since some media types stop short at links and forget about forms, we like to split this level into 
+              3a and 3b. At level 3a, a media type is used that supports links, but not forms. At level 3b, forms are 
+              also supported. We'll talk more about hypermedia types in <xref linkend="media-types"/>.
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>      
+      <sidebar id="http-methods">
+        <title>HTTP Methods</title>
+        <para>
+          The HTTP specification <citation>HTTP</citation> defines a small number of methods: <literal>GET</literal>,
+          <literal>HEAD</literal>, <literal>POST</literal>, <literal>PUT</literal>, <literal>DELETE</literal>,
+          <literal>CONNECT</literal>, <literal>OPTIONS</literal>, and <literal>TRACE</literal>.
+          The <literal>PATCH</literal> method was added later <citation>RFC 5789</citation>.
+        </para>
+        <para>
+          These methods all have very precisely defined semantics. The constraints thus imposed make it possible to
+          optimize their use. For instance, we know that a <literal>GET</literal> method should never change the
+          resource to which it is sent, so we can cache the response and use the cached representation on the next
+          call to save us a network round trip.
+          A couple of properties of the HTTP methods are crucial to understand when building REST APIs:
+        </para>
+        <variablelist>
+          <varlistentry>
+            <term>Safe</term>
+            <listitem>
+              <blockquote>
+                <attribution><citation>HTTP</citation></attribution>
+                <para>
+                  Request methods are considered "safe" if their defined semantics are essentially read-only; i.e., the 
+                  client does not request, and does not expect, any state change on the origin server as a result of
+                  applying a safe method to a target resource.
+                </para>
+              </blockquote>
+              <para>
+                The following methods are safe: <literal>GET</literal>, <literal>HEAD</literal>,
+                <literal>CONNECT</literal>, and <literal>TRACE</literal>.
+              </para>
+              <para>
+                The biggest advantage of safe methods is that they allow caching, since they're guaranteed not to
+                change the resource.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Idempotent</term>
+            <listitem>
+              <blockquote>
+                <attribution><citation>HTTP</citation></attribution>
+                <para>
+                  A request method is considered "idempotent" if the intended effect on the server of multiple identical 
+                  requests with that method is the same as the effect for a single such request.
+                </para>
+              </blockquote>
+              <para>
+                Safe methods are idempotent, as are the <literal>PUT</literal> and <literal>DELETE</literal> methods.
+              </para>
+              <para>
+                Idempotent methods can be safely repeated. Suppose we send a <literal>DELETE</literal> request and the
+                network connection drops before we receive the response. We now don't know for sure that the resource
+                was really deleted. Since the <literal>DELETE</literal> method is idempotent, we can safely repeat the
+                request. If the resource was deleted, nothing furter will happen. If it wasn't, it will be deleted
+                after all. Either way, we end up in the desired state.
+              </para>
+              <para>
+                No such guarantees are available for methods that are not idempotent, like <literal>POST</literal>. If
+                we try to create a resource with <literal>POST</literal>, and the connection drops before the response,
+                we can't safely retry, or we may end up with two created resources instead of one.
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </sidebar>
+
+      
+      <para>
+        The amount of out-of-band communication steadily decreases as we move up the levels. This is a
+        very good thing, as it reduces the amount of coupling between clients and servers. It also makes clients
+        easier to build, since we have to encode less knowledge into them.
+      </para>
+      <para>
+        We believe that level 3 isn’t the final destination, however. Even with the inclusion in the message of things 
+        like what method and protocol to use to follow a link, and what media type to encode the request in, we still 
+        need some out-of-band communication. Which links to follow is based on the client's goal and what the link 
+        relations of the links in the message <emphasis>mean</emphasis>.
+      </para>
+      <para>
+        A REST client driven by a human user can navigate a level 3 API, since it can present the link relations in its 
+        user interface and let the user select the next link. But for true <firstterm>machine-to-machine</firstterm>
+        (M2M) communication, including microservices, we need something more: semantics. 
+        The client needs to <emphasis>understand</emphasis> what to do without a human directing it.
+      </para>
+      <para>
+        There is a big effort under way to teach semantics to machines: the Semantic Web <citation>SemWeb</citation>.
+        This is really a massive undertaking, and we can't expect to have full answers in the short term. So for now,
+        we'll have to settle for partial answers.
+      </para>
+      <para>
+        One piece of the puzzle could be to define application semantics using <firstterm>profiles</firstterm>.
+      </para>
+      <blockquote>
+        <attribution><citation>RFC 6906</citation></attribution>
+        <para>
+          A profile is defined not to alter the semantics of the resource representation itself, but to allow clients
+          to learn about additional semantics (constraints, conventions, extensions) that are associated with the 
+          resource representation, in addition to those defined by the media type and possibly other mechanisms.
+        </para>
+      </blockquote>
+      <para>
+        Mike Amundsen has defined a media type for profiles called <firstterm>Application-Level Profile 
+        Semantics</firstterm> (ALPS) <citation>ALPS</citation>. 
+      </para>
+      <blockquote>
+        <attribution><citation>ALPS</citation></attribution>
+        <para>
+          An ALPS document can be used as a profile to explain the application semantics of a document with an 
+          application-agnostic media type. [...] This increases the reusability of profile documents across
+          media types.
+        </para>
+      </blockquote>
+      <para>
+        The idea is that if we program our clients with the knowledge contained in the profile, it can understand any
+        API that serves that profile. Its a clean separation of concerns, with the data format specified by the
+        media type, and the application semantics specified by the profile. 
+      </para>
+      <para>
+        We propose to add a fourth level to Richardson's maturity model that is defined by the use of semantic profiles.
+      </para>
+      <para>
+        Some media types have facilities for semantic profiles, while others don't. For instance, HTML supports the
+        <literal>class</literal> attribute on many elements. This allows for different styling of those elements using
+        CSS, for instance, based on their meaning.
+      </para>
+      <para>
+        While we haven't seen many level 4 APIs in the wild, we can future-proof our APIs by selecting media types that
+        are ready for semantic profiles. We'll talk more about that in <xref linkend="media-types"/>.
+      </para>
+    </section>
+  </section>
+  
+  <section>
+    <title>Summary</title>
+    <para>
+      This chapter establishes the need for software that is divided into modules. To work together towards a shared 
+      goal, modules must communicate with each other. Communication between modules takes the form of a language that 
+      we call the Application Programming Interface (API).
+    </para>
+    <para>
+      Each module must be able to evolve and scale independently. This means that some forms of APIs are more suitable 
+      for comminication between modules than others. One style that meets all our needs is that of Representational 
+      State Transfer (REST).
+    </para>
+    <para>
+      The defining element of REST is hypermedia, where client and server exchange self-descriptive messages 
+      that contain links to further information and/or operations.
+    </para>
+  </section>
+  
+</chapter>

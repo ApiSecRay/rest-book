@@ -1,0 +1,198 @@
+<bibliography>
+  <title>Bibliography</title>
+
+  <biblioentry>
+    <abbrev>Adzic09</abbrev>
+    <citetitle>Bridging the communication gap: specification by example</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Gojko</firstname>
+          <surname>Adzic</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2009</year>
+    </copyright>
+  </biblioentry>
+
+  <biblioentry>
+    <abbrev>ALPS</abbrev>
+    <biblioid class="uri">http://alps.io/spec/index.html</biblioid>
+  </biblioentry>
+
+  <biblioentry>
+    <abbrev>AppStream</abbrev>
+    <biblioid class="uri">http://aws.amazon.com/appstream/</biblioid>
+    <citetitle>AppStream API</citetitle>
+  </biblioentry>
+
+  <biblioentry>
+    <abbrev>Evans04</abbrev>
+    <citetitle>Domain-driven design: tackling complexity in the heart of software</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Eric</firstname>
+          <surname>Evans</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2004</year>
+    </copyright>
+  </biblioentry>
+
+  <biblioentry>
+    <abbrev>Fielding00</abbrev>
+    <biblioid class="uri">http://aws.amazon.com/appstream/</biblioid>
+    <citetitle>Architectural Styles and the Design of Network-based Software Architectures</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Roy</firstname>
+          <surname>Fielding</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2000</year>
+    </copyright>
+  </biblioentry>
+
+  <biblioentry>
+    <abbrev>Hohpe04</abbrev>
+    <biblioid class="uri">http://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>HTTP</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc7231</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>JBehave</abbrev>
+    <biblioid class="uri">http://jbehave.org/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>McGraw06</abbrev>
+    <citetitle>Software security: building security in</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Gary</firstname>
+          <surname>McGraw</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2006</year>
+    </copyright>
+  </biblioentry>
+
+  <biblioentry>
+    <abbrev>RFC 2048</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc2048</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>RFC 3986</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc3986</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>RFC 5789</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc5789</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>RFC 6906</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc6906</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Richardson07</abbrev>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Leonard</firstname>
+          <surname>Richardson</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Sam</firstname>
+          <surname>Ruby</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2007</year>
+    </copyright>
+    <biblioid class="isbn">0596529260</biblioid>
+    <publisher>
+      <publishername>O'Reilly Media</publishername>
+    </publisher>
+    <citetitle>RESTful Web Services</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Richardson08</abbrev>
+    <biblioid class="uri">http://www.crummy.com/writing/speaking/2008-QCon/act3.html</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Royce75</abbrev>
+    <biblioid class="uri">http://www.cs.umd.edu/class/spring2003/cmsc838p/Process/waterfall.pdf</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>SemWeb</abbrev>
+    <biblioid class="uri">http://www.w3.org/standards/semanticweb/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>SOAP</abbrev>
+    <biblioid class="uri">http://www.w3.org/TR/soap/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Webber10</abbrev>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Jim</firstname>
+          <surname>Webber</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Savas</firstname>
+          <surname>Parastatidis</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Ian</firstname>
+          <surname>Robinson</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2010</year>
+    </copyright>
+    <biblioid class="isbn">9780596805821</biblioid>
+    <publisher>
+      <publishername>O'Reilly Media</publishername>
+    </publisher>
+    <citetitle>REST In Practice</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>XML-RPC</abbrev>
+    <biblioid class="uri">http://xmlrpc.scripting.com/default.html</biblioid>
+  </biblioentry>
+  
+</bibliography>

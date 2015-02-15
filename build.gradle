@@ -1,0 +1,41 @@
+buildscript {
+  repositories {
+    mavenCentral()
+    maven { 
+      url 'http://repository.jboss.org/nexus/content/groups/public/'
+    }
+  }
+  
+  dependencies {
+    classpath 'org.jboss.jdocbook:gradle-jdocbook:1.2.2', 'org.jboss:jbossorg-docbook-xslt:1.1.1'
+  }
+}
+
+apply plugin: "jdocbook"
+
+jdocbook {
+  restApiDevelopment {
+    masterSourceDocumentName = 'index.xml'
+    transformerParameters([
+      'section.autolabel': '1',
+      'section.label.includes.component.label': '1',
+      'generate.toc': 'appendix nop  book toc,title  part nop'
+    ])
+    format {
+      name = 'html_single'
+      finalName = 'restApiDevelopment.html'
+    }
+    format {
+      name = 'pdf'
+      finalName = 'restApiDevelopment.pdf'
+    }
+  }
+}
+
+gradle.taskGraph.whenReady { graph ->
+  graph.allTasks.findAll { it.name.startsWith('renderDocBook_') }.each { task ->
+    task.inputs.dir file('src/main/docbook')
+  }
+}
+
+defaultTasks 'buildDocs'

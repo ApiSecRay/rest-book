@@ -1,0 +1,127 @@
+<chapter>
+  <title>Design Methodology</title>
+  <para>
+    The following presents our approach to designing RESTful APIs. You may chose an alternative method if that works
+    better for you. However, if you don't already have an approach that consistently gives you good results, then we
+    urge you to give the following a try.
+  </para>
+  <para>
+    We use the following steps:
+    <orderedlist>
+      <listitem>
+        Understand the problem domain and application requirements and document them as a state diagram
+      </listitem>
+      <listitem>
+        Discover the resources from the transitions
+      </listitem>
+      <listitem>
+        Name the resources with URIs
+      </listitem>
+      <listitem>
+        Select one or more media types to serialize the various representations identified in the resource model
+      </listitem>
+      <listitem>
+        Assign link relations to each of the transitions
+      </listitem>
+      <listitem>
+        Add documentation as required
+      </listitem>
+    </orderedlist>
+    Note that this is a variation of the design process described in
+    <citation>Richardson07</citation>
+    .
+    Now, let’s look at each of the steps in detail.
+  </para>
+
+  <section>
+    <title>Document the Requirements as a State Diagram</title>
+  </section>
+
+  <section>
+    <title>Derive Methods from Transitions</title>
+    <para>
+      You can build up the resource model piece-by-piece:
+      <itemizedlist>
+        <listitem>
+          Start with the initial state
+        </listitem>
+        <listitem>
+          Create (or re-use) a resource with a representation that corresponds to this state
+        </listitem>
+        <listitem>
+          For each transition starting from the current state, make sure there is a corresponding method in some
+          resource that implements the transition
+        </listitem>
+        <listitem>
+          Repeat for all transitions in each of the remaining states
+        </listitem>
+      </itemizedlist>
+    </para>
+  </section>
+
+  <section>
+    <title>Name Resources With URIs</title>
+    <para>
+      Every resource should be identified by a URI. From the client’s perspective, this is an implementation detail,
+      but we still need to do this before we can implement the server.
+    </para>
+    <para>
+      We should follow best practices for URIs, like keeping them cool.
+    </para>
+  </section>
+
+  <section id="media-types">
+    <title>Select Media Types</title>
+    <para>
+      When extending an existing design, you should stick with the already selected media types. For new APIs, you
+      have to decide what media type to use.
+    </para>
+    <para>
+      There are different kinds of media types. Domain-specific media types are specifically designed for one
+      application domain and in practice even for one particular service in that domain.
+      <!-- TODO: Copy from Amundsen -->
+    </para>
+    <para>
+      BTW, application/json is not a hypermedia type, since JSON doesn’t define links. We can, of course, use a
+      convention on top of JSON, for instance that there should be a links property with a certain structure to
+      describes the links, like Spring HATEOAS does. The problem with conventions is that they are out-of-band
+      communication, and a client has no way of knowing for sure whether that convention is followed when it sees a
+      Content-Type of application/json. It’s therefore much better to use a media type that turns the convention into
+      a rule, like HAL does.
+    </para>
+    <para>
+      TODO: Add HAL, Mason, Siren, ...
+    </para>
+  </section>
+
+  <section>
+    <title>Name Transitions with Link Relations</title>
+    <para>
+      A REST client follows transitions in the state diagram by discovering links in representations. This discovery
+      process is made possible by link relations.
+      Link relations decouple the client from the URIs that the server uses,
+      giving the server the freedom to change
+      its URI structure at will without breaking any clients. Link relations are
+      therefore an important part of any
+      REST API.
+    </para>
+    <para>
+      We should try to use existing link relations as much as possible. They don’t cover every case, however, so
+      sometimes you need to invent your own.
+    </para>
+  </section>
+
+  <section>
+    <title>Add Documentation</title>
+    <para>
+      In order to help developers build clients that work against your API, you will most likely want to add some
+      documentation that explains certain more subtle points.
+      Examples are very helpful to illustrate those points.
+      You
+      may also add instructions for server developers that will implement the API, like what caching to use.
+    </para>
+    <section>
+      <title>Show Examples</title>
+    </section>
+  </section>
+</chapter>

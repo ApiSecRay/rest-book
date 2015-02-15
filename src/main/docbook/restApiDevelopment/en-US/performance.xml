@@ -1,0 +1,21 @@
+<chapter id="performance">
+  <title>Performance and Scalability</title>
+  <section>
+    <title>Statelessness</title>
+  </section>
+  <section>
+    <title>Granularity</title>
+  </section>
+  <section>
+    <title>Caching</title>
+  </section>
+  <section>
+    <title>Content Ranges</title>
+  </section>
+  <section>
+    <title>Paging</title>
+  </section>
+  <section>
+    <title>Load Balancing</title>
+  </section>
+</chapter>

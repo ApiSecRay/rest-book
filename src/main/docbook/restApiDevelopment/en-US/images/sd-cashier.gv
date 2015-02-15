@@ -1,0 +1,16 @@
+digraph G 
+{
+  rankdir="LR";
+  a[label="Awaiting order", shape="circle"];
+  b[label="Calculating total", shape="circle"];
+  c[label="Awaiting payment", shape="circle"];
+  d[label="Preparing receipt", shape="circle"];
+  e[label="Creating order", shape="circle"];
+  f[label="Done for the day", shape="doublecircle"];
+  a->b[label="accept order"];
+  a->f[label="leave"];
+  b->c[label="declare total"];
+  c->d[label="accept payment"];
+  d->e[label="return receipt"];
+  e->a[label="queue order"];
+}

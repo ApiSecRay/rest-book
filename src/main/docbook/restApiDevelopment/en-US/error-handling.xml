@@ -1,0 +1,98 @@
+<chapter>
+  <title>Error Handling</title>
+  <para>
+    The HTTP protocol uses status codes to return error information. This facility, while extremely useful, is too 
+    limited for many use cases. So how do we return more detailed information?
+  </para>
+  <para>
+    There are basically two approaches we can take:
+    Use a dedicated media type that contains the error details
+    Include the error details in the used media type
+  </para>
+  <section>
+    <title>Dedicated Error Media Types</title>
+    <para>
+      There are at least two candidates in this space:
+      Problem Details for HTTP APIs is an IETF draft that we’ve used in some of our APIs to good effect. It treats 
+      both problem types and instances as URIs and is extensible. This media type is available in both JSON and XML 
+      flavors.
+      application/vnd.error+json is for JSON media types only. It also feels less complete and mature.
+    </para>
+    <para>
+      A media type dedicated to error reporting has the advantage of being reusable in many REST APIs. Any existing 
+      libraries for handling them could save us some effort. We also don’t have to think about how to structure the 
+      error details, as someone else has done all that hard work for us.
+    </para>
+    <para>
+      However, putting error details in a dedicated media type also increases the burden on clients, since they now 
+      have to handle an additional media type.
+    </para>
+    <para>
+      Another disadvantage has to do with the Accept header. It’s highly unlikely that clients will specify the error 
+      media type in Accept. In general, we should either return 406 or ignore the Accept header when we can’t honor 
+      it. The first option is not acceptable (pun intended), the second is not very elegant.
+    </para>
+  </section>
+  <section>
+    <title>Including Error Details In Regular Media Type</title>
+    <para>
+      We could also design our media types such that they allow specifying error details. In this post, I’m going to stick with three mature media types: Mason, Siren, and UBER.
+    </para>
+    <para>
+      Mason uses the <computeroutput>@error</computeroutput> property:
+      <programlisting>
+      {
+        &quot;@error&quot;: {
+          &quot;@id&quot;: &quot;b2613385-a3b2-47b7-b336-a85ac405bc66&quot;,
+          &quot;@message&quot;: &quot;There was a problem with one or more input values.&quot;,
+          &quot;@code&quot;: &quot;INVALIDINPUT&quot;
+        }
+      }
+      </programlisting>
+      The existing error properties are compatible with Problem Details for HTTP APIs, and they can be extended.
+    </para>
+    <para>
+      Siren doesn’t have a specific structure for errors, but we can easily model errors with the existing structures:
+      <programlisting>
+      {
+        &quot;class&quot;: [
+          &quot;error&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;id&quot;: &quot;b2613385-a3b2-47b7-b336-a85ac405bc66&quot;,
+          &quot;message&quot;: &quot;There was a problem with one or more input values.&quot;,
+          &quot;code&quot;: &quot;INVALIDINPUT&quot;
+        }
+      }
+      </programlisting>
+    </para>
+    <para>
+      We can even go a step further and use entities to add detailed sub-errors. This would be very useful for 
+      validation errors, for instance, where you can report all errors to the client at once. We could also use the 
+      existing actions property to include a retry action. And we could use the error properties from Problem Details 
+      for HTTP APIs.
+    </para>
+    <para>
+      UBER has an explicit error structure:
+      <programlisting>
+      {
+        &quot;uber&quot;: {
+          &quot;version&quot;: &quot;1.0&quot;,
+          &quot;error&quot;: {
+            &quot;data&quot;: [
+              { &quot;name&quot;: &quot;id&quot;, &quot;value&quot; : &quot;b2613385-a3b2-47b7-b336-a85ac405bc66&quot; },
+              { &quot;name&quot;: &quot;message&quot;, &quot;value&quot; : &quot;There was a problem with one or more input values.&quot; },
+              { &quot;name&quot;: &quot;code&quot;, &quot;value&quot;: &quot;INVALIDINPUT&quot; }
+            ]
+          }
+        }
+      }
+      </programlisting>
+      Again, we could reuse the error properties from Problem Details for HTTP APIs.
+    </para>
+    <para>
+      Our advice would be to use the error structure of your existing media type and use the extensibility features 
+      to steal all the good ideas from Problem Details for HTTP APIs.
+    </para>
+  </section>
+</chapter>

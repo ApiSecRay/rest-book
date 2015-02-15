@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<book xmlns:xi="http://www.w3.org/2001/XInclude" xmlns="http://docbook.org/ns/docbook" version="5.0" xml:lang="en-US">
+  <info>
+    <title>REST API Development</title>
+    <author>
+      <personname>
+        <firstname>Jonathan</firstname>
+        <surname>Robie</surname>
+      </personname>
+    </author>
+    <author>
+      <personname>
+        <firstname>Ray</firstname>
+        <surname>Sinnema</surname>
+      </personname>
+    </author>
+    <copyright>
+      <year>2015</year>
+      <holder>
+        EMC
+        <superscript>2</superscript>
+      </holder>
+    </copyright>
+  </info>
+
+  <part>
+    <title>Getting Started</title>
+    <xi:include href="introduction.xml"/>
+    <xi:include href="process.xml"/>
+    <xi:include href="analysis.xml"/>
+  </part>
+
+  <part>
+    <title>Designing</title>
+    <xi:include href="design-methodology.xml"/>
+    <xi:include href="error-handling.xml"/>
+    <xi:include href="design-patterns.xml"/>
+    <xi:include href="performance.xml"/>
+    <xi:include href="security.xml"/>
+    <xi:include href="radl.xml"/>
+  </part>
+
+  <part>
+    <title>Building</title>
+    <xi:include href="implementation.xml"/>
+    <xi:include href="test.xml"/>
+    <xi:include href="documentation.xml"/>
+    <xi:include href="operations.xml"/>
+    <xi:include href="maintenance.xml"/>
+    <xi:include href="client.xml"/>
+  </part>
+  
+  <part>
+    <title>Appendixes and Bibliography</title>
+    <xi:include href="bib.xml"/>>
+  </part>
+</book>

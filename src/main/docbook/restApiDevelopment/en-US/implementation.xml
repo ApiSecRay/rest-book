@@ -1,0 +1,25 @@
+<chapter>
+  <title>Implementation</title>
+  
+  <section>
+    <title>Model-View-Controller (MVC)</title>
+  </section>
+  <section>
+    <title>Generating Code From RADL</title>
+  </section>
+  <section>
+    <title>Extracting RADL From Code</title>
+  </section>
+  <section>
+    <title>Providing Client Libraries</title>
+  </section>
+  <section>
+    <title>Security</title>
+    <section>
+      <title>Input Validation</title>
+    </section>
+    <section>
+      <title>Output Encoding</title>
+    </section>
+  </section>
+</chapter>

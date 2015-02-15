@@ -1,0 +1,23 @@
+<chapter>
+  <title>Operations</title>
+  
+  <section>
+    <title>Separating Configuration From Code</title>
+  </section>
+  
+  <section>
+    <title>Logging and Monitoring</title>
+    <para>KPIs</para>
+    <para>Correlating business processes with fine-grained messages</para>
+  </section>
+  
+  <section>
+    <title>Security</title>
+    <section>
+      <title>Alerts</title>
+    </section> 
+    <section>
+      <title>Vulnerability Disclosure</title>
+    </section>
+  </section>
+</chapter>

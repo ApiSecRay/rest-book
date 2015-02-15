@@ -1,0 +1,79 @@
+<chapter>
+  <!-- TODO: Reorganize for better flow. Introduce security vocabulary. -->
+  <title>Security</title>
+  <para>
+    Exposing your data or application through a REST API is a wonderful way to reach a wide audience. The downside of 
+    a wide audience, however, is that it’s not just the good guys who come looking. Especially publicly available APIs
+    risk attracting all kinds of malicious users.
+  </para>
+  <para>
+    Security consists of three factors:
+      Confidentiality
+      Integrity
+      Availability
+  </para>
+  <para>
+    In terms of Microsoft’s STRIDE approach, the security compromises we want to avoid with each of these are 
+    Information Disclosure, Tampering, and Denial of Service.
+  </para>
+  <para>
+    In the context of an HTTP-based API, Information Disclosure is applicable for GET methods and any other methods 
+    that return information. Tampering is applicable for PUT, POST, and DELETE. Denial of Service is applicable
+    for all methods.
+  </para>
+  <section>
+    <title>Threat Modeling REST APIs</title>
+    <para>
+      A good way to think about security is by looking at all the data flows. That’s why threat modeling usually 
+      starts with a Data Flow Diagram (DFD). In the context of a REST API, a close approximation to the DFD is the 
+      state diagram. For proper access control, we need to secure all the transitions.
+  </para>
+  <para>
+      The traditional way to do that, is to specify restrictions at the level of URI and HTTP method. For instance, 
+      this is the approach that Spring Security takes. The problem with this approach, however, is that both the 
+      method and the URI are implementation choices. URIs shouldn’t be known to anybody but the API 
+      designer/developer; the client will discover them through link relations. Even the HTTP methods can be hidden 
+      until runtime with mature media types like Mason or Siren. This is great for decoupling the client and server, 
+      but now we have to specify our security constraints in terms of implementation details! This means only the 
+      developers can specify the access control policy.
+    </para>
+    <para>
+      That, of course, flies in the face of best security practices, where the access control policy is externalized 
+      from the code (so it can be reused across applications) and specified by a security officer rather than a 
+      developer. So how do we satisfy both requirements?
+    </para>
+    <para>
+      The answer lies in the state diagram underlying the REST API. Remember, we want to authorize all transitions. 
+      Yes, a transition in an HTTP-based API is implemented using an HTTP method on a URI. But in REST, we shield the 
+      URI using a link relation. The link relation is very closely related to the type of action you want to perform.
+    </para>
+    <para>
+      The same link relation can be used from different states, so the link relation can’t be the whole answer. We 
+      also need the state, which is based on the representation returned by the REST server. This representation 
+      usually contains a set of properties and a set of links. We’ve got the links covered with the link relations, 
+      but we also need the properties.
+    </para>
+    <para>
+      In XACML terms, the link relation indicates the action to be performed, while the properties correspond to 
+      resource attributes. Add to that the subject attributes obtained through the authentication process, and you 
+      have all the ingredients for making an XACML request!
+    </para>
+    <para>
+      There are two places where such access control checks comes into play. The first is obviously when receiving a 
+      request. You should also check permissions on any links you want to put in the response. The links that the 
+      requester is not allowed to follow, should be omitted from the response, so that the client can faithfully 
+      present the next choices to the user.
+    </para>
+  </section>
+  <section>
+    <title>Authentication</title>
+    <para>HTTP signatures, tickets</para>
+  </section>
+  <section>
+    <title>Authorization</title>
+    <para>RBAC, OAuth, UMA, XACML</para>
+  </section>
+  <section>
+    <title>Auditing</title>
+  </section>
+</chapter>

@@ -1,0 +1,401 @@
+<chapter>
+  <title>Analysis</title>
+  
+  <para>
+    In this chapter we will look at the problem domain and the application's requirements and how they affect our REST 
+    API. We'll look at functional and non-functional requirements and how to meet them in a way that is pleasant for the
+    consumers of the API.
+  </para>
+  
+  <section>
+    <title>Functional Requirements</title>
+    <para>
+      When people talk about requirements, they often mean <emphasis>functional</emphasis> requirements, or how
+      the application is supposed to behave. To understand that, one must first understand the application's
+      <firstterm>domain</firstterm>, the subject area to which the user applies the program
+      <citation>Evans04</citation>. 
+    </para>
+    <para>
+      We want to capture the domain in a way that is optimized for REST APIs. Since an API exist to be consumed by 
+      a client, we should document the domain from the client's point of view.
+    </para>
+    
+    <section>
+      <title>State Diagrams</title>
+      <para>        
+        A REST client starts at some well-known URI, what we called the billboard URI in 
+        <xref linkend="uniform-interface"/>. It then follows links (using link relations) until its goal is met.
+        In other words, the client starts at some initial state, and then transitions to other states by following 
+        links (i.e. executing HTTP methods against URIs) that are discovered from the previously returned 
+        representation:
+      </para>
+      <figure xml:id="client">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/client.png" width="15cm"/>
+          </imageobject>
+        </mediaobject>
+        <title>Basic flow of a REST client</title>
+      </figure>
+      <para>
+        A natural way to capture this information is in the form of a <firstterm>state diagram</firstterm>. 
+        State diagrams are used to give an abstract description of the behavior of a system. This behavior is analyzed 
+        and represented in a series of events that may occur in one or more states.
+      </para> 
+      <para>
+        Mathematically, a state diagram is a <firstterm>directed graph</firstterm> with the following elements:
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term>Vertices</term>
+          <listitem>
+            <para>
+              A finite set of states, normally represented by circles and labeled with unique designator symbols or words 
+              written inside them.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Input</term>
+          <listitem>
+            <para>
+              A finite collection of inputs to the system.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Edges</term>
+          <listitem>
+            <para>
+              Transitions between states, triggered by some input. An edge is usually drawn as an arrow directed from 
+              the current state to the next state, with the input next to the edge.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Start state</term>
+          <listitem>
+            <para>
+              The start state is sometimes represented by an arrow without origin pointing to the state, but sometimes 
+              the start state is shown as as regular state as well.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Accepting state</term>
+          <listitem>
+            <para>
+              An accepting, final, or end state, is a special state at which the program is allowed to stop processing.
+              It is usually drawn as a double circle, but sometimes as a colored circle.
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+      <para>
+        The notion of a state diagram maps nicely onto the flow of a REST client:
+      </para>
+      <informaltable>
+        <thead>
+          <tr>
+            <th>State diagram element</th>
+            <th>REST equivalent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Vertix</td>
+            <td>Application state</td>
+          </tr>
+          <tr>
+            <td>Input</td>
+            <td>A link relation</td>
+          </tr>
+          <tr>
+            <td>Edge</td>
+            <td>
+              A link in a some server response that the client can follow. The URI of such a link is discovered 
+              by looking for a specific link relation
+            </td>
+          </tr>
+          <tr>
+            <td>Start state</td>
+            <td>
+              The representation returned by the server as the response to a <literal>GET</literal> on the system's 
+              billboard URI
+            </td>
+          </tr>
+          <tr>
+            <td>Accepting state</td>
+            <td>Any state in which the client has achieved a goal</td>
+          </tr>
+        </tbody>
+      </informaltable>
+    </section>
+
+    <section>
+      <title>State Diagrams for RESTBucks</title>        
+      <para>
+        Let's look at this from our RESTBucks example. When a customer arrives, she reads the menu, selects a 
+        beverage, and orders it. The cashier presents her with the total amount due, and she pays him. The cashier
+        then adds the order to the barista's queue. In time, the barista will pop the order of the queue and prepare
+        it. Once done, he will inform the customer, who takes the order.
+      </para>
+      <para>
+        Here's what that looks like from the perspective of the customer:
+      </para>
+      <figure xml:id="sd-customer-happy-path">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/sd-customer-happy-path.png" width="15cm"/>
+          </imageobject>
+        </mediaobject>
+        <title>Partial state diagram for RESTBucks customer</title>
+      </figure>
+      <para>
+        Of course, this is just part of the workflow. A customer can also cancel an order that she hasn't paid for yet
+        or change it:
+      </para>
+      <figure xml:id="sd-customer">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/sd-customer.png" width="15cm"/>
+          </imageobject>
+        </mediaobject>
+        <title>Complete state diagram for RESTBucks customer</title>
+      </figure>
+      <para>
+        As you can see, the process is rather linear for the customer. This is not the case for the cashier and the
+        barista, however. They work in loops, serving one customer after another. Here's the state diagram for the
+        cashier:
+      </para>
+      <figure xml:id="sd-cashier">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/sd-cashier.png" width="15cm"/>
+          </imageobject>
+        </mediaobject>
+        <title>State diagram for RESTBucks cashier</title>
+      </figure>
+      <note>
+        <title>TODO</title>
+        <para>Create state diagram from barista, manager (?), supplier (?)</para>
+      </note>
+    </section>
+    
+    <section id="bdd">
+      <title>Behavior-Driven Development (BDD)</title>
+      <para>
+        Another form of capturing a state diagram is with the so-called <firstterm>Gherkin syntax</firstterm>. 
+        Here's what the customer state diagram would look like in this form:
+        <programlisting>
+          Given a customer Chrissy
+          When she reads the menu
+          And she selects a tall whole milk caffe latte
+          And she orders
+          Then she is due $2.75 
+          When she pays
+          Then she must wait for the barista
+          When the barista calls her
+          Then she takes her order
+        </programlisting>
+      </para>
+      <para>
+        Each line starts with a keyword:
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term><userinput>Given</userinput></term>
+          <listitem>
+             <para>Indicates the current state of the system</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><userinput>When</userinput></term>
+          <listitem>
+            <para>Indicates the input that transitions the system to a new state</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><userinput>Then</userinput></term>
+          <listitem>
+            <para>Indicates something that must be true in the new state</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><userinput>And</userinput></term>
+          <listitem>
+            <para>
+              Is a shorthand for the keyword of the preceding line. It makes the text more natural to read by removing 
+              duplication
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+      <para>
+        The real power of the <userinput>Then</userinput> keyword is that we can now describe what state the system
+        <emphasis>should</emphasis> be in. In other words, Gherkin syntax gives us a <emphasis>testing 
+        language</emphasis>. This testing language is the basis for the Agile practice of Behavior-Driven Development.
+      </para>
+      <para>
+        <firstterm>Behavior-Driven Development</firstterm> (BDD) is a variant of Agile acceptance testing 
+        <citation>Adzic09</citation>. Much more than testing, it is a collaborative process where the Product Owner,
+        developers, and testers cooperate to deliver software that brings value to the business.
+      </para>
+      <para>
+        BDD gives us executable requirements. With BDD, you write scenarios in Gherkin format, and they are run by a 
+        computer to test whether the system behaves as desired.
+      </para>
+      <para>
+        This is possible because the scenario focuses on external behavior and uses examples with concrete values. 
+        Compare that to the state diagram in <xref linkend="sd-customer"/>, which shows internal states like
+        <literal>Deciding</literal> and uses more abstract terms like <literal>item</literal>. The concrete nature of 
+        the example in Gherkin syntax is what makes the requirement executable.
+      </para>
+      <para>
+        Note that concrete nature of the example includes providing a name for the customer. This isn't usually
+        necessary for the scenario to work, but sometimes it is. In this case, we could have written 
+        <literal>When the barista calls 'Chrissy'</literal> instead of <literal>When the barista calls her</literal>.
+        In other cases, we may want the name to appear in some record or on some report, and we can use it in a
+        <literal>Then</literal> line.
+      </para>
+      <para>
+        But even if we don't really need the name of the customer, it is still a good idea to include it. It gives
+        us a clear focus on who we are doing this for. Usability experts use the term <firstterm>personas</firstterm> 
+        for fictional characters created to represent the different user types that might use the product in a similar 
+        way. Using the same personas in your BDD scenarios promotes shared understanding.
+      </para>
+      <para>
+        The interesting part about Gherkin syntax is that there are very few constraints. There are only four keywords, 
+        and each line must start with exactly one of them. The rest of the line is completely free format.
+        We don't have to use a computer language, but can simply write in a natural language
+        like English. This means that everybody can read and write scenarios, opening the door for collaboration. This 
+        is a distinctive difference with most forms of automated tests, which can only be read and written by 
+        developers and/or testers.
+      </para>
+      <para>
+        BDD scenarios are a great vehicle for promoting the use of the domain language by developers and testers
+        and everybody else who is not a domain expert. When everybody speaks the same language, the chances of 
+        misunderstandings decrease drastically, and thereby the chances of subtle bugs.
+        We refer to that one language as the <firstterm>ubiquitous language</firstterm> <citation>Evans04</citation>.
+      </para>
+      <para>
+        BDD scenarios are great for developers, since they provide quick and unequivocal feedback about whether the 
+        story is done. Not only the main success scenario, but also alternate and exception scenarios can be provided, 
+        as can abuse cases <citation>McGraw06</citation>. The latter requires that the Product Owner not only 
+        collaborates with testers and developers, but also with security specialists. The payoff is that it becomes 
+        easier to manage security requirements and build security in from the start rather than bolt it on later.
+      </para>
+      <para>
+        BDD scenarios are made executable by a scenario parser that translates the Gherkin syntax into
+        method calls in your programming language. For instance, <citation>JBehave</citation> is a BDD framework for 
+        Java that contains such a parser. The methods that the parser calls are the glue code between the scenarios 
+        and your application. This glue code is where you call your application's REST API.
+      </para>
+      
+      <section>
+        <title>Deriving State Diagrams From BDD Scenarios</title>
+        <para>
+          Once we have BDD scenarios in Gherkin syntax, we can translate and merge those into a single state diagram
+          that describes the entire system. This gives us a global sense of how we want our system to behave, and we
+          may notice some inconsistencies that are difficult to spot when working with the individual scenarios.
+        </para>
+        <para>
+          Remember that this doesn't have to be a Big Design Up Front (BDUF) approach. We can just as easily take one
+          scenario and work it all the way through to shippable or even deployed code before we tackle the next scenario.
+          The point is that at some point we must integrate all the various requirements that we have into a single 
+          system. BDD scenarios can't give you that global overview, but a state diagram can. We don't have to use a
+          state diagram either; we could even wait until we write code. But there are advantages to integrating early,
+          when it's relatively cheap to change things. Drawing a state diagram is less costly than writing code.
+        </para>
+        <para>
+          To translate Gherkin scenarios into a state diagram, we simply add a state for the <literal>Given</literal>(s). 
+          We then add a transition for each <literal>When</literal>, and a target state for the each collection of 
+          adjacent <literal>Then</literal>s.
+        </para>
+        <para>
+          Note that this doesn't always produce the best end result. You will often want to tweak the state diagram to 
+          better support the non-functional requirements, or to give a better developer experience.
+          For instance, you may want to make the protocol less chatty by merging transitions, so that you'll get better 
+          performance. We'll talk more about non-functional requirements in <xref linkend="non-functional-requirements"/> 
+          and about performance in <xref linkend="performance"/>.
+        </para>
+        <para>
+          Let's try out this procedure on our thirsty customer.
+        </para>
+        <orderedlist>
+          <listitem>
+            <para>
+              We start by creating a state for <literal>Given a customer Chrissy</literal>.
+            </para>
+            <note>
+              <title>TODO</title>
+              <para>should we show the incomplete state diagram as it is built up?</para>
+            </note>
+          </listitem>
+          <listitem>
+            <para>
+              Next we add a transition for <literal>When she reads the menu</literal>.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              The next line is another <literal>When</literal>. We can combine this with the previous transition, or we
+              can add a state to the previous transition and then add a transition from this state. We make the choice
+              based on whether we can envision there ever being a <literal>Then</literal> in between the
+              <literal>When</literal>s. In this case, we could have inserted <literal>Then she is presented with a list of
+              beverages, including caffe latte</literal>, so we add a state and a transition.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              The same logic applies to <literal>And she orders</literal>, so we add a state and a transition.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              The line <literal>Then she is due $2.75</literal> invites us to create a state.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              We add another transition for <literal>When she pays</literal>.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              And another state for <literal>Then she must wait for the barista</literal>.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Then another transition for <literal>When the barista calls her</literal>.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              And finally another state for <literal>Then she takes her order</literal>.
+            </para>
+          </listitem>
+        </orderedlist>
+        <para>
+          At this point we have successfully recovered the state diagram in <xref linkend="sd-customer-happy-path"/>.
+        </para>
+        <para>
+           Note that the procedure above doesn't tell you how to name the states. This is because the states in the 
+           state diagram reflect the customer's <emphasis>internal</emphasis> state, while the BDD scenario only 
+           describes the <emphasis>external</emphasis> behavior. The transition names, however, can be derived from the 
+           scenario, since they correspond to externally visible behavior.
+        </para>
+      </section>
+    </section>
+  </section>
+  
+  <section id="non-functional-requirements">
+    <title>Non-Functional Requirements</title>
+  </section>
+  
+  <section>
+    <title>Developer eXperience</title>
+  </section>
+  
+</chapter>
