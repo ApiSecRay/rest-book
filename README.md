@@ -1,3 +1,3 @@
 # rest-book
 
-A book on REST with RADL, along with example source code.
+A book on REST, along with example source code.
