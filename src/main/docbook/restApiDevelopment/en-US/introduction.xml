@@ -245,6 +245,17 @@
         web services into three levels based on their use of URI, HTTP, and hypermedia. As is common with maturity 
         models, the levels build on each other.
       </para>
+      <figure xml:id="maturity">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/maturity.png" width="10cm" align="center"/>
+          </imageobject>
+        </mediaobject>
+        <title>Richardson's REST Maturity Model</title>
+      </figure>
+      <para>
+        Let's look at each of the levels in detail.
+      </para>
       <variablelist>
         <varlistentry>
           <term>Level 0</term>
@@ -325,6 +336,7 @@
           </listitem>
         </varlistentry>
       </variablelist>      
+      
       <sidebar id="http-methods">
         <title>HTTP Methods</title>
         <para>
@@ -391,7 +403,6 @@
           </varlistentry>
         </variablelist>
       </sidebar>
-
       
       <para>
         The amount of out-of-band communication steadily decreases as we move up the levels. This is a
@@ -446,6 +457,14 @@
       <para>
         We propose to add a fourth level to Richardson's maturity model that is defined by the use of semantic profiles.
       </para>
+      <figure xml:id="maturity2">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/maturity2.png" width="10cm" align="center"/>
+          </imageobject>
+        </mediaobject>
+        <title>Extended REST Maturity Model</title>
+      </figure>
       <para>
         Some media types have facilities for semantic profiles, while others don't. For instance, HTML supports the
         <literal>class</literal> attribute on many elements. This allows for different styling of those elements using
@@ -453,7 +472,8 @@
       </para>
       <para>
         While we haven't seen many level 4 APIs in the wild, we can future-proof our APIs by selecting media types that
-        are ready for semantic profiles. We'll talk more about that in <xref linkend="media-types"/>.
+        are ready for semantic profiles, even if we're not going to use them quite yet. We'll talk more about that 
+        in <xref linkend="media-types"/>.
       </para>
     </section>
   </section>

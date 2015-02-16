@@ -2,9 +2,9 @@
   <title>Analysis</title>
   
   <para>
-    In this chapter we will look at our application's requirements and how they affect our REST API. We'll look at 
-    functional and non-functional requirements and how to meet them in a way that is pleasant for the consumers of the 
-    API.
+    In this chapter we will look at the requirements for RESTBucks and how they affect the REST API. We'll look at 
+    both functional and non-functional requirements and how to meet them in a way that is pleasant for the consumers of 
+    the API.
   </para>
   
   <section>
@@ -29,14 +29,6 @@
         links (i.e. executing HTTP methods against URIs) that are discovered from the previously returned 
         representation:
       </para>
-      <figure xml:id="client">
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="images/client.png" width="15cm"/>
-          </imageobject>
-        </mediaobject>
-        <title>Basic flow of a REST client</title>
-      </figure>
       <para>
         A natural way to capture this information is in the form of a <firstterm>state diagram</firstterm>. 
         State diagrams are used to give an abstract description of the behavior of a system. This behavior is analyzed 
@@ -91,6 +83,14 @@
           </listitem>
         </varlistentry>
       </variablelist>
+      <figure xml:id="client">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/client.png" width="10cm" align="center"/>
+          </imageobject>
+        </mediaobject>
+        <title>Basic flow of a REST client</title>
+      </figure>
       <para>
         The notion of a state diagram maps nicely onto the flow of a REST client:
       </para>
