@@ -2,9 +2,9 @@
   <title>Analysis</title>
   
   <para>
-    In this chapter we will look at the problem domain and the application's requirements and how they affect our REST 
-    API. We'll look at functional and non-functional requirements and how to meet them in a way that is pleasant for the
-    consumers of the API.
+    In this chapter we will look at our application's requirements and how they affect our REST API. We'll look at 
+    functional and non-functional requirements and how to meet them in a way that is pleasant for the consumers of the 
+    API.
   </para>
   
   <section>

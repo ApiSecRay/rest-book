@@ -63,6 +63,10 @@
 
   <section>
     <title>Representational State Transfer (REST)</title>
+    <para>
+      This section introduces the theory behind the REST architectural style. This is where we define our terms and
+      lay the foundation for the more practical remainder of the book.
+    </para>
     
     <section>
       <title>What is REST?</title>
@@ -79,41 +83,43 @@
         </orderedlist>
       </para>
       <para>
-        The client/server constraint demands that we divide our system in multiple modules, since monolithic
-        applications cannot be made to scale. As we've already seem, each module can be further divided as needed. 
+        The <emphasis>client/server constraint</emphasis> demands that we divide our system in multiple modules, since 
+        monolithic applications are confined to the limits of a single machine and thus cannot scale arbitrarily.
+        As we've already seem, each module can be further divided as needed. 
         For instance, the client can be a browser and the server a web application. We can then further divide the 
         web application into a web server for the CPU-intensive processing and a database server for I/O-intensive 
         processing. Distributing capabilities over multiple modules provides us with the opportunity to give each the 
         resources it needs, without wasting money by giving it too much.
       </para>
       <para>
-        The layered system constraint additionally requires that the client cannot see beyond its immediate server.
-        This allows us to change our server landscape without breaking the client. We could, for example, insert proxy 
-        servers to aid with scaling, or we could break a microservice out of the monolithic server.
+        The <emphasis>layered system constraint</emphasis> additionally requires that the client cannot see beyond its 
+        immediate server. This allows us to change our server landscape without breaking the client. We could, for 
+        example, insert proxy servers to aid with scaling, or we could break a microservice out of the monolithic server.
       </para>
       <para>
         We can further improve scalability by moving some of the load from the server to the client. The
-        stateless constraint moves the responsibility for maintaining some data to the client so that the server no 
-        longer needs to worry about it. We can't just move any data to the client, however, since some data needs to
-        be available from multiple clients and between client sessions. We call that data 
+        <emphasis>stateless constraint</emphasis> moves the responsibility for maintaining some data to the client so 
+        that the server no longer needs to worry about it. We can't just move any data to the client, however, since 
+        certain data needs to be available from multiple clients and between client sessions. We call that data
         <firstterm>resource state</firstterm>. But there is other data associated with the path the client has taken
         in pursuit of its goal. We call this data <firstterm>application state</firstterm>. The stateless constraint
         deals only with application state.
       </para>
       <para>
-        The code-on-demand constraint additionally pushes processing to the client. We see this when web servers send
-        JavaScript to the browser for local execution. This optional constraint is very common on the Web, but mostly
-        absent from REST APIs.
+        The <emphasis>code-on-demand constraint</emphasis> additionally pushes processing to the client. We see this 
+        when web servers send JavaScript to the browser for local execution. This optional constraint is very common on 
+        the Web, but mostly absent from REST APIs.
       </para>
       <para>
-        The cache constraint also helps with scalability. The server indicates how long data that it sends is valid,
-        so that the client does not have to keep asking for it. If clients do so anyway, the layered system constraint 
-        allows us to insert caching proxy servers to keep our servers available for useful work.
+        The <emphasis>cache constraint</emphasis> also helps with scalability. The server indicates how long data that 
+        it sends is valid, so that the client does not have to keep asking for it. If clients do so anyway, the layered 
+        system constraint allows us to insert caching proxy servers to keep our servers available for useful work.
       </para>
       <para>
-        The uniform interface constraint is the one that really distinguishes REST from other approaches. It mandates
-        that we stick to a predefined set of standard operations. Anybody who has played with Legos knows the power of a
-        universal interface. Since the uniform interface is so central to REST, we will look into it in more detail.
+        The <emphasis>uniform interface constraint</emphasis> is the one that really distinguishes REST from other 
+        approaches. It mandates that we stick to a predefined set of standard operations. Anybody who has played with 
+        Legos knows the power of a universal interface. Since the uniform interface is so central to REST, we will now 
+        look into it in more detail.
       </para>
     </section>
     
@@ -224,14 +230,15 @@
         The REST architectural style was defined in a PhD thesis, and as such it is both abstract and generic.
         Unfortunately, that has led to some confusion of how to apply the constraints concretely in software development 
         projects. The HATEOAS part in particular has proven difficult to digest. The end result is that there are now 
-        published APIs that call themselves RESTful, but adhere to the REST constraints with varying levels of success.
+        published APIs that call themselves RESTful, but adhere to the REST constraints with varying levels of 
+        strictness.
       </para>
       <para>
         Some people seem to think that if your API is accessible over HTTP, then it must be a REST API. In fact, none 
-        of the REST constraints mention HTTP ()or any other communication protocol, for that matter). They deal with
+        of the REST constraints mention HTTP (or any other communication protocol, for that matter). They deal with
         self-descriptive, hyperlinked messages, but not with the mode of transport of these messages. While today HTTP
-        is the default choice, it helps to remember that there is nothing inherently HTTP-ish about REST. When services
-        are accessed over HTTP, we call them <firstterm>web services</firstterm> to make that clear.
+        is the default choice, it helps to remember that there is nothing inherently HTTP-ish about REST. Some people
+        try to make a distinction by calling services that are accessed over HTTP <firstterm>web services</firstterm>.
       </para>
       <para>
         In 2008, Leonard Richardson published his Maturity Heuristic <citation>Richardson08</citation> that classified 
@@ -272,9 +279,10 @@
               The API offers more than one resource, at different URIs, and correctly uses the HTTP methods.
             </para>
             <para>
-              This is the domain of the so-called "pragmatic REST". Although this is a vast improvement over level 1,
+              This is the domain of so-called "pragmatic REST". Although this is a vast improvement over level 1,
               we're still basically inventing a new protocol for every new service: a client must learn about all the
-              different URIs and what methods they support.
+              different URIs and what methods they support, rather than following a menu of choices presented by the 
+              server.
             </para>
             <para>
               We dislike the term “pragmatic REST”. It’s a cheap rhetoric trick to put opponents (“dogmatists”)
@@ -310,9 +318,9 @@
               doesn't matter much for this discussion, as long as the media type is able to express forms.
             </para>
             <para>
-              Since some media types stop short at links and forget about forms, we like to split this level into 
-              3a and 3b. At level 3a, a media type is used that supports links, but not forms. At level 3b, forms are 
-              also supported. We'll talk more about hypermedia types in <xref linkend="media-types"/>.
+              Since some media types stop short at links and forget about forms, we think it makes sense to split this 
+              level into 3a and 3b. At level 3a, a media type is used that supports links, but not forms. At level 3b, 
+              forms are also supported. We'll talk more about hypermedia types in <xref linkend="media-types"/>.
             </para>
           </listitem>
         </varlistentry>
@@ -408,7 +416,7 @@
         we'll have to settle for partial answers.
       </para>
       <para>
-        One piece of the puzzle could be to define application semantics using <firstterm>profiles</firstterm>.
+        One piece of the puzzle is to define application semantics using <firstterm>profiles</firstterm>.
       </para>
       <blockquote>
         <attribution><citation>RFC 6906</citation></attribution>
@@ -451,6 +459,93 @@
   </section>
   
   <section>
+    <title>Introducing RESTBucks</title>
+    <para>
+      With the theoretical groundwork laid in the previous section, we can now turn a bit more practical. We want to 
+      show you how to build a REST API in all the gory details.
+    </para>
+    <para>
+       We can only do that by showing you an example that is simple enough to understand that we won't waste too much
+       time explaining it, but also rich enough for the devil to sneak into the details. We'll follow the leads of 
+       <citation>Hohpe04</citation> and <citation>Webber10</citation> and pretend we are working for a company called 
+       RESTBucks.
+    </para>
+    
+    <section>
+      <title>The RESTBucks Domain</title>
+	    <para>
+	      RESTBucks is a coffee shop modeled after Starbucks<trademark class="trade"/> that serves its customers hot and
+	      cold beverages, pastries and other treats, and collectibles like coffe mugs.
+      </para>
+      <para>
+	      RESTBucks assigns different roles to their employees 
+	      to make sure they can serve as many customers as possible. A <firstterm>cashier</firstterm> takes orders and 
+	      payments from a customer, while a <firstterm>barista</firstterm> prepares the order. 
+	      A <firstterm>manager</firstterm> is in charge of a smooth operation, and a <firstterm>supplier</firstterm> 
+	      provides the ingredients necessary to fulfill the orders.
+	    </para>
+	    <para>
+	      In this book we'll replace those humans (including the customers) with computer programs. Each program is a 
+	      service that offers a REST API and that may use the REST APIs of other services.
+	    </para>
+	    <para>
+	      The RESTBucks service needs to scale up quickly when demand peaks, for example when people are going to work. 
+	      At the same time, RESTBucks needs to continuously improve and expand their offerings to keep customers 
+	      satisfied, and to attract new customers. So evolvability is also a concern. Whenever we see a need for
+	      scalability and evolvability, we know we have a good case for a REST API.
+	    </para>
+    </section>
+  
+	  <section>
+	    <title>Software Development At RESTBucks</title>
+	    <para>
+	      RESTBuck isn't a real company, but a teaching tool. Nowhere is that more apparent than in our choice of
+	      software development method. We're going to follow the Waterfall method <citation>Royce75</citation> here,
+	      because it is extremely well-known, and cleanly separates the activities into neat phases that are easy to 
+	      follow. We understand that in practice these phases blend into each other, but in this book we can give them 
+	      focused treatment in different chapters.
+	    </para>
+	    <para>
+	      If RESTBucks were a real company, we probably would have chosen a more Agile way of developing software, so 
+	      please don't get distracted by our current choice. We believe that more Agile methods in general work better 
+	      than more traditional Waterfall-like methods, but for the most part we'll ignore that in this book. 
+	      The exception is that we will present some Agile practices that we think add specific value for building REST 
+	      APIs. You are, of course, free to use these practices or ignore them. We'll try to make sure you'll get value 
+	      out of this book either way. In the end, this book is not about software development per se, but about
+	      developing REST APIs, and we think you can do that with any method.
+	    </para>
+	    <para>
+	      We'll sometimes use an term from Agile methods, like <firstterm>Product Owner</firstterm>. We'll only do that in 
+	      the context of a specific Agile practice, like in <xref linkend="bdd"/>. This doesn't necessarily mean you can 
+	      only use that practice if you completely adopt the Agile method. There is usually a different term used for the
+	      same concept in other methods, but it seems more natural to use Agile terminology when we talk about Agile
+	      practices. Again, we won't do that too often.
+	    </para>
+	    <para>
+	      REST APIs lend themselves well to incremental and iterative development. Client and server teams can
+	      work in parallel during an iteration and the API can grow by increments between iterations. We will not assume
+	      an incremental and iterative software development process in this book, but we do recommend it. If you build up
+	      your API over time, you can simply follow the chapters in this book within a single iteration.
+	    </para>
+	    <para>
+	      We grant ourselves the luxury to start from scratch with RESTBuck, because we think that makes the text easier
+	      to follow. You may not be so lucky and may have to work with legacy code. Even in greenfield projects you may 
+	      be restricted because you have to work from existing industry standards.
+	    </para>
+	    <para>
+	      While these constraints may limit what you can do, the essence of building a REST API remains the same. We are 
+	      confident that the techniques presented in the following chapters will work for you as well, although it may 
+	      sometimes require a bit of creativity. We'll talk specifically about the differences between starting with 
+	      design versus starting with code in <xref linkend="tools"/>.
+	    </para>
+	    <para>
+	      With all these preliminaries out the the way, let's get started building a business that can serve our customers 
+	      the hot beverages that fuel their days.
+	    </para>
+	  </section>
+  </section>
+  
+  <section>
     <title>Summary</title>
     <para>
       This chapter establishes the need for software that is divided into modules. To work together towards a shared 
@@ -463,9 +558,12 @@
       State Transfer (REST).
     </para>
     <para>
-      The defining element of REST is hypermedia, where client and server exchange self-descriptive messages 
-      that contain links to further information and/or operations.
+      The defining element of REST is hypermedia, where modules exchange self-descriptive messages that contain links 
+      to further information and/or operations.
+    </para>
+    <para>
+      In our journey through REST land, we'll pretend to run a company called RESTBucks that serves virtual coffee via 
+      REST APIs. We'll follow the implementation of those APIs from start to finish.
     </para>
   </section>
-  
 </chapter>
