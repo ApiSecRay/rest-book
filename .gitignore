@@ -1,6 +1,7 @@
 .gradle
 .project
 build/
+src/main/docbook/restApiDevelopment/en-US/images/*.png
 
 # Ignore Gradle GUI config
 gradle-app.setting

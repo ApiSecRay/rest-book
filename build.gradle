@@ -1,3 +1,8 @@
+import org.apache.batik.transcoder.image.PNGTranscoder;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+
+
 buildscript {
   repositories {
     mavenCentral()
@@ -7,7 +12,10 @@ buildscript {
   }
   
   dependencies {
-    classpath 'org.jboss.jdocbook:gradle-jdocbook:1.2.2', 'org.jboss:jbossorg-docbook-xslt:1.1.1'
+    classpath 'org.jboss.jdocbook:gradle-jdocbook:1.2.2', 
+              'org.jboss:jbossorg-docbook-xslt:1.1.1',
+              "org.apache.xmlgraphics:batik-transcoder:$batikVersion",
+              "org.apache.xmlgraphics:batik-codec:$batikVersion"
   }
 }
 
@@ -46,10 +54,26 @@ task generateImages {
   def figuresDir = new File(baseDir, 'figures') 
   def imagesDir = new File(baseDir, 'images')
   doLast {
-    figuresDir.listFiles().findAll { it.name.endsWith('.svg') }.each {
-      def target = new File(imagesDir, it.name.substring(0, it.name.lastIndexOf('.') + 1) + 'png')
-      def proc = "inkscape -D -e=$target $it.path".execute()
-      proc.waitFor()
+    figuresDir.listFiles().findAll { it.name.endsWith('.svg') }.each { source ->
+      def target = new File(imagesDir, source.name.substring(0, source.name.lastIndexOf('.') + 1) + 'png')
+      exportToPng(source, target)
     }
+  }
+}
+
+def exportToPng(source, target) {
+  try {
+    def input = new TranscoderInput(source.toURL().toString())
+    def stream = new FileOutputStream(target.path)
+    def output = new TranscoderOutput(stream)
+    try {
+      new PNGTranscoder().transcode(input, output)
+    } finally {  
+      stream.flush();
+      stream.close();
+    }
+  } catch (Exception e) {
+    target.delete()
+    throw new GradleException("Error exporting $source.name to $target.name:\n$e.message", e)
   }
 }
