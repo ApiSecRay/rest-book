@@ -86,7 +86,7 @@
       <figure xml:id="client">
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/client.png" width="10cm" align="center"/>
+            <imagedata fileref="images/client.png" scale="68" align="center"/>
           </imageobject>
         </mediaobject>
         <title>Basic flow of a REST client</title>
@@ -150,7 +150,7 @@
       <figure xml:id="sd-customer-happy-path">
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/sd-customer-happy-path.png" width="15cm"/>
+            <imagedata fileref="images/sd-customer-happy-path.png" scale="68" align="center"/>
           </imageobject>
         </mediaobject>
         <title>Partial state diagram for RESTBucks customer</title>
@@ -175,7 +175,7 @@
       <figure xml:id="sd-customer">
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/sd-customer.png" width="15cm"/>
+            <imagedata fileref="images/sd-customer.png" scale="68" align="center"/>
           </imageobject>
         </mediaobject>
         <title>Complete state diagram for RESTBucks customer</title>
@@ -188,7 +188,7 @@
       <figure xml:id="sd-cashier">
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/sd-cashier.png" width="11cm"/>
+            <imagedata fileref="images/sd-cashier.png" scale="68" align="center"/>
           </imageobject>
         </mediaobject>
         <title>State diagram for RESTBucks cashier</title>
@@ -207,7 +207,7 @@
       <figure xml:id="sd-barista">
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/sd-barista.png" width="6cm"/>
+            <imagedata fileref="images/sd-barista.png" scale="68" align="center"/>
           </imageobject>
         </mediaobject>
         <title>State diagram for RESTBucks cashier</title>
@@ -236,6 +236,9 @@
 	        You can capture the information that is embedded in a state diagram in a different form called 
 	        <firstterm>Gherkin syntax</firstterm>. Here's what the happy path state diagram for the customer would look 
 	        like in Gherkin:
+	      </para>
+        <example id="bdd-customer-happy-path">
+	        <title>Chrissy orders a latte</title>
 	        <programlisting>
 	          Given a customer Chrissy
 	          When she reads the menu
@@ -251,7 +254,7 @@
 	          When she takes her order
 	          Then she is happy
 	        </programlisting>
-	      </para>
+        </example>	        
 	      <para>
 	        Each line starts with a keyword:
 	      </para>
@@ -365,7 +368,7 @@
           when working with the individual scenarios.
         </para>
         <para>
-          Remember that this doesn't have to be a Big Design Up Front (BDUF) approach. We can just as easily take one
+          Note that this doesn't have to be a Big Design Up Front (BDUF) approach. We can just as easily take one
           scenario and work it all the way through to shippable or even deployed code before we tackle the next scenario.
           The point is that at some point we must integrate all the various requirements that we have into a single 
           system. BDD scenarios can't give you that global overview, but a state diagram can. We don't have to use a
@@ -373,83 +376,210 @@
           when it's relatively cheap to change things. Drawing a state diagram is less costly than writing code.
         </para>
         <para>
-          To translate Gherkin scenarios into a state diagram, we simply add a state for the <literal>Given</literal>(s). 
-          We then add a transition for each <literal>When</literal>, and a target state for each collection of 
-          adjacent <literal>Then</literal>s.
+          To translate a BDD scenario in Gherkin syntax into a state diagram, follow this procedure:
         </para>
+        <procedure id="bdd-scenario-to-state-diagram">
+          <title>Transform a Gherkin scenario to a State Diagram</title>
+          <step>
+            <para>For each line of the scenario:</para>
+            <substeps>
+              <step>
+                <para>
+                  If the line starts with <literal>Given</literal> then create a new state, unless the previous line 
+                  also started with <literal>Given</literal>. In the latter case, do nothing.
+                </para>
+              </step>
+              <step>
+                <para>
+                  If the line starts with <literal>When</literal> then add a transition. If the previous line also
+                  started with <literal>When</literal>, then add a new state at which the previous transition ends
+                  and the current transition starts. Label the transition with the part of the line following
+                  <literal>When</literal>.
+                </para>
+              </step>
+              <step>
+                <para>
+                  If the line starts with <literal>Then</literal> then add a state, unless the previous line 
+                  also started with <literal>Then</literal>. In the latter case, do nothing.
+                </para>
+              </step>
+            </substeps>
+          </step>
+          <step>
+            <para>
+              For each state added in the previous step, add a suitable label.
+            </para>
+            <para>
+							The states in the state diagram reflect the customer's <emphasis>internal</emphasis> state, while the BDD 
+							scenario only describes the <emphasis>external</emphasis> behavior, so this information can't be recovered
+							from the BDD scenario. The transition names, in contrast, can be derived from the scenario, since they 
+							correspond to externally visible behavior.
+            </para>            
+          </step>
+        </procedure>
         <para>
-          Note that this doesn't always produce the best end result. You will often want to tweak the state diagram to 
-          better support the non-functional requirements, or to give a better developer experience.
-          For instance, you may want to make the protocol less chatty by merging transitions to reduce the number of
-          network calls, so that you'll get better performance. We'll talk more about non-functional requirements in 
-          <xref linkend="non-functional-requirements"/> and about performance in <xref linkend="performance"/>.
-        </para>
-        <para>
-          Let's try out our procedure on the happy path scenario for the customer.
+          Let's try this out on <xref linkend="bdd-customer-happy-path"/>:
         </para>
         <orderedlist>
           <listitem>
             <para>
-              We start by creating a state for <literal>Given a customer Chrissy</literal>.
-            </para>
-            <note>
-              <title>TODO</title>
-              <para>should we show the incomplete state diagram as it is built up?</para>
-            </note>
-          </listitem>
-          <listitem>
-            <para>
-              Next we add a transition for <literal>When she reads the menu</literal>.
+              The first line of the scenario is <literal>Given a customer Chrissy</literal>, which starts with 
+              <literal>Given</literal>, so we must add a state:
+			        <mediaobject>
+			          <imageobject>
+			            <imagedata fileref="images/sd-from-bdd-1.png" scale="68" align="center"/>
+			          </imageobject>
+			        </mediaobject>
             </para>
           </listitem>
           <listitem>
             <para>
-              The next line is another <literal>When</literal>. We can combine this with the previous transition, or we
-              can add a state to the previous transition and then add a transition from this state. We make the choice
-              based on whether we can envision there ever being a <literal>Then</literal> in between the
-              <literal>When</literal>s. In this case, we could have inserted <literal>Then she is presented with a list of
-              beverages, including caffe latte</literal>, so we add a state and a transition.
+	            The next line is <literal>When she reads the menu</literal>. We must add a transition for this 
+	            <literal>When</literal>, and we can use the rest of the line as the input of the transition:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-2.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
             </para>
           </listitem>
           <listitem>
             <para>
-              The same logic applies to <literal>And she orders</literal>, so we add a state and a transition.
+              The next line is <literal>And she selects a tall whole milk caffe latte</literal>. The line starts with
+              <literal>And</literal>, which is shorthand for the keyword on the previous line, <literal>When</literal>.
+              So we must add a transition. But since that transition must start at a state, we must first add a state:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-3.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
             </para>
           </listitem>
           <listitem>
             <para>
-              The line <literal>Then she is due $2.75</literal> invites us to create a state.
+              The next line is <literal>And she orders</literal>, so we add another state and transition:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-4.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
             </para>
           </listitem>
           <listitem>
             <para>
-              We add another transition for <literal>When she pays</literal>.
+              The next line is <literal>Then she is due $2.75</literal>. Since this line starts with 
+              <literal>Then</literal>, we must add a state:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-5.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
             </para>
           </listitem>
           <listitem>
             <para>
-              And another state for <literal>Then she must wait for the barista</literal>.
+              The next line is <literal>When she pays</literal>, so we add a transition:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-6.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
             </para>
           </listitem>
           <listitem>
             <para>
-              Then another transition for <literal>When the barista calls her</literal>.
+              The next line is <literal>Then she is handed a receipt</literal>, so we add a state:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-7.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
             </para>
           </listitem>
           <listitem>
             <para>
-              And finally another state for <literal>Then she takes her order</literal>.
+              The next line is <literal>When she takes the receipt</literal>, so we add a transition:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-8.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              The next line is <literal>Then she must wait for the barista</literal>, so we add a state:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-9.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              The next line is <literal>When the barista calls her name</literal>, so we add a transition:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-10.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              The next line is <literal>Then her order is ready</literal>, so we add a state:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-11.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              The next line is <literal>When she takes her order</literal>, so we add a transition:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-12.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              The final line is <literal>Then she is happy</literal>, so we add another state:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-13.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Now that the interaction part of the state diagram is done, we should label the states for clarity. We
+              also realize that the last state added is an accepting state:
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="images/sd-from-bdd-14.png" scale="68" align="center"/>
+                </imageobject>
+              </mediaobject>
             </para>
           </listitem>
         </orderedlist>
         <para>
-          At this point we have successfully recovered the state diagram in <xref linkend="sd-customer-happy-path"/>.
+          At this point we have a state diagram that looks a lot like the one in 
+          <xref linkend="sd-customer-happy-path"/>. The difference is that, based on this single scenario, we can't 
+          detect that there should be a loop. We need to process other scenarios to realize that.
         </para>
         <para>
-           Note that the procedure above doesn't tell you how to name the states. This is because the states in the 
-           state diagram reflect the customer's <emphasis>internal</emphasis> state, while the BDD scenario only 
-           describes the <emphasis>external</emphasis> behavior. The transition names, however, can be derived from the 
-           scenario, since they correspond to externally visible behavior.
+          To get a complete state diagram, you must run this procedure on all the scenarios for the persona. After that, 
+          you will often want to further tweak the state diagram to better support the non-functional requirements, 
+          or to give a better developer experience.
+          For instance, you may want to make the protocol less chatty by merging transitions to reduce the number of
+          network round trips, so that you'll get better performance. We'll talk more about about performance in 
+          <xref linkend="performance"/>. Let's first look at non-functional requirements and developer experience.
         </para>
       </section>
 	  </section>
@@ -457,10 +587,23 @@
   
   <section id="non-functional-requirements">
     <title>Non-Functional Requirements</title>
+    
+	  <section>
+	    <title>Scalability</title>
+	  </section>
+    
+	  <section>
+	    <title>Evolvability</title>
+	  </section>
+    
+	  <section>
+	    <title>Developer eXperience</title>
+	  </section>
+    
+	  <section>
+	    <title>Security</title>
+	  </section>
   </section>
   
-  <section>
-    <title>Developer eXperience</title>
-  </section>
   
 </chapter>

@@ -51,10 +51,10 @@ defaultTasks 'buildDocs'
 
 task generateImages {
   def baseDir = file('src/main/docbook/restApiDevelopment/en-US')
-  def figuresDir = new File(baseDir, 'figures') 
+  def svgDir = new File(baseDir, 'figures') 
   def imagesDir = new File(baseDir, 'images')
   doLast {
-    figuresDir.listFiles().findAll { it.name.endsWith('.svg') }.each { source ->
+    svgDir.listFiles().findAll { it.name.endsWith('.svg') }.each { source ->
       def target = new File(imagesDir, source.name.substring(0, source.name.lastIndexOf('.') + 1) + 'png')
       exportToPng(source, target)
     }
