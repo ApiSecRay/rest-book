@@ -21,13 +21,13 @@
     </para>
     
     <section>
-      <title>State Diagrams</title>
+      <title>Capturing Requirements With State Diagrams</title>
       <para>        
         A REST client starts at some well-known URI, what we called the billboard URI in 
         <xref linkend="uniform-interface"/>. It then follows links (using link relations) until its goal is met.
         In other words, the client starts at some initial state, and then transitions to other states by following 
         links (i.e. executing HTTP methods against URIs) that are discovered from the previously returned 
-        representation:
+        representation, as shown in <xref linkend="client"/>.
       </para>
       <para>
         A natural way to capture this information is in the form of a <firstterm>state diagram</firstterm>. 
@@ -108,12 +108,12 @@
           </tr>
           <tr>
             <td>Input</td>
-            <td>A link relation</td>
+            <td>A link relation or form input</td>
           </tr>
           <tr>
             <td>Edge</td>
             <td>
-              A link in a some server response that the client can follow. The URI of such a link is discovered 
+              A link in a server response that the client can follow. The URI of such a link is discovered 
               by looking for a specific link relation
             </td>
           </tr>
@@ -135,13 +135,17 @@
     <section>
       <title>State Diagrams for RESTBucks</title>        
       <para>
-        Let's look at this from our RESTBucks example. When a customer arrives, she reads the menu, selects a 
-        beverage, and orders it. The cashier presents her with the total amount due, and she pays him. The cashier
-        then adds the order to the barista's queue. In time, the barista will pop the order of the queue and prepare
-        it. Once done, he will inform the customer, who takes the order.
+        Let's apply this little bit of theory to our RESTBucks example.
       </para>
       <para>
-        Here's what that looks like from the perspective of the customer:
+        When a customer arrives, she reads the menu, selects a beverage, and orders it. The cashier presents her with 
+        the total amount due, and she pays him. The cashier then adds the order to the barista's queue. In time, the 
+        barista will pop the order of the queue and prepare it. Once done, he will inform the customer, who takes the 
+        order.
+      </para>
+      <para>
+        That's the whole process. Now we have to split that up per actor, since the different actors are each in their
+        own states and thus have their own state diagrams. Here's one for the customer:
       </para>
       <figure xml:id="sd-customer-happy-path">
         <mediaobject>
@@ -152,8 +156,21 @@
         <title>Partial state diagram for RESTBucks customer</title>
       </figure>
       <para>
-        Of course, this is just part of the workflow. A customer can also cancel an order that she hasn't paid for yet
-        or change it:
+        The process starts when the customer walks into the store. We'll call this initial state 
+        <literal>Arrived</literal>. She then reads the menu to move to the <literal>Deciding</literal> state. There
+        she can select items from the menu that she wants to order. This keeps her in the <literal>Deciding</literal> 
+        state as long as she hasn't committed to any particular order. At some point, though,
+        she'll order with the cashier and move to the <literal>Ordered</literal> state. The cashier will tell her the
+        amount due and she'll pay and move to the <literal>Paid</literal> state. She'll take the receipt that the 
+        cashier gives here and moves to the <literal>Waiting state</literal>. While she waits, the cashier places the order
+        on the barista's queue and at some point the barista pops that order of and prepares it. The customer
+        receives a notification from the barista and moves to the <literal>Served</literal> state, where the order is
+        ready for her. She then takes the order and leaves the store as a happy customer.
+      </para>
+      <para>
+        Of course, this is just the part of the workflow where everything goes according to plan, the so-called 
+        <firstterm>happy path</firstterm> or <firstterm>main success</firstterm> scenario. But a customer can 
+        also cancel an order that she hasn't paid for yet or change it:
       </para>
       <figure xml:id="sd-customer">
         <mediaobject>
@@ -164,140 +181,188 @@
         <title>Complete state diagram for RESTBucks customer</title>
       </figure>
       <para>
-        As you can see, the process is rather linear for the customer. This is not the case for the cashier and the
-        barista, however. They work in loops, serving one customer after another. Here's the state diagram for the
-        cashier:
+        As you can see, the process is mostly linear for the customer, focused on achieving a single goal: to get her
+        coffee. The situation looks a bit different for the cashier and the barista, however. They work in loops, 
+        serving one customer after another. Here's the state diagram for the cashier:
       </para>
       <figure xml:id="sd-cashier">
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/sd-cashier.png" width="15cm"/>
+            <imagedata fileref="images/sd-cashier.png" width="11cm"/>
           </imageobject>
         </mediaobject>
         <title>State diagram for RESTBucks cashier</title>
       </figure>
-      <note>
-        <title>TODO</title>
-        <para>Create state diagram from barista, manager (?), supplier (?)</para>
-      </note>
+      <para>
+        The cashier starts his day when the store openes with waiting for the first customer. As some point a customer 
+        walks in and the casher accepts her order, moving him to the <literal>Inputing order state</literal> where he
+        pushes the correct buttons on the cash register. He then tells the customer the amount due, which puts him in
+        the <literal>Awaiting payment</literal> state. When the money comes in, he moves to the <literal>Payment 
+        received</literal> state. He gives the customer her receipt. Finally he places the order on the barista's queue
+        and turns to the next customer. At the end of his shift, the terminates the process by going home.
+      </para>
+      <para>
+        The state diagram for the barista is a similar loop:
+      </para>
+      <figure xml:id="sd-barista">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/sd-barista.png" width="6cm"/>
+          </imageobject>
+        </mediaobject>
+        <title>State diagram for RESTBucks cashier</title>
+      </figure>
     </section>
     
-    <section id="bdd">
-      <title>Behavior-Driven Development (BDD)</title>
+    <section>
+      <title>Capturing Requirements With Examples</title>
       <para>
-        Another form of capturing a state diagram is with the so-called <firstterm>Gherkin syntax</firstterm>. 
-        Here's what the customer state diagram would look like in this form:
-        <programlisting>
-          Given a customer Chrissy
-          When she reads the menu
-          And she selects a tall whole milk caffe latte
-          And she orders
-          Then she is due $2.75 
-          When she pays
-          Then she must wait for the barista
-          When the barista calls her
-          Then she takes her order
-        </programlisting>
+        Traditionally, requirements have been captured in text form in requirement documents in a natural language like
+        English. One problem with this approach is that natural language is ambiguous, as different people read 
+        different things into the same words based on their background and experience.
+        One solution to this problem is to make the requirements more concrete by using examples. This is approach is
+        very common in the REST community.
       </para>
       <para>
-        Each line starts with a keyword:
+        The Agile software development movement has also embraced examples as concise and precise ways of capturing 
+        requirements. This is often referred to as Specification By Example <citation>Adzic09</citation>. It is 
+        actually a much more rigorous approach than what we usually see with REST APIs. Let's look at this in a bit
+        more detail, and then tie it back to state diagrams.
       </para>
-      <variablelist>
-        <varlistentry>
-          <term><userinput>Given</userinput></term>
-          <listitem>
-             <para>Indicates the current state of the system</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term><userinput>When</userinput></term>
-          <listitem>
-            <para>Indicates the input that transitions the system to a new state</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term><userinput>Then</userinput></term>
-          <listitem>
-            <para>Indicates something that must be true in the new state</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term><userinput>And</userinput></term>
-          <listitem>
-            <para>
-              Is a shorthand for the keyword of the preceding line. It makes the text more natural to read by removing 
-              duplication
-            </para>
-          </listitem>
-        </varlistentry>
-      </variablelist>
-      <para>
-        The real power of the <userinput>Then</userinput> keyword is that we can now describe what state the system
-        <emphasis>should</emphasis> be in. In other words, Gherkin syntax gives us a <emphasis>testing 
-        language</emphasis>. This testing language is the basis for the Agile practice of Behavior-Driven Development.
-      </para>
-      <para>
-        <firstterm>Behavior-Driven Development</firstterm> (BDD) is a variant of Agile acceptance testing 
-        <citation>Adzic09</citation>. Much more than testing, it is a collaborative process where the Product Owner,
-        developers, and testers cooperate to deliver software that brings value to the business.
-      </para>
-      <para>
-        BDD gives us executable requirements. With BDD, you write scenarios in Gherkin format, and they are run by a 
-        computer to test whether the system behaves as desired.
-      </para>
-      <para>
-        This is possible because the scenario focuses on external behavior and uses examples with concrete values. 
-        Compare that to the state diagram in <xref linkend="sd-customer"/>, which shows internal states like
-        <literal>Deciding</literal> and uses more abstract terms like <literal>item</literal>. The concrete nature of 
-        the example in Gherkin syntax is what makes the requirement executable.
-      </para>
-      <para>
-        Note that concrete nature of the example includes providing a name for the customer. This isn't usually
-        necessary for the scenario to work, but sometimes it is. In this case, we could have written 
-        <literal>When the barista calls 'Chrissy'</literal> instead of <literal>When the barista calls her</literal>.
-        In other cases, we may want the name to appear in some record or on some report, and we can use it in a
-        <literal>Then</literal> line.
-      </para>
-      <para>
-        But even if we don't really need the name of the customer, it is still a good idea to include it. It gives
-        us a clear focus on who we are doing this for. Usability experts use the term <firstterm>personas</firstterm> 
-        for fictional characters created to represent the different user types that might use the product in a similar 
-        way. Using the same personas in your BDD scenarios promotes shared understanding.
-      </para>
-      <para>
-        The interesting part about Gherkin syntax is that there are very few constraints. There are only four keywords, 
-        and each line must start with exactly one of them. The rest of the line is completely free format.
-        We don't have to use a computer language, but can simply write in a natural language
-        like English. This means that everybody can read and write scenarios, opening the door for collaboration. This 
-        is a distinctive difference with most forms of automated tests, which can only be read and written by 
-        developers and/or testers.
-      </para>
-      <para>
-        BDD scenarios are a great vehicle for promoting the use of the domain language by developers and testers
-        and everybody else who is not a domain expert. When everybody speaks the same language, the chances of 
-        misunderstandings decrease drastically, and thereby the chances of subtle bugs.
-        We refer to that one language as the <firstterm>ubiquitous language</firstterm> <citation>Evans04</citation>.
-      </para>
-      <para>
-        BDD scenarios are great for developers, since they provide quick and unequivocal feedback about whether the 
-        story is done. Not only the main success scenario, but also alternate and exception scenarios can be provided, 
-        as can abuse cases <citation>McGraw06</citation>. The latter requires that the Product Owner not only 
-        collaborates with testers and developers, but also with security specialists. The payoff is that it becomes 
-        easier to manage security requirements and build security in from the start rather than bolt it on later.
-      </para>
-      <para>
-        BDD scenarios are made executable by a scenario parser that translates the Gherkin syntax into
-        method calls in your programming language. For instance, <citation>JBehave</citation> is a BDD framework for 
-        Java that contains such a parser. The methods that the parser calls are the glue code between the scenarios 
-        and your application. This glue code is where you call your application's REST API.
-      </para>
-      
+    
+	    <section id="bdd">
+	      <title>Behavior-Driven Development (BDD)</title>
+	      <para>
+	        You can capture the information that is embedded in a state diagram in a different form called 
+	        <firstterm>Gherkin syntax</firstterm>. Here's what the happy path state diagram for the customer would look 
+	        like in Gherkin:
+	        <programlisting>
+	          Given a customer Chrissy
+	          When she reads the menu
+	          And she selects a tall whole milk caffe latte
+	          And she orders
+	          Then she is due $2.75 
+	          When she pays
+	          Then she is handed a receipt
+	          When she takes the receipt
+	          Then she must wait for the barista
+	          When the barista calls her name
+	          Then her order is ready
+	          When she takes her order
+	          Then she is happy
+	        </programlisting>
+	      </para>
+	      <para>
+	        Each line starts with a keyword:
+	      </para>
+	      <variablelist>
+	        <varlistentry>
+	          <term><userinput>Given</userinput></term>
+	          <listitem>
+	             <para>Indicates the current state of the system</para>
+	          </listitem>
+	        </varlistentry>
+	        <varlistentry>
+	          <term><userinput>When</userinput></term>
+	          <listitem>
+	            <para>Indicates the input that transitions the system to a new state</para>
+	          </listitem>
+	        </varlistentry>
+	        <varlistentry>
+	          <term><userinput>Then</userinput></term>
+	          <listitem>
+	            <para>Indicates something that must be true in the new state</para>
+	          </listitem>
+	        </varlistentry>
+	        <varlistentry>
+	          <term><userinput>And</userinput></term>
+	          <listitem>
+	            <para>
+	              Is a shorthand for the keyword of the preceding line. It makes the text more natural to read by removing 
+	              duplication
+	            </para>
+	          </listitem>
+	        </varlistentry>
+	      </variablelist>
+	      <para>
+	        Since this syntax relies heavily on the keywords <literal>Given</literal>, <literal>When</literal>, and
+	        <literal>Then</literal>, it is sometimes also referred to as Given/When/Then.
+	      </para>
+	      <para>
+	        The real power of Given/When/Then is the <userinput>Then</userinput> keyword. It allows us to describe what 
+	        state the system <emphasis>should</emphasis> be in. In other words, Gherkin syntax gives us a 
+	        <emphasis>testing language</emphasis>. This testing language is the basis for the Agile practice of 
+	        Behavior-Driven Development.
+	      </para>
+	      <para>
+	        <firstterm>Behavior-Driven Development</firstterm> (BDD) is one variant of Agile acceptance testing. Much more 
+	        than testing, it is a collaborative process where the Product Owner, developers, and testers cooperate to 
+	        deliver software that brings value to the business.
+	      </para>
+	      <para>
+	        This process is made possible by the <emphasis>executable</emphasis> requirements that BDD gives use. You 
+	        write scenarios in Gherkin format, and they are run by a computer to test whether the system behaves as 
+	        desired. This is made possible by a scenario parser that translates the Gherkin syntax into
+          method calls in your programming language. For instance, <citation>JBehave</citation> is a BDD framework for 
+          Java that contains such a parser. The methods that the parser calls are the glue code between the scenarios 
+          and your application. This glue code is where you would call your application's REST API.
+        </para>
+	      <para>
+	        Requirements can be made executable because the scenarios focus on external behavior and use examples with 
+	        concrete values. Compare that to the state diagram in <xref linkend="sd-customer-happy-path"/>, which shows 
+	        internal states like <literal>Deciding</literal> and uses more abstract terms like <literal>Select from 
+	        menu</literal>.
+	        We can't know from looking at a state diagram what's on the menu or what is selected in the customer's order.
+	        In a BDD scenario, however, everything is spelled out explicitly. The customer orders a latte, for example,
+	        rather than a hot tea. These concrete values can be checked by a computer program.
+	      </para>
+	      <para>
+	        Note that the concrete nature of the examples includes providing a name for the customer. This isn't actually
+	        necessary for this particular scenario to work, but sometimes it is. Sometimes we want the name to appear in 
+	        some record or on some report, so we verify that with a <literal>Then</literal> line.
+	      </para>
+	      <para>
+	        But even if we don't really need the name of the customer, it is still a good idea to include it. It gives
+	        us a clear focus on who we are doing this for. Usability experts use the term <firstterm>personas</firstterm> 
+	        for fictional characters created to represent the different user types that might use the product in a similar 
+	        way. Using the same personas in your BDD scenarios promotes shared understanding.
+	      </para>
+	      <para>
+	        The interesting part about Gherkin syntax is that there are very few constraints. There are only four keywords, 
+	        and each line must start with exactly one of them. The rest of the line is completely free format.
+	        We don't have to use a computer language, but can simply write in a natural language
+	        like English. This means that everybody can read and write scenarios, opening the door for collaboration. This 
+	        is a distinctive difference with most forms of automated tests, which can only be read and written by 
+	        developers and/or testers. At the same time, the concrete examples prevent us from falling into the ambiguity 
+	        trap.
+	      </para>
+	      <para>
+	        BDD scenarios are a great vehicle for promoting the use of the domain language by developers and testers
+	        and everybody else who is not a domain expert. When everybody speaks the same language, the chances of 
+	        misunderstandings decrease drastically, and thereby the chances of subtle bugs.
+	        We refer to that one language as the <firstterm>ubiquitous language</firstterm> <citation>Evans04</citation>.
+	      </para>
+	      <para>
+	        BDD scenarios are great for developers, since they provide quick and unequivocal feedback about whether the 
+	        story is done. Not only the main success scenario, but also alternate and exception scenarios can be provided, 
+	        as can abuse cases. <firstterm>Abuse cases</firstterm> <citation>McGraw06</citation> describe how the system 
+	        should behave when it interacts with someone who wants to use it in inappropriate ways. For instance, someone 
+	        might want to get their evil hands on a hot beverage without paying for it.
+        </para>
+        <para>
+	        Adding alternate, exception, and abuse case scenarios requires that the Product Owner collaborates with 
+	        testers, developers, and security specialists. The payoff is that it becomes easier to manage all requirements,
+	        even security requirements, and build both quality and security in from the start.
+	      </para>
+      </section>
+	      
       <section>
         <title>Deriving State Diagrams From BDD Scenarios</title>
         <para>
           Once we have BDD scenarios in Gherkin syntax, we can translate and merge those into a single state diagram
-          that describes the entire system. This gives us a global sense of how we want our system to behave, and we
-          may notice some inconsistencies that are difficult to spot when working with the individual scenarios.
+          that describes the entire system for a particular persona. This gives us a global sense of how we want our 
+          system to behave for that type of user, and we may notice some inconsistencies that are difficult to spot 
+          when working with the individual scenarios.
         </para>
         <para>
           Remember that this doesn't have to be a Big Design Up Front (BDUF) approach. We can just as easily take one
@@ -309,18 +374,18 @@
         </para>
         <para>
           To translate Gherkin scenarios into a state diagram, we simply add a state for the <literal>Given</literal>(s). 
-          We then add a transition for each <literal>When</literal>, and a target state for the each collection of 
+          We then add a transition for each <literal>When</literal>, and a target state for each collection of 
           adjacent <literal>Then</literal>s.
         </para>
         <para>
           Note that this doesn't always produce the best end result. You will often want to tweak the state diagram to 
           better support the non-functional requirements, or to give a better developer experience.
-          For instance, you may want to make the protocol less chatty by merging transitions, so that you'll get better 
-          performance. We'll talk more about non-functional requirements in <xref linkend="non-functional-requirements"/> 
-          and about performance in <xref linkend="performance"/>.
+          For instance, you may want to make the protocol less chatty by merging transitions to reduce the number of
+          network calls, so that you'll get better performance. We'll talk more about non-functional requirements in 
+          <xref linkend="non-functional-requirements"/> and about performance in <xref linkend="performance"/>.
         </para>
         <para>
-          Let's try out this procedure on our thirsty customer.
+          Let's try out our procedure on the happy path scenario for the customer.
         </para>
         <orderedlist>
           <listitem>
@@ -387,7 +452,7 @@
            scenario, since they correspond to externally visible behavior.
         </para>
       </section>
-    </section>
+	  </section>
   </section>
   
   <section id="non-functional-requirements">
