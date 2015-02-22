@@ -41,8 +41,5 @@
     <xi:include href="client.xml"/>
   </part>
   
-  <part>
-    <title>Appendixes and Bibliography</title>
-    <xi:include href="bib.xml"/>>
-  </part>
+  <xi:include href="bib.xml"/>>
 </book>
