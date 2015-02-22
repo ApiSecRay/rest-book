@@ -1,4 +1,4 @@
-<chapter>
+<chapter id="error">
   <title>Error Handling</title>
   <para>
     The HTTP protocol uses status codes to return error information. This facility, while extremely useful, is too 

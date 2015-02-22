@@ -1,4 +1,4 @@
-<chapter>
+<chapter id="design">
   <title>Design Methodology</title>
   <para>
     The following presents our approach to designing RESTful APIs. You may chose an alternative method if that works

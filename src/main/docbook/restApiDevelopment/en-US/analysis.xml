@@ -4,16 +4,15 @@
   <para>
     In this chapter we will look at the requirements for RESTBucks and how they affect the REST API. We'll look at 
     both functional and non-functional requirements and how to meet them in a way that is pleasant for the consumers of 
-    the API.
+    the API. Functional requirements define what a system is supposed to <emphasis>do</emphasis> and non-functional 
+    requirements define how a system is supposed to <emphasis>be</emphasis>.
   </para>
   
   <section>
     <title>Functional Requirements</title>
     <para>
-      When people talk about requirements, they often mean <emphasis>functional</emphasis> requirements, or how
-      the application is supposed to behave. To understand that, one must first understand the application's
-      <firstterm>domain</firstterm>, the subject area to which the user applies the program
-      <citation>Evans04</citation>. 
+      To understand functional requirements, one must understand the application's <firstterm>domain</firstterm>, the 
+      subject area to which the user applies the program <citation>Evans04</citation>.
     </para>
     <para>
       We want to capture the domain in a way that is optimized for REST APIs. Since an API exist to be consumed by 
@@ -578,8 +577,12 @@
           you will often want to further tweak the state diagram to better support the non-functional requirements, 
           or to give a better developer experience.
           For instance, you may want to make the protocol less chatty by merging transitions to reduce the number of
-          network round trips, so that you'll get better performance. We'll talk more about about performance in 
-          <xref linkend="performance"/>. Let's first look at non-functional requirements and developer experience.
+          network round trips, so that you'll get better performance. (We'll talk more about about performance in 
+          <xref linkend="performance"/>.)
+        </para>
+        <para>
+          Before we continue our tour of the functional part of APIs in <xref linkend="design"/> and 
+          <xref linkend="patterns"/>, we should look briefly at non-functional requirements.
         </para>
       </section>
 	  </section>
@@ -587,23 +590,126 @@
   
   <section id="non-functional-requirements">
     <title>Non-Functional Requirements</title>
-    
-	  <section>
-	    <title>Scalability</title>
-	  </section>
-    
-	  <section>
-	    <title>Evolvability</title>
-	  </section>
-    
+    <para>
+      Now that we've looked at the behavioral aspects of a RESTful system, let's look at the other criteria that can be 
+      used to judge the operation of a system. A non-functional requirement is an overall property of the system and not 
+      a specific function. Non-functional requirements are sometimes referred to as the qualities or, more informally, 
+      the ilities:
+    </para>
+    <simplelist type='vert' columns="3">
+      <member>Accessibility</member>
+      <member>Availability</member>
+      <member>Confidentiality</member>
+      <member>Extensibility</member>
+      <member>Evolvability</member>
+      <member>Integrity</member>
+      <member>Interoperability</member>
+      <member>Maintainability</member>
+      <member>Operability</member>
+      <member>Performance</member>
+      <member>Portability</member>
+      <member>Reliability</member>
+      <member>Reusability</member>
+      <member>Robustness</member>
+      <member>Scalability</member>
+      <member>Supportability</member>
+      <member>Testability</member>
+      <member>Usability</member>
+      <member>etc.</member>
+    </simplelist>
+    <para>
+      While all of these topics are important to certain degrees in all systems, not all non-functional requirements
+      are equally interesting for REST APIs. Interoperability obviously is; that's what an API is all about. But 
+      reusability and portability are less interesting and we won't talk about them much in this book. 
+    </para>
+    <para>
+      We did already touch upon evolvability in <xref linkend="apis"/> and we'll dive deeper into to this topic and 
+      into maintainability and extensibility in <xref linkend="maintenance"/>.
+      We've also taken a few steps into the field of testability, but we'll return to this important topic in 
+      <xref linkend="test"/>.
+      Performance and scalability are the topics of <xref linkend="performance"/>, while we'll talk more about
+      operability and supportability in <xref linkend="operations"/> and about reliability and robustness in 
+      <xref linkend="error"/>.
+    </para>
+    <para>
+      Confidentiality, integrity, and availability are the basic ingredients of security, the subject of 
+      <xref linkend="security"/>. Security is a vital topic for REST APIs, especially for those APIs that are open to 
+      the public, so we will touch upon it in many other chapters as well.
+    </para>
+    <para>
+      Accessibility and usability are about how easy it is to use a system. Let's look at that in some more detail. 
+    </para>
+        
 	  <section>
 	    <title>Developer eXperience</title>
-	  </section>
-    
-	  <section>
-	    <title>Security</title>
+	    <para>
+	      The term <firstterm>Developer eXperience</firstterm> (DX) is derived from User eXperience (UX), the art and
+	      science of making a piece of software pleasant to use. REST APIs are used by the clients calling them, but 
+	      since clients don't write themselves, it's really their developers that are your users.
+	    </para>
+	    <para>
+	      Developers aren't like most users, however. On the one hand, they are more experienced using software and
+	      require less education and hand holding. On the other hand, they are very critical and often don't want to
+	      take the time to read through manuals. Any REST API development effort should take that into consideration
+	      and deliver a good developer experience.
+	    </para>
+	    <para>
+	      DX encompasses various topics. The API must be well-designed, something which we'll cover in
+	      <xref linkend="design"/>. One aspect of that is that the API must adhere to the principle of least astonishment
+	      and follow well-established patterns that other APIs use, as we'll see in <xref linkend="patterns"/>.
+	    </para>
+	    <para>
+	      A developer also needs to be up and running with the API as fast as possible. The fewer roadblocks you put
+	      up, the better. Don't ask a lot of questions on your signup form, and don't let developers wait a day for 
+	      sending them their API key. Do provide samples, but keep them short and to the point.
+	    </para>
+	    <para>
+	      Don't forget to give developers a convenient way to provide feedback. When they do, let them know what you have 
+	      decided to do with it, and keep your word. A powerful way to collect feedback is through the use of a forum.
+	      This will also enable developers to help each other, instead of having to rely on you all the time.
+	      As a bonus, this helps you build a community around your API.
+	    </para>
+	    <para>
+	      The documentation must be divided into a couple of different modules, with increasing levels of 
+	      completeness. These different modules should address different stages in the developer's learning cycle. The
+	      getting started guide should be as short as possible and contain links to actually get started. The reference 
+	      manual should be complete and thourough. And you probably want something in between that covers common ways of 
+	      using the API. We cover documentation in <xref linkend="documentation"/>.
+	    </para>
+	    <para>
+	      Keep in mind that developers rather do than read about doing. So provide an SDK to consume your API from their
+	      favorite programming language, rather than having them select and learn an HTTP library, as we explain in 
+	      <xref linkend="sdk"/>. And if you could give them a sandbox environment that they can play with before they
+	      even sign up for your service, that would be ideal. This could be a separate service that you make available, 
+	      or it could be an integrated part of the documentation.
+        Also, sample programs don't hurt. It's often easier to learn by copying something that works than to build it
+        right from scratch.
+	    </para>
+	    <para>
+	      Once developers start to use your API, they'll run into stumble blocks. Make sure your error reporting
+	      points them into the right direction to solve their problems. <xref linkend="error"/> talks more about error
+	      handling.
+	    </para>
+	    <para>
+	      The goal of a good DX is to draw the developer in. The process starts when the developer first hears about the
+	      API and continues all the way through to a successfully deployed client that uses the API. Think of it as a
+	      sales funnel where there are different stages, each of which have to motivate the developer to invest more time
+	      and energy to take the next step.
+	    </para>
 	  </section>
   </section>
-  
-  
+
+  <section>
+    <title>Summary</title>
+    <para>
+      This chapter looks at APIs from the viewpoint of the functional and non-functional requirements. Functional 
+      requirements are best captured in either state diagrams or examples. State diagrams can be semi-automatically
+      derived from examples if these are specified in the Gherkin syntax used by Behavior-Driven Development (BDD).
+    </para>
+    <para>
+      While functional requirements state what the system should do, non-functional requirements describe how the system
+      should be. There are various non-functional requirements, including Developer eXperience (DX). The goal of DX is
+      to make the API and the surrounding ecosystem as easy and pleasant to use as possible.
+    </para>
+  </section>  
 </chapter>

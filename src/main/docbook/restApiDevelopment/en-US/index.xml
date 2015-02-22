@@ -24,8 +24,8 @@
   <part>
     <title>Design</title>
     <xi:include href="design-methodology.xml"/>
-    <xi:include href="error-handling.xml"/>
     <xi:include href="design-patterns.xml"/>
+    <xi:include href="error-handling.xml"/>
     <xi:include href="performance.xml"/>
     <xi:include href="security.xml"/>
   </part>

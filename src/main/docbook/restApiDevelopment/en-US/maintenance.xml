@@ -1,5 +1,9 @@
-<chapter>
-  <title>Maintenance</title>
+<chapter id="maintenance">
+  <title>Evolution</title>
+  
+  <section>
+    <title>Extensibility</title>
+  </section>
   
   <section>
     <title>Backwards Compatibility</title>

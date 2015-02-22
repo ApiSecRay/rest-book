@@ -1,4 +1,4 @@
-<chapter>
+<chapter id="operations">
   <title>Operations</title>
   
   <section>
@@ -19,5 +19,9 @@
     <section>
       <title>Vulnerability Disclosure</title>
     </section>
+  </section>
+  
+  <section>
+    <title>Support</title>
   </section>
 </chapter>
