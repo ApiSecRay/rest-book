@@ -34,7 +34,7 @@
     </para>
   </section>
   <section>
-    <title>Including Error Details In Regular Media Type</title>
+    <title>Including Error Details In Regular Media Types</title>
     <para>
       We could also design our media types such that they allow specifying error details. In this post, I’m going to stick with three mature media types: Mason, Siren, and UBER.
     </para>

@@ -2,14 +2,15 @@
   <title>Evolution</title>
   
   <section>
-    <title>Extensibility</title>
-  </section>
-  
-  <section>
     <title>Backwards Compatibility</title>
   </section>
   
   <section>
     <title>Breaking Changes</title>
   </section>
+
+  <section>
+    <title>Extensibility</title>
+  </section>
+  
 </chapter>
