@@ -12,4 +12,7 @@
   <section>
     <title>Batches</title>
   </section>
+  <section id="notifications">
+    <title>Notifications</title>
+  </section>
 </chapter>

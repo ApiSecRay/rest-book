@@ -224,7 +224,7 @@
       </variablelist>
     </section>
     
-    <section>
+    <section id="maturity">
       <title>REST Maturity</title>
       <para>
         The REST architectural style was defined in a PhD thesis, and as such it is both abstract and generic.
@@ -245,7 +245,7 @@
         web services into three levels based on their use of URI, HTTP, and hypermedia. As is common with maturity 
         models, the levels build on each other.
       </para>
-      <figure xml:id="maturity">
+      <figure>
         <mediaobject>
           <imageobject>
             <imagedata fileref="images/maturity.png" width="10cm" align="center"/>

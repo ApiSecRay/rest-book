@@ -1,6 +1,5 @@
 <chapter>
   <title>Analysis</title>
-  
   <para>
     In this chapter we will look at the requirements for RESTBucks and how they affect the REST API. We'll look at 
     both functional and non-functional requirements and how to meet them in a way that is pleasant for the consumers of 
@@ -19,7 +18,7 @@
       a client, we should document the domain from the client's point of view.
     </para>
     
-    <section>
+    <section id="state-diagrams">
       <title>Capturing Requirements With State Diagrams</title>
       <para>        
         A REST client starts at some well-known URI, what we called the billboard URI in 
@@ -379,7 +378,7 @@
          To translate a BDD scenario in Gherkin syntax into a state diagram, follow this procedure:
        </para>
        <procedure id="bdd-scenario-to-state-diagram">
-         <title>Transform a Gherkin scenario to a State Diagram</title>
+         <title>Transform a Gherkin Scenario to a State Diagram</title>
          <step>
            <para>For each line of the scenario:</para>
            <substeps>
