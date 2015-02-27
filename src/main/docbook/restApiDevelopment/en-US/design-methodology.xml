@@ -493,6 +493,12 @@
   
   <section>
     <title>Name the Resources With URIs</title>
+    <para>
+      Every resource should be identified by a URI. From the client’s perspective, this is an implementation detail,
+      but we still need to do this before we can implement the server. We should follow existing best practices for URIs 
+      that were developed for the human Web. The sidebar "<xref linkend="uris"/>" discusses the most relevant ones for 
+      our current purpose.
+    </para>
 
 	  <sidebar id="uris">
 	    <title>Conventions around Uniform Resource Identifiers (URIs)</title>
@@ -531,16 +537,10 @@
 	  </sidebar>
 	
     <para>
-      Every resource should be identified by a URI. From the client’s perspective, this is an implementation detail,
-      but we still need to do this before we can implement the server. We should follow existing best practices for URIs 
-      that were developed for the human Web. The sidebar "<xref linkend="uris"/>" discusses the most relevant ones for 
-      our current purpose.
-    </para>
-    <para>
       Armed with this knowledge, let's take a swing at identifying our RESTBucks resources with URIs:
     </para>
     <table>
-      <title>Resource Model To Support RESTBucks Customer</title>
+      <title>Partial resource model for RESTBucks customer</title>
       <tgroup cols="4">
         <thead>
           <row>
@@ -596,6 +596,17 @@
         </tbody>
       </tgroup>
     </table>
+    <para>
+      We've put our home resource at <literal>/</literal>, which is a common choice. Note that this is a relative URI.
+      For our design it doesn't matter what the absolute URI is, that's more of an implementation detail. It could be
+      <literal>http://api.restbucks.com/</literal>, for instance, or <literal>http://buycoffeeonline.com/</literal>.
+      While the billborad URI is an important decision from a marketing perspective, it's not all that important from
+      a technical perspective.
+    </para>
+    <para>
+      We have two top-level resources, <literal>/menu/</literal> for the menu, and <literal>/orders/</literal> for the
+      orders. The latter contains sub-resources for specific orders, including their payments and receipts.
+    </para>
   </section>
 
   <section id="media-types">
