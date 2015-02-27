@@ -40,14 +40,15 @@ jdocbook {
   }
 }
 
+defaultTasks 'buildDocs'
+
+/*
 gradle.taskGraph.whenReady { graph ->
   graph.allTasks.findAll { it.name.startsWith('renderDocBook_') }.each { task ->
     task.inputs.dir file('src/main/docbook')
     task.dependsOn 'generateImages'
   }
 }
-
-defaultTasks 'buildDocs'
 
 task generateImages {
   def baseDir = file('src/main/docbook/restApiDevelopment/en-US')
@@ -77,3 +78,4 @@ def exportToPng(source, target) {
     throw new GradleException("Error exporting $source.name to $target.name:\n$e.message", e)
   }
 }
+*/

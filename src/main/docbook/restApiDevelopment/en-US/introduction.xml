@@ -68,7 +68,7 @@
       lay the foundation for the more practical remainder of the book.
     </para>
     
-    <section>
+    <section id="rest">
       <title>What is REST?</title>
       <para>
         REST is an architectural style, modeled after the World Wide Web. It is formally defined in Roy Fielding's 

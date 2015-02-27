@@ -7,34 +7,22 @@
   <procedure id="state-diagram-to-resource-model">
     <title>Design a REST API</title>
     <step>
-      <para>
-        Understand the problem domain and application requirements and document them as a state diagram.
-      </para>
+      <para>Document the requirements as a state diagram.</para>
     </step>
     <step>
-      <para>
-        Discover the resources from the transitions.
-      </para>
+      <para>Discover the resources and methods from the transitions.</para>
     </step>
     <step>
-      <para>
-        Name the resources with URIs.
-      </para>
+      <para>Name the resources with URIs.</para>
     </step>
     <step>
-      <para>
-        Select one or more media types to serialize the various representations identified in the resource model.
-      </para>
+      <para>Select media types to serialize the representations.</para>
     </step>
     <step>
-      <para>
-        Assign link relations to each of the transitions.
-      </para>
+      <para>Assign link relations to the transitions.</para>
     </step>
     <step>
-      <para>
-        Add documentation as required.
-      </para>
+      <para>Add documentation as required.</para>
     </step>
   </procedure>
   <para>
@@ -43,36 +31,41 @@
   </para>
   
   <section>
-    <title>Understand the problem domain and application requirements and document them as a state diagram</title>
+    <title>Document the Requirements As a State Diagram</title>
 	  <para>
 		  We covered this in a lot of detail in <xref linkend="state-diagrams"/>. A state diagram consists of all the
-		  possible states a client can be in and the transitions that the client can make between them. It's a very concise
-		  way of capturing the functional requirements, but it's also the basis for discovering the resource model. Let's
-		  see how that works.
+		  possible states a client can be in and the transitions that the client can make between them. Note that a single
+		  REST API can serve more than one type of client, in which case you'd probably have one state diagram for each
+		  type. If you're in that situation, then just follow this procedure for each state diagram and merge the results. 
+	  </para> 
+	  <para>
+		  A state diagram is a very concise way of capturing functional requirements, but it's also the basis for 
+		  discovering the resource model.
+	    The <firstterm>resource model</firstterm> is the collection of resources (see <xref linkend="uniform-interface"/>)
+	    that we offer, plus the methods that they support. The resource model is about how we implement the interface we
+	    came up with to meet our requirements. This means we're now shifting our focus from the client to the server. 
+		  Let's see how that works.
 		</para>
   </section>
 
   <section>
-    <title>Derive Methods from Transitions</title>
+    <title>Discover the resources and methods from the transitions</title>
     <para>
       Each transition in the state diagram will move the client from one state to the next. But the state diagram is
       nothing more than an abstract representation of the client's possibilities. To actually make anything happen, the 
       client will have to do something concrete, namely execute an HTTP method against a URI, as we saw in  
-      <xref linkend="client"/>.
+      <xref linkend="client-flow"/>.
     </para>
     <para>
       So for each transition, we have to decide on two things: which HTTP method to execute, and against which URI to
-      execute it. Here we'll break that down a little differently. We'll look at the HTTP method in detail, but we'll
-      push out the decision on URIs until the next step. Instead, we'll just use a simple placeholder name for the
+      execute it. We'll take an intermediary step here to reach that goal. We'll look at the HTTP method in detail, but 
+      we'll push out the decision on URIs until the next step. Instead, we'll just use a simple placeholder name for the
       resource.
-    </para>
-    <para>
       You can certainly combine these sub-steps, but we think it's better to first focus on the interaction dynamics
-      and leave the decision on how to address the resource with a URI for later.
+      and leave the decision on how to identify the resources with URIs for later.
     </para>
     <para>
-      We call the collection of resources and the HTTP methods that they support the <firstterm>resource 
-      model</firstterm>. Here's how we can build it up from the state diagram:
+      Here's how we can build up the resource model from the state diagram:
     </para>
     <procedure>
       <title>Derive the Resource Model From the State Diagram</title>
@@ -89,8 +82,7 @@
       <step>
         <para>
           For each transition starting from the current state, make sure there is a corresponding method in some
-          resource that implements the transition. Refer to the sidebar "<xref linkend="http-methods"/>"
-          in <xref linkend="maturity"/> for an explanation of the HTTP method properties to guide you in this selection.
+          resource that implements the transition.
         </para>
       </step>
       <step>
@@ -110,8 +102,14 @@
       </listitem>
       <listitem>
         <para>
-          We have no resources yet, so we can't re-use any. Therefore we must create a new one. We'll refer to it by
-          the state's name, <literal>Arrived</literal>.
+          We have no resources yet, so we can't re-use any and thus have to create a new one. What shall we name it? 
+          Well, the client is in the state arrived, which means she has come into our store. For us, that's home, so 
+          let's call this resource <literal>Home</literal>.
+        </para>
+        <para>
+          Most APIs have a resource similar to <literal>Home</literal>. This is the resource identified by the
+          billboard URI. Executing <literal>GET</literal> on this resource returns a representation that corresponds to
+          the initial state in the state diagram. We'll have more to say about home resources in <xref linkend="home"/>.
         </para>
 	      <informaltable>
 	        <thead>
@@ -123,8 +121,8 @@
 	        </thead>
 	        <tbody>
 	          <tr>
-	            <td>Arrived</td>
-	            <td></td>
+	            <td>Home</td>
+	            <td>GET</td>
 	            <td></td>
 	          </tr>
 	        </tbody>
@@ -133,271 +131,25 @@
       <listitem>
         <para>
           There is one transition from the current state, <literal>Read menu</literal>. We have to pick an HTTP method
-          for it, and a resource. The latter part is easy; we can simply use the <literal>Arrived</literal> resource.
-          When selecting the HTTP method, we should carefully look at the characteristics of the interaction. Reading 
-          a menu sounds like a safe thing to do, so we pick <literal>GET</literal>. 
-        </para>
-        <informaltable>
-          <thead>
-            <tr>
-              <th>Resource</th>
-              <th>Method</th>
-              <th>Transition</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Arrived</td>
-              <td>GET</td>
-              <td>Read menu</td>
-            </tr>
-          </tbody>
-        </informaltable>
-      </listitem>
-      <listitem>
-        <para>
-          We now move to the next state, <literal>Deciding</literal>, which has two outgoing transitions, 
-          <literal>Select from menu</literal> and <literal>Order</literal>. Since the options for the client are 
-          different than in the <literal>Arrived</literal> state, we should have a different resource. So let's
-          introduce a new resource <literal>Deciding</literal> rather than re-use <literal>Arrived</literal>.
+          for it, and a resource.
         </para>
         <para>
-          The <literal>Select from menu</literal> transition again seems safe, so we pick the <literal>GET</literal>
-          method.
+          When selecting the HTTP method, we should carefully look at the characteristics of the interaction. Refer to 
+          the sidebar "<xref linkend="http-methods"/>" in <xref linkend="maturity"/> for an explanation of the HTTP 
+          methods' properties to guide you in this selection.
         </para>
         <para>
-          The <literal>Order</literal> transition, in contrast, is not safe. It is not even idempotent, because 
-          ordering twice will get you twice as many hot beverages as ordering once. So we pick the 
-          <literal>POST</literal> method to implement this transition.
-        </para>
-        <informaltable>
-          <thead>
-            <tr>
-              <th>Resource</th>
-              <th>Method</th>
-              <th>Transition</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Arrived</td>
-              <td>GET</td>
-              <td>Read menu</td>
-            </tr>
-            <tr>
-              <td>Deciding</td>
-              <td>GET</td>
-              <td>Select from menu</td>
-            </tr>
-            <tr>
-              <td>Deciding</td>
-              <td>POST</td>
-              <td>Order</td>
-            </tr>
-          </tbody>
-        </informaltable>
-      </listitem>
-      <listitem>
-        <para>
-          The next state is <literal>Ordered</literal> and it has only one outgoing transitions, 
-          <literal>Pay</literal>. We need another resource, <literal>Ordered</literal>, to capture the state.
-          The transition isn't safe or idempotent, so we'll pick the <literal>POST</literal> method again.
-        </para>
-        <informaltable>
-          <thead>
-            <tr>
-              <th>Resource</th>
-              <th>Method</th>
-              <th>Transition</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Arrived</td>
-              <td>GET</td>
-              <td>Read menu</td>
-            </tr>
-            <tr>
-              <td>Deciding</td>
-              <td>GET</td>
-              <td>Select from menu</td>
-            </tr>
-            <tr>
-              <td>Deciding</td>
-              <td>POST</td>
-              <td>Order</td>
-            </tr>
-            <tr>
-              <td>Ordered</td>
-              <td>POST</td>
-              <td>Pay</td>
-            </tr>
-          </tbody>
-        </informaltable>
-      </listitem>
-      <listitem>
-        <para>
-          The next state is <literal>Paid</literal> with the <literal>Take receipt</literal> outgoing transition. 
-          We need another resource, <literal>Paid</literal>. Since the transition is safe, we can use 
-          <literal>GET</literal> to implement it.
-        </para>
-        <informaltable>
-          <thead>
-            <tr>
-              <th>Resource</th>
-              <th>Method</th>
-              <th>Transition</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Arrived</td>
-              <td>GET</td>
-              <td>Read menu</td>
-            </tr>
-            <tr>
-              <td>Deciding</td>
-              <td>GET</td>
-              <td>Select from menu</td>
-            </tr>
-            <tr>
-              <td>Deciding</td>
-              <td>POST</td>
-              <td>Order</td>
-            </tr>
-            <tr>
-              <td>Ordered</td>
-              <td>POST</td>
-              <td>Pay</td>
-            </tr>
-            <tr>
-              <td>Paid</td>
-              <td>GET</td>
-              <td>Take receipt</td>
-            </tr>
-          </tbody>
-        </informaltable>
-      </listitem>
-      <listitem>
-        <para>
-          Next up is <literal>Waiting</literal> with the <literal>Receive notification</literal> transition. This is
-          an interesting case, because the transition isn't actually caused by something the client does, but rather
-          by a state change on the server: the barista is done preparing the order. 
+          We think that reading a menu should be a safe thing to do, so we pick the <literal>GET</literal> method. We 
+          simply name the resource <literal>Menu</literal>. Note how the HTTP method followed by the resource name
+          (<literal>GET </literal> Menu) sounds a lot like the transition name (<literal>Read menu</literal>). 
+          This is no coincidence.
         </para>
         <para>
-          There are two ways to implement this. We can try to stay as closely to the abstract model as possible, and
-          have the server notify us. Or the client can repeatedly ask the server for its current status. In the real
-          world the latter would be quite annoying, but machines don't suffer from such petty emotions. Server push
-          is an advanced pattern that we'll talk more about in <xref linkend="notifications"/>, but here we'll go with
-          the simpler pull model where the client polls the server.
-        </para>
-        <para>
-          Polling the server means nothing more than repeatedly asking the server for its current status until that 
-          status has changed. Asking for a status is absolutely safe, so we can use the <literal>GET</literal> method.
-        </para>
-        <informaltable>
-          <thead>
-            <tr>
-              <th>Resource</th>
-              <th>Method</th>
-              <th>Transition</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Arrived</td>
-              <td>GET</td>
-              <td>Read menu</td>
-            </tr>
-            <tr>
-              <td>Deciding</td>
-              <td>GET</td>
-              <td>Select from menu</td>
-            </tr>
-            <tr>
-              <td>Deciding</td>
-              <td>POST</td>
-              <td>Order</td>
-            </tr>
-            <tr>
-              <td>Ordered</td>
-              <td>POST</td>
-              <td>Pay</td>
-            </tr>
-            <tr>
-              <td>Paid</td>
-              <td>GET</td>
-              <td>Take receipt</td>
-            </tr>
-            <tr>
-              <td>Waiting</td>
-              <td>GET</td>
-              <td>Receive notification</td>
-            </tr>
-          </tbody>
-        </informaltable>
-      </listitem>
-      <listitem>
-        <para>
-          We're now at the <literal>Served</literal> state, with the <literal>Take order</literal> transition.
-          This is not a safe or idempotent method, because you can only take your order once. So we'll use
-          <literal>POST</literal> again.
-        </para>
-        <informaltable>
-          <thead>
-            <tr>
-              <th>Resource</th>
-              <th>Method</th>
-              <th>Transition</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Arrived</td>
-              <td>GET</td>
-              <td>Read menu</td>
-            </tr>
-            <tr>
-              <td>Deciding</td>
-              <td>GET</td>
-              <td>Select from menu</td>
-            </tr>
-            <tr>
-              <td>Deciding</td>
-              <td>POST</td>
-              <td>Order</td>
-            </tr>
-            <tr>
-              <td>Ordered</td>
-              <td>POST</td>
-              <td>Pay</td>
-            </tr>
-            <tr>
-              <td>Paid</td>
-              <td>GET</td>
-              <td>Take receipt</td>
-            </tr>
-            <tr>
-              <td>Waiting</td>
-              <td>GET</td>
-              <td>Receive notification</td>
-            </tr>
-            <tr>
-              <td>Served</td>
-              <td>POST</td>
-              <td>Take order</td>
-            </tr>
-          </tbody>
-        </informaltable>
-      </listitem>
-      <listitem>
-        <para>
-          We're now at the accepting state, so our resource model is complete.
-        </para>
-        <para>
-          However, we didn't quite get our resources right. We named them after the client's state, but they should
-          really be about the server, because that's where they live. So let's change perspective and rename the
-          resources:
+          We could have made the menu part of the representation returned by the home resource. That would
+          have saved the client from following one link, but it also would have tied our service to the menu. We like
+          to keep one level of indirection at the start, so that we always have a place to add additional functionality
+          in a backwards compatible way. We'll discuss this topic in more detail in 
+          <xref linkend="maintenance"/>.
         </para>
         <informaltable>
           <thead>
@@ -411,12 +163,95 @@
             <tr>
               <td>Home</td>
               <td>GET</td>
-              <td>Read menu</td>
+              <td></td>
             </tr>
             <tr>
               <td>Menu</td>
               <td>GET</td>
-              <td>Select from menu</td>
+              <td>Read menu</td>
+            </tr>
+          </tbody>
+        </informaltable>
+      </listitem>
+      <listitem>
+        <para>
+          We now move to the next state, <literal>Deciding</literal>, which has two outgoing transitions, 
+          <literal>Select from menu</literal> and <literal>Order</literal>.
+        </para>
+        <para>
+          The <literal>Select from menu</literal> transition doesn't change anything on the server. At this point, the 
+          customer is still composing her order, which is application state rather than resource state (refer to
+          <xref linkend="rest"/> for an explanation of the difference). So we don't need to execute any HTTP method at 
+          all for this transition.
+        </para>
+        <para>
+          The <literal>Order</literal> transition is where the client informs the server about the order composed from 
+          the items on the menu. This operation is neither safe nor idempotent, because ordering twice will get you 
+          twice as many hot beverages as ordering once. So we should use the <literal>POST</literal> method to implement 
+          this transition.
+        </para>
+        <para>
+          What resource should offer this <literal>POST</literal> method? Remember that resources are things and
+          thus described by nouns. So we should always try to convert the verbs that describe the actions that we want
+          to implement into nouns. In this case, the verb is "order", which also happens to be a noun. So instead of
+          "ordering" we'll be "creating an order". This is an example of the Create pattern, which we'll see more of
+          in <xref linkend="create"/>. In this pattern, you create an object by sending a <literal>POST</literal> 
+          against the collection that will end up containing the created object. So the resource we're looking for
+          is the collection of orders. Let's name it <literal>Orders</literal>.
+        </para>
+        <informaltable>
+          <thead>
+            <tr>
+              <th>Resource</th>
+              <th>Method</th>
+              <th>Transition</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Home</td>
+              <td>GET</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Menu</td>
+              <td>GET</td>
+              <td>Read menu</td>
+            </tr>
+            <tr>
+              <td>Orders</td>
+              <td>POST</td>
+              <td>Order</td>
+            </tr>
+          </tbody>
+        </informaltable>
+      </listitem>
+      <listitem>
+        <para>
+          The next state is <literal>Ordered</literal> and it has only one outgoing transition, 
+          <literal>Pay</literal>. Converting the verb <literal>Pay</literal> to a noun gives 
+          <literal>Payment</literal>. Instead of "paying", we should think of "creating a payment". Once we do that, we
+          see that we can employ the Create pattern again with a <literal>POST</literal> method on the 
+          <literal>Payments</literal> resource. 
+        </para>
+        <informaltable>
+          <thead>
+            <tr>
+              <th>Resource</th>
+              <th>Method</th>
+              <th>Transition</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Home</td>
+              <td>GET</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Menu</td>
+              <td>GET</td>
+              <td>Read menu</td>
             </tr>
             <tr>
               <td>Orders</td>
@@ -424,7 +259,160 @@
               <td>Order</td>
             </tr>
             <tr>
+              <td>Payments</td>
+              <td>POST</td>
+              <td>Pay</td>
+            </tr>
+          </tbody>
+        </informaltable>
+      </listitem>
+      <listitem>
+        <para>
+          The next state is <literal>Paid</literal> with the <literal>Take receipt</literal> outgoing transition. 
+          Although you can only take a receipt once in the real world, there really isn't anything destructive about
+          it from an information point of view. In other words, the transition is safe and we should use 
+          <literal>GET</literal> to implement it. It makes sense to simply name the resource <literal>Receipt</literal>.
+        </para>
+        <informaltable>
+          <thead>
+            <tr>
+              <th>Resource</th>
+              <th>Method</th>
+              <th>Transition</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Home</td>
+              <td>GET</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Menu</td>
+              <td>GET</td>
+              <td>Read menu</td>
+            </tr>
+            <tr>
+              <td>Orders</td>
+              <td>POST</td>
               <td>Order</td>
+            </tr>
+            <tr>
+              <td>Payments</td>
+              <td>POST</td>
+              <td>Pay</td>
+            </tr>
+            <tr>
+              <td>Receipt</td>
+              <td>GET</td>
+              <td>Take receipt</td>
+            </tr>
+          </tbody>
+        </informaltable>
+      </listitem>
+      <listitem>
+        <para>
+          Next up is <literal>Waiting</literal> with the <literal>Receive notification</literal> transition. This is
+          an interesting case, because the transition isn't actually caused by something the client does, but rather
+          by a state change on the server: the barista is done preparing the order. 
+        </para>
+        <para>
+          There are two ways to implement this. We can try to stay as close to the abstract model as possible, and
+          have the server notify us, or the client can repeatedly ask the server for its current status. In the real
+          world the latter would be quite annoying, but machines don't suffer from such petty emotions. Server push
+          is an advanced pattern that we'll talk more about in <xref linkend="notifications"/>, but here we'll go with
+          the simpler pull model where the client polls the server repeatedly until it sees the changed state.
+        </para>
+        <para>
+          Polling the server means nothing more than repeatedly asking the server for its current status until that 
+          status has changed. Asking for a status is absolutely safe, so we can use the <literal>GET</literal> method.
+        </para>
+        <para>
+          What resource should we offer this method on? Well, we're waiting for the order to change state from 
+          preparing to ready, so the <literal>Order</literal> resource is the perfect candidate.
+        </para>
+        <informaltable>
+          <thead>
+            <tr>
+              <th>Resource</th>
+              <th>Method</th>
+              <th>Transition</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Home</td>
+              <td>GET</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Menu</td>
+              <td>GET</td>
+              <td>Read menu</td>
+            </tr>
+            <tr>
+              <td>Orders</td>
+              <td>POST</td>
+              <td>Order</td>
+            </tr>
+            <tr>
+              <td>Payments</td>
+              <td>POST</td>
+              <td>Pay</td>
+            </tr>
+            <tr>
+              <td>Receipt</td>
+              <td>GET</td>
+              <td>Take receipt</td>
+            </tr>
+            <tr>
+              <td>Order</td>
+              <td>GET</td>
+              <td>Receive notification</td>
+            </tr>
+          </tbody>
+        </informaltable>
+      </listitem>
+      <listitem>
+        <para>
+          We're now at the <literal>Served</literal> state, with the <literal>Take order</literal> transition.
+          This is not a safe or idempotent transition, because you can only take your order once, even in a purely 
+          virtual world. So we could use <literal>POST</literal> again.
+          Looking at the name of the transition makes a strong case for using the <literal>Order</literal> resource.
+        </para>
+        <para>
+          Although this is solution is fine, we can do even better. The <literal>POST</literal> method is very
+          non-descriptive, in the sense that it doesn't have a well-defined meaning like other methods (e.g. 
+          <literal>GET</literal> and <literal>DELETE</literal>) do. We use <literal>POST</literal> a lot for the
+          Create pattern, but we're not creating anything here. We're really only updating the status of the order.
+          We can make that intention clearer by using the <literal>PATCH</literal> method.
+        </para>
+        <informaltable>
+          <thead>
+            <tr>
+              <th>Resource</th>
+              <th>Method</th>
+              <th>Transition</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Home</td>
+              <td>GET</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Menu</td>
+              <td>GET</td>
+              <td>Read menu</td>
+            </tr>
+            <tr>
+              <td>Orders</td>
+              <td>POST</td>
+              <td>Order</td>
+            </tr>
+            <tr>
+              <td>Payments</td>
               <td>POST</td>
               <td>Pay</td>
             </tr>
@@ -439,19 +427,19 @@
               <td>Receive notification</td>
             </tr>
             <tr>
-              <td>Serving</td>
-              <td>POST</td>
+              <td>Order</td>
+              <td>PATCH</td>
               <td>Take order</td>
             </tr>
           </tbody>
         </informaltable>
       </listitem>
+      <listitem>
+        <para>
+          We're now at the accepting state and our resource model is complete.
+        </para>
+      </listitem>
     </orderedlist>
-    <para>
-      We can only properly name the resources because we understand the domain. Note that some of the different client 
-      states map to the same resource on the server. Here's the complete resource model, again, but with the rows
-      grouped by resource:
-    </para>
     <table>
       <title>Resource Model To Support RESTBucks Customer</title>
       <tgroup cols="3">
@@ -466,12 +454,12 @@
           <row>
             <entry><para>Home</para></entry>
             <entry><para>GET</para></entry>
-            <entry><para>Read menu</para></entry>
+            <entry><para></para></entry>
           </row>
           <row>
             <entry><para>Menu</para></entry>
             <entry><para>GET</para></entry>
-            <entry><para>Select from menu</para></entry>
+            <entry><para>Read menu</para></entry>
           </row>
           <row>
             <entry><para>Orders</para></entry>
@@ -480,42 +468,138 @@
           </row>
           <row>
             <entry><para>Order</para></entry>
-            <entry><para>POST</para></entry>
-            <entry><para>Pay</para></entry>
+            <entry><para>GET</para></entry>
+            <entry><para>Receive notification</para></entry>
           </row>
           <row>
             <entry><para>Order</para></entry>
-            <entry><para>GET</para></entry>
-            <entry><para>Receive notification</para></entry>
+            <entry><para>PATCH</para></entry>
+            <entry><para>Take order</para></entry>
+          </row>
+          <row>
+            <entry><para>Payments</para></entry>
+            <entry><para>POST</para></entry>
+            <entry><para>Pay</para></entry>
           </row>
           <row>
             <entry><para>Receipt</para></entry>
             <entry><para>GET</para></entry>
             <entry><para>Take receipt</para></entry>
           </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+  
+  <section>
+    <title>Name the Resources With URIs</title>
+
+	  <sidebar id="uris">
+	    <title>Conventions around Uniform Resource Identifiers (URIs)</title>
+	    <para>
+	      One important URI convention is that URIs should be cool <citation>CoolUris</citation>, which means they won't 
+	      change. This is to avoid breaking bookmarks. Although bookmarks are less important for REST APIs than for the
+	      human Web, it's still nice to be able to support them.
+	      In order to keep URIs stable, we shouldn't put information in them that is likely to change. For instance,
+	      if we were to build a REST API for a social media platform, we shouldn't put usernames in the URIs, but rather
+	      internal IDs. This doesn't read as nicely, but that's okay since URIs are discovered anyway. Assuming the API
+	      is implemented by a cluster of servers, you'll need a way to assign internal IDs without conflict. Universially
+	      Unique Identifiers (UUIDs) are perfect for this.
+	    </para>
+	    <para>
+	      An extremely common convention used in URIs is to indicate hierarchical relationships with slashes. So if we
+	      have a collection of users at <literal>/users/</literal>, then an individual user would live at 
+	      <literal>/users/{id}/</literal>. Note that this is not technically a URI, because the <literal>{</literal>
+	      and <literal>}</literal> symbols are not allowed in URIs according to RFC 3986. It's rather a concise way of 
+	      indicating a whole collection of URIs, like <literal>/users/1/</literal>, <literal>/users/2/</literal>, etc. 
+	      This is also known as a URI Template <citation>UriTemplate</citation>.
+	    </para>
+	    <para>
+	      Another common convention is to use only lowercase letters from the US ASCII character set. This ensures that
+	      the URIs will work without any problems with any URI handling technology. For non-English speakers, this may
+	      seem like a severe limitation, but it doesn't have to be. We advise to use English names in your URIs anyway,
+	      since that will ensure that they are understandable for a very large part of the world's population.
+	    </para>
+	    <para>
+	      A less common, but still very useful convention is to end all URIs with a slash (<literal>/</literal>). The 
+	      rationale behind this is that it makes it very easy to resolve URIs, even if they're relative. Relative URIs are
+	      very useful in deeply hierarchical cases. As as example, resolving the relative URI <literal>1/</literal> against 
+	      the base URI <literal>/users/</literal> gives the intended <literal>/users/1/</literal>, whereas resolving the 
+	      same relative URI against the base URI <literal>/users</literal> results in <literal>/1/</literal>.
+	      We'll talk more about resolving URIs in <xref linkend="client"/>.
+	    </para>
+	  </sidebar>
+	
+    <para>
+      Every resource should be identified by a URI. From the client’s perspective, this is an implementation detail,
+      but we still need to do this before we can implement the server. We should follow existing best practices for URIs 
+      that were developed for the human Web. The sidebar "<xref linkend="uris"/>" discusses the most relevant ones for 
+      our current purpose.
+    </para>
+    <para>
+      Armed with this knowledge, let's take a swing at identifying our RESTBucks resources with URIs:
+    </para>
+    <table>
+      <title>Resource Model To Support RESTBucks Customer</title>
+      <tgroup cols="4">
+        <thead>
           <row>
-            <entry><para>Serving</para></entry>
+            <entry><para>Resource</para></entry>
+            <entry><para>URI (Template)</para></entry>
+            <entry><para>Method</para></entry>
+            <entry><para>Transition</para></entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><para>Home</para></entry>
+            <entry><para>/</para></entry>
+            <entry><para>GET</para></entry>
+            <entry><para></para></entry>
+          </row>
+          <row>
+            <entry><para>Menu</para></entry>
+            <entry><para>/menu/</para></entry>
+            <entry><para>GET</para></entry>
+            <entry><para>Read menu</para></entry>
+          </row>
+          <row>
+            <entry><para>Orders</para></entry>
+            <entry><para>/orders/</para></entry>
             <entry><para>POST</para></entry>
+            <entry><para>Order</para></entry>
+          </row>
+          <row>
+            <entry><para>Order</para></entry>
+            <entry><para>/orders/{id}/</para></entry>
+            <entry><para>GET</para></entry>
+            <entry><para>Receive notification</para></entry>
+          </row>
+          <row>
+            <entry><para>Order</para></entry>
+            <entry><para>/orders/{id}/</para></entry>
+            <entry><para>PATCH</para></entry>
             <entry><para>Take order</para></entry>
+          </row>
+          <row>
+            <entry><para>Payments</para></entry>
+            <entry><para>/orders/{id}/payments/</para></entry>
+            <entry><para>POST</para></entry>
+            <entry><para>Pay</para></entry>
+          </row>
+          <row>
+            <entry><para>Receipt</para></entry>
+            <entry><para>/orders/{id}/receipt/</para></entry>
+            <entry><para>GET</para></entry>
+            <entry><para>Take receipt</para></entry>
           </row>
         </tbody>
       </tgroup>
     </table>
   </section>
 
-  <section>
-    <title>Name Resources With URIs</title>
-    <para>
-      Every resource should be identified by a URI. From the client’s perspective, this is an implementation detail,
-      but we still need to do this before we can implement the server.
-    </para>
-    <para>
-      We should follow best practices for URIs, like keeping them cool.
-    </para>
-  </section>
-
   <section id="media-types">
-    <title>Select Media Types</title>
+    <title>Select Media Types To Serialize the Representations</title>
     <para>
       When extending an existing design, you should stick with the already selected media types. For new APIs, you
       have to decide what media type to use.
@@ -539,7 +623,7 @@
   </section>
 
   <section>
-    <title>Name Transitions with Link Relations</title>
+    <title>Assign Link Relations To the Transitions</title>
     <para>
       A REST client follows transitions in the state diagram by discovering links in representations. This discovery
       process is made possible by link relations.
@@ -556,7 +640,7 @@
   </section>
 
   <section>
-    <title>Add Documentation</title>
+    <title>Add Documentation As Required</title>
     <para>
       In order to help developers build clients that work against your API, you will most likely want to add some
       documentation that explains certain more subtle points.

@@ -1,5 +1,11 @@
 <chapter id="patterns">
   <title>Design Patterns</title>
+  <section id="home">
+    <title>Home</title>
+  </section>
+  <section id="create">
+    <title>Create by POST</title>
+  </section>
   <section>
     <title>Collections</title>
   </section>
@@ -7,7 +13,7 @@
     <title>Asynchronous Processing</title>
   </section>
   <section>
-    <title>Transactions</title>
+    <title>Transactions / Correlations</title>
   </section>
   <section>
     <title>Batches</title>

@@ -25,7 +25,7 @@
         <xref linkend="uniform-interface"/>. It then follows links (using link relations) until its goal is met.
         In other words, the client starts at some initial state, and then transitions to other states by following 
         links (i.e. executing HTTP methods against URIs) that are discovered from the previously returned 
-        representation, as shown in <xref linkend="client"/>.
+        representation, as shown in <xref linkend="client-flow"/>.
       </para>
       <para>
         A natural way to capture this information is in the form of a <firstterm>state diagram</firstterm>. 
@@ -81,7 +81,7 @@
           </listitem>
         </varlistentry>
       </variablelist>
-      <figure xml:id="client">
+      <figure xml:id="client-flow">
         <mediaobject>
           <imageobject>
             <imagedata fileref="images/client.png" scale="68" align="center"/>

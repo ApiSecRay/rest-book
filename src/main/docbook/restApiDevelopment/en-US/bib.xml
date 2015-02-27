@@ -29,6 +29,11 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>CoolUris</abbrev>
+    <biblioid class="uri">http://www.w3.org/Provider/Style/URI.html</biblioid>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>Evans04</abbrev>
     <citetitle>Domain-driven design: tackling complexity in the heart of software</citetitle>
     <authorgroup>
@@ -193,6 +198,11 @@
   <biblioentry>
     <abbrev>XML-RPC</abbrev>
     <biblioid class="uri">http://xmlrpc.scripting.com/default.html</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>UriTemplate</abbrev>
+    <biblioid class="uri">https://tools.ietf.org/html/rfc6570</biblioid>
   </biblioentry>
   
 </bibliography>
