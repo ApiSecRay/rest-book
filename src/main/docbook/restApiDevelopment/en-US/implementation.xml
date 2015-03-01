@@ -1,8 +1,14 @@
-<chapter>
+<chapter id="implementation">
   <title>Implementation</title>
   
   <section>
     <title>Model-View-Controller (MVC)</title>
+  </section>
+  <section>
+    <title>DRY</title>
+    <para>
+      TODO: Define URL structure, media type, namespace, etc. in a single place.
+    </para>
   </section>
   <section>
     <title>Generating Code From RADL</title>

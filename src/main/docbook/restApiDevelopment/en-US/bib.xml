@@ -2,6 +2,34 @@
   <title>Bibliography</title>
 
   <biblioentry>
+    <abbrev>RichAmun13</abbrev>
+    <citetitle>RESTful Web APIs</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Leonard</firstname>
+          <surname>Richardson</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Mike</firstname>
+          <surname>Amundsen</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Sam</firstname>
+          <surname>Ruby</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2013</year>
+    </copyright>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>Adzic09</abbrev>
     <citetitle>Bridging the communication gap: specification by example</citetitle>
     <authorgroup>
@@ -67,8 +95,18 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>GitHubApi</abbrev>
+    <biblioid class="uri">https://developer.github.com/v3/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>Hohpe04</abbrev>
     <biblioid class="uri">http://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>HTML</abbrev>
+    <biblioid class="uri">http://www.w3.org/TR/html/</biblioid>
   </biblioentry>
   
   <biblioentry>
@@ -161,6 +199,11 @@
   <biblioentry>
     <abbrev>SOAP</abbrev>
     <biblioid class="uri">http://www.w3.org/TR/soap/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>SVG</abbrev>
+    <biblioid class="uri">http://www.w3.org/TR/SVG11/</biblioid>
   </biblioentry>
   
   <biblioentry>

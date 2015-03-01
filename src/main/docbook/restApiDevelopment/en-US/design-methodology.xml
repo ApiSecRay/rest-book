@@ -612,24 +612,106 @@
   <section id="media-types">
     <title>Select Media Types To Serialize the Representations</title>
     <para>
-      When extending an existing design, you should stick with the already selected media types. For new APIs, you
-      have to decide what media type to use.
+      When extending an existing design, you should stick with the already selected media type(s). For new APIs, you
+      have to decide what media type(s) to use.
     </para>
     <para>
-      There are different kinds of media types. Domain-specific media types are specifically designed for one
-      application domain and in practice even for one particular service in that domain.
-      <!-- TODO: Copy from Amundsen -->
+      There are different kinds of media types. <firstterm>Application-specific media types</firstterm> are designed for 
+      a single application or service. For instance, <literal>application/vnd.github+json</literal> is the media type 
+      used by the GitHub API <citation>GitHubApi</citation>. <firstterm>Domain-specific media types</firstterm> are 
+      designed to represent problems in one particular domain. For instance, Scalable Vector Graphics (SVG, 
+      <literal>image/svg+xml</literal>) <citation>SVG</citation> deals only with vector graphics. 
+      <firstterm>General purpose media types</firstterm> can be used for any service in any domain. The best known 
+      general purpose media type is of course HTML (<literal>text/html</literal>) <citation>HTML</citation>.
     </para>
     <para>
-      BTW, application/json is not a hypermedia type, since JSON doesn’t define links. We can, of course, use a
-      convention on top of JSON, for instance that there should be a links property with a certain structure to
-      describes the links, like Spring HATEOAS does. The problem with conventions is that they are out-of-band
-      communication, and a client has no way of knowing for sure whether that convention is followed when it sees a
-      Content-Type of application/json. It’s therefore much better to use a media type that turns the convention into
-      a rule, like HAL does.
+      Another way to categorize media types is by who defined them <citation>RichAmun13</citation>. 
+      <firstterm>Fiat standards</firstterm> are informal descriptions of the way someone does something. They don't try 
+      to convince other people to do things the same way. <firstterm>Personal standards</firstterm> do invite people
+      to follow them, but they're still just one person's opinion. <firstterm>Corporate standards</firstterm> are
+      are created by a single company or a consortium of companies to solve recurring problems. Finally, an
+      <firstterm>open standard</firstterm> has gone through a process of design by committee and is blessed by some
+      sort of standards body.
     </para>
     <para>
-      TODO: Add HAL, Mason, Siren, ...
+      There is some correlation between these two dimensions. An application-specific media type will have little 
+      chance of getting adopted as an open standard, for instance. But the categorizations don't overlap completely. 
+      Both SVG and HTML are open standards, but one is domain-specific while the other is general purpose.
+    </para>
+    <para>
+      In general, it makes sense to select a general purpose media type defined as an open standard. This choice means
+      you won't have to document anything; you can simply point to an existing specification. Chances are that there
+      are existing tools and/or libraries available to work with the media type, so you can save yourself and your 
+      clients some coding effort. You can also profit from a lot of thinking that went into the existing standard.
+    </para>
+    <para>
+      The problem with a general purpose media type is, well, that it isn't specifically tailored to your needs. You 
+      will have to find a way to express your particular domain in the media type. Remember from 
+      <xref linkend="maturity"/> that semantic profiles can bridge that gap. If you're lucky enough to work in a domain
+      for which such a semantic profile already exists, then you can re-use that. But even if you're not that lucky,
+      you can still save yourself a lot of work by selecting a general purpose media type. You only have to describe
+      your semantics, instead of the semantics, plus the protocol, plus the data format.  
+    </para>
+    <para>
+      Most media types are derived from an existing base format like XML (e.g. SVG) or JSON (e.g. GitHub). The default
+      these days is to use JSON-based media types, so if you don't have a strong reason to use something else, you 
+      should go with JSON.
+    </para>
+    <para>
+      Note that JSON itself, <literal>application/json</literal>, is not a hypermedia type, since JSON doesn’t define 
+      links. You can, of course, use a convention on top of JSON, for instance that there should be a 
+      <literal>links</literal> property with a certain structure to describes the links. The problem with this approach
+      is that it's a fiat or personal standard, and we've already seen that open standards are better. In the following
+      sections we will take a look at some JSON-based media types that are defined by open standards and that allow
+      the inclusion of hyperlinks.
+    </para>
+    <para>
+      As of this writing, the jury is still out on which of the following media types is going to win out as the 
+      <emphasis>de facto</emphasis> standard media type for REST APIs. If you pick one format now, chances are that
+      you picked the wrong one, and will want to change it later. You can minimize the impact of such a change by
+      being careful when implementing your service. We'll come back to that in <xref linkend="implementation"/>.
+    </para>
+    
+    <section>
+      <title>HAL</title>
+    </section>
+    <para>
+      TODO: describe
+    </para>
+    
+    <section>
+      <title>Mason</title>
+    </section>
+    <para>
+      TODO: describe
+    </para>
+    
+    <section>
+      <title>Siren</title>
+    </section>
+    <para>
+      TODO: describe
+    </para>
+    
+    <section>
+      <title>UBER</title>
+    </section>
+    <para>
+      TODO: describe
+    </para>
+    
+    <section>
+      <title>Hydra</title>
+    </section>
+    <para>
+      TODO: describe
+    </para>
+    
+    <section>
+      <title>JSON-LD</title>
+    </section>
+    <para>
+      TODO: describe
     </para>
   </section>
 
