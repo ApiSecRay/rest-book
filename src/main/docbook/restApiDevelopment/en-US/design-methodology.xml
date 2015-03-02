@@ -16,7 +16,10 @@
       <para>Name the resources with URIs.</para>
     </step>
     <step>
-      <para>Select media types to serialize the representations.</para>
+      <para>Design the messages.</para>
+    </step>
+    <step>
+      <para>Select media types to serialize the messages.</para>
     </step>
     <step>
       <para>Assign link relations to the transitions.</para>
@@ -92,6 +95,7 @@
       </step>
     </procedure>
     <para>
+      TODO: Use the full state diagram instead
       Let's see how that works on the state diagram in <xref linkend="sd-customer-happy-path"/>:
     </para>
     <orderedlist>
@@ -609,8 +613,123 @@
     </para>
   </section>
 
+  <section>
+    <title>Design the Messages</title>
+    <para>
+      At this point we almost have a complete resource model. All that is left to do, is design our representations.
+      In this step we'll design the structure of the messages that client and server exchange. In the next step, we'll
+      serialize the messages into a series of bytes using media types.
+    </para>
+    <para>
+      We start with indicating which of our HTTP methods require a request and which require a response. This decision 
+      is usually dictated by our choice of methods. The <literal>GET</literal> method, for instance, doesn't support
+      a request but does almost always expect a response.
+    </para>
+    <informaltable>
+      <thead>
+        <tr>
+          <th>Resource</th>
+          <th>Method</th>
+          <th>Transition</th>
+          <th>Request</th>
+          <th>Response</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Home</td>
+          <td>GET</td>
+          <td></td>
+          <td>No</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td>Menu</td>
+          <td>GET</td>
+          <td>Read menu</td>
+          <td>No</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td>Orders</td>
+          <td>POST</td>
+          <td>Order</td>
+          <td>Yes</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td>Order</td>
+          <td>GET</td>
+          <td>Receive notification</td>
+          <td>No</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td>Order</td>
+          <td>PATCH</td>
+          <td>Take order</td>
+          <td>Yes</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td>Payments</td>
+          <td>POST</td>
+          <td>Pay</td>
+          <td>Yes</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td>Receipt</td>
+          <td>GET</td>
+          <td>Take receipt</td>
+          <td>No</td>
+          <td>Yes</td>
+        </tr>
+      </tbody>
+    </informaltable>
+    <para>
+      There are ten entries marked with Yes in the above table, but the number of messages is smaller because messages
+      are re-used. We really only need the home document, a menu, an order, a payment, and a receipt. The home document
+      is extremely simple, because it only consists of links. The other messages are easy to design, since we've done
+      our homework during the analysis phase.
+    </para>
+    <para>
+      The <literal>menu</literal> message consists of all the items that our customers can order. We could use a 
+      generic item that can be sold by any shop, but we're not just any shop, we're RESTBucks. So we want to make it 
+      easier on our clients to provide correct orders by giving our items a bit more structure. Each item is a type of
+      drink, so we add the <literal>drink</literal> property to our items. This is the main identifying property of an
+      item. We serve our drinks in different sizes, so we also add a <literal>size</literal> property. Finally, our hot 
+      beverages also differ in how much milk they contain, so we add a <literal>milk</literal> property. Our menu
+      is really nothing more than a list of items. We could go further and put the items into categories. This is quite
+      a common trick to help human users, but our software clients don't mind going through a seemingly endless list of
+      items, so we're not going to bother.
+    </para>
+    <para>
+      An order contains of a number of items that the customer wants to purchase. These are the same items that are on
+      the menu, of course, so we can re-use the item design. We need a couple of other properties. The barista needs to
+      call the customer when the order is prepared, so we should add a <literal>customer</literal> property for this 
+      purpose. We also like to include a <literal>total</literal>. One could argue that this can be calculated from the
+      items, but there may be complications like quantum discounts and whatnot that we want to be prepared for. Finally,
+      we need a <literal>status</literal> property to keep track of the various state changes that we saw earlier.
+    </para>
+    <para>
+      A payment could take many forms. We could go overboard and design a very flexible solution that will cater to
+      any and all payment methods, but this book is about REST, not payments. Since RESTBucks is an online store, we'll
+      simply assume a credit card payment. So we'll need the following properties: <literal>amount</literal>, 
+      <literal>cardholderName</literal>, <literal>cardNumber</literal>, <literal>expiryMonth</literal>, and 
+      <literal>expiryYear</literal>. To be future-proof, we'll throw in a <literal>type</literal> field as well, so that
+      we can add different payment methods later.
+    </para>
+    <para>
+      The receipt should have <literal>date</literal> and <literal>time</literal> properties and show the 
+      <literal>shop</literal> to be RESTBucks. It should also have a list of the purchased <literal>item</literal>s and 
+      their <literal>price</literal>s, and a <literal>total</literal> price. Finally, it should have a 
+      <literal>paymentMethod</literal> so that customers can crosscheck the receipt with their credit card statements.
+    </para>
+  </section>
+  
   <section id="media-types">
-    <title>Select Media Types To Serialize the Representations</title>
+    <title>Select Media Types To Serialize the Messages</title>
     <para>
       When extending an existing design, you should stick with the already selected media type(s). For new APIs, you
       have to decide what media type(s) to use.
@@ -634,9 +753,18 @@
       sort of standards body.
     </para>
     <para>
+      Media types that are described by a standard are usually registered with the Internet Assigned Numbers Authority 
+      (IANA) <citation>IANA</citation>. This makes them easy to discover. Registered media types are of the form
+      type<literal>/</literal>sub-type, where the number of types is fixed. For REST APIs, most media types will fall
+      within the <literal>application</literal> type. 
+      The IANA registry is made up of several trees. The so-called vendor tree is for registering personal and corporate 
+      standards, while the standards tree contains open standards. Media types in the vendor tree start thee sub-type
+      with <literal>vnd</literal>, we'll see shortly.
+    </para>
+    <para>
       There is some correlation between these two dimensions. An application-specific media type will have little 
-      chance of getting adopted as an open standard, for instance. But the categorizations don't overlap completely. 
-      Both SVG and HTML are open standards, but one is domain-specific while the other is general purpose.
+      chance of getting adopted as an open standard, for instance. However, SVG and HTML are both open standards, but 
+      one is domain-specific while the other is general purpose.
     </para>
     <para>
       In general, it makes sense to select a general purpose media type defined as an open standard. This choice means
@@ -676,28 +804,334 @@
       <title>HAL</title>
     </section>
     <para>
-      TODO: describe
+      Since <literal>application/json</literal> has no provisions for linking, we can't use it as a hypermedia format.
+      In other words, you can use JSON for REST maturity levels 0, 1, and 2, but not for levels 3 or 4 (see 
+      <xref linkend="maturity"/>). To get to level 3, we need to add linking capabilities. 
+    </para>
+    <para>
+      That's exactly what Hypermedia Application Language (HAL) provides <citation>HAL</citation>. HAL, or 
+      <literal>application/hal+json</literal> is a JSON-based language that adds a <literal>_links</literal> property. 
+      The underscore is an attempt to avoid naming conflicts, since JSON doesn't have the equivalent of XML namespaces. 
+      Here's what a RESTBuck order could look like in HAL:
+    </para>
+    <programlisting>
+			{ "_links": {
+			    "self": { 
+			      "href": "http://api.restbucks.com/order/1234/"
+			    },
+			    "curies": [{
+			      "name": "relations",
+			      "href": "http://relations.restbucks.com/"
+			    }],
+			    "relations:cancel": { 
+			      "href": "http://api.restbucks.com/order/1234/"
+			    },
+			    "payment": {
+			      "href": "http://api.restbucks.com/order/1234/payments/"
+			    }
+			    "edit": { 
+			      "href": "http://api.restbucks.com/order/1234/"
+			    }
+			  },
+			  "_embedded": {
+			    "item": [{
+			      "size": "tall",
+			      "milk": "whole",
+			      "drink": "caffe latte"
+			    }]
+			  },
+			  "total": 2.75,
+			  "status": "unpaid"
+			}
+    </programlisting>
+    <para>
+      The value of the <literal>_links</literal> property is a JSON object where each property is a link relation
+      (More on link relations below). The object itself must at least have an <literal>href</literal> property that 
+      contains the URL of the linked to resource.
+    </para>
+    <para>
+      HAL supports curies, which are ways to shorten URLs. For example, the <literal>relations</literal> curie above 
+      shortens the URL for the <literal>cancel</literal> link relation. Curies are optional.
+    </para>
+    <para>
+      There are pros and cons to using curies. They achive slightly shorter messages, which could translate to smaller
+      transmission times. On the other hand, JSON is a textual format and therefore compresses very well, so it's
+      doubtful that the effect of curies would be noticeable when you use compression. Curies make the JSON a bit easier 
+      to read for humans, but a bit more difficult to parse for computer programs. Given that REST APIs are really meant
+      for machine-to-machine communication, we advise not to use them. It puts an extra burden on your clients that we
+      feel isn't worth the small benefit. 
+    </para>
+    <para>
+      HAL only allows simple properties in the JSON object. But sometimes, that model doesn't fit your data. In the
+      RESTBucks example, an order is made up of potentially more than one item. HAL uses the <literal>_embedded</literal>
+      property to handle such sub-entities.
+    </para>
+    <para>
+      Remember that a level 3 REST API must support both links and forms (see <xref linkend="maturity"/>). While HAL
+      provides hyperlinking capabilities using the <literal>_links</literal> property, it doesn't have anything for
+      handling forms. So with HAL you can only build level 3a APIs. Yet HAL is a big improvement over plain JSON, and 
+      it is quite popular. For instance, it is used by default in Spring HATEOAS <citation>SpringHateaos</citation>.
+      This no doubt is due to its simplicity.
+    </para>
+    <para>
+      HAL is a registered in the open standards tree of IANA, but it hasn't reached the status of standard yet. At the
+      point of writing, HAL is a Internet Draft (ID). Internet Drafts are the vehicle of the IETF standards body to
+      propose new standards. Once an Internet Draft is vetted by reviewers, it may turn into a full standard, or RFC.
+      HTTP is one example of an RFC.
     </para>
     
     <section>
       <title>Mason</title>
     </section>
     <para>
-      TODO: describe
+      The Mason <citation>Mason</citation> media type, <literal>application/vnd.mason+json</literal>, fills the gap that
+      HAL leaves. Like HAL, Mason supports links (using the <literal>@links</literal> property), including curies (using 
+      the <literal>@namespaces</literal> property). In addition, it supports the forms using the 
+      <literal>@actions</literal> property. Here's how a RESTBucks order could look like in Mason:
+    </para>
+    <programlisting>
+			{ "@namespaces": {
+			    "relations": {
+			      "name": "http://relations.restbucks.com/"
+			    }
+			  },
+			  "item": [{
+			    "size": "tall",
+			    "milk": "whole",
+			    "drink": "caffe latte"
+			  }],
+			  "total": 2.75,
+			  "status": "unpaid",
+			  "@links": {
+			    "self": { 
+			      "href": "http://api.restbucks.com/order/1234/"
+			    }
+			  },
+			  "@actions": {
+			    "relations:cancel": { 
+			      "href": "http://restbucks.com/order/1234/",
+			      "type": "void",
+			      "method": "DELETE"
+			    },
+			    "payment": {
+			      "href": "http://api.restbucks.com/order/1234/payments/",
+			      "title": "Pay the order",
+			      "type": "any",
+			      "method": "POST",
+			      "template": {
+			        "payment": {
+			          "amount": 2.75,
+			          "type": "creditcard",
+			          "cardholderName": "",
+			          "cardNumber": "",
+			          "expiryMonth": "",
+			          "expiryYear": ""
+			        }
+			      }
+			    },
+			    "edit": { 
+			      "href": "http://api.restbucks.com/order/1234/",
+			      "type": "any",
+			      "method": "PATCH",
+			      "template": {
+			        "item": [{
+			          "size": "tall",
+			          "milk": "whole",
+			          "drink": "caffee latte"
+			        }],
+			        "total": 2.75,
+			        "status": "unpaid"
+			      }
+			    }
+			  }
+			}
+    </programlisting>
+    <para>
+      Mason allows for natural sub-objects, rather than HAL's <literal>_embedded</literal> property. But the main
+      advantage of Mason over HAL is the <literal>@actions</literal> property that supports forms. Mason is thus
+      suited to build REST APIs at level 3b. The <literal>method</literal> property allows specifying which HTTP
+      method to use, so clients no longer have to hard-code that knowledge. This gives you the opportunity to switch
+      from <literal>POST</literal> to <literal>PATCH</literal>, for instance, and not break existing clients.
+    </para>
+    <para>
+      For HTTP methods that require input, the <literal>template</literal> property specifies what that input should
+      look like. This makes it easy to translate the JSON message into an HTML form, or to dynamically build your 
+      mobile UI.
+    </para>
+    <para>
+      A peculiarity of the <literal>@actions</literal> is the <literal>type</literal> property, which can be 
+      <literal>void</literal>, <literal>json</literal>, <literal>json-files</literal>, or <literal>any</literal>.
+      One would have expected a media type there instead.
+    </para>
+    <para>
+      As you can tell from the <literal>vnd.</literal> prefix in the sub-type, Mason is a personal standard. We're not
+      aware of any efforts to move this to an open standard.
     </para>
     
     <section>
       <title>Siren</title>
     </section>
     <para>
-      TODO: describe
+      HAL and Mason use keywords starting with <literal>_</literal> or <literal>@</literal> so that they don't
+      conflict with user-defined properties. Siren <citation>Siren</citation>, 
+      or <literal>application/vnd.siren+json</literal>, does things a bit differently. It prescribes the structure of 
+      the message, so that it's always clear what part is defined by Siren and what part is specific to the service.
+      This has the benefit of clarity at the cost of a more deeply nested structure.
+    </para>
+    <programlisting>
+			{ "class": [ "order" ],
+			  "properties": [{
+			    "total": 2.75,
+			    "status": "unpaid"
+			  },
+			  "entities": [{
+			    "class": [ "item" ],
+			    "rel": [ "http://relations.restbucks.com/item" ],
+			    "properties": {
+			      "size": "tall",
+			      "milk": "whole",
+			      "drink": "caffe latte"
+			    }
+			  }],
+			  "actions": [{
+			    "name": "http://relations.restbucks.com/cancel",
+			    "title": "Cancel the order",
+			    "method": "DELETE",
+			    "href": "http://api.restbucks.com/order/1234/"
+			  }, {
+			    "name": "payment",
+			    "title": "Pay the order",
+			    "href": "http://api.restbucks.com/orders/1234/payments/",
+			    "type": "application/vnd.siren+json",
+			    "method": "POST",
+			    "fields": [{
+			      "name": "amount",
+			      "type": "number",
+			      "value": 2.75
+			    }, {
+			      "name": "type",
+			      "type": "text"
+			      "value": "creditcard"
+			    }, {
+			      "name": "cardholderName",
+			      "type": "text"
+			    }, {
+			      "name": "cardNumber",
+			      "type": "text"
+			    }, {
+			      "name": "expiryMonth",
+			      "type": "number"
+			    }, {
+			      "name": "expiryYear",
+			      "type": "number"
+			    }],
+			  }, {
+			    "name": "edit",
+			    "href": "http://api.restbucks.com/order/1234/",
+			    "method": "PATCH",
+			    "type": "application/vnd.siren.json"
+          "fields": [{
+            "name": "status",
+            "type": "text",
+            "value": "unpaid"
+          }]
+			  }],
+			  "links": [{ 
+			    "rel": "self",
+			    "href": "http://api.restbucks.com/order/1234/"
+			  }]
+			}
+    </programlisting>
+    <para>
+      Siren uses the <literal>properties</literal> property to capture the properties of the object being transmitted.
+      The <literal>entities</literal> property is similar to the <literal>_embedded</literal> property of HAL.
+      Siren uses the <literal>actions</literal> property much like Mason uses <literal>@actions</literal>, but it
+      adds HTML types to the fields. For clients that use HTML, this allows for a seamless translation into forms.
+    </para>
+    <para>
+      Siren and Mason are very similar. The big difference is that Siren uses the <literal>class</literal> property
+      much like HTML does for semantic descriptors. In combination with semantic profiles, this feature makes it 
+      possible to use Siren in a level 4 API, which is not possible with Mason.
     </para>
     
     <section>
       <title>UBER</title>
     </section>
     <para>
-      TODO: describe
+      Uniform Basis for Exchanging Representations (UBER) <citation>UBER</citation> is another media type that allows 
+      level 4 APIs. This format is optimized for the number of design elements used. While that keeps the specification
+      fairly short, it does make the messages a bit more difficult to read.
+    </para>
+    <programlisting>
+			{ "uber": {
+			  "version": "1.0",
+			  "data": [{
+			    "rel": [ "self" ],
+			    "url": "http://api.restbucks.com/order/1234/"
+			  }, {
+			    "id": "order",
+			    "data": [{
+			      "name": "item",
+			      "data": [{
+			        "name": "milk",
+			        "value": "whole"
+			      }, {
+			        "name": "size", 
+			        "value": "tall",
+			      }, {
+			        "name": "drink",
+			        "value": "caffe latte"
+			      }]
+			    }, {
+			      "name": "total",
+			      "value": 2.75
+			    }, {
+			      "name": "status",
+			      "value": "unpaid"
+			    }]
+			  }, {
+			    "rel": "http://relations.restbucks.com/cancel",
+			    "url": "http://api.restbucks.com/order/1234/",
+			    "action": "remove"
+			  }, {
+			    "rel": "payment",
+			    "url": "http://api.restbucks.com/order/1234/payments/",
+			    "sending": "application/vnd.uber+json",
+			    "action": "append",
+			    "data": [{
+			      "name": "amount",
+			      "value": 2.75
+			    }, {
+			      "name": "type",
+            "value": "creditcard"
+			    }, {
+			      "name": "cardholderName",
+			    }, {
+			      "name": "cardNumber",
+			    }, {
+			      "name": "expiryMonth",
+			    }, {
+			      "name": "expiryYear",
+			    }],
+			  }, {
+			    "rel": "edit",
+			    "url": "http://api.restbucks.com/order/1234/",
+			    "action": "replace",
+			    "sending": "application/vnd.uber.json"
+			  }]
+			}
+    </programlisting>
+    <para>
+      There is nothing in the REST architectural style that ties it to HTTP, although that is the most commonly used
+      protocol for transmitting the messages. UBER acknowledges this fact by abstracting away the HTTP methods. Instead
+      of using <literal>POST</literal>, one would use <literal>append</literal>, for instance. When you use a protocol
+      like CoAP <citation>CoAP</citation> instead of HTTP, that may make sense, but the vast majority of APIs don't do
+      that.
+    </para>
+    <para>
+      UBER also makes a distinction between the media types used in the request and response, using the 
+      <literal>sending</literal> and <literal>accepting</literal> properties. Siren only allows one value in its
+      <literal>type</literal> property.
     </para>
     
     <section>
@@ -712,6 +1146,24 @@
     </section>
     <para>
       TODO: describe
+    </para>
+    
+    <section>
+      <title>Selecting a media type</title>
+    </section>
+    <para>
+      The previous sections presented a bunch of media types and listed their pros and cons. At this point in time, 
+      there is no no media type that is an open standard, supports level 4 APIs, and is widely accepted and implemented.
+    </para>
+    <para>
+      So which one should you pick for your API? The answer depends on how comfortable you are building on a personal 
+      standard versus an open standard. It also depends on how far up the maturity ladder you want to be. And it even
+      depends on taste.
+    </para>
+    <para>
+      For RESTBucks, we want a media type that supports level 4 APIs. We don't like the lack of readability of UBER.
+      So we're going to pick Siren for now. We understand that this choice may change in the future and we will be 
+      careful to minimize the impact of that change.
     </para>
   </section>
 

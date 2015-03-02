@@ -57,6 +57,11 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>CoAP</abbrev>
+    <biblioid class="uri">https://tools.ietf.org/html/rfc7252</biblioid>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>CoolUris</abbrev>
     <biblioid class="uri">http://www.w3.org/Provider/Style/URI.html</biblioid>
   </biblioentry>
@@ -100,6 +105,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>HAL</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/draft-kelly-json-hal-06</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>Hohpe04</abbrev>
     <biblioid class="uri">http://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html</biblioid>
   </biblioentry>
@@ -115,8 +125,18 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>IANA</abbrev>
+    <biblioid class="uri">TODO: URL</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>JBehave</abbrev>
     <biblioid class="uri">http://jbehave.org/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Mason</abbrev>
+    <biblioid class="uri">https://github.com/JornWildt/Mason/blob/master/Documentation/Mason-draft-1.md</biblioid>
   </biblioentry>
   
   <biblioentry>
@@ -197,13 +217,28 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Siren</abbrev>
+    <biblioid class="uri">https://github.com/kevinswiber/siren</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>SOAP</abbrev>
     <biblioid class="uri">http://www.w3.org/TR/soap/</biblioid>
   </biblioentry>
   
   <biblioentry>
+    <abbrev>SpringHateaos</abbrev>
+    <biblioid class="uri">TODO: URL</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>SVG</abbrev>
     <biblioid class="uri">http://www.w3.org/TR/SVG11/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>UBER</abbrev>
+    <biblioid class="uri">https://github.com/mamund/media-types/blob/master/uber-hypermedia.asciidoc</biblioid>
   </biblioentry>
   
   <biblioentry>

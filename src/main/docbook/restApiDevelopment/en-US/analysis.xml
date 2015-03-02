@@ -130,7 +130,7 @@
       </informaltable>
     </section>
 
-    <section>
+    <section id="sd-restbucks">
       <title>State Diagrams for RESTBucks</title>        
       <para>
         Let's apply this little bit of theory to our RESTBucks example.
