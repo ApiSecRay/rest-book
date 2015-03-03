@@ -696,13 +696,14 @@
     <para>
       The <literal>menu</literal> message consists of all the items that our customers can order. We could use a 
       generic item that can be sold by any shop, but we're not just any shop, we're RESTBucks. So we want to make it 
-      easier on our clients to provide correct orders by giving our items a bit more structure. Each item is a type of
-      drink, so we add the <literal>drink</literal> property to our items. This is the main identifying property of an
-      item. We serve our drinks in different sizes, so we also add a <literal>size</literal> property. Finally, our hot 
-      beverages also differ in how much milk they contain, so we add a <literal>milk</literal> property. Our menu
-      is really nothing more than a list of items. We could go further and put the items into categories. This is quite
-      a common trick to help human users, but our software clients don't mind going through a seemingly endless list of
-      items, so we're not going to bother.
+      easier on our clients to provide correct orders by giving our items a bit more structure. Each item needs to be
+      identified, so we add the <literal>name</literal> property to our items. We serve our drinks in different sizes, 
+      so we also add a <literal>size</literal> property. Our hot beverages also differ in how much milk they contain, 
+      so we add a <literal>milk</literal> property. Finally, we're in this for the money, so we add a 
+      <literal>price</literal> property. Since we have international aspirations, we should also add a
+      <literal>currency</literal> property. Our menu is really nothing more than a list of items. We could go further 
+      and put the items into categories. This is quite a common trick to help human users, but our software clients 
+      don't mind going through a seemingly endless list of items, so we're not going to bother with the added complexity.
     </para>
     <para>
       An order contains of a number of items that the customer wants to purchase. These are the same items that are on
@@ -715,16 +716,17 @@
     <para>
       A payment could take many forms. We could go overboard and design a very flexible solution that will cater to
       any and all payment methods, but this book is about REST, not payments. Since RESTBucks is an online store, we'll
-      simply assume a credit card payment. So we'll need the following properties: <literal>amount</literal>, 
-      <literal>cardholderName</literal>, <literal>cardNumber</literal>, <literal>expiryMonth</literal>, and 
-      <literal>expiryYear</literal>. To be future-proof, we'll throw in a <literal>type</literal> field as well, so that
-      we can add different payment methods later.
+      simply assume a credit card payment. So we'll need the following properties: <literal>amount</literal>,
+      <literal>currency</literal> <literal>cardholderName</literal>, <literal>cardNumber</literal>, 
+      <literal>expiryMonth</literal>, and <literal>expiryYear</literal>. To be future-proof, we'll throw in a 
+      <literal>type</literal> field as well, so that we can add different payment methods later.
     </para>
     <para>
       The receipt should have <literal>date</literal> and <literal>time</literal> properties and show the 
       <literal>shop</literal> to be RESTBucks. It should also have a list of the purchased <literal>item</literal>s and 
-      their <literal>price</literal>s, and a <literal>total</literal> price. Finally, it should have a 
-      <literal>paymentMethod</literal> so that customers can crosscheck the receipt with their credit card statements.
+      their <literal>price</literal>s, and a <literal>total</literal> price and <literal>currency</literal>. Finally, 
+      it should have a <literal>paymentMethod</literal> so that customers can crosscheck the receipt with their credit 
+      card statements.
     </para>
   </section>
   
@@ -837,10 +839,13 @@
 			    "item": [{
 			      "size": "tall",
 			      "milk": "whole",
-			      "drink": "caffe latte"
+			      "drink": "caffe latte",
+		        "price": 2.75,
+		        "currency": "USD"
 			    }]
 			  },
 			  "total": 2.75,
+			  "currency": "USD",
 			  "status": "unpaid"
 			}
     </programlisting>
@@ -898,9 +903,12 @@
 			  "item": [{
 			    "size": "tall",
 			    "milk": "whole",
-			    "drink": "caffe latte"
+			    "drink": "caffe latte",
+	        "price": 2.75,
+	        "currency": "USD"
 			  }],
 			  "total": 2.75,
+			  "currency": "USD",
 			  "status": "unpaid",
 			  "@links": {
 			    "self": { 
@@ -921,6 +929,7 @@
 			      "template": {
 			        "payment": {
 			          "amount": 2.75,
+			          "currency": "USD",
 			          "type": "creditcard",
 			          "cardholderName": "",
 			          "cardNumber": "",
@@ -937,9 +946,12 @@
 			        "item": [{
 			          "size": "tall",
 			          "milk": "whole",
-			          "drink": "caffee latte"
+			          "drink": "caffee latte",
+				        "price": 2.75,
+				        "currency": "USD"
 			        }],
 			        "total": 2.75,
+			        "currency": "USD",
 			        "status": "unpaid"
 			      }
 			    }
@@ -982,6 +994,7 @@
 			{ "class": [ "order" ],
 			  "properties": [{
 			    "total": 2.75,
+			    "currency": "USD",
 			    "status": "unpaid"
 			  },
 			  "entities": [{
@@ -990,7 +1003,9 @@
 			    "properties": {
 			      "size": "tall",
 			      "milk": "whole",
-			      "drink": "caffe latte"
+			      "drink": "caffe latte",
+		        "price": 2.75,
+		        "currency": "USD"
 			    }
 			  }],
 			  "actions": [{
@@ -1008,6 +1023,10 @@
 			      "name": "amount",
 			      "type": "number",
 			      "value": 2.75
+			    }, {
+			      "name": "currency",
+			      "type": "text",
+			      "value": "USD"
 			    }, {
 			      "name": "type",
 			      "type": "text"
@@ -1081,10 +1100,19 @@
 			      }, {
 			        "name": "drink",
 			        "value": "caffe latte"
+			      }, {
+			        "name": "price",
+			        "value": 2.75
+			      }, {
+			        "name": "currency",
+			        "value": "USD"
 			      }]
 			    }, {
 			      "name": "total",
 			      "value": 2.75
+			    }, {
+			      "name": "currency",
+			      "value": "USD"
 			    }, {
 			      "name": "status",
 			      "value": "unpaid"
@@ -1101,6 +1129,9 @@
 			    "data": [{
 			      "name": "amount",
 			      "value": 2.75
+			    }, {
+			      "name": "currency",
+			      "value": "USD"
 			    }, {
 			      "name": "type",
             "value": "creditcard"
@@ -1136,13 +1167,6 @@
     
     <section>
       <title>Hydra</title>
-    </section>
-    <para>
-      TODO: describe
-    </para>
-    
-    <section>
-      <title>JSON-LD</title>
     </section>
     <para>
       TODO: describe
