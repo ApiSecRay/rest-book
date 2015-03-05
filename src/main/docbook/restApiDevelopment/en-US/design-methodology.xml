@@ -95,8 +95,7 @@
       </step>
     </procedure>
     <para>
-      TODO: Use the full state diagram instead
-      Let's see how that works on the state diagram in <xref linkend="sd-customer-happy-path"/>:
+      Let's see how that works on the state diagram in <xref linkend="sd-customer"/>:
     </para>
     <orderedlist>
       <listitem>
@@ -179,14 +178,18 @@
       </listitem>
       <listitem>
         <para>
-          We now move to the next state, <literal>Deciding</literal>, which has two outgoing transitions, 
-          <literal>Select from menu</literal> and <literal>Order</literal>.
+          We now move to the next state, <literal>Deciding</literal>, which has three outgoing transitions, 
+          <literal>Select from menu</literal>, <literal>Abort</literal>, and <literal>Order</literal>.
         </para>
         <para>
           The <literal>Select from menu</literal> transition doesn't change anything on the server. At this point, the 
           customer is still composing her order, which is application state rather than resource state (refer to
           <xref linkend="rest"/> for an explanation of the difference). So we don't need to execute any HTTP method at 
           all for this transition.
+        </para>
+        <para>
+          Likewise, the <literal>Abort</literal> transition doesn't have to do anything either. The customer simply
+          walks out of the store.
         </para>
         <para>
           The <literal>Order</literal> transition is where the client informs the server about the order composed from 
@@ -232,11 +235,36 @@
       </listitem>
       <listitem>
         <para>
-          The next state is <literal>Ordered</literal> and it has only one outgoing transition, 
-          <literal>Pay</literal>. Converting the verb <literal>Pay</literal> to a noun gives 
-          <literal>Payment</literal>. Instead of "paying", we should think of "creating a payment". Once we do that, we
-          see that we can employ the Create pattern again with a <literal>POST</literal> method on the 
-          <literal>Payments</literal> resource. 
+          The next state is <literal>Ordered</literal> and it has two outgoing transitions, <literal>Cancel</literal> 
+          and <literal>Pay</literal>.
+        </para>
+        <para>
+          You might think that <literal>Cancel</literal> is much like 
+          <literal>Abort</literal>, and from the client's perspective it may be. But the difference is that we now
+          have an order in our system that is waiting for payment. We could allow the customer to do nothing (the 
+          equivalent of walking out), which means we would have to have a background process to garbage collect any
+          remaining unpaid orders. The alternative is to have the customer explictly tell us that she no longer
+          wishes to complete her order.
+        </para>
+        <para>
+          We'll take the latter approach here. The <literal>DELETE</literal> method is a perfect choice to make it read 
+          like a natural sentence again ("Delete order"), assuming we have a <literal>Order</literal> resource. 
+          Note that we can't force our clients to be polite and let us know they no longer want the order, so we'd 
+          probably need to implement the garbage collection anyway. But we could start without and see how big of a 
+          problem it really is before we invest any time.
+        </para>
+        <para>
+          Converting the verb <literal>Pay</literal> to a noun gives <literal>Payment</literal>. Instead of "paying", 
+          we should think of "creating a payment". Once we do that, we see that we can employ the Create pattern again 
+          with a <literal>POST</literal> method on the <literal>Payments</literal> resource.
+        </para>
+        <para>
+          An alternative would be to use the <literal>PUT</literal> method. While that has the advantage of being
+          idempotent, it has the disadvantage of allowing only one payment. For now, we only accept credit cards,
+          so that isn't a problem. But think about the future. What if we were to introduce coupons at some point?
+          Someone would want to pay for a $15 order with a $10 coupon and a $5 credit card payment. So we can foresee
+          that we might want to allow multiple payments to the same order and therefore it makes sense to use the
+          Create and Collection patterns (see <xref linkend="collection"/>).
         </para>
         <informaltable>
           <thead>
@@ -261,6 +289,11 @@
               <td>Orders</td>
               <td>POST</td>
               <td>Order</td>
+            </tr>
+            <tr>
+              <td>Order</td>
+              <td>DELETE</td>
+              <td>Abort</td>
             </tr>
             <tr>
               <td>Payments</td>
@@ -300,6 +333,11 @@
               <td>Orders</td>
               <td>POST</td>
               <td>Order</td>
+            </tr>
+            <tr>
+              <td>Order</td>
+              <td>DELETE</td>
+              <td>Abort</td>
             </tr>
             <tr>
               <td>Payments</td>
@@ -360,6 +398,11 @@
               <td>Order</td>
             </tr>
             <tr>
+              <td>Order</td>
+              <td>DELETE</td>
+              <td>Abort</td>
+            </tr>
+            <tr>
               <td>Payments</td>
               <td>POST</td>
               <td>Pay</td>
@@ -414,6 +457,11 @@
               <td>Orders</td>
               <td>POST</td>
               <td>Order</td>
+            </tr>
+            <tr>
+              <td>Order</td>
+              <td>DELETE</td>
+              <td>Abort</td>
             </tr>
             <tr>
               <td>Payments</td>
@@ -481,6 +529,11 @@
             <entry><para>Take order</para></entry>
           </row>
           <row>
+            <entry><para>Order</para></entry>
+            <entry><para>DELETE</para></entry>
+            <entry><para>Abort</para></entry>
+          </row>
+          <row>
             <entry><para>Payments</para></entry>
             <entry><para>POST</para></entry>
             <entry><para>Pay</para></entry>
@@ -507,36 +560,41 @@
 	  <sidebar id="uris">
 	    <title>Conventions around Uniform Resource Identifiers (URIs)</title>
 	    <para>
-	      One important URI convention is that URIs should be cool <citation>CoolUris</citation>, which means they won't 
-	      change. This is to avoid breaking bookmarks. Although bookmarks are less important for REST APIs than for the
-	      human Web, it's still nice to be able to support them.
-	      In order to keep URIs stable, we shouldn't put information in them that is likely to change. For instance,
-	      if we were to build a REST API for a social media platform, we shouldn't put usernames in the URIs, but rather
-	      internal IDs. This doesn't read as nicely, but that's okay since URIs are discovered anyway. Assuming the API
-	      is implemented by a cluster of servers, you'll need a way to assign internal IDs without conflict. Universially
-	      Unique Identifiers (UUIDs) are perfect for this.
+	      You should always use a plural name for resources that are collections. For instance, if we were to build a REST 
+	      API for a social media platform, we should use <literal>/users/</literal> rather than <literal>/user/</literal>
+	      because it is immediately clear from the URI that it is a collection.
 	    </para>
+      <para>
+        URIs should be cool <citation>CoolUris</citation>, which means they won't change. This is to avoid breaking 
+        bookmarks. Although bookmarks are less important for REST APIs than for the human Web, it's still nice to be 
+        able to support them. In order to keep URIs stable, we shouldn't put information in them that is likely to 
+        change. In the social media example, we shouldn't put user names in the URIs, but rather internal IDs. This 
+        doesn't read as nicely, but that's okay since URIs are discovered anyway. Assuming the API is implemented by a 
+        cluster of servers, you'll need a way to assign internal IDs without conflict. Universially Unique Identifiers 
+        (UUIDs) are perfect for this, because they don't require any communication between the servers.
+      </para>
 	    <para>
-	      An extremely common convention used in URIs is to indicate hierarchical relationships with slashes. So if we
-	      have a collection of users at <literal>/users/</literal>, then an individual user would live at 
-	      <literal>/users/{id}/</literal>. Note that this is not technically a URI, because the <literal>{</literal>
-	      and <literal>}</literal> symbols are not allowed in URIs according to RFC 3986. It's rather a concise way of 
-	      indicating a whole collection of URIs, like <literal>/users/1/</literal>, <literal>/users/2/</literal>, etc. 
-	      This is also known as a URI Template <citation>UriTemplate</citation>.
+	      Indicate hierarchical relationships with slashes in the URIs. So if we have a collection of users at 
+	      <literal>/users/</literal>, then an individual user would live at <literal>/users/{id}/</literal>. Note that 
+	      this is not technically a URI, because the <literal>{</literal> and <literal>}</literal> symbols are not 
+	      allowed in URIs according to RFC 3986. It's actually a concise way of indicating a whole collection of URIs, 
+	      like <literal>/users/1/</literal>, <literal>/users/2/</literal>, etc. This is also known as a URI Template
+	      <citation>UriTemplate</citation>.
 	    </para>
 	    <para>
 	      Another common convention is to use only lowercase letters from the US ASCII character set. This ensures that
 	      the URIs will work without any problems with any URI handling technology. For non-English speakers, this may
-	      seem like a severe limitation, but it doesn't have to be. We advise to use English names in your URIs anyway,
-	      since that will ensure that they are understandable for a very large part of the world's population.
+	      seem like a limitation, but it doesn't have to be. We advise to use English names in your URIs anyway, since 
+	      that will ensure that they are understandable for a very large part of the world's population.
 	    </para>
 	    <para>
 	      A less common, but still very useful convention is to end all URIs with a slash (<literal>/</literal>). The 
 	      rationale behind this is that it makes it very easy to resolve URIs, even if they're relative. Relative URIs are
-	      very useful in deeply hierarchical cases. As as example, resolving the relative URI <literal>1/</literal> against 
-	      the base URI <literal>/users/</literal> gives the intended <literal>/users/1/</literal>, whereas resolving the 
-	      same relative URI against the base URI <literal>/users</literal> results in <literal>/1/</literal>.
-	      We'll talk more about resolving URIs in <xref linkend="client"/>.
+	      useful in deeply hierarchical cases to keep the transmitted messages short. As as example, resolving the 
+	      relative URI <literal>1/</literal> against the base URI <literal>/users/</literal> gives the intended 
+	      <literal>/users/1/</literal>, whereas resolving the same relative URI against the base URI 
+	      <literal>/users</literal> results in <literal>/1/</literal>. We'll talk more about resolving URIs in 
+	      <xref linkend="client"/>.
 	    </para>
 	  </sidebar>
 	
@@ -584,6 +642,12 @@
             <entry><para>/orders/{id}/</para></entry>
             <entry><para>PATCH</para></entry>
             <entry><para>Take order</para></entry>
+          </row>
+          <row>
+            <entry><para>Order</para></entry>
+            <entry><para>/orders/{id}/</para></entry>
+            <entry><para>DELETE</para></entry>
+            <entry><para>Abort</para></entry>
           </row>
           <row>
             <entry><para>Payments</para></entry>
@@ -672,6 +736,13 @@
           <td>Yes</td>
         </tr>
         <tr>
+          <td>Order</td>
+          <td>DELETE</td>
+          <td>Abort</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
           <td>Payments</td>
           <td>POST</td>
           <td>Pay</td>
@@ -728,6 +799,13 @@
       it should have a <literal>paymentMethod</literal> so that customers can crosscheck the receipt with their credit 
       card statements.
     </para>
+    <para>
+      We now have our semantics straight. With this information, we can now write an ALPS document (see 
+      <xref linkend="maturity"/>):
+    </para>
+    <programlisting>
+      TODO: ALPS document
+    </programlisting>
   </section>
   
   <section id="media-types">
@@ -1173,7 +1251,7 @@
     </para>
     
     <section>
-      <title>Selecting a media type</title>
+      <title>Making a choice</title>
     </section>
     <para>
       The previous sections presented a bunch of media types and listed their pros and cons. At this point in time, 
@@ -1195,16 +1273,24 @@
     <title>Assign Link Relations To the Transitions</title>
     <para>
       A REST client follows transitions in the state diagram by discovering links in representations. This discovery
-      process is made possible by link relations.
-      Link relations decouple the client from the URIs that the server uses,
-      giving the server the freedom to change
-      its URI structure at will without breaking any clients. Link relations are
-      therefore an important part of any
-      REST API.
+      process is made possible by <firstterm>link relations</firstterm>. Link relations decouple the client from the 
+      URIs that the server uses, giving the server the freedom to change its URI structure at will without breaking any 
+      clients. Link relations enable evolution of the service and are therefore an important part of any REST API.
     </para>
     <para>
-      We should try to use existing link relations as much as possible. They don’t cover every case, however, so
-      sometimes you need to invent your own.
+      We should try to use existing link relations as much as possible. There is a registry of link relations 
+      maintained by IANA, the same organization that also registers media types. There won't be a registered link
+      relation for every case, so sometimes you need to invent your own. But if you can, reuse link relations, because
+      it is just another thing that a client developer doesn't have to learn about your service.
+    </para>
+    <para>
+      Publicly registered link relations have a short English name, like <literal>self</literal> or 
+      <literal>edit</literal>. The registry makes sure that they are globally unique. That is not the case for custom
+      link relations, so they take the form of URIs. Note that these URIs don't have to resolve, so you don't need to
+      have them point to a web page. But that would be a good way to document them.
+    </para>
+    <para>
+      TODO: link relations for customer buying drink
     </para>
   </section>
 
