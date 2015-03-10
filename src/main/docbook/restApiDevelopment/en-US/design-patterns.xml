@@ -10,15 +10,21 @@
     <title>Collections</title>
   </section>
   <section>
-    <title>Asynchronous Processing</title>
-  </section>
-  <section>
-    <title>Transactions / Correlations</title>
-  </section>
-  <section>
-    <title>Batches</title>
+    <title>Polling</title>
   </section>
   <section id="notifications">
     <title>Notifications</title>
+  </section>
+  <section>
+    <title>Asynchronous Processing</title>
+  </section>
+  <section>
+    <title>Correlations</title>
+  </section>
+  <section>
+    <title>Transactions</title>
+  </section>
+  <section>
+    <title>Batches</title>
   </section>
 </chapter>

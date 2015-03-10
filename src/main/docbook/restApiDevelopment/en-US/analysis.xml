@@ -212,7 +212,7 @@
       </figure>
     </section>
     
-    <section>
+    <section id="examples">
       <title>Capturing Requirements With Examples</title>
       <para>
         Traditionally, requirements have been captured in text form in requirement documents in a natural language like

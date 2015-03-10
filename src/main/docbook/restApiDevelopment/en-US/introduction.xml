@@ -423,11 +423,9 @@
       </para>
       <para>
         There is a big effort under way to teach semantics to machines: the Semantic Web <citation>SemWeb</citation>.
-        This is really a massive undertaking, and we can't expect to have full answers in the short term. So for now,
-        we'll have to settle for partial answers.
-      </para>
-      <para>
-        One piece of the puzzle is to define application semantics using <firstterm>profiles</firstterm>.
+        As part of this movement, people have found ways to assign meaning to data. The definitions of the semantic
+        elements can be re-used across applications in the same domain. The mechanism that powers that re-use is the
+        <firstterm>profile</firstterm>.
       </para>
       <blockquote>
         <attribution><citation>RFC 6906</citation></attribution>
@@ -438,8 +436,8 @@
         </para>
       </blockquote>
       <para>
-        Mike Amundsen has defined a media type for profiles called <firstterm>Application-Level Profile 
-        Semantics</firstterm> (ALPS) <citation>ALPS</citation>. 
+        The Semantic Web effort uses profiles to assign meaning to data. Mike Amundsen has defined an alternative
+        called <firstterm>Application-Level Profile Semantics</firstterm> (ALPS) <citation>ALPS</citation>.
       </para>
       <blockquote>
         <attribution><citation>ALPS</citation></attribution>
@@ -450,12 +448,13 @@
         </para>
       </blockquote>
       <para>
-        The idea is that if we program our clients with the knowledge contained in the profile, it can understand any
-        API that serves that profile. Its a clean separation of concerns, with the data format specified by the
+        The idea is that we program our clients with the knowledge contained in the profile, so that it can understand 
+        any API that serves that profile. Its a clean separation of concerns, with the data format specified by the
         media type, and the application semantics specified by the profile. 
       </para>
       <para>
-        We propose to add a fourth level to Richardson's maturity model that is defined by the use of semantic profiles.
+        We propose to add a fourth level to Richardson's maturity model that is defined by the use of application 
+        semantics, either using semantic web technology or ALPS.
       </para>
       <figure xml:id="maturity2">
         <mediaobject>

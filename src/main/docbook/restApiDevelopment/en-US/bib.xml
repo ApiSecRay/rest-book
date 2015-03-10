@@ -57,6 +57,11 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>DublinCore</abbrev>
+    <biblioid class="uri">http://dublincore.org/specifications/</biblioid>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>CoAP</abbrev>
     <biblioid class="uri">https://tools.ietf.org/html/rfc7252</biblioid>
   </biblioentry>
@@ -125,13 +130,28 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Hydra</abbrev>
+    <biblioid class="uri">http://www.hydra-cg.com/spec/latest/core/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>IANA</abbrev>
-    <biblioid class="uri">TODO: URL</biblioid>
+    <biblioid class="uri">http://www.iana.org/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>IanaLinks</abbrev>
+    <biblioid class="uri">http://www.iana.org/assignments/link-relations/link-relations.xhtml</biblioid>
   </biblioentry>
   
   <biblioentry>
     <abbrev>JBehave</abbrev>
     <biblioid class="uri">http://jbehave.org/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>JsonLd</abbrev>
+    <biblioid class="uri">http://www.w3.org/TR/json-ld/</biblioid>
   </biblioentry>
   
   <biblioentry>
@@ -155,6 +175,11 @@
     </copyright>
   </biblioentry>
 
+  <biblioentry>
+    <abbrev>MicroFormats</abbrev>
+    <biblioid class="uri">http://microformats.org/wiki/Main_Page</biblioid>
+  </biblioentry>
+  
   <biblioentry>
     <abbrev>RFC 2048</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/rfc2048</biblioid>
@@ -212,6 +237,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>SchemaOrg</abbrev>
+    <biblioid class="uri">http://schema.org/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>SemWeb</abbrev>
     <biblioid class="uri">http://www.w3.org/standards/semanticweb/</biblioid>
   </biblioentry>
@@ -228,7 +258,7 @@
   
   <biblioentry>
     <abbrev>SpringHateaos</abbrev>
-    <biblioid class="uri">TODO: URL</biblioid>
+    <biblioid class="uri">http://projects.spring.io/spring-hateoas/</biblioid>
   </biblioentry>
   
   <biblioentry>

@@ -7,34 +7,35 @@
   <procedure id="state-diagram-to-resource-model">
     <title>Design a REST API</title>
     <step>
-      <para>Document the requirements as a state diagram.</para>
+      <para>Document requirements with state diagrams.</para>
     </step>
     <step>
-      <para>Discover the resources and methods from the transitions.</para>
+      <para>Discover resources and methods from transitions.</para>
     </step>
     <step>
-      <para>Name the resources with URIs.</para>
+      <para>Name resources with URIs.</para>
     </step>
     <step>
-      <para>Design the messages.</para>
+      <para>Design messages.</para>
     </step>
     <step>
-      <para>Select media types to serialize the messages.</para>
+      <para>Assign link relations to transitions.</para>
     </step>
     <step>
-      <para>Assign link relations to the transitions.</para>
+      <para>Select media types to serialize messages.</para>
     </step>
     <step>
-      <para>Add documentation as required.</para>
+      <para>Document semantics.</para>
     </step>
   </procedure>
   <para>
-    Note that this is a variation of the design process described in <citation>Richardson07</citation>. Let's look at
-    each of the steps in details. 
+    Note that this is a variation of the design process described in <citation>Richardson07</citation>. It's adapted to
+    make explicit use of state diagrams and also to incorporate application semantics.
+    Let's look at each of the steps in details.
   </para>
   
   <section>
-    <title>Document the Requirements As a State Diagram</title>
+    <title>Document Requirements With State Diagrams</title>
 	  <para>
 		  We covered this in a lot of detail in <xref linkend="state-diagrams"/>. A state diagram consists of all the
 		  possible states a client can be in and the transitions that the client can make between them. Note that a single
@@ -52,7 +53,7 @@
   </section>
 
   <section>
-    <title>Discover the resources and methods from the transitions</title>
+    <title>Discover Resources and Methods From Transitions</title>
     <para>
       Each transition in the state diagram will move the client from one state to the next. But the state diagram is
       nothing more than an abstract representation of the client's possibilities. To actually make anything happen, the 
@@ -549,7 +550,7 @@
   </section>
   
   <section>
-    <title>Name the Resources With URIs</title>
+    <title>Name Resources With URIs</title>
     <para>
       Every resource should be identified by a URI. From the client’s perspective, this is an implementation detail,
       but we still need to do this before we can implement the server. We should follow existing best practices for URIs 
@@ -678,7 +679,7 @@
   </section>
 
   <section>
-    <title>Design the Messages</title>
+    <title>Design Messages</title>
     <para>
       At this point we almost have a complete resource model. All that is left to do, is design our representations.
       In this step we'll design the structure of the messages that client and server exchange. In the next step, we'll
@@ -780,17 +781,19 @@
       An order contains of a number of items that the customer wants to purchase. These are the same items that are on
       the menu, of course, so we can re-use the item design. We need a couple of other properties. The barista needs to
       call the customer when the order is prepared, so we should add a <literal>customer</literal> property for this 
-      purpose. We also like to include a <literal>total</literal>. One could argue that this can be calculated from the
-      items, but there may be complications like quantum discounts and whatnot that we want to be prepared for. Finally,
-      we need a <literal>status</literal> property to keep track of the various state changes that we saw earlier.
+      purpose. We also like to include a <literal>total</literal> (with <literal>currency</literal>). One could argue 
+      that this can be calculated from the items, but there may be complications like quantum discounts and whatnot that 
+      we want to be prepared for. Finally, we need a <literal>status</literal> property to keep track of the various 
+      state changes that we saw earlier.
     </para>
     <para>
       A payment could take many forms. We could go overboard and design a very flexible solution that will cater to
       any and all payment methods, but this book is about REST, not payments. Since RESTBucks is an online store, we'll
       simply assume a credit card payment. So we'll need the following properties: <literal>amount</literal>,
       <literal>currency</literal> <literal>cardholderName</literal>, <literal>cardNumber</literal>, 
-      <literal>expiryMonth</literal>, and <literal>expiryYear</literal>. To be future-proof, we'll throw in a 
-      <literal>type</literal> field as well, so that we can add different payment methods later.
+      <literal>expiryMonth</literal>, <literal>expiryYear</literal>, and <literal>cvv</literal>. To be future-proof, 
+      we'll throw in a <literal>paymentMethod</literal> field as well, so that we can add different payment methods 
+      later.
     </para>
     <para>
       The receipt should have <literal>date</literal> and <literal>time</literal> properties and show the 
@@ -800,16 +803,145 @@
       card statements.
     </para>
     <para>
-      We now have our semantics straight. With this information, we can now write an ALPS document (see 
-      <xref linkend="maturity"/>):
+      Here's a summary:
     </para>
-    <programlisting>
-      TODO: ALPS document
-    </programlisting>
+    <informaltable>
+      <thead>
+        <tr>
+          <th>Message</th>
+          <th>Properties</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><literal>menu</literal></td>
+          <td><literal>items</literal></td>
+        </tr>
+        <tr>
+          <td><literal>item</literal></td>
+          <td>
+            <literal>name</literal>, <literal>size</literal>, <literal>milk</literal>, <literal>price</literal>, 
+            <literal>currency</literal>
+          </td>
+        </tr>
+        <tr>
+          <td><literal>order</literal></td>
+          <td>
+            <literal>items</literal>, <literal>customer</literal>, <literal>total</literal>, 
+            <literal>currency</literal>, <literal>status</literal>
+          </td>
+        </tr>
+        <tr>
+          <td><literal>payment</literal></td>
+          <td>
+            <literal>amount</literal>, <literal>currency</literal>, <literal>paymentMethod</literal>, 
+            <literal>cardHolderName</literal>, <literal>cardNumber</literal>, <literal>expiryMonth</literal>, 
+            <literal>expiryYear</literal>, <literal>cvv</literal>
+          </td>
+        </tr>
+        <tr>
+          <td><literal>receipt</literal></td>
+          <td>
+            <literal>date</literal>, <literal>time</literal>, <literal>shop</literal>, <literal>items</literal>, 
+            <literal>total</literal>, <literal>currency</literal>, <literal>paymentMethod</literal>
+          </td>
+        </tr>
+      </tbody>
+    </informaltable>
   </section>
   
+  <section>
+    <title>Assign Link Relations To Transitions</title>
+    <para>
+      A REST client follows transitions in the state diagram by discovering links in messages. This discovery
+      process is made possible by <firstterm>link relations</firstterm>. Link relations decouple the client from the 
+      URIs that the server uses, giving the server the freedom to change its URI structure at will without breaking any 
+      clients. Link relations enable evolution of the service and are therefore an important part of any REST API.
+    </para>
+    <para>
+      We should try to use existing link relations as much as possible. There is a registry of link relations 
+      <citation>IanaLinks</citation> maintained by IANA, the same organization that also registers media types. 
+      There won't be a registered link relation for every case, so sometimes you need to invent your own. But if you 
+      can, reuse link relations, because it is just another thing that a client developer doesn't have to learn about 
+      your service.
+    </para>
+    <para>
+      Publicly registered link relations have a short English name, like <literal>self</literal> or 
+      <literal>edit</literal>. The registry makes sure that they are globally unique. That is not the case for custom
+      link relations, so they take the form of URIs. Note that these URIs don't have to resolve, so you don't need to
+      have them point to a web page. However, that would be a good way to make them discoverable and provide a 
+      convenient place to document them.
+    </para>
+    <para>
+      Here are the link relations for our example:
+    </para>
+    <informaltable>
+      <thead>
+        <tr>
+          <th>Transition</th>
+          <th>Link Relation</th>
+        </tr>
+      </thead>
+      <tbody>
+				<tr>
+					<td>Read menu</td>
+					<td><literal>http://relations.restbucks.com/linkrel/menu</literal></td>
+				</tr>
+				<tr>
+					<td>Order</td>
+					<td><literal>http://relations.restbucks.com/linkrel/orders</literal></td>
+				</tr>
+				<tr>
+					<td>Receive notification</td>
+					<td><literal>self</literal></td>
+				</tr>
+				<tr>
+					<td>Take order</td>
+					<td><literal>edit</literal></td>
+				</tr>
+				<tr>
+					<td>Abort</td>
+					<td><literal>edit</literal></td>
+				</tr>
+				<tr>
+					<td>Pay</td>
+					<td><literal>payment</literal></td>
+				</tr>
+				<tr>
+					<td>Take receipt</td>
+					<td><literal>http://relations.restbucks.com/linkrel/receipt</literal></td>
+				</tr>
+      </tbody>
+    </informaltable>
+    <para>
+      We can re-use a couple of standard link relations. 
+      The <literal>self</literal> link relation refers to the object itself, so we can use it to refresh an order and 
+      "get notified" when its <literal>status</literal> changes. It's good practice to provide a link of this type to 
+      every object.
+      The <literal>edit</literal> link relation refers to where the object can be edited. We can use this for the cases
+      where we update the <literal>status</literal> property: Take order and Abort.
+      The <literal>payment</literal> link relation refers to where payment is accepted, so it's perfect for the Pay
+      transition. 
+    </para>
+    <para>
+      The other transitions required custom link relations.
+      To make it clear that the custom link relations are specific to the RESTBucks service, we'll prefix them with our 
+      Internet domain. 
+      If at all possible, link relations should be nouns that indicate the type of relationship that the target 
+      resource has with the current resource.
+      In our case, that is easy enough: menu, orders, and receipt.
+    </para>
+    <para>
+       The alternative to defining custom link relations is to start a standardization process. We could have started
+       an Internet Draft or similar document that defines reusable link relations. The <literal>receipt</literal> link 
+       relation makes sense for pretty much every commerce API, and the <literal>menu</literal> and 
+       <literal>order</literal> link relations are useful in broader food and drinks domain. If you're trying to be a 
+       thought leader in your domain, then this is a good opportunity to demonstrate that ambition. 
+    </para>
+  </section>
+
   <section id="media-types">
-    <title>Select Media Types To Serialize the Messages</title>
+    <title>Select Media Types To Serialize Messages</title>
     <para>
       When extending an existing design, you should stick with the already selected media type(s). For new APIs, you
       have to decide what media type(s) to use.
@@ -838,8 +970,8 @@
       type<literal>/</literal>sub-type, where the number of types is fixed. For REST APIs, most media types will fall
       within the <literal>application</literal> type. 
       The IANA registry is made up of several trees. The so-called vendor tree is for registering personal and corporate 
-      standards, while the standards tree contains open standards. Media types in the vendor tree start thee sub-type
-      with <literal>vnd</literal>, we'll see shortly.
+      standards, while the standards tree contains open standards. Media types in the vendor tree start the sub-type
+      with <literal>vnd</literal>, as we'll see shortly.
     </para>
     <para>
       There is some correlation between these two dimensions. An application-specific media type will have little 
@@ -858,7 +990,7 @@
       <xref linkend="maturity"/> that semantic profiles can bridge that gap. If you're lucky enough to work in a domain
       for which such a semantic profile already exists, then you can re-use that. But even if you're not that lucky,
       you can still save yourself a lot of work by selecting a general purpose media type. You only have to describe
-      your semantics, instead of the semantics, plus the protocol, plus the data format.  
+      your semantics, instead of the semantics plus the protocol plus the data format.  
     </para>
     <para>
       Most media types are derived from an existing base format like XML (e.g. SVG) or JSON (e.g. GitHub). The default
@@ -869,9 +1001,9 @@
       Note that JSON itself, <literal>application/json</literal>, is not a hypermedia type, since JSON doesn’t define 
       links. You can, of course, use a convention on top of JSON, for instance that there should be a 
       <literal>links</literal> property with a certain structure to describes the links. The problem with this approach
-      is that it's a fiat or personal standard, and we've already seen that open standards are better. In the following
-      sections we will take a look at some JSON-based media types that are defined by open standards and that allow
-      the inclusion of hyperlinks.
+      is that it's a fiat or at best personal standard, and we've already seen that open standards are better. 
+      In the following sections we will take a look at some JSON-based media types that allow the inclusion of 
+      hyperlinks.
     </para>
     <para>
       As of this writing, the jury is still out on which of the following media types is going to win out as the 
@@ -954,7 +1086,7 @@
       provides hyperlinking capabilities using the <literal>_links</literal> property, it doesn't have anything for
       handling forms. So with HAL you can only build level 3a APIs. Yet HAL is a big improvement over plain JSON, and 
       it is quite popular. For instance, it is used by default in Spring HATEOAS <citation>SpringHateaos</citation>.
-      This no doubt is due to its simplicity.
+      HAL's popularity no doubt is due to its simplicity.
     </para>
     <para>
       HAL is a registered in the open standards tree of IANA, but it hasn't reached the status of standard yet. At the
@@ -969,8 +1101,8 @@
     <para>
       The Mason <citation>Mason</citation> media type, <literal>application/vnd.mason+json</literal>, fills the gap that
       HAL leaves. Like HAL, Mason supports links (using the <literal>@links</literal> property), including curies (using 
-      the <literal>@namespaces</literal> property). In addition, it supports the forms using the 
-      <literal>@actions</literal> property. Here's how a RESTBucks order could look like in Mason:
+      the <literal>@namespaces</literal> property). In addition, it supports forms using the <literal>@actions</literal> 
+      property. Here's how a RESTBucks order could look like in Mason:
     </para>
     <programlisting>
 			{ "@namespaces": {
@@ -1231,6 +1363,11 @@
 			}
     </programlisting>
     <para>
+      UBER differs from Mason and Siren in that it doesn't make a distinction between links (read-only operations) and 
+      actions (write operations). All HTTP methods are treated the same, and they are also treated the same as the 
+      properties of an object. Everything is data.
+    </para>
+    <para>
       There is nothing in the REST architectural style that ties it to HTTP, although that is the most commonly used
       protocol for transmitting the messages. UBER acknowledges this fact by abstracting away the HTTP methods. Instead
       of using <literal>POST</literal>, one would use <literal>append</literal>, for instance. When you use a protocol
@@ -1247,11 +1384,88 @@
       <title>Hydra</title>
     </section>
     <para>
-      TODO: describe
+      JSON-LD <citation>JsonLd</citation> is an open standard maintained by the W3C. Hydra <citation>Hydra</citation>
+      is an corporate standard maintained by the Hydra W3C Community Group that builds on JSON-LD.
+    </para>
+    <para>
+      JSON-LD is the JSON representation of the Linked Data concept. <firstterm>Linked Data</firstterm> is a method of 
+      publishing structured data so that it can be interlinked and queried based on semantics. JSON-LD provides a 
+      JSON-based media type that can define any semantics, and Hydra adds the Hydra Core Vocabulary that defines 
+      semantics specific to REST APIs. Hydra is thus an alternative for ALPS that is more in line with the Semantic Web
+      effort <citation>SemWeb</citation>.
+    </para>
+    <!-- TODO: Turn the below into Hydra -->
+    <programlisting>
+      { "@context": "http://www.w3.org/ns/hydra/context.jsonld",
+        "@type": 
+        },
+        "@id": "http://api.restbucks.com/orders/1234/"
+        "item": [{
+          "size": "tall",
+          "milk": "whole",
+          "drink": "caffe latte",
+          "price": 2.75,
+          "currency": "USD"
+        }],
+        "total": 2.75,
+        "currency": "USD",
+        "status": "unpaid",
+        "@links": {
+          "self": { 
+            "href": "http://api.restbucks.com/order/1234/"
+          }
+        },
+        "@actions": {
+          "relations:cancel": { 
+            "href": "http://restbucks.com/order/1234/",
+            "type": "void",
+            "method": "DELETE"
+          },
+          "payment": {
+            "href": "http://api.restbucks.com/order/1234/payments/",
+            "title": "Pay the order",
+            "type": "any",
+            "method": "POST",
+            "template": {
+              "payment": {
+                "amount": 2.75,
+                "currency": "USD",
+                "type": "creditcard",
+                "cardholderName": "",
+                "cardNumber": "",
+                "expiryMonth": "",
+                "expiryYear": ""
+              }
+            }
+          },
+          "edit": { 
+            "href": "http://api.restbucks.com/order/1234/",
+            "type": "any",
+            "method": "PATCH",
+            "template": {
+              "item": [{
+                "size": "tall",
+                "milk": "whole",
+                "drink": "caffee latte",
+                "price": 2.75,
+                "currency": "USD"
+              }],
+              "total": 2.75,
+              "currency": "USD",
+              "status": "unpaid"
+            }
+          }
+        }
+      }
+    </programlisting>
+    <para>
+      Hydra uses keywords, like HAL and Mason, to distinguish pre-defined JSON keys from arbitrary data using the 
+      <literal>@</literal> symbol. Hydra also supports curies, which they refer to as <firstterm>compact 
+      IRI</firstterm>s.
     </para>
     
     <section>
-      <title>Making a choice</title>
+      <title>Making a Choice</title>
     </section>
     <para>
       The previous sections presented a bunch of media types and listed their pros and cons. At this point in time, 
@@ -1263,48 +1477,203 @@
       depends on taste.
     </para>
     <para>
-      For RESTBucks, we want a media type that supports level 4 APIs. We don't like the lack of readability of UBER.
-      So we're going to pick Siren for now. We understand that this choice may change in the future and we will be 
-      careful to minimize the impact of that change.
+      For RESTBucks, we want a media type that supports level 4 APIs. At the moment of writing, that limits our choice
+      to Siren, UBER, and Hydra. We don't like the lack of readability of UBER that stems from treating data and
+      operations the same. So that leaves Siren and Hydra.
+    </para>
+    <para>
+      Both Siren and JSON-LD have libraries for working with them in a variety of languages.
+      Hydra is an corporate standard based on JSON-LD, which is an open standard, so one might argue that Hydra is 
+      a bit more of an open standard than Siren.
+      The use of JSON-LD in Hydra also means that we can connect to the Semantic Web infrastructure if we want to, but 
+      at the same time we're not forced to.
+      Hydra is tied to JSON-LD for semantic profiles, while Siren can use ALPS and probably also JSON-LD.
+    </para>
+    <para>
+      Based on these considerations, we think it's a close tie between Siren and Hydra. Hydra seems more powerful, but
+      less mature as a specification than Siren. 
+      Since we can pick only one, we're going with Hydra, as we think this specification will ride on the wave of
+      JSON-LD. We understand that this choice may turn out to be wrong and we may want to change our minds in the 
+      future, so we will be careful to minimize the impact of such a change.
     </para>
   </section>
 
   <section>
-    <title>Assign Link Relations To the Transitions</title>
-    <para>
-      A REST client follows transitions in the state diagram by discovering links in representations. This discovery
-      process is made possible by <firstterm>link relations</firstterm>. Link relations decouple the client from the 
-      URIs that the server uses, giving the server the freedom to change its URI structure at will without breaking any 
-      clients. Link relations enable evolution of the service and are therefore an important part of any REST API.
-    </para>
-    <para>
-      We should try to use existing link relations as much as possible. There is a registry of link relations 
-      maintained by IANA, the same organization that also registers media types. There won't be a registered link
-      relation for every case, so sometimes you need to invent your own. But if you can, reuse link relations, because
-      it is just another thing that a client developer doesn't have to learn about your service.
-    </para>
-    <para>
-      Publicly registered link relations have a short English name, like <literal>self</literal> or 
-      <literal>edit</literal>. The registry makes sure that they are globally unique. That is not the case for custom
-      link relations, so they take the form of URIs. Note that these URIs don't have to resolve, so you don't need to
-      have them point to a web page. But that would be a good way to document them.
-    </para>
-    <para>
-      TODO: link relations for customer buying drink
-    </para>
-  </section>
-
-  <section>
-    <title>Add Documentation As Required</title>
+    <title>Document Semantics</title>
     <para>
       In order to help developers build clients that work against your API, you will most likely want to add some
-      documentation that explains certain more subtle points.
-      Examples are very helpful to illustrate those points.
-      You
-      may also add instructions for server developers that will implement the API, like what caching to use.
+      documentation that explains certain more subtle points. Examples are very helpful to illustrate those points,
+      as we saw in <xref linkend="examples"/>.
+      You may also add instructions for server developers that will implement the API, like what caching to use.
     </para>
-    <section>
-      <title>Show Examples</title>
-    </section>
+    <para>
+      There are at least two different dimensions to documenting semantics. First, you have to convey to someone else
+      what something in a message means. Second, you have to make that more concrete by giving details such as the
+      data type, the format, the length, the minimum and maximum allowable values, etc. 
+    </para>
+    <para>
+      As much as we sometimes like to think we're unique, the fact is that we rarely are. Sure, RESTbucks is unique in
+      that it sells coffee <emphasis>online</emphasis>. But it's also not unique, because it sells 
+      <emphasis>coffee</emphasis>. It therefore makes sense to see how we are different from others, and more 
+      importantly for the present discussion, how we are the same.
+    </para>
+    <para>
+      There are a number of places where people have defined semantics for various things. There is a collection of
+      schemas at <literal>schema.org</literal> <citation>SchemaOrg</citation>, for instance, for naming people, 
+      organizations, places, art, multimedia, health & medical types, and business. Other examples where you can find
+      interesting schemas are the Dublin Core Metadata Initiative <citation>DublinCore</citation> and Microformats
+      <citation>MicroFormats</citation>.
+    </para>
+    <para>
+      Let's see how much of the data in our messages we can type using these schemas:
+    </para>
+    <informaltable>
+	    <thead>
+	      <tr>
+	        <th>Data item</th>
+	        <th>Defined By</th>
+	        <th>Definition Maintained By</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+        <tr>
+          <td><literal>cardHolderName</literal></td
+          <td>https://w3id.org/creditcard/v1/name</td>
+          <td>web-payments.org</td>
+        </tr>
+        <tr>
+          <td><literal>cardNumber</literal></td
+          <td>https://w3id.org/creditcard/v1/number</td>
+          <td>web-payments.org</td>
+        </tr>
+        <tr>
+          <td><literal>currency</literal></td
+          <td>http://schema.org/priceCurrency</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>customer</literal></td
+          <td>http://schema.org/customer</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>cvv</literal></td
+          <td>https://w3id.org/creditcard/v1/verificationCode</td>
+          <td>web-payments.org</td>
+        </tr>
+        <tr>
+          <td><literal>date</literal></td
+          <td>http://schema.org/orderDate</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>expiryMonth</literal></td 
+          <td>https://w3id.org/creditcard/v1/expiryMonth</td>
+          <td>web-payments.org</td>
+        </tr>
+        <tr>
+          <td><literal>expiryYear</literal></td
+          <td>https://w3id.org/creditcard/v1/expiryYear</td>
+          <td>web-payments.org</td>
+        </tr>
+        <tr>
+          <td><literal>item</literal></td>
+          <td>http://schema.org/orderedItem</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>menu</literal></td>
+          <td>http://schema.org/menu</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>milk</literal></td
+          <td>http://vocab.restbucks.com/milk</td>
+          <td>RESTBucks</td>
+        </tr>
+        <tr>
+          <td><literal>name</literal></td
+          <td>http://schema.org/name</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>order</literal></td
+          <td>http://schema.org/Order</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>payment</literal></td
+          <td>http://vocab.restbucks.com/payment</td>
+          <td>RESTBucks</td>
+        </tr>
+        <tr>
+          <td><literal>paymentMethod</literal></td 
+          <td>http://schema.org/paymentAccepted</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>price</literal>, <literal>amount</literal></td 
+          <td>http://schema.org/price</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>receipt</literal></td
+          <td>http://purl.org/NET/atpir-cw#TicketReceipt</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><literal>shop</literal></td
+          <td>http://schema.org/brand</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>size</literal></td
+          <td>http://schema.org/servingSize</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>status</literal></td
+          <td>http://schema.org/orderStatus</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>time</literal></td
+          <td>https://schema.org/Time</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
+          <td><literal>total</literal></td 
+          <td>http://schema.org/totalPrice</td>
+          <td>schema.org</td>
+        </tr>
+	    </tbody>
+    </informaltable>
+    <para>
+      We only need to define two data items ourselves; all the others were already defined. Although it took us a bit 
+      of time to find all of these, it was well worth it. Existing clients that already understand these vocabularies
+      will have a good chance of being able to work with our service. Over time, we can expect the various vocabularies
+      to cover a wide spectrum of services, so that you won't need to define anything yourself anymore.
+    </para>
+    <para>
+      Now that we know the precise meaning of our messages, it's time to tell the world using a semantic profile. We
+      have a choice of ALPS or JSON-LD for this, and we're going to arbitrarily pick ALPS.
+    </para>
+    <programlisting>
+      <!-- TODO: ALPS profile -->
+    </programlisting>
+  </section>
+  
+  <section>
+    <title>Putting It All Together</title>
+    <para>
+      TODO: Show all the HTTP interactions.
+    </para>
+  </section>
+  
+  <section>
+    <title>Summary</title>
+    <para>
+      TODO:
+    </para>
   </section>
 </chapter>
