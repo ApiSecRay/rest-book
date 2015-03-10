@@ -1520,7 +1520,7 @@
     <para>
       There are a number of places where people have defined semantics for various things. There is a collection of
       schemas at <literal>schema.org</literal> <citation>SchemaOrg</citation>, for instance, for naming people, 
-      organizations, places, works of art, multimedia, health & medical types, and business.
+      organizations, places, works of art, multimedia, health and medical types, and business.
       Other examples where you can find interesting schemas are the Dublin Core Metadata Initiative 
       <citation>DublinCore</citation> and Microformats <citation>MicroFormats</citation>.
       You can search many of these from the Linked Open Vocabularies website <citation>LOV</citation>.
@@ -1538,42 +1538,42 @@
 	    </thead>
 	    <tbody>
         <tr>
-          <td><literal>cardHolderName</literal></td
+          <td><literal>cardHolderName</literal></td>
           <td>https://w3id.org/creditcard/v1/name</td>
           <td>web-payments.org</td>
         </tr>
         <tr>
-          <td><literal>cardNumber</literal></td
+          <td><literal>cardNumber</literal></td>
           <td>https://w3id.org/creditcard/v1/number</td>
           <td>web-payments.org</td>
         </tr>
         <tr>
-          <td><literal>cardSecurityCode</literal></td
+          <td><literal>cardSecurityCode</literal></td>
           <td>https://w3id.org/creditcard/v1/verificationCode</td>
           <td>web-payments.org</td>
         </tr>
         <tr>
-          <td><literal>currency</literal></td
+          <td><literal>currency</literal></td>
           <td>http://schema.org/priceCurrency</td>
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>customer</literal></td
+          <td><literal>customer</literal></td>
           <td>http://schema.org/customer</td>
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>date</literal></td
+          <td><literal>date</literal></td>
           <td>http://schema.org/orderDate</td>
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>expiryMonth</literal></td 
+          <td><literal>expiryMonth</literal></td>
           <td>https://w3id.org/creditcard/v1/expiryMonth</td>
           <td>web-payments.org</td>
         </tr>
         <tr>
-          <td><literal>expiryYear</literal></td
+          <td><literal>expiryYear</literal></td>
           <td>https://w3id.org/creditcard/v1/expiryYear</td>
           <td>web-payments.org</td>
         </tr>
@@ -1588,62 +1588,62 @@
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>milk</literal></td
+          <td><literal>milk</literal></td>
           <td>http://vocab.restbucks.com/milk</td>
           <td>RESTBucks</td>
         </tr>
         <tr>
-          <td><literal>name</literal></td
+          <td><literal>name</literal></td>
           <td>http://schema.org/name</td>
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>order</literal></td
+          <td><literal>order</literal></td>
           <td>http://schema.org/Order</td>
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>payment</literal></td
+          <td><literal>payment</literal></td>
           <td>http://reference.data.gov.uk/def/payment#payment</td>
           <td>UK Government</td>
         </tr>
         <tr>
-          <td><literal>paymentMethod</literal></td 
+          <td><literal>paymentMethod</literal></td>
           <td>http://schema.org/paymentAccepted</td>
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>price</literal>, <literal>amount</literal></td 
+          <td><literal>price</literal>, <literal>amount</literal></td>
           <td>http://schema.org/price</td>
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>receipt</literal></td
+          <td><literal>receipt</literal></td>
           <td>http://purl.org/NET/atpir-cw#TicketReceipt</td>
           <td></td>
         </tr>
         <tr>
-          <td><literal>shop</literal></td
+          <td><literal>shop</literal></td>
           <td>http://schema.org/brand</td>
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>size</literal></td
+          <td><literal>size</literal></td>
           <td>http://schema.org/servingSize</td>
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>status</literal></td
+          <td><literal>status</literal></td>
           <td>http://schema.org/orderStatus</td>
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>time</literal></td
+          <td><literal>time</literal></td>
           <td>https://schema.org/Time</td>
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>total</literal></td 
+          <td><literal>total</literal></td>
           <td>http://schema.org/totalPrice</td>
           <td>schema.org</td>
         </tr>
