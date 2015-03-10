@@ -424,8 +424,12 @@
       <para>
         There is a big effort under way to teach semantics to machines: the Semantic Web <citation>SemWeb</citation>.
         As part of this movement, people have found ways to assign meaning to data. The definitions of the semantic
-        elements can be re-used across applications in the same domain. The mechanism that powers that re-use is the
-        <firstterm>profile</firstterm>.
+        elements can be re-used across applications in the same domain. For example, this is how Google understands 
+        that a particular email is actually a flight confirmation from an airline, and is able to automatically put the 
+        flight on your calendar. We'll come back to this topic in <xref linkend="semantics"/>.
+      </para>
+      <para>
+        We can associate semantic definitions with HTTP messages using <firstterm>profiles</firstterm>.
       </para>
       <blockquote>
         <attribution><citation>RFC 6906</citation></attribution>
@@ -436,8 +440,9 @@
         </para>
       </blockquote>
       <para>
-        The Semantic Web effort uses profiles to assign meaning to data. Mike Amundsen has defined an alternative
-        called <firstterm>Application-Level Profile Semantics</firstterm> (ALPS) <citation>ALPS</citation>.
+        The Semantic Web effort uses profiles based on Resource Description Framework (RDF) to assign meaning to data
+        <citation>RDF</citation>. Mike Amundsen has defined an alternative called <firstterm>Application-Level Profile 
+        Semantics</firstterm> (ALPS) <citation>ALPS</citation>.
       </para>
       <blockquote>
         <attribution><citation>ALPS</citation></attribution>

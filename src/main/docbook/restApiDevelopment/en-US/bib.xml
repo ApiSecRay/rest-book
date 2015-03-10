@@ -155,6 +155,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>LOV</abbrev>
+    <biblioid class="uri">http://lov.okfn.org/dataset/lov</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>Mason</abbrev>
     <biblioid class="uri">https://github.com/JornWildt/Mason/blob/master/Documentation/Mason-draft-1.md</biblioid>
   </biblioentry>
@@ -178,6 +183,11 @@
   <biblioentry>
     <abbrev>MicroFormats</abbrev>
     <biblioid class="uri">http://microformats.org/wiki/Main_Page</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>RDF</abbrev>
+    <biblioid class="uri">http://www.w3.org/RDF/</biblioid>
   </biblioentry>
   
   <biblioentry>

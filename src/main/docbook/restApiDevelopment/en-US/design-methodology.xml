@@ -791,9 +791,9 @@
       any and all payment methods, but this book is about REST, not payments. Since RESTBucks is an online store, we'll
       simply assume a credit card payment. So we'll need the following properties: <literal>amount</literal>,
       <literal>currency</literal> <literal>cardholderName</literal>, <literal>cardNumber</literal>, 
-      <literal>expiryMonth</literal>, <literal>expiryYear</literal>, and <literal>cvv</literal>. To be future-proof, 
-      we'll throw in a <literal>paymentMethod</literal> field as well, so that we can add different payment methods 
-      later.
+      <literal>expiryMonth</literal>, <literal>expiryYear</literal>, and <literal>cardSecurityCode</literal>. 
+      To be future-proof, we'll throw in a <literal>paymentMethod</literal> field as well, so that we can add different 
+      payment methods later.
     </para>
     <para>
       The receipt should have <literal>date</literal> and <literal>time</literal> properties and show the 
@@ -836,7 +836,7 @@
           <td>
             <literal>amount</literal>, <literal>currency</literal>, <literal>paymentMethod</literal>, 
             <literal>cardHolderName</literal>, <literal>cardNumber</literal>, <literal>expiryMonth</literal>, 
-            <literal>expiryYear</literal>, <literal>cvv</literal>
+            <literal>expiryYear</literal>, <literal>cardSecurityCode</literal>
           </td>
         </tr>
         <tr>
@@ -1498,7 +1498,7 @@
     </para>
   </section>
 
-  <section>
+  <section id="semantics">
     <title>Document Semantics</title>
     <para>
       In order to help developers build clients that work against your API, you will most likely want to add some
@@ -1515,17 +1515,18 @@
       As much as we sometimes like to think we're unique, the fact is that we rarely are. Sure, RESTbucks is unique in
       that it sells coffee <emphasis>online</emphasis>. But it's also not unique, because it sells 
       <emphasis>coffee</emphasis>. It therefore makes sense to see how we are different from others, and more 
-      importantly for the present discussion, how we are the same.
+      important for the present discussion, how we are the same.
     </para>
     <para>
       There are a number of places where people have defined semantics for various things. There is a collection of
       schemas at <literal>schema.org</literal> <citation>SchemaOrg</citation>, for instance, for naming people, 
-      organizations, places, art, multimedia, health & medical types, and business. Other examples where you can find
-      interesting schemas are the Dublin Core Metadata Initiative <citation>DublinCore</citation> and Microformats
-      <citation>MicroFormats</citation>.
+      organizations, places, works of art, multimedia, health & medical types, and business.
+      Other examples where you can find interesting schemas are the Dublin Core Metadata Initiative 
+      <citation>DublinCore</citation> and Microformats <citation>MicroFormats</citation>.
+      You can search many of these from the Linked Open Vocabularies website <citation>LOV</citation>.
     </para>
     <para>
-      Let's see how much of the data in our messages we can type using these schemas:
+      Let's see how much of the data in our messages we can describe using existing vocabularies:
     </para>
     <informaltable>
 	    <thead>
@@ -1547,6 +1548,11 @@
           <td>web-payments.org</td>
         </tr>
         <tr>
+          <td><literal>cardSecurityCode</literal></td
+          <td>https://w3id.org/creditcard/v1/verificationCode</td>
+          <td>web-payments.org</td>
+        </tr>
+        <tr>
           <td><literal>currency</literal></td
           <td>http://schema.org/priceCurrency</td>
           <td>schema.org</td>
@@ -1555,11 +1561,6 @@
           <td><literal>customer</literal></td
           <td>http://schema.org/customer</td>
           <td>schema.org</td>
-        </tr>
-        <tr>
-          <td><literal>cvv</literal></td
-          <td>https://w3id.org/creditcard/v1/verificationCode</td>
-          <td>web-payments.org</td>
         </tr>
         <tr>
           <td><literal>date</literal></td
@@ -1603,8 +1604,8 @@
         </tr>
         <tr>
           <td><literal>payment</literal></td
-          <td>http://vocab.restbucks.com/payment</td>
-          <td>RESTBucks</td>
+          <td>http://reference.data.gov.uk/def/payment#payment</td>
+          <td>UK Government</td>
         </tr>
         <tr>
           <td><literal>paymentMethod</literal></td 
@@ -1649,18 +1650,11 @@
 	    </tbody>
     </informaltable>
     <para>
-      We only need to define two data items ourselves; all the others were already defined. Although it took us a bit 
+      We only need to define one data item ourselves; all the others were already defined. Although it took us a bit 
       of time to find all of these, it was well worth it. Existing clients that already understand these vocabularies
       will have a good chance of being able to work with our service. Over time, we can expect the various vocabularies
-      to cover a wide spectrum of services, so that you won't need to define anything yourself anymore.
+      to cover an ever wider spectrum of services, so that you won't need to define anything yourself anymore.
     </para>
-    <para>
-      Now that we know the precise meaning of our messages, it's time to tell the world using a semantic profile. We
-      have a choice of ALPS or JSON-LD for this, and we're going to arbitrarily pick ALPS.
-    </para>
-    <programlisting>
-      <!-- TODO: ALPS profile -->
-    </programlisting>
   </section>
   
   <section>
