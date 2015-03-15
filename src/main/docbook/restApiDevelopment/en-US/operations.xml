@@ -1,5 +1,8 @@
 <chapter id="operations">
   <title>Operations</title>
+  <para>
+    TODO: Operability
+  </para>
   
   <section>
     <title>Separating Configuration From Code</title>

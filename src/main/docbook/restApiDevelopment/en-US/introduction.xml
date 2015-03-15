@@ -274,7 +274,8 @@
           <term>Level 1</term>
           <listitem>
             <para>
-              The API offers more than one resource, at different URIs, but still uses only one HTTP method.
+              The API offers more than one resource, at different URIs, but still uses only one HTTP method, usually
+              either <literal>GET</literal> or <literal>POST</literal>.
             </para>
             <para>
               Since there are multiple resources, we can actually bookmark them. But we could also modify them with the 
@@ -296,7 +297,7 @@
               server.
             </para>
             <para>
-              We dislike the term “pragmatic REST”. It’s a cheap rhetoric trick to put opponents (“dogmatists”)
+              We dislike the term “pragmatic REST”, as it’s a cheap rhetoric trick to put opponents (“dogmatists”)
               on the defensive without having to provide good arguments.
               More importantly, it creates semantic diffusion: "pragmatic REST" is not actually REST according to 
               Fielding's definition, and shouldn't be called such. Using the same term for different things is bound to
@@ -325,8 +326,9 @@
               from the default.
             </para>
             <para>
-              There are different form technologies, like HTML Forms, URI Templates, and XForms. Which one to use
-              doesn't matter much for this discussion, as long as the media type is able to express forms.
+              There are different form technologies, like HTML Forms, URI Templates <citation>RFC 6570</citation>, 
+              and XForms. Which one to use doesn't matter much for this discussion, as long as the media type is able 
+              to express forms.
             </para>
             <para>
               Since some media types stop short at links and forget about forms, we think it makes sense to split this 
@@ -395,9 +397,10 @@
                 after all. Either way, we end up in the desired state.
               </para>
               <para>
-                No such guarantees are available for methods that are not idempotent, like <literal>POST</literal>. If
-                we try to create a resource with <literal>POST</literal>, and the connection drops before the response,
-                we can't safely retry, or we may end up with two created resources instead of one.
+                No such guarantees are available for methods that are not idempotent: <literal>POST</literal> and
+                <literal>PATCH</literal>. For example, if we try to create a resource with <literal>POST</literal>, 
+                and the connection drops before we receive the response, we can't retry, or we may end up with two 
+                created resources instead of one.
               </para>
             </listitem>
           </varlistentry>
@@ -406,30 +409,36 @@
       
       <para>
         The amount of out-of-band communication steadily decreases as we move up the levels. This is a
-        very good thing, as it reduces the amount of coupling between clients and servers. It also makes clients
+        good thing, as it reduces the amount of coupling between clients and servers. It also makes clients
         easier to build, since we have to encode less knowledge into them.
       </para>
       <para>
         We believe that level 3 isn’t the final destination, however. Even with the inclusion in the message of things 
         like what method and protocol to use to follow a link, and what media type to encode the request in, we still 
-        need some out-of-band communication. Which links to follow is based on the client's goal and what the link 
-        relations of the links in the message <emphasis>mean</emphasis>.
+        need some out-of-band communication. Which links to follow is based on the client's goal and what the data items
+        and link relations of the links in the message <emphasis>mean</emphasis>.
       </para>
       <para>
-        A REST client driven by a human user can navigate a level 3 API, since it can present the link relations in its 
-        user interface and let the user select the next link. But for true <firstterm>machine-to-machine</firstterm>
-        (M2M) communication, including microservices, we need something more: semantics. 
-        The client needs to <emphasis>understand</emphasis> what to do without a human directing it.
+        A REST client driven by a human user can navigate a level 3 API, since it can present the data items and link 
+        relations in its user interface and let the user select the next link. But for true 
+        <firstterm>machine-to-machine</firstterm> (M2M) communication we need something more: semantics. The client 
+        needs to <emphasis>understand</emphasis> what to do without a human directing it.
       </para>
       <para>
-        There is a big effort under way to teach semantics to machines: the Semantic Web <citation>SemWeb</citation>.
-        As part of this movement, people have found ways to assign meaning to data. The definitions of the semantic
-        elements can be re-used across applications in the same domain. For example, this is how Google understands 
-        that a particular email is actually a flight confirmation from an airline, and is able to automatically put the 
-        flight on your calendar. We'll come back to this topic in <xref linkend="semantics"/>.
+        There is a big effort under way to teach semantics to machines <citation>Semantic Web</citation>.
+        Semantic Web technology involves relating disparate pieces of data, assigning meaning to data using 
+        vocabularies, and querying and reasoning about data based on its meaning.
+        For example, Gmail can understand that a particular email is actually a flight confirmation from an airline
+        if the email refers to a shared vocabulary. Based on that understanding, Gmail is able to automatically put 
+        the flight on your Google calendar and to display a check-in button.
+        We'll talk more about semantics in <xref linkend="semantics"/>.
       </para>
       <para>
-        We can associate semantic definitions with HTTP messages using <firstterm>profiles</firstterm>.
+        Some media types have specific facilities for adding in semantics. For instance, HTML offers the 
+        <literal>class</literal> attribute on many elements that can be used to refer to a vocabulary term.
+        This allows for different styling of those elements using CSS, for instance, based on their meaning. For 
+        media types that don't have such facilities, semantic <firstterm>profiles</firstterm> allow us to add meaning 
+        to our messages.
       </para>
       <blockquote>
         <attribution><citation>RFC 6906</citation></attribution>
@@ -440,9 +449,10 @@
         </para>
       </blockquote>
       <para>
-        The Semantic Web effort uses profiles based on Resource Description Framework (RDF) to assign meaning to data
-        <citation>RDF</citation>. Mike Amundsen has defined an alternative called <firstterm>Application-Level Profile 
-        Semantics</firstterm> (ALPS) <citation>ALPS</citation>.
+        The Semantic Web effort uses profiles based on the Resource Description Framework <citation>RDF</citation> to 
+        assign meaning to data, for instance using <citation>JSON-LD</citation>.
+        Mike Amundsen has defined an alternative called <firstterm>Application-Level Profile Semantics</firstterm> 
+        <citation>ALPS</citation>.
       </para>
       <blockquote>
         <attribution><citation>ALPS</citation></attribution>
@@ -453,13 +463,14 @@
         </para>
       </blockquote>
       <para>
-        The idea is that we program our clients with the knowledge contained in the profile, so that it can understand 
-        any API that serves that profile. Its a clean separation of concerns, with the data format specified by the
-        media type, and the application semantics specified by the profile. 
+        If we program our clients with the knowledge contained in a semantic profile, then it can understand any API 
+        that serves that profile. This is a clean separation of concerns, with the data format specified by the
+        media type, and its meaning specified in a separate semantic profile. 
       </para>
       <para>
-        We propose to add a fourth level to Richardson's maturity model that is defined by the use of application 
-        semantics, either using semantic web technology or ALPS.
+        We propose to add a fourth level to Richardson's maturity model that is defined by the use of semantic 
+        profiles, whether in the form of semantic web technology, ALPS, or anything else that serves the same 
+        purpose.
       </para>
       <figure xml:id="maturity2">
         <mediaobject>
@@ -469,16 +480,6 @@
         </mediaobject>
         <title>Extended REST Maturity Model</title>
       </figure>
-      <para>
-        Some media types have facilities for semantic profiles, while others don't. For instance, HTML supports the
-        <literal>class</literal> attribute on many elements. This allows for different styling of those elements using
-        CSS, for instance, based on their meaning.
-      </para>
-      <para>
-        While we haven't seen many level 4 APIs in the wild, we can future-proof our APIs by selecting media types that
-        are ready for semantic profiles, even if we're not going to use them quite yet. We'll talk more about that 
-        in <xref linkend="media-types"/>.
-      </para>
     </section>
   </section>
   

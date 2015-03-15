@@ -1,8 +1,12 @@
 <chapter id="maintenance">
-  <title>Evolution</title>
+  <title>Maintenance</title>
   
   <section>
     <title>Backwards Compatibility</title>
+    <para>
+      TODO: Add new high-level functionality to the Home resource.
+      TODO: evolvability, maintainability
+    </para>
   </section>
   
   <section>

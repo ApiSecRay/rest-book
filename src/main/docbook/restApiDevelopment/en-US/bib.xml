@@ -105,7 +105,7 @@
   </biblioentry>
 
   <biblioentry>
-    <abbrev>GitHubApi</abbrev>
+    <abbrev>GitHub API</abbrev>
     <biblioid class="uri">https://developer.github.com/v3/</biblioid>
   </biblioentry>
   
@@ -126,7 +126,8 @@
   
   <biblioentry>
     <abbrev>HTTP</abbrev>
-    <biblioid class="uri">http://tools.ietf.org/html/rfc7231</biblioid>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc7230</biblioid>
+    <citetitle>RFC 7230-7235</citetitle>
   </biblioentry>
   
   <biblioentry>
@@ -140,7 +141,7 @@
   </biblioentry>
   
   <biblioentry>
-    <abbrev>IanaLinks</abbrev>
+    <abbrev>IANA Registry of Link Relation Types</abbrev>
     <biblioid class="uri">http://www.iana.org/assignments/link-relations/link-relations.xhtml</biblioid>
   </biblioentry>
   
@@ -150,7 +151,7 @@
   </biblioentry>
   
   <biblioentry>
-    <abbrev>JsonLd</abbrev>
+    <abbrev>JSON-LD</abbrev>
     <biblioid class="uri">http://www.w3.org/TR/json-ld/</biblioid>
   </biblioentry>
   
@@ -188,26 +189,37 @@
   <biblioentry>
     <abbrev>RDF</abbrev>
     <biblioid class="uri">http://www.w3.org/RDF/</biblioid>
+    <citetitle>Resource Description Framework</citetitle>
   </biblioentry>
   
   <biblioentry>
     <abbrev>RFC 2048</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/rfc2048</biblioid>
+    <citetitle>Multipurpose Internet Mail Extensions (MIME) Part Four: Registration Procedures</citetitle>
   </biblioentry>
   
   <biblioentry>
     <abbrev>RFC 3986</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/rfc3986</biblioid>
+    <citetitle>Uniform Resource Identifier (URI): Generic Syntax</citetitle>
   </biblioentry>
   
   <biblioentry>
     <abbrev>RFC 5789</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/rfc5789</biblioid>
+    <citetitle>PATCH Method for HTTP</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>RFC 6570</abbrev>
+    <biblioid class="uri">https://tools.ietf.org/html/rfc6570</biblioid>
+    <citetitle>URI Templates</citetitle>
   </biblioentry>
   
   <biblioentry>
     <abbrev>RFC 6906</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/rfc6906</biblioid>
+    <citetitle>The 'profile' Link Relation Type</citetitle>
   </biblioentry>
   
   <biblioentry>
@@ -252,7 +264,7 @@
   </biblioentry>
   
   <biblioentry>
-    <abbrev>SemWeb</abbrev>
+    <abbrev>Semantic Web</abbrev>
     <biblioid class="uri">http://www.w3.org/standards/semanticweb/</biblioid>
   </biblioentry>
   
@@ -267,7 +279,12 @@
   </biblioentry>
   
   <biblioentry>
-    <abbrev>SpringHateaos</abbrev>
+    <abbrev>SOLID</abbrev>
+    <biblioid class="uri">http://www.objectmentor.com/resources/articles/Principles_and_Patterns.pdf</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Spring HATEAOS</abbrev>
     <biblioid class="uri">http://projects.spring.io/spring-hateoas/</biblioid>
   </biblioentry>
   
@@ -316,11 +333,6 @@
   <biblioentry>
     <abbrev>XML-RPC</abbrev>
     <biblioid class="uri">http://xmlrpc.scripting.com/default.html</biblioid>
-  </biblioentry>
-  
-  <biblioentry>
-    <abbrev>UriTemplate</abbrev>
-    <biblioid class="uri">https://tools.ietf.org/html/rfc6570</biblioid>
   </biblioentry>
   
 </bibliography>

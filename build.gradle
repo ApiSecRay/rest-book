@@ -42,6 +42,10 @@ jdocbook {
 
 defaultTasks 'buildDocs'
 
+task clean << {
+  ant.delete(dir: buildDir.path, failonerror: false)
+}
+
 /*
 gradle.taskGraph.whenReady { graph ->
   graph.allTasks.findAll { it.name.startsWith('renderDocBook_') }.each { task ->

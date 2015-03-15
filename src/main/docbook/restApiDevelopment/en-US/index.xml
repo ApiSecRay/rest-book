@@ -28,18 +28,22 @@
     <xi:include href="error-handling.xml"/>
     <xi:include href="performance.xml"/>
     <xi:include href="security.xml"/>
+    <xi:include href="radl.xml"/>
   </part>
 
   <part>
     <title>Implementation</title>
-    <xi:include href="radl.xml"/>
     <xi:include href="implementation.xml"/>
     <xi:include href="test.xml"/>
     <xi:include href="documentation.xml"/>
     <xi:include href="operations.xml"/>
     <xi:include href="maintenance.xml"/>
-    <xi:include href="client.xml"/>
   </part>
-  
+
+  <part>
+    <title>Usage</title>
+    <xi:include href="client.xml"/>
+  </part>  
+
   <xi:include href="bib.xml"/>>
 </book>

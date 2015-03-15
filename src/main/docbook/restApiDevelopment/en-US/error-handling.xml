@@ -1,6 +1,9 @@
 <chapter id="error">
   <title>Error Handling</title>
   <para>
+    TODO: Reliability, robustness
+  </para>
+  <para>
     The HTTP protocol uses status codes to return error information. This facility, while extremely useful, is too 
     limited for many use cases. So how do we return more detailed information?
   </para>

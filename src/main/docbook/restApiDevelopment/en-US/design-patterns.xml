@@ -3,14 +3,17 @@
   <section id="home">
     <title>Home</title>
   </section>
-  <section id="create">
-    <title>Create by POST</title>
-  </section>
   <section id="collection">
     <title>Collections</title>
   </section>
-  <section>
+  <section id="create">
+    <title>Create by POST</title>
+  </section>
+  <section id="polling">
     <title>Polling</title>
+    <para>
+      TODO: Retry-After
+    </para>
   </section>
   <section id="notifications">
     <title>Notifications</title>
@@ -23,6 +26,12 @@
   </section>
   <section>
     <title>Transactions</title>
+  </section>
+  <section id="workflow">
+    <title>Workflows</title>
+  </section>
+  <section id="processor">
+    <title>Processors</title>
   </section>
   <section>
     <title>Batches</title>

@@ -131,20 +131,19 @@
     </section>
 
     <section id="sd-restbucks">
-      <!-- TODO: Remove client-side transitions -->
       <title>State Diagrams for RESTBucks</title>        
       <para>
         Let's apply this little bit of theory to our RESTBucks example.
       </para>
       <para>
-        When a customer arrives, she reads the menu, selects a beverage, and orders it. The cashier presents her with 
-        the total amount due, and she pays him. The cashier then adds the order to the barista's queue. In time, the 
-        barista will pop the order of the queue and prepare it. Once done, he will inform the customer, who takes the 
-        order.
+        When a customer arrives, she reads the menu and orders something off it. The cashier presents her with 
+        the total amount due, and she pays him. The cashier hands her a receipt and adds the order to the barista's 
+        queue. In time, the barista will pop the order of the queue and prepare it. Once done, he notifies the 
+        customer, who then takes her serving.
       </para>
       <para>
-        That's the whole process. Now we have to split that up per actor, since the different actors are each in their
-        own states and thus have their own state diagrams. Here's one for the customer:
+        That's the whole process. Now we have to split that up per actor, since the different actors each go through 
+        their own states and thus have their own state diagrams. Here's one for the customer:
       </para>
       <figure xml:id="sd-customer-happy-path">
         <mediaobject>
@@ -156,20 +155,19 @@
       </figure>
       <para>
         The process starts when the customer walks into the store. We'll call this initial state 
-        <literal>Arrived</literal>. She then reads the menu to move to the <literal>Deciding</literal> state. There
-        she can select items from the menu that she wants to order. This keeps her in the <literal>Deciding</literal> 
-        state as long as she hasn't committed to any particular order. At some point, though,
-        she'll order with the cashier and move to the <literal>Ordered</literal> state. The cashier will tell her the
+        <literal>Arrived</literal>. She then reads the menu to move to the <literal>Deciding</literal> state, where she
+        selects items from the menu that she wants to order. She then places the order with the cashier and moves to 
+        the <literal>Ordered</literal> state. The cashier will tell her the
         amount due and she'll pay and move to the <literal>Paid</literal> state. She'll take the receipt that the 
-        cashier gives here and moves to the <literal>Waiting state</literal>. While she waits, the cashier places the order
-        on the barista's queue and at some point the barista pops that order of and prepares it. The customer
-        receives a notification from the barista and moves to the <literal>Served</literal> state, where the order is
-        ready for her. She then takes the order and leaves the store as a happy customer.
+        cashier gives here and moves to the <literal>Waiting state</literal>. While she waits, the cashier places the 
+        order on the barista's queue and at some point the barista pops that order off and prepares it. The customer
+        receives a notification from the barista and moves to the <literal>Served</literal> state, where the serving is
+        ready for her. She then takes the serving and hopefully leaves the store as a happy customer.
       </para>
       <para>
         Of course, this is just the part of the workflow where everything goes according to plan, the so-called 
         <firstterm>happy path</firstterm> or <firstterm>main success</firstterm> scenario. But a customer can 
-        also cancel an order that she hasn't paid for yet or change it:
+        also cancel or change an order that she hasn't paid for yet:
       </para>
       <figure xml:id="sd-customer">
         <mediaobject>
@@ -177,12 +175,18 @@
             <imagedata fileref="images/sd-customer.png" scale="68" align="center"/>
           </imageobject>
         </mediaobject>
-        <title>Complete state diagram for RESTBucks customer</title>
+        <title>Complete state diagram for a RESTBucks customer</title>
       </figure>
       <para>
         As you can see, the process is mostly linear for the customer, focused on achieving a single goal: to get her
-        coffee. The situation looks a bit different for the cashier and the barista, however. They work in loops, 
-        serving one customer after another. Here's the state diagram for the cashier:
+        coffee. This is typical for workflow type of interactions, which we'll discuss in more detail in 
+        <xref linkend="workflow"/>. 
+      </para>
+      <para>
+        The state diagram looks a bit different for the cashier and the barista: they work in loops, serving one 
+        customer after another. This is another pattern that is common in microservices, as we'll see in 
+        <xref linkend="processor"/>.
+        Here's the state diagram for the cashier:
       </para>
       <figure xml:id="sd-cashier">
         <mediaobject>
@@ -190,15 +194,16 @@
             <imagedata fileref="images/sd-cashier.png" scale="68" align="center"/>
           </imageobject>
         </mediaobject>
-        <title>State diagram for RESTBucks cashier</title>
+        <title>State diagram for a RESTBucks cashier</title>
       </figure>
       <para>
         The cashier starts his day when the store openes with waiting for the first customer. As some point a customer 
-        walks in and the casher accepts her order, moving him to the <literal>Inputing order state</literal> where he
+        walks in and the cashier accepts her order, moving him to the <literal>Inputing order</literal> state where he
         pushes the correct buttons on the cash register. He then tells the customer the amount due, which puts him in
-        the <literal>Awaiting payment</literal> state. When the money comes in, he moves to the <literal>Payment 
-        received</literal> state. He gives the customer her receipt. Finally he places the order on the barista's queue
-        and turns to the next customer. At the end of his shift, the terminates the process by going home.
+        the <literal>Awaiting payment</literal> state. If the customer cancels her order, the cashier moves on to the
+        next customer. But when the customer pays, the cashier moves to the <literal>Payment received</literal> state. 
+        He then gives the customer her receipt. Finally he places the order on the barista's queue
+        and turns to the next customer. At the end of his shift, he terminates the process by going home.
       </para>
       <para>
         The state diagram for the barista is a similar loop:
@@ -209,8 +214,14 @@
             <imagedata fileref="images/sd-barista.png" scale="68" align="center"/>
           </imageobject>
         </mediaobject>
-        <title>State diagram for RESTBucks cashier</title>
+        <title>State diagram for a RESTBucks barista</title>
       </figure>
+      <para>
+        The barista starts his day waiting for the cashier to place an order on his queue. When that happens, he takes
+        the order off the queue and prepares it. Once done, he notifies the customer and waits for her to take her
+        serving. Then he's ready to take on the next order. At the end of his shift, he terminates the process by 
+        going home.
+      </para>
     </section>
     
     <section id="examples">
@@ -240,19 +251,18 @@
        <example id="bdd-customer-happy-path">
         <title>Chrissy orders a latte</title>
         <programlisting>
-          Given a customer Chrissy
-          When she reads the menu
-          And she selects a tall whole milk caffe latte
-          And she orders
-          Then she is due $2.75 
-          When she pays
-          Then she is handed a receipt
-          When she takes the receipt
-          Then she must wait for the barista
-          When the barista calls her name
-          Then her order is ready
-          When she takes her order
-          Then she is happy
+Given a customer Chrissy
+When she reads the menu
+And she orders a tall whole milk caffe latte
+Then she is due $2.75 
+When she pays
+Then she is handed a receipt
+When she takes the receipt
+Then she must wait for the barista
+When the barista calls her name
+Then her serving is ready
+When she takes her serving
+Then she is happy
         </programlisting>
        </example>	        
       <para>
@@ -445,7 +455,7 @@
          </listitem>
          <listitem>
            <para>
-             The next line is <literal>And she selects a tall whole milk caffe latte</literal>. The line starts with
+             The next line is <literal>And she orders a tall whole milk caffe latte</literal>. The line starts with
              <literal>And</literal>, which is shorthand for the keyword on the previous line, <literal>When</literal>.
              So we must add a transition. But since that transition must start at a state, we must first add a state:
              <mediaobject>
@@ -457,7 +467,8 @@
          </listitem>
          <listitem>
            <para>
-             The next line is <literal>And she orders</literal>, so we add another state and transition:
+             The next line is <literal>Then she is due $2.75</literal>. Since this line starts with 
+             <literal>Then</literal>, we must add a state:
              <mediaobject>
                <imageobject>
                  <imagedata fileref="images/sd-from-bdd-4.png" scale="68" align="center"/>
@@ -467,8 +478,7 @@
          </listitem>
          <listitem>
            <para>
-             The next line is <literal>Then she is due $2.75</literal>. Since this line starts with 
-             <literal>Then</literal>, we must add a state:
+             The next line is <literal>When she pays</literal>, so we add a transition:
              <mediaobject>
                <imageobject>
                  <imagedata fileref="images/sd-from-bdd-5.png" scale="68" align="center"/>
@@ -478,7 +488,7 @@
          </listitem>
          <listitem>
            <para>
-             The next line is <literal>When she pays</literal>, so we add a transition:
+             The next line is <literal>Then she is handed a receipt</literal>, so we add a state:
              <mediaobject>
                <imageobject>
                  <imagedata fileref="images/sd-from-bdd-6.png" scale="68" align="center"/>
@@ -488,7 +498,7 @@
          </listitem>
          <listitem>
            <para>
-             The next line is <literal>Then she is handed a receipt</literal>, so we add a state:
+             The next line is <literal>When she takes the receipt</literal>, so we add a transition:
              <mediaobject>
                <imageobject>
                  <imagedata fileref="images/sd-from-bdd-7.png" scale="68" align="center"/>
@@ -498,7 +508,7 @@
          </listitem>
          <listitem>
            <para>
-             The next line is <literal>When she takes the receipt</literal>, so we add a transition:
+             The next line is <literal>Then she must wait for the barista</literal>, so we add a state:
              <mediaobject>
                <imageobject>
                  <imagedata fileref="images/sd-from-bdd-8.png" scale="68" align="center"/>
@@ -508,7 +518,7 @@
          </listitem>
          <listitem>
            <para>
-             The next line is <literal>Then she must wait for the barista</literal>, so we add a state:
+             The next line is <literal>When the barista calls her name</literal>, so we add a transition:
              <mediaobject>
                <imageobject>
                  <imagedata fileref="images/sd-from-bdd-9.png" scale="68" align="center"/>
@@ -518,7 +528,7 @@
          </listitem>
          <listitem>
            <para>
-             The next line is <literal>When the barista calls her name</literal>, so we add a transition:
+             The next line is <literal>Then her serving is ready</literal>, so we add a state:
              <mediaobject>
                <imageobject>
                  <imagedata fileref="images/sd-from-bdd-10.png" scale="68" align="center"/>
@@ -528,7 +538,7 @@
          </listitem>
          <listitem>
            <para>
-             The next line is <literal>Then her order is ready</literal>, so we add a state:
+             The next line is <literal>When she takes her serving</literal>, so we add a transition:
              <mediaobject>
                <imageobject>
                  <imagedata fileref="images/sd-from-bdd-11.png" scale="68" align="center"/>
@@ -538,20 +548,10 @@
          </listitem>
          <listitem>
            <para>
-             The next line is <literal>When she takes her order</literal>, so we add a transition:
-             <mediaobject>
-               <imageobject>
-                 <imagedata fileref="images/sd-from-bdd-12.png" scale="68" align="center"/>
-               </imageobject>
-             </mediaobject>
-           </para>
-         </listitem>
-         <listitem>
-           <para>
              The final line is <literal>Then she is happy</literal>, so we add another state:
              <mediaobject>
                <imageobject>
-                 <imagedata fileref="images/sd-from-bdd-13.png" scale="68" align="center"/>
+                 <imagedata fileref="images/sd-from-bdd-12.png" scale="68" align="center"/>
                </imageobject>
              </mediaobject>
            </para>
@@ -562,7 +562,7 @@
              also realize that the last state added is an accepting state:
              <mediaobject>
                <imageobject>
-                 <imagedata fileref="images/sd-from-bdd-14.png" scale="68" align="center"/>
+                 <imagedata fileref="images/sd-from-bdd-13.png" scale="68" align="center"/>
                </imageobject>
              </mediaobject>
            </para>
@@ -570,8 +570,9 @@
        </orderedlist>
        <para>
          At this point we have a state diagram that looks a lot like the one in 
-         <xref linkend="sd-customer-happy-path"/>. The difference is that, based on this single scenario, we can't 
-         detect that there should be a loop. We need to process other scenarios to realize that.
+         <xref linkend="sd-customer-happy-path"/>. The difference is that we have concrete actions labeling the 
+         transitions, like <literal>She selects a tall whole milk caffe latte</literal>, rather than generic ones,
+         like <literal>Place order</literal>. We can generalize transitions as we add more BDD scenarios.
        </para>
        <para>
          To get a complete state diagram, you must run this procedure on all the scenarios for the persona. After that, 
@@ -623,7 +624,7 @@
       reusability and portability are less interesting and we won't talk about them much in this book. 
     </para>
     <para>
-      We did already touch upon evolvability in <xref linkend="apis"/> and we'll dive deeper into to this topic and 
+      We already touched upon evolvability in <xref linkend="apis"/> and we'll dive deeper into to this topic and 
       into maintainability and extensibility in <xref linkend="maintenance"/>.
       We've also taken a few steps into the field of testability, but we'll return to this important topic in 
       <xref linkend="test"/>.
@@ -634,7 +635,7 @@
     <para>
       Confidentiality, integrity, and availability are the basic ingredients of security, the subject of 
       <xref linkend="security"/>. Security is a vital topic for REST APIs, especially for those APIs that are open to 
-      the public, so we will touch upon it in many other chapters as well.
+      the public, so we will talk about it in many other chapters as well.
     </para>
     <para>
       Accessibility and usability are about how easy it is to use a system. Let's look at that in some more detail. 
@@ -643,15 +644,19 @@
 	  <section>
 	    <title>Developer eXperience</title>
 	    <para>
-	      The term <firstterm>Developer eXperience</firstterm> (DX) is derived from User eXperience (UX), the art and
-	      science of making a piece of software pleasant to use. REST APIs are used by the clients calling them, but 
-	      since clients don't write themselves, it's really their developers that are your users.
+	      TODO: Move this into <xref linkend="operations"/>?
 	    </para>
 	    <para>
-	      Developers aren't like most users, however. On the one hand, they are more experienced using software and
-	      require less education and hand holding. On the other hand, they are very critical and often don't want to
-	      take the time to read through manuals. Any REST API development effort should take that into consideration
-	      and deliver a good developer experience.
+	      The term <firstterm>Developer eXperience</firstterm> (DX) is derived from User eXperience (UX), the art and
+	      science of making a piece of software pleasant to use. REST APIs are exercised by the clients calling them, but 
+	      those clients are programs that care about usability issues. The developers who write those clients do, and 
+	      they are your real users.
+	    </para>
+	    <para>
+	      Developers aren't average computer software users, however. On the one hand, they are more experienced using 
+	      software and require less education and hand holding. On the other hand, they are very critical and often don't 
+	      want to take the time to read through manuals. Any REST API development effort should take that into 
+	      consideration and deliver a good developer experience.
 	    </para>
 	    <para>
 	      DX encompasses various topics. The API must be well-designed, something which we'll cover in
