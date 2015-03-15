@@ -65,7 +65,7 @@
       present the next choices to the user.
     </para>
   </section>
-  <section>
+  <section id="authentication">
     <title>Authentication</title>
     <para>HTTP signatures, tickets</para>
   </section>

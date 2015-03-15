@@ -425,12 +425,21 @@
         needs to <emphasis>understand</emphasis> what to do without a human directing it.
       </para>
       <para>
+        One way of making the client understand the semantics of the messages is to program that knowledge directly 
+        into the client. This is what most people currently do. The downside of this approach is that it's not very
+        efficient. Every service requires a new client to be written, and almost all changes in the service require
+        an update of the client.
+      </para>
+      <para>
+        The alternative is to write a client that can reason from known semantics. 
         There is a big effort under way to teach semantics to machines <citation>Semantic Web</citation>.
         Semantic Web technology involves relating disparate pieces of data, assigning meaning to data using 
         vocabularies, and querying and reasoning about data based on its meaning.
+      </para>
+      <para>
         For example, Gmail can understand that a particular email is actually a flight confirmation from an airline
-        if the email refers to a shared vocabulary. Based on that understanding, Gmail is able to automatically put 
-        the flight on your Google calendar and to display a check-in button.
+        if the email refers to a certain vocabulary. Based on that understanding, Gmail is able to automatically put 
+        the flight on your Google calendar and to display a check-in button alongside the text of the email.
         We'll talk more about semantics in <xref linkend="semantics"/>.
       </para>
       <para>
@@ -449,6 +458,12 @@
         </para>
       </blockquote>
       <para>
+        A profile doesn't change what the resource means; a user resource is still about a user. But a profile can
+        help with making sense of the resource's representation. If a client retrieves an HTML representation of a
+        user, then the vCard profile defines that the <literal>tel</literal> value of a <literal>class</literal>
+        attribute in the representation means that the element contains a telephone number <citation>vCard</citation>. 
+      </para>
+      <para>
         The Semantic Web effort uses profiles based on the Resource Description Framework <citation>RDF</citation> to 
         assign meaning to data, for instance using <citation>JSON-LD</citation>.
         Mike Amundsen has defined an alternative called <firstterm>Application-Level Profile Semantics</firstterm> 
@@ -463,9 +478,9 @@
         </para>
       </blockquote>
       <para>
-        If we program our clients with the knowledge contained in a semantic profile, then it can understand any API 
-        that serves that profile. This is a clean separation of concerns, with the data format specified by the
-        media type, and its meaning specified in a separate semantic profile. 
+        If we program our client to handle the knowledge contained in a semantic profile, then it can work with any 
+        API that serves that profile. This is a clean separation of concerns, with the data format specified by the
+        media type, and its meaning specified in a separate semantic profile.
       </para>
       <para>
         We propose to add a fourth level to Richardson's maturity model that is defined by the use of semantic 

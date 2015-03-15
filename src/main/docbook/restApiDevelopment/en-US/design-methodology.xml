@@ -755,7 +755,7 @@
       <tbody>
         <tr>
           <td>Read menu</td>
-          <td><literal>http://relations.restbucks.com/menu</literal></td>
+          <td><literal>http://schema.org/menu</literal></td>
         </tr>
         <tr>
           <td>Place order</td>
@@ -1124,7 +1124,7 @@
         </tr>
         <tr>
           <td><literal>time</literal></td>
-          <td>https://schema.org/Time</td>
+          <td>http://schema.org/Time</td>
           <td>schema.org</td>
         </tr>
         <tr>
@@ -1242,8 +1242,7 @@
       namespaces. 
       Here's what an unpaid RESTBucks order could look like in HAL:
     </para>
-    <programlisting>
-{ "_links": {
+    <programlisting>{ "_links": {
     "self": { 
       "href": "http://api.restbucks.com/orders/1234/"
     },
@@ -1265,8 +1264,7 @@
   },
   "total": 2.75,
   "currency": "USD"
-}
-    </programlisting>
+}</programlisting>
     <para>
       The value of the <literal>_links</literal> property is a JSON object where each property is a link relation. 
       This object must at least have an <literal>href</literal> property that contains the URL of the target resource.
@@ -1297,8 +1295,7 @@
       forms using the <literal>@actions</literal> property. Here's what an unpaid RESTBucks order could look like in 
       Mason:
     </para>
-    <programlisting>
-{ "item": [{
+    <programlisting>{ "item": [{
     "name": "caffe latte",
     "size": "tall",
     "milk": "whole",
@@ -1353,8 +1350,7 @@
       }
     }
   }
-}
-    </programlisting>
+}</programlisting>
     <para>
       Mason allows for natural sub-objects, rather than HAL's <literal>_embedded</literal> property. But the main
       advantage of Mason over HAL is the <literal>@actions</literal> property that supports forms. Mason is thus
@@ -1389,8 +1385,7 @@
     <para>
       Here's what an unpaid RESTBucks order could look like in Siren:
     </para>
-    <programlisting>
-{ "class": [ "order" ],
+    <programlisting>{ "class": [ "order" ],
   "properties": [{
     "total": 2.75,
     "currency": "USD"
@@ -1465,8 +1460,7 @@
     "rel": "self",
     "href": "http://api.restbucks.com/orders/1234/"
   }]
-}
-    </programlisting>
+}</programlisting>
     <para>
       Siren uses the <literal>properties</literal> property to capture the properties of the object being transmitted.
       The <literal>entities</literal> property is similar to the <literal>_embedded</literal> property of HAL.
@@ -1497,8 +1491,7 @@
       does make the messages a bit more difficult to read. Here's what an unpaid RESTbucks order could look like in 
       UBER:
     </para>
-    <programlisting>
-{ "uber": {
+    <programlisting>{ "uber": {
   "version": "1.0",
   "data": [ {
     "rel": [ "self" ],
@@ -1584,8 +1577,7 @@
       "name": "cardSecurityCode",
     }],
   }]
-}
-    </programlisting>
+}</programlisting>
     <para>
       UBER differs from Mason and Siren in that it doesn't make a distinction between links (read-only operations) and 
       forms (write operations). All HTTP methods are treated the same, and they are also treated the same as the 
@@ -1622,8 +1614,7 @@
     <para>
       Here's what an unpaid RESTBucks order could look like in JSON-LD with Hydra:
     </para>
-    <programlisting>
-{ "@context": {
+    <programlisting>{ "@context": {
     "@vocab": "http://schema.org/",
     "hydra": "http://www.w3.org/ns/hydra/core#",
     "hydra:property": {
@@ -1707,8 +1698,7 @@
       }
     }
   } ]
-}
-    </programlisting>
+}</programlisting>
     <para>
       JSON-LD uses keywords, indicated by the <literal>@</literal> symbol to distinguish predefined JSON keys from 
       arbitrary data, like HAL and Mason do. 
@@ -1844,12 +1834,75 @@
     <title>The Design In Action</title>
     <para>
       We've now completed the design process. Let's look at the result in the form that ultimately matters the most:
-      the HTTP messages exchanged between client and server. Here's what they look like for 
-      <xref linkend="bdd-customer-happy-path"/>.
+      the HTTP messages exchanged between client and server.
+      Here they are for <xref linkend="bdd-customer-happy-path"/>:
     </para>
-    <para>
-      TODO: Show all the HTTP interactions.
-    </para>
+    <orderedlist>
+      <listitem>
+		    <para>
+		      Any RESTful interaction always starts with the client requesting the billboard URI to jumpstart the URI
+		      discovery process:
+          <programlisting>GET / HTTP/1.1
+Host: api.restbucks.com
+Accept: application/ld+json</programlisting>
+		      The server responds with a representation of the <literal>Home</literal> resource:      
+		      <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "http://api.restbucks.com/",
+  "menu": "/menu/"
+}</programlisting>
+		      To understand what this representation means, the client looks for a <literal>Link</literal> header with
+		      the <literal>http://www.w3.org/ns/json-ld#context</literal> relation. From this header it extracts the 
+		      associated URI, so that it can retrieve the context that explains the semantics of the representation it just
+		      received:
+		      <programlisting>GET /context/ HTTP/1.1
+Host: api.restbucks.com
+Accept: application/ld+json</programlisting>
+		      Which the server returns:
+		      <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+Cache-Control: max-age=86400, public
+
+{ "@context": {
+    "@vocab": "http://schema.org/",
+    "hydra": "http://www.w3.org/ns/hydra/core#",
+    "hydra:property": {
+      "@type": "@vocab"
+    },
+    "restbucks": "http://vocab.restbucks.com/",
+    "payment": "http://reference.data.gov.uk/def/payment#",
+    "cc": "https://w3id.org/creditcard/v1/",
+    "size": "servingSize",
+    "currency": "priceCurrency",
+    "total": "price"
+    }
+  }
+}
+		      </programlisting>
+          Note the <literal>Cache-Control</literal> header. The <literal>max-age</literal> tells the client that the 
+          response is valid for a whole day, so the client won't have to request it again in the following 
+          interactions. The response is also marked as <literal>public</literal>, which means it's valid for all users,
+          even if authentication is used. We'll return to this topic in <xref linkend="caching"/> and in 
+          <xref linkend="authentication"/>.
+        </para>
+        <para>
+          From the JSON-LD context the client can see that <literal>menu</literal> in the previous response actually 
+          means <literal>http://schema.org/menu</literal>, since the default vocabulary is schema.org.
+		    </para>
+		  </listitem>
+		  <listitem>
+		    <para>
+		      Since the client is programmed to understand the <literal>http://schema.org/menu</literal> concept, it knows
+		      what to do next, namely request the menu:
+          <programlisting>GET /menu/ HTTP/1.1          
+Host: api.restbucks.com
+Accept: application/ld+json</programlisting>		      
+		    </para>
+      </listitem>
+    </orderedlist>
   </section>
   
   <section>

@@ -1,5 +1,8 @@
 <bibliography>
   <title>Bibliography</title>
+  <para>
+    TODO: Add authors for RFCs, etc.
+  </para>
 
   <biblioentry>
     <abbrev>RichAmun13</abbrev>
@@ -296,6 +299,12 @@
   <biblioentry>
     <abbrev>UBER</abbrev>
     <biblioid class="uri">https://github.com/mamund/media-types/blob/master/uber-hypermedia.asciidoc</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>vCard</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc2426</biblioid>
+    <citetitle>vCard MIME Directory Profile</citetitle>
   </biblioentry>
   
   <biblioentry>
