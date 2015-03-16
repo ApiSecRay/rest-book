@@ -936,8 +936,8 @@
       payment methods later, because this is bound to happen.
     </para>
     <para>
-      The receipt should have <literal>date</literal> and <literal>time</literal> properties and show the 
-      <literal>shop</literal> to be RESTBucks. It should also have a list of the purchased <literal>item</literal>s and 
+      The receipt should have a <literal>dateTime</literal> property and show the <literal>shop</literal> to be 
+      RESTBucks. It should also have a list of the purchased <literal>item</literal>s and
       their <literal>price</literal>s, and a <literal>total</literal> price and <literal>currency</literal>. Finally, 
       it should have a <literal>paymentMethod</literal> so that customers can crosscheck the receipt with their credit 
       card statements.
@@ -982,7 +982,7 @@
         <tr>
           <td><literal>receipt</literal></td>
           <td>
-            <literal>date</literal>, <literal>time</literal>, <literal>shop</literal>, <literal>items</literal>, 
+            <literal>dateTime</literal>, <literal>shop</literal>, <literal>items</literal>, 
             <literal>total</literal>, <literal>currency</literal>, <literal>paymentMethod</literal>
           </td>
         </tr>
@@ -994,7 +994,7 @@
     <title>Document Application Semantics</title>
     <para>
       Now that we've identified our messages, we must get a bit more specific in what the various data items in them
-      mean. This includes what values are acceptible for them.
+      mean and what values are acceptible for them.
     </para>
     <para>
       As much as we sometimes like to think we're unique, the fact is that we rarely are. Sure, RESTbucks is unique in
@@ -1003,15 +1003,14 @@
       important for the present discussion, how we are the same.
     </para>
     <para>
-      There are a number of places where people have defined semantics for various things. There is a collection of
-      schemas at <literal>schema.org</literal> <citation>SchemaOrg</citation>, for instance, for naming people, 
-      organizations, places, works of art, multimedia, health and medical types, and business.
-      Other examples where you can find interesting schemas are the Dublin Core Metadata Initiative 
+      There are a number of places where people have defined semantics for various things. Probably the best place to
+      start looking for vocabularies is schema.org <citation>SchemaOrg</citation>, which defines a large number of
+      concepts.
+      Other examples where you can find vocabularies are the Dublin Core Metadata Initiative 
       <citation>DublinCore</citation> and Microformats <citation>MicroFormats</citation>.
       You can search many of these from the Linked Open Vocabularies website <citation>LOV</citation>.
-    </para>
-    <para>
-      Let's see how much of the data in our messages we can describe using existing vocabularies:
+      Since we're in the e-commerce and coffee domains, we can find most of what we need at schema.org, but we need a
+      bit of web payments as well:
     </para>
     <informaltable>
       <thead>
@@ -1048,7 +1047,7 @@
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>date</literal></td>
+          <td><literal>dateTime</literal></td>
           <td>http://schema.org/orderDate</td>
           <td>schema.org</td>
         </tr>
@@ -1064,7 +1063,7 @@
         </tr>
         <tr>
           <td><literal>item</literal></td>
-          <td>http://schema.org/orderedItem</td>
+          <td>http://schema.org/Product</td>
           <td>schema.org</td>
         </tr>
         <tr>
@@ -1094,7 +1093,7 @@
         </tr>
         <tr>
           <td><literal>paymentMethod</literal></td>
-          <td>http://schema.org/paymentAccepted</td>
+          <td>http://schema.org/acceptedPaymentMethod</td>
           <td>schema.org</td>
         </tr>
         <tr>
@@ -1104,27 +1103,17 @@
         </tr>
         <tr>
           <td><literal>receipt</literal></td>
-          <td>http://purl.org/NET/atpir-cw#TicketReceipt</td>
-          <td>purl.org</td>
+          <td>http://schema.org/Order</td>
+          <td>schema.org</td>
         </tr>
         <tr>
           <td><literal>shop</literal></td>
-          <td>http://schema.org/brand</td>
+          <td>http://schema.org/seller</td>
           <td>schema.org</td>
         </tr>
         <tr>
           <td><literal>size</literal></td>
-          <td>http://schema.org/servingSize</td>
-          <td>schema.org</td>
-        </tr>
-        <tr>
-          <td><literal>status</literal></td>
-          <td>http://schema.org/orderStatus</td>
-          <td>schema.org</td>
-        </tr>
-        <tr>
-          <td><literal>time</literal></td>
-          <td>http://schema.org/Time</td>
+          <td>http://schema.org/height</td>
           <td>schema.org</td>
         </tr>
         <tr>
@@ -1137,8 +1126,16 @@
     <para>
       We only need to define one data item ourselves; all the others were already defined. Although it took us a bit 
       of time to find all of these, it was well worth it. Existing clients that already understand these vocabularies
-      will have a good chance of being able to work with our service. Over time, we can expect the various vocabularies
-      to cover an ever wider spectrum of services, so that you won't need to define anything yourself anymore.
+      will have a good chance of being able to work with our service. Over time, we can expect the number and sizes of 
+      the vocabularies to grow, so that you only occasionally need to define anything yourself.
+    </para>
+    <para>
+      Schema.org defines an <literal>Order</literal> as follows: <quote>An order is a confirmation of a transaction 
+      (a receipt), which can contain multiple line items, each represented by an Offer that has been accepted by the 
+      customer</quote>. An <literal>Order</literal> has an <literal>orderStatus</literal> property which can be 
+      <literal>OrderPaymentDue</literal>, <literal>OrderProcessing</literal>, <literal>OrderPickupAvailable</literal>, 
+      and <literal>OrderDelivered</literal>, among others. So that covers all of our <literal>Order</literal>,
+      <literal>Receipt</literal>, and <literal>Serving</literal>.
     </para>
   </section>
   
@@ -1670,7 +1667,7 @@
           "hydra:required": true,
           "defaultValue": "USD"
         }, {
-          "@type": "paymentAccepted",
+          "@type": "acceptedPaymentMethod",
           "hydra:property": "paymentMethod",
           "hydra:required": true,
           "defaultValue": "creditcard"
@@ -1834,8 +1831,11 @@
     <title>The Design In Action</title>
     <para>
       We've now completed the design process. Let's look at the result in the form that ultimately matters the most:
-      the HTTP messages exchanged between client and server.
-      Here they are for <xref linkend="bdd-customer-happy-path"/>:
+      the HTTP messages exchanged between client and server. We'll leave out some uninteresting headers, like 
+      <literal>Date</literal> and <literal>Content-Length</literal>, to save space.
+    </para>
+    <para>
+      Here is the whole sequence of HTTP messages for <xref linkend="bdd-customer-happy-path"/>:
     </para>
     <orderedlist>
       <listitem>
@@ -1852,6 +1852,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     type="application/ld+json"
 
 { "@id": "http://api.restbucks.com/",
+  "@type": "CafeOrCoffeeShop",
   "menu": "/menu/"
 }</programlisting>
 		      To understand what this representation means, the client looks for a <literal>Link</literal> header with
@@ -1861,46 +1862,225 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
 		      <programlisting>GET /context/ HTTP/1.1
 Host: api.restbucks.com
 Accept: application/ld+json</programlisting>
-		      Which the server returns:
+		      To which the server responds:
 		      <programlisting>HTTP/1.1 200 OK
 Content-Type: application/ld+json
 Cache-Control: max-age=86400, public
 
 { "@context": {
     "@vocab": "http://schema.org/",
+    "currency": "priceCurrency",
+    "dateTime": "orderDate",
+    "item": {
+      @type: "Offer"
+    },
+    "menu": {
+      @type: ["menu", "makesOffer"]
+    },
+    "size": "height",
+    "total": "price",
     "hydra": "http://www.w3.org/ns/hydra/core#",
     "hydra:property": {
       "@type": "@vocab"
     },
-    "restbucks": "http://vocab.restbucks.com/",
-    "payment": "http://reference.data.gov.uk/def/payment#",
+    "pay": "http://reference.data.gov.uk/def/payment#",
+    "payment": "pay:payment",
     "cc": "https://w3id.org/creditcard/v1/",
-    "size": "servingSize",
-    "currency": "priceCurrency",
-    "total": "price"
+    "cardholderName": "cc:name",
+    "cardNumber": "cc:number",
+    "cardSecurityCode": "cc:verificationCode",
+    "expiryMonth": "cc:expiryMonth",
+    "expiryYear": "cc:expiryYear",
+    "restbucks": "http://vocab.restbucks.com/",
+    "restbucks:items": {
+      "@type": "hydra:Collection"
+    },
+    "items": "restbucks:items"
     }
   }
-}
-		      </programlisting>
-          Note the <literal>Cache-Control</literal> header. The <literal>max-age</literal> tells the client that the 
-          response is valid for a whole day, so the client won't have to request it again in the following 
-          interactions. The response is also marked as <literal>public</literal>, which means it's valid for all users,
-          even if authentication is used. We'll return to this topic in <xref linkend="caching"/> and in 
-          <xref linkend="authentication"/>.
+}</programlisting>
+          The response contains a <literal>Cache-Control</literal> header. The <literal>max-age</literal> parameter in 
+          this header tells the client that the response is valid for a whole day, so the client won't have to request 
+          it again in the following interactions. The response is also marked as <literal>public</literal>, which means 
+          it's valid for all users, even if authentication is used. We'll dive into more detail in 
+          <xref linkend="caching"/> and in <xref linkend="authentication"/>.
         </para>
         <para>
-          From the JSON-LD context the client can see that <literal>menu</literal> in the previous response actually 
-          means <literal>http://schema.org/menu</literal>, since the default vocabulary is schema.org.
+          From the JSON-LD context the client can see that it is dealing with a 
+          <literal>http://schema.org/CafeOrCoffeeShop</literal> that offers a 
+          <literal>http://schema.org/menu</literal>, since the default vocabulary is from schema.org. Typing RESTBucks
+          as a coffee shop enables interaction with clients that don't even know the billboard URI and happen to 
+          stumble upon the store. For instance, a spider program could try random IP addresses and add the stores it 
+          finds to a directory. 
 		    </para>
 		  </listitem>
 		  <listitem>
 		    <para>
 		      Since the client is programmed to understand the <literal>http://schema.org/menu</literal> concept, it knows
-		      what to do next, namely request the menu:
+		      how to read the menu:
           <programlisting>GET /menu/ HTTP/1.1          
 Host: api.restbucks.com
-Accept: application/ld+json</programlisting>		      
+Accept: application/ld+json</programlisting>
+          The server responds with a representation of the <literal>Menu</literal> resource:
+          <programlisting>200 OK HTTP/1.1
+Content-Type: application/ld+json          
+Cache-Control: max-age=86400, public
+
+{ "@id": "/menu/",
+  "menu": [ {
+    "@type": "Offer",
+    "name": "caffe latte",
+    "price": 2.75,
+    "currency": "USD"
+  }, {
+    <lineannotation>... Many more items ...</lineannotation>
+  } ],
+  "hydra:operation": [ {
+	  "@type": "hydra:CreateResourceOperation",
+	  "hydra:httpMethod": "POST",
+	  "@id": "http://api.restbucks.com/orders/",
+	  "hydra:expects": {
+	    "@type": "Order",
+	    "hydra:supportedProperty": [ {
+	      "@type": "items",
+	      "hydra:property": "items",
+	      "hydra:required": true
+	    }, {
+	      "@type": "customer",
+	      "hydra:property": "customer",
+        "hydra:required": true
+	    } ]
+	  }
+  } ]
+}</programlisting>
+          The server doesn't expect the menu to change more than once a day, as indicated by the 
+          <literal>Cache-Control</literal> header. So the client (or a intermediary proxy) can cache it for future use.
+        </para>
+        <para>
+          The bulk of the menu representation is the collection of items, of which we show only one here for brevity. 
+          We could have made each item its own resource, following the Collection pattern (see 
+          <xref linkend="collection"/>). But that doesn't quite fit the way we think about the problem (see 
+          <xref linkend="sd-customer"/>). Perhaps more importantly, it would mean that the client has to perform a whole 
+          host of additional calls to request all the items, since it can't make a decision about what to order without 
+          their details.
+        </para>
+        <para>
+          This shows how important it is to look at the message flow in detail before declaring your design 
+          done. As so often in our profession, the devil is in the details. There are many things to consider, as we'll
+          see in subsequent chapters.
+        </para>
+        <para>
+          The final part of the representation is a form that allows the client to place an order composed of the items
+          on the menu.
 		    </para>
+      </listitem>
+      <listitem>
+        <para>
+          Since the client is programmed to understand the concepts <literal>http://schema.org/Order</literal> and 
+          <literal>http://www.w3.org/ns/hydra/core#CreateResourceOperation</literal>, it can place an order:
+          <programlisting>POST /orders/ HTTP/1.1
+Host: api.restbucks.com
+Accept: application/ld+json
+Content-Type: application/ld+json
+
+{ "items": {
+    "member": [ {
+      "name": "caffe latte",
+      "size": "tall", // TODO: How does the client know this???
+      "milk": "whole" // TODO: How does the client know this???
+    } ]
+  },
+  "customer": "Chrissy"
+}</programlisting>
+          The server responds with a representation of the created <literal>Order</literal> resource:
+          <programlisting>201 Created HTTP/1.1
+Location: http://api.restbucks.com/orders/1234/          
+Content-Type: application/ld+json
+
+{ "@id": "/orders/1234/",
+  "items": {
+    member: [ {
+      "name": "caffe latte",
+      "size": "tall",
+      "milk": "whole",
+      "price": 2.75,
+      "currency": "USD"
+    } ]
+  },
+  "total": 2.75,
+  "currency": "USD",
+  "customer": "Chrissy",
+  "hydra:operation": [ {
+    "@type": "hydra:CreateResourceOperation",
+    "hydra:httpMethod": "POST",
+    "@id": "http://api.restbucks.com/orders/1234/payments/",
+    "hydra:expects": {
+      "@type": "payment",
+      "hydra:supportedProperty": [ {
+        "@type": "price",
+        "hydra:property": "amount"
+      }, {
+        "@type": "currency",
+        "hydra:property": "currency"
+      }, {
+        "@type": "paymentMethod",
+        "hydra:property": "paymentMethod" // TODO: Valid options
+      }, {
+        "@type": "cc:name",
+        "hydra:property": "cardholderName",
+        "hydra:required": true
+      }, {
+        "@type": "cc:number",
+        "hydra:property": "cardNumber",
+        "hydra:required": true
+      }, {
+        "@type": "cc:expiryMonth",
+        "hydra:property": "expiryMonth",
+        "hydra:required": true
+      }, {
+        "@type": "cc:expiryYear",
+        "hydra:property": "expiryYear",
+        "hydra:required": true
+      }, {
+        "@type": "cc:verificationCode",
+        "hydra:property": "cardSecurityCode",
+        "hydra:required": true
+      } ]
+    }
+  } ]
+}</programlisting>
+          The response contains the items, their total, and a form for paying the order. Note that 
+          <literal>amount</literal>, <literal>currency</literal>, and <literal>paymentMethod</literal> are not required
+          because there are decent defaults: the total and currency of the order, and <literal>creditcard</literal>,
+          respectively.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The client uses the form to pay her order:
+          <programlisting>POST /orders/1234/payments/ HTTP/1.1
+Accept: application/ld+json
+Content-Type: application/ld.json
+
+{ "amount": 2.75,
+  "currency": "USD",
+  "paymentMethod": "creditcard",
+  "cardholderName": "C.C. Conway",
+  "cardNumber": "", // TODO: Generate valid credit card number
+  "expiryMonth": "03",
+  "expiryYear": "2018",
+  "cardSecurityCode": "138"
+}</programlisting>
+          After processing the credit card, the server responds with a representation of the <literal>Receipt</literal>
+          resource:
+          <programlisting>201 Created HTTP/1.1
+Location: http://api.restbucks.com/orders/1234/receipt/
+Content-Type: application/ld+json
+
+{ "@id": "/orders/1234/receipt/",
+  "dateTime": "2015-03-16T19:58:00+01:00"
+}</programlisting>
+        </para>
       </listitem>
     </orderedlist>
   </section>
