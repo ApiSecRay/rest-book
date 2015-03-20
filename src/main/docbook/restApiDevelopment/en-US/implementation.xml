@@ -16,6 +16,12 @@
   <section>
     <title>Extracting RADL From Code</title>
   </section>
+  <section id="external">
+    <title>Calling external services</title>
+    <para>
+      TODO: Calling external services. Circuit breakers, etc.
+    </para>
+  </section>
   <section id="sdk">
     <title>Providing Client Libraries</title>
   </section>

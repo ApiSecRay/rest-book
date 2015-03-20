@@ -18,7 +18,7 @@
   <section id="notifications">
     <title>Notifications</title>
   </section>
-  <section>
+  <section id="async">
     <title>Asynchronous Processing</title>
   </section>
   <section>
@@ -27,13 +27,19 @@
   <section>
     <title>Transactions</title>
   </section>
+  <section>
+    <title>Batches</title>
+  </section>
   <section id="workflow">
     <title>Workflows</title>
+    <para>TODO: Move through various steps to complete a process</para>
+  </section>
+  <section>
+    <title>Lifecycles</title>
+    <para>TODO: Move a single resource through various stages. Avoid action URIs.</para>
   </section>
   <section id="processor">
     <title>Processors</title>
-  </section>
-  <section>
-    <title>Batches</title>
+    <para>TODO: Repeatedly process items</para>
   </section>
 </chapter>

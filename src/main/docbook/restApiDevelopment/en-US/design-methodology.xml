@@ -630,6 +630,12 @@
         <literal>/users</literal> results in <literal>/1/</literal>, which is probably not what we inteded. 
         We'll talk more about resolving URIs in <xref linkend="client"/>.
       </para>
+      <para>
+        TODO: Don't put actions in URIs
+      </para>
+      <para>
+        TODO: Don't put media types in URIs
+      </para>
     </sidebar>
   
     <para>
@@ -737,10 +743,10 @@
     </para>
     <para>
       Publicly registered link relations have a short English name, like <literal>self</literal> or 
-      <literal>edit</literal>. The registry makes sure that they are globally unique. That is not the case for custom
-      link relations, so they must take the form of URIs to avoid name conflicts. Note that these URIs don't have to 
-      resolve, so you don't need to have them point to a web page. However, that would be a good way to make them 
-      discoverable and provide a convenient place to document them.
+      <literal>edit</literal>. The registry makes sure that they are globally unique. That is not the case for 
+      <firstterm>extension link relations</firstterm>, so they must take the form of URIs to avoid name conflicts. 
+      Note that these URIs don't have to resolve, so you don't need to have them point to a web page. However, that 
+      would be a good way to make them discoverable and provide a convenient place to document them.
     </para>
     <para>
       Here are the link relations for our example:
@@ -797,8 +803,8 @@
       the <literal>Pay</literal> transition.
     </para>
     <para>
-      The other transitions require custom link relations.
-      To make it clear that the custom link relations are specific to the RESTBucks service, we'll prefix them with our 
+      The other transitions require extension link relations.
+      To make it clear that the extension link relations are specific to the RESTBucks service, we'll prefix them with our 
       Internet domain. To avoid confusion between link relation URIs and URIs that point to actual resources, we put
       the link relation URIs in a separate sub-domain.
     </para>
@@ -807,7 +813,7 @@
       resource has with the current resource. In our case, that is easy enough: menu, orders, and serving.
     </para>
     <para>
-       The alternative to defining custom link relations is to start a standardization process. We could have started
+       The alternative to defining extension link relations is to start a standardization process. We could have started
        an Internet Draft or similar document that defines reusable link relations. The <literal>orders</literal> link 
        relation makes sense for pretty much every commerce API, and the <literal>menu</literal> and 
        <literal>serving</literal> link relations are useful in the food and drinks domain. If you're trying to be a 
@@ -1877,6 +1883,7 @@ Cache-Control: max-age=86400, public
     "menu": {
       @type: ["menu", "makesOffer"]
     },
+    "shop": "seller",
     "size": "height",
     "total": "price",
     "hydra": "http://www.w3.org/ns/hydra/core#",
@@ -1893,16 +1900,19 @@ Cache-Control: max-age=86400, public
     "expiryYear": "cc:expiryYear",
     "restbucks": "http://vocab.restbucks.com/",
     "restbucks:items": {
-      "@type": "hydra:Collection"
+      "@type": ["hydra:Collection", "offeredItems", "orderedItems"]
     },
-    "items": "restbucks:items"
-    }
+    "items": "restbucks:items",
+    "restbucks:serving": {
+      "@type": ["@id", "Order"]
+    },
+    "serving": "restbucks:serving"
   }
 }</programlisting>
           The response contains a <literal>Cache-Control</literal> header. The <literal>max-age</literal> parameter in 
           this header tells the client that the response is valid for a whole day, so the client won't have to request 
           it again in the following interactions. The response is also marked as <literal>public</literal>, which means 
-          it's valid for all users, even if authentication is used. We'll dive into more detail in 
+          it's valid for all users, even if authentication is used. We'll go into these topis in more detail in  
           <xref linkend="caching"/> and in <xref linkend="authentication"/>.
         </para>
         <para>
@@ -1910,8 +1920,8 @@ Cache-Control: max-age=86400, public
           <literal>http://schema.org/CafeOrCoffeeShop</literal> that offers a 
           <literal>http://schema.org/menu</literal>, since the default vocabulary is from schema.org. Typing RESTBucks
           as a coffee shop enables interaction with clients that don't even know the billboard URI and happen to 
-          stumble upon the store. For instance, a spider program could try random IP addresses and add the stores it 
-          finds to a directory. 
+          stumble upon the store. For instance, a spider program could try random IP addresses or follow random links 
+          and recognize the result as a coffe shop.
 		    </para>
 		  </listitem>
 		  <listitem>
@@ -1925,6 +1935,8 @@ Accept: application/ld+json</programlisting>
           <programlisting>200 OK HTTP/1.1
 Content-Type: application/ld+json          
 Cache-Control: max-age=86400, public
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
 
 { "@id": "/menu/",
   "menu": [ {
@@ -1936,9 +1948,9 @@ Cache-Control: max-age=86400, public
     <lineannotation>... Many more items ...</lineannotation>
   } ],
   "hydra:operation": [ {
+	  "@id": "http://api.restbucks.com/orders/",
 	  "@type": "hydra:CreateResourceOperation",
 	  "hydra:httpMethod": "POST",
-	  "@id": "http://api.restbucks.com/orders/",
 	  "hydra:expects": {
 	    "@type": "Order",
 	    "hydra:supportedProperty": [ {
@@ -1954,7 +1966,11 @@ Cache-Control: max-age=86400, public
   } ]
 }</programlisting>
           The server doesn't expect the menu to change more than once a day, as indicated by the 
-          <literal>Cache-Control</literal> header. So the client (or a intermediary proxy) can cache it for future use.
+          <literal>Cache-Control</literal> header. So the client (or a intermediary proxy) can cache it for future use
+          and reduce the load on the server.
+          Every server response will contain a <literal>Link</literal> header pointing to the JSON-LD context, but we 
+          can re-use the cached context from the previous response. Even if the client doesn't do the caching, we can
+          insert a caching proxy on the server side to reduce the load on the server doing the actual work.
         </para>
         <para>
           The bulk of the menu representation is the collection of items, of which we show only one here for brevity. 
@@ -1965,19 +1981,26 @@ Cache-Control: max-age=86400, public
           their details.
         </para>
         <para>
-          This shows how important it is to look at the message flow in detail before declaring your design 
+          This goes to show how important it is to look at the message flow in detail before declaring your design 
           done. As so often in our profession, the devil is in the details. There are many things to consider, as we'll
           see in subsequent chapters.
         </para>
         <para>
           The final part of the representation is a form that allows the client to place an order composed of the items
-          on the menu.
+          on the menu. It lists the URI and HTTP method to use and what the request body should look like. The client
+          discovers all this information at runtime, so it doesn't have to be programmed with this knowledge and won't
+          break if the server changes it.
 		    </para>
       </listitem>
       <listitem>
         <para>
           Since the client is programmed to understand the concepts <literal>http://schema.org/Order</literal> and 
-          <literal>http://www.w3.org/ns/hydra/core#CreateResourceOperation</literal>, it can place an order:
+          <literal>http://www.w3.org/ns/hydra/core#CreateResourceOperation</literal>, it can place an order. The 
+          expected contents of the request body is specified in the response: the client must supply 
+          <literal>items</literal> and <literal>customer</literal> properties. The JSON-LD context tells the client
+          that <literal>items</literal> is a Hydra collection, so the client knows how to format it. The context also
+          indicates that <literal>customer</literal> is a <literal>http://schema.org/customer</literal>, which the
+          client is programmed to understand:
           <programlisting>POST /orders/ HTTP/1.1
 Host: api.restbucks.com
 Accept: application/ld+json
@@ -1996,8 +2019,11 @@ Content-Type: application/ld+json
           <programlisting>201 Created HTTP/1.1
 Location: http://api.restbucks.com/orders/1234/          
 Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
 
 { "@id": "/orders/1234/",
+  "@type": "Order",
   "items": {
     member: [ {
       "name": "caffe latte",
@@ -2011,9 +2037,9 @@ Content-Type: application/ld+json
   "currency": "USD",
   "customer": "Chrissy",
   "hydra:operation": [ {
+    "@id": "http://api.restbucks.com/orders/1234/payments/",
     "@type": "hydra:CreateResourceOperation",
     "hydra:httpMethod": "POST",
-    "@id": "http://api.restbucks.com/orders/1234/payments/",
     "hydra:expects": {
       "@type": "payment",
       "hydra:supportedProperty": [ {
@@ -2049,7 +2075,7 @@ Content-Type: application/ld+json
     }
   } ]
 }</programlisting>
-          The response contains the items, their total, and a form for paying the order. Note that 
+         The response contains the items, their total, and a form for paying the order. Note that 
           <literal>amount</literal>, <literal>currency</literal>, and <literal>paymentMethod</literal> are not required
           because there are decent defaults: the total and currency of the order, and <literal>creditcard</literal>,
           respectively.
@@ -2057,7 +2083,7 @@ Content-Type: application/ld+json
       </listitem>
       <listitem>
         <para>
-          The client uses the form to pay her order:
+          The client uses the form to pay the order:
           <programlisting>POST /orders/1234/payments/ HTTP/1.1
 Accept: application/ld+json
 Content-Type: application/ld.json
@@ -2069,17 +2095,93 @@ Content-Type: application/ld.json
   "cardNumber": "", // TODO: Generate valid credit card number
   "expiryMonth": "03",
   "expiryYear": "2018",
-  "cardSecurityCode": "138"
+  "cardSecurityCode": "137"
 }</programlisting>
           After processing the credit card, the server responds with a representation of the <literal>Receipt</literal>
           resource:
           <programlisting>201 Created HTTP/1.1
 Location: http://api.restbucks.com/orders/1234/receipt/
 Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
 
 { "@id": "/orders/1234/receipt/",
-  "dateTime": "2015-03-16T19:58:00+01:00"
+  "dateTime": "2015-03-16T19:58:00+01:00",
+  "shop": "RESTBucks",
+  "items": {
+    member: [ {
+      "name": "caffe latte",
+      "size": "tall",
+      "milk": "whole",
+      "price": 2.75,
+      "currency": "USD"
+    } ]
+  },
+  "total": 2.75,
+  "currency": "USD",
+  "paymentMethod": "creditcard",
+  "serving": "/orders/1234/serving/"
 }</programlisting>
+          If we know or fear that it may take a long time to process a credit card payment, maybe because we've 
+          outsourced that functionality and have to call into a third party service, we may change the design to move 
+          from synchronous to asynchronous processing. We talk more about that pattern in <xref linkend="async"/>.
+          Alternatively, we could implement the <literal>Payments</literal> resource to set an upper bound to the
+          time we're prepared to wait for the external service. We'll talk more about that in 
+          <xref linkend="external"/>.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The client understands from the JSON-LD context that the <literal>serving</literal> property contains a URI
+          that points to the serving it is waiting for:
+          <programlisting>GET /orders/1234/serving/ HTTP/1.1
+Host: api.restbucks.com          
+Accept: application/ld+json
+          
+</programlisting>
+          The response will depend on how fast the barista works, but in general the client will have to wait a bit:
+          <programlisting>202 Accepted HTTP/1.1
+Content-Type: application/ld+json
+Retry-After: 30
+
+{ "@id": "/orders/1234/serving",          
+}</programlisting>
+          The response contains the <literal>Retry-After</literal> header, which gives the client an approximation of
+          the time it still has to wait. This could be based on historical data about how fast baristas prepare similar
+          orders, or it could simply be a fixed value. This value is only an advice, and the client is free to ignore 
+          it. But that most likely isn't going to speed the server up, so there is little point. If all clients follow
+          the advice, the server has more time to handle useful requests and everybody is better of. 
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          After waiting a while, the client will try again. The response may be the same a couple of times, especially
+          if the server doesn't use historical data to predict the retry time. But eventually the barista is done and
+          the customer "gets notified" that the serving is ready:
+          <programlisting>200 OK HTTP/1.1
+Content-Type: application/ld+json
+
+{ "@id": "/orders/1234/serving",
+  "hydra:operation": [ {
+    "@id": "http://api.restbucks.com/orders/1234/serving/",
+    "@type": "hydra:DeleteResourceOperation", // TODO: Is that really the most descriptive?
+    "hydra:httpMethod": "DELETE"
+  } ]
+}</programlisting>
+          Since the serving is now ready, there is an operation to take it.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The client finally takes the serving:
+          <programlisting>DELETE /orders/1234/serving HTTP/1.1
+Accept: application/ld+json
+          
+</programlisting>
+          To which the server responds that the process is done:
+          <programlisting>204 No Content HTTP/1.1
+          
+</programlisting>
         </para>
       </listitem>
     </orderedlist>
@@ -2088,7 +2190,9 @@ Content-Type: application/ld+json
   <section>
     <title>Summary</title>
     <para>
-      TODO:
+      This chapter showed how to design a REST API in quite a bit of detail. We saw that starting from requirements,
+      documented as state diagrams, it's actually a fairly straightforward process. There are many steps involved, but
+      none of them are very difficult or require a lot of design insight.
     </para>
   </section>
 </chapter>
