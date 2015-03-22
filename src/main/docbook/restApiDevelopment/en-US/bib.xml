@@ -108,6 +108,11 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>FOAF</abbrev>
+    <biblioid class="uri">http://xmlns.com/foaf/spec/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>GitHub API</abbrev>
     <biblioid class="uri">https://developer.github.com/v3/</biblioid>
   </biblioentry>

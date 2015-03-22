@@ -1,4 +1,4 @@
-<chapter>
+<chapter id="analysis">
   <title>Analysis</title>
   <para>
     In this chapter we will look at the requirements for RESTBucks and how they affect the REST API. We'll look at 
@@ -642,13 +642,10 @@ Then she is happy</programlisting>
 	  <section>
 	    <title>Developer eXperience</title>
 	    <para>
-	      TODO: Move this into <xref linkend="operations"/>?
-	    </para>
-	    <para>
 	      The term <firstterm>Developer eXperience</firstterm> (DX) is derived from User eXperience (UX), the art and
 	      science of making a piece of software pleasant to use. REST APIs are exercised by the clients calling them, but 
-	      those clients are programs that care about usability issues. The developers who write those clients do, and 
-	      they are your real users.
+	      those clients are programs that don't care about usability issues. The developers who write those clients do, 
+	      and they are your real users.
 	    </para>
 	    <para>
 	      Developers aren't average computer software users, however. On the one hand, they are more experienced using 

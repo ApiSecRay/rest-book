@@ -7,7 +7,10 @@
   </para>
   <para>
     We believe design should always be informed by an understanding of the problem you're designing a solution for. 
-    That's why we start where we left of in the previous chapter. Here are the steps you should follow:
+    That's why we start where we left of in the previous chapter, <xref linkend="analysis"/>. 
+  </para>
+  <para>
+    Here are the steps you should follow:
   </para>
   <procedure id="state-diagram-to-resource-model">
     <title>Design a REST API</title>
@@ -45,7 +48,7 @@
       We covered this in a lot of detail in <xref linkend="state-diagrams"/>. A state diagram consists of all the
       possible states a client can be in and the transitions that the client can make between them. Note that a single
       REST API can serve more than one type of client, in which case you'd probably have one state diagram for each
-      type. In that case, just follow procedure <xref linkend="state-diagram-to-resource-model"/> for each state 
+      type. In that case, just follow procedure "<xref linkend="state-diagram-to-resource-model"/>" for each state 
       diagram and merge the results. 
     </para> 
     <para>
@@ -69,7 +72,7 @@
     <para>
       So for each transition, we have to decide on two things: which HTTP method to execute, and against which URI to
       execute it. We'll take an intermediary step here on our way to that goal. We'll first look at the HTTP methods 
-      and push out the decisions on URIs until the next step. For now, we'll just use a simple placeholder name for the 
+      and push out the decisions on URIs until the next step. Instead, we'll just use a simple placeholder name for the 
       resource.
       You can certainly combine these two steps, but we think it's better to first focus on the interaction dynamics, 
       since that's the essence of the API. We need to focus to get that right, so we'll leave the decision on how to 
@@ -146,14 +149,14 @@
         </para>
         <para>
           When selecting the HTTP method, we should carefully look at the characteristics of the interaction. Refer to 
-          the sidebar "<xref linkend="http-methods"/>" in <xref linkend="maturity"/> for an explanation of the HTTP 
-          methods' properties to guide you in this selection.
+          the sidebar "<xref linkend="http-methods"/>" in <xref linkend="maturity"/> for an explanation of the various
+          HTTP methods' properties to guide you in this selection.
         </para>
         <para>
           We think that reading a menu should be a safe thing to do, so we pick the <literal>GET</literal> method. We 
           simply name the resource <literal>Menu</literal>. Note how the HTTP method followed by the resource name
           (<literal>GET Menu</literal>) sounds a lot like the transition name (<literal>Read menu</literal>). 
-          This is not a coincidence. It's another reason for using simple names for resources rather than full URIs.
+          This is not a coincidence. It's another reason for starting with simple names for resources rather than URIs.
         </para>
         <para>
           We could have made the menu part of the representation returned by the <literal>Home</literal> resource. 
@@ -191,7 +194,7 @@
           the items on the menu. This operation is neither safe nor idempotent, because ordering a coffee twice will 
           get you two coffees, rather than one. That leaves us a choice of <literal>POST</literal> and 
           <literal>PATCH</literal>. Since <literal>PATCH</literal> is specifically for updating existing resources,
-          and we don't have one yet (we're not updating eithe <literal>Home</literal> or <literal>Menu</literal>),
+          and we don't have one yet (we're not updating either <literal>Home</literal> or <literal>Menu</literal>),
           we should use <literal>POST</literal> to implement this transition.
         </para>
         <para>
@@ -378,7 +381,7 @@
           by a state change on the server: the barista is done preparing the order. 
         </para>
         <para>
-          There are two ways to implement this. We can try to stay as close to the abstract model as possible, and
+          There are two ways to implement this. We can try to stay as close to the state diagram as possible, and
           have the server notify us, or the client can repeatedly ask the server for its current status. In the real
           world the latter would be quite annoying, but machines don't suffer from such petty emotions. Server push
           is an advanced pattern that we'll talk more about in <xref linkend="notifications"/>, but here we'll go with
@@ -591,35 +594,37 @@
     </para>
 
     <sidebar id="uris">
-      <title>Conventions around Uniform Resource Identifiers (URIs)</title>
+      <title>Patterns and Anti-Patterns around Uniform Resource Identifiers (URIs)</title>
       <para>
         You should always use a plural name for resources that are collections. For instance, if we were to build a REST 
         API for a social media platform, we should use <literal>/users/</literal> rather than <literal>/user/</literal>
         because it is immediately clear from the URI that it is a collection.
       </para>
       <para>
-        URIs should be cool <citation>CoolUris</citation>, which means they won't change. This is to avoid breaking 
-        bookmarks. Although bookmarks are less important for REST APIs than for the human Web, it's still nice to be 
-        able to support them, so that we can email a link, for instance.
+        URIs should be cool <citation>CoolUris</citation>, which means they won't change. Keeping URIs cool means that  
+        bookmarks never break. Although bookmarks are less important for REST APIs than for the human Web, it's still 
+        nice to be able to support them.
         In order to keep URIs stable, we shouldn't put information in them that is likely to 
         change. In the social media example, we shouldn't put user names in the URIs, but rather internal IDs. This 
         doesn't read as nicely, but that's okay since URIs are discovered anyway. Assuming the API is implemented by a 
-        cluster of servers, you'll need a way to assign internal IDs without conflict. Universially Unique Identifiers 
-        (UUIDs) are perfect for this, because they don't require any communication between the servers.
+        cluster of servers, you'll need a way to assign internal IDs without conflict. <firstterm>Universially Unique 
+        Identifiers</firstterm> (UUIDs) are perfect for this, because they don't require any communication between the 
+        servers.
       </para>
       <para>
         Indicate hierarchical relationships with slashes in the URIs. So if we have a collection of users at 
         <literal>/users/</literal>, then an individual user would live at <literal>/users/{id}/</literal>. Note that 
         this is not technically a URI, because the <literal>{</literal> and <literal>}</literal> symbols are not 
-        allowed in URIs according to <citation>RFC 3986</citation>. It's actually a concise way of indicating a whole 
-        collection of URIs, like <literal>/users/1/</literal>, <literal>/users/2/</literal>, etc. This is also known as 
-        a URI Template <citation>RFC 6570</citation>.
+        allowed in URIs <citation>RFC 3986</citation>. It's actually a concise way of indicating a whole 
+        range of URIs, like <literal>/users/1/</literal>, <literal>/users/2/</literal>, etc. This is also known as 
+        a <firstterm>URI Template</firstterm> <citation>RFC 6570</citation>.
       </para>
       <para>
         Another common convention is to use only lowercase letters from the US ASCII character set. This sets the bar
-        very low for clients to handle URIs. For non-English speakers, this may seem like a limitation, but it isn't 
-        since URIs are to be discovered by clients rather than read by humans. The only humans reading them will be
-        developers. To reach the largest number of developers, you should use English names in your URIs as well.
+        very low for clients to handle URIs, so you can reach as many people as possible with your API. For non-English 
+        speakers, this may seem like a limitation, but it isn't since URIs are to be discovered by clients rather than 
+        read by humans. The only humans reading them will be developers. To reach the largest number of developers, you 
+        should use English names in your URIs. English names only use US ASCII characters, so that works out nicely.
       </para>
       <para>
         A less common, but still very useful convention is to end all URIs with a slash (<literal>/</literal>). The 
@@ -631,10 +636,20 @@
         We'll talk more about resolving URIs in <xref linkend="client"/>.
       </para>
       <para>
-        TODO: Don't put actions in URIs
+        Now that we've seen some of the best practices around URIs, let's look at some of the anti-patterns. The first
+        is putting actions in URIs. For instance, a task resource located at <literal>/tasks/1/</literal> could have
+        an operation to complete it. One way of modeling that is to perform a <literal>POST</literal> at 
+        <literal>/tasks/1/complete</literal>. Don't do that. URIs by definition identify resources, and the complete
+        action is not a resource itself, but an operation on a resource. Operations in HTTP are modeled by the HTTP
+        methods, not by URIs. In the task example, you could introduce a <literal>status</literal> property, for 
+        instance, and set it to <literal>completed</literal> using the <literal>PATCH</literal> or 
+        <literal>PUT</literal> methods.
       </para>
       <para>
-        TODO: Don't put media types in URIs
+        Another anti-pattern is putting media types in URIs. An example of that would be to make a JSON 
+        representation of a task available at <literal>/tasks/1.json</literal>. Don't do that. The way to request
+        a certain representation of a resource in HTTP is to use <firstterm>content negotiation</firstterm> through the
+        <literal>Accept</literal> header <citation>HTTP</citation>.
       </para>
     </sidebar>
   
@@ -738,8 +753,8 @@
       Types</citation> contains standard link relations and is maintained by IANA, the same organization that also 
       maintains a registry of media types.
       There usually won't be a registered link relation for every transition in your state diagram, so sometimes you 
-      need to invent your own. But if you can, reuse link relations, because it is just another thing that a client 
-      developer doesn't have to learn about your service.
+      need to invent your own. But if you can, reuse existing link relations, because it is just another thing that a 
+      client developer doesn't have to learn about your service.
     </para>
     <para>
       Publicly registered link relations have a short English name, like <literal>self</literal> or 
@@ -765,7 +780,7 @@
         </tr>
         <tr>
           <td>Place order</td>
-          <td><literal>http://relations.restbucks.com/orders</literal></td>
+          <td><literal>http://schema.org/OrderAction</literal></td>
         </tr>
         <tr>
           <td>Change order</td>
@@ -781,7 +796,7 @@
         </tr>
         <tr>
           <td>Take receipt</td>
-          <td><literal>http://relations.restbucks.com/serving</literal></td>
+          <td><literal>http://schema.org/Order</literal></td>
         </tr>
         <tr>
           <td>Receive notification</td>
@@ -796,28 +811,28 @@
     <para>
       We can re-use a couple of standard link relations. 
       The <literal>self</literal> link relation refers to the object itself, so we can use it to refresh a serving and 
-      "get notified" when its status changes. It's good practice to provide a link of this type to every object.
+      "get notified" when its status changes.
       The <literal>edit</literal> link relation refers to where the object can be edited. We can use this for updates 
       and deletes: <literal>Change order</literal>, <literal>Cancel</literal>, and <literal>Take serving</literal>.
       The <literal>payment</literal> link relation refers to a resource where payment is accepted, so it's perfect for 
       the <literal>Pay</literal> transition.
     </para>
     <para>
-      The other transitions require extension link relations.
-      To make it clear that the extension link relations are specific to the RESTBucks service, we'll prefix them with our 
-      Internet domain. To avoid confusion between link relation URIs and URIs that point to actual resources, we put
-      the link relation URIs in a separate sub-domain.
+      The other transitions require extension link relations. If at all possible, link relations should be nouns that 
+      indicate the type of relationship that the target resource has with the current resource. That usually means they
+      are nouns rather than verbs.
     </para>
     <para>
-      If at all possible, link relations should be nouns that indicate the type of relationship that the target 
-      resource has with the current resource. In our case, that is easy enough: menu, orders, and serving.
+      We decided to use concepts defined by schema.org. These
+      may not be standard link relations, but they have a much bigger chance of being familiar to a client developer
+      than anything we invent ourselves. We'll see a lot more of schema.org below.
     </para>
     <para>
-       The alternative to defining extension link relations is to start a standardization process. We could have started
-       an Internet Draft or similar document that defines reusable link relations. The <literal>orders</literal> link 
-       relation makes sense for pretty much every commerce API, and the <literal>menu</literal> and 
-       <literal>serving</literal> link relations are useful in the food and drinks domain. If you're trying to be a 
-       thought leader in your domain, then this is a good opportunity to demonstrate that ambition. 
+      You may not be in a domain as generic as e-commerce. In that case you will have to invent your own extension link
+      relations.
+			The alternative to defining extension link relations is to start a standardization process of some sort, for 
+			instance an IETF Internet Draft or similar document that defines reusable link relations. If you're striving to 
+			be a thought leader in your domain, then this is a good opportunity to demonstrate that ambition.
     </para>
   </section>
 
@@ -827,8 +842,8 @@
       At this point we are done with the interaction part of our resource model. All that is left to do, is address the
       data part. In other words, we have to design our representations.
       In this step we'll design the structure of the messages that client and server exchange. In the next step, we'll
-      serialize the messages into a series of bytes using media types. Finally, we will assign precise meaning to 
-      the items in our structures.
+      assign precise meaning to the items in our structures. Finally, we'll  serialize the messages into a series of 
+      bytes using media types. 
     </para>
     <para>
       We start with indicating which of our HTTP methods require a request and which require a response. This decision 
@@ -903,16 +918,19 @@
     </informaltable>
     <para>
       There are ten entries marked with Yes in the above table, but the number of messages is smaller because messages
-      are re-used. We really only need the home document, a menu, an order, a payment, a receipt, and a serving.
+      are re-used. We really only need representations for our home, a menu, an order, a payment, a receipt, and a 
+      serving.
+    </para>
+    <para>
       The <literal>Home</literal> resource is extremely simple, because by definition it only consists of links. 
       There is no data for us to design a structure for.
       The serving resource also has no data. It's purpose is solely to coordinate the customer and the barista. It
       will be empty while the barista is preparing the serving, and will contain a link to take the serving when he is 
       done.
-      The other messages are easy to design if we've done our homework during the analysis phase.
+      The other messages are easy to design if we have done our homework during the analysis phase.
     </para>
     <para>
-      The <literal>menu</literal> message consists of all the items that our customers can order. We could use a 
+      The <literal>menu</literal> consists of all the items that our customers can order. We could use a 
       generic item that can be sold by any shop, but we're not just any shop, we're RESTBucks. So we want to make it 
       easier on our clients to provide correct orders by giving our items a bit more structure. Each item needs to be
       identified, so we add the <literal>name</literal> property to our items. We serve our drinks in different sizes, 
@@ -922,28 +940,29 @@
       <literal>currency</literal> property. Our menu is really nothing more than a list of items. We could go further 
       and put the items into categories. This is quite a common trick to help human users, but our software clients 
       don't mind going through a seemingly endless list of items, so we're not going to bother with the added 
-      complexity. At least not until we get clear requirements that force us to.
+      complexity until we get clear requirements that force us to.
     </para>
     <para>
-      An order contains of a number of items that the customer wants to purchase. These are the same items that are on
-      the menu, of course, so we can re-use the item design. We need a couple of other properties. The barista needs to
-      call the customer when the order is prepared, so we should add a <literal>customer</literal> property for this 
-      purpose. We also like to include a <literal>total</literal> (with <literal>currency</literal>). One could argue 
-      that this can be calculated from the items, but there may be complications like quantum discounts and whatnot that 
-      we want to be prepared for.
+      An <literal>order</literal> contains of a number of items that the customer wants to purchase. These are the same 
+      items that are on the menu, of course, so we can re-use the item design. We need a couple of other properties. 
+      The barista needs to call the customer when the order is prepared, so we should add a <literal>customer</literal> 
+      property for this purpose. We also like to include a <literal>total</literal> (with <literal>currency</literal>). 
+      One could argue that this can be calculated from the items, but there may be complications like quantum discounts 
+      or specially priced combinations that we want to be prepared for.
     </para>
     <para>
-      A payment could take many forms. We could go overboard and design a very flexible solution that will cater to
-      any and all payment methods, but this book is about REST, not payments. Since RESTBucks is an online store, we'll
-      simply assume a credit card payment. So we'll need the following properties: <literal>amount</literal>,
-      <literal>currency</literal>, <literal>cardholderName</literal>, <literal>cardNumber</literal>, 
-      <literal>expiryMonth</literal>, <literal>expiryYear</literal>, and <literal>cardSecurityCode</literal>. 
-      To be future-proof, we'll throw in a <literal>paymentMethod</literal> field as well, so that we can add different 
-      payment methods later, because this is bound to happen.
+      A <literal>payment</literal> could take many forms. We could go overboard and design a very flexible solution that 
+      will cater to any and all payment methods, but this book is about REST, not payments. Since RESTBucks is an online 
+      store, we'll simply assume a credit card payment. So we'll need the following properties: 
+      <literal>amount</literal>, <literal>currency</literal>, <literal>cardholderName</literal>, 
+      <literal>cardNumber</literal>, <literal>expiryMonth</literal>, <literal>expiryYear</literal>, and 
+      <literal>cardSecurityCode</literal>.
+      To be future-proof, we'll throw in a <literal>paymentMethod</literal> field, so that we can add different 
+      payment methods later.
     </para>
     <para>
-      The receipt should have a <literal>dateTime</literal> property and show the <literal>shop</literal> to be 
-      RESTBucks. It should also have a list of the purchased <literal>item</literal>s and
+      The <literal>receipt</literal> should have a <literal>dateTime</literal> property and show the 
+      <literal>shop</literal> to be RESTBucks. It should also have a list of the purchased <literal>item</literal>s and
       their <literal>price</literal>s, and a <literal>total</literal> price and <literal>currency</literal>. Finally, 
       it should have a <literal>paymentMethod</literal> so that customers can crosscheck the receipt with their credit 
       card statements.
@@ -960,8 +979,12 @@
       </thead>
       <tbody>
         <tr>
+          <td><literal>home</literal></td>
+          <td></td>
+        </tr>
+        <tr>
           <td><literal>menu</literal></td>
-          <td><literal>items</literal></td>
+          <td><literal>item</literal>s</td>
         </tr>
         <tr>
           <td><literal>item</literal></td>
@@ -973,7 +996,7 @@
         <tr>
           <td><literal>order</literal></td>
           <td>
-            <literal>items</literal>, <literal>customer</literal>, <literal>total</literal>, 
+            <literal>item</literal>s, <literal>customer</literal>, <literal>total</literal>, 
             <literal>currency</literal>
           </td>
         </tr>
@@ -988,9 +1011,13 @@
         <tr>
           <td><literal>receipt</literal></td>
           <td>
-            <literal>dateTime</literal>, <literal>shop</literal>, <literal>items</literal>, 
+            <literal>dateTime</literal>, <literal>shop</literal>, <literal>item</literal>s, 
             <literal>total</literal>, <literal>currency</literal>, <literal>paymentMethod</literal>
           </td>
+        </tr>
+        <tr>
+          <td><literal>serving</literal></td>
+          <td></td>
         </tr>
       </tbody>
     </informaltable>
@@ -1012,9 +1039,8 @@
       There are a number of places where people have defined semantics for various things. Probably the best place to
       start looking for vocabularies is schema.org <citation>SchemaOrg</citation>, which defines a large number of
       concepts.
-      Other examples where you can find vocabularies are the Dublin Core Metadata Initiative 
-      <citation>DublinCore</citation> and Microformats <citation>MicroFormats</citation>.
-      You can search many of these from the Linked Open Vocabularies website <citation>LOV</citation>.
+      Other examples where you can find vocabularies are Friend of a Friend <citation>FOAF</citation>, the Dublin Core 
+      Metadata Initiative <citation>DublinCore</citation> and Microformats <citation>MicroFormats</citation>.
       Since we're in the e-commerce and coffee domains, we can find most of what we need at schema.org, but we need a
       bit of web payments as well:
     </para>
@@ -1068,6 +1094,11 @@
           <td>web-payments.org</td>
         </tr>
         <tr>
+          <td><literal>home</literal></td>
+          <td>http://schema.org/CafeOrCoffeeShop</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
           <td><literal>item</literal></td>
           <td>http://schema.org/Product</td>
           <td>schema.org</td>
@@ -1079,8 +1110,8 @@
         </tr>
         <tr>
           <td><literal>milk</literal></td>
-          <td>http://vocab.restbucks.com/milk</td>
-          <td>RESTBucks</td>
+          <td>http://www.productontology.org/doc/Milk</td>
+          <td>Product Types Ontology</td>
         </tr>
         <tr>
           <td><literal>name</literal></td>
@@ -1113,6 +1144,11 @@
           <td>schema.org</td>
         </tr>
         <tr>
+          <td><literal>serving</literal></td>
+          <td>http://schema.org/Order</td>
+          <td>schema.org</td>
+        </tr>
+        <tr>
           <td><literal>shop</literal></td>
           <td>http://schema.org/seller</td>
           <td>schema.org</td>
@@ -1130,10 +1166,12 @@
       </tbody>
     </informaltable>
     <para>
-      We only need to define one data item ourselves; all the others were already defined. Although it took us a bit 
-      of time to find all of these, it was well worth it. Existing clients that already understand these vocabularies
-      will have a good chance of being able to work with our service. Over time, we can expect the number and sizes of 
-      the vocabularies to grow, so that you only occasionally need to define anything yourself.
+      As you can see, all concepts in our service are defined elsewhere.
+      Although it took us a bit of time to find all of these, it was well worth it. Existing clients that already 
+      understand these vocabularies will have a good chance of being able to work with our service. Even if they don't,
+      we can save ourselves the trouble of documenting the concepts.
+      Over time, we can only expect the number and sizes of the vocabularies to grow, so that it would be very rare to
+      have to define anything yourself.
     </para>
     <para>
       Schema.org defines an <literal>Order</literal> as follows: <quote>An order is a confirmation of a transaction 
@@ -1142,6 +1180,11 @@
       <literal>OrderPaymentDue</literal>, <literal>OrderProcessing</literal>, <literal>OrderPickupAvailable</literal>, 
       and <literal>OrderDelivered</literal>, among others. So that covers all of our <literal>Order</literal>,
       <literal>Receipt</literal>, and <literal>Serving</literal>.
+    </para>
+    <para>
+      At runtime, we will want to serve the above information as a semantic profile (see <xref linkend="maturity"/>).
+      We have a couple of choices for that, like ALPS and JSON-LD. What the right choice for an API is, also depends
+      on what media types you are serving your representations in. So let's look at that next.
     </para>
   </section>
   
@@ -1153,17 +1196,17 @@
       resource and Collection+JSON for collection resources. That does increase the burden on the
       client, however, which now has to speak multiple languages to be able to communicate with the server. It also
       increases the complexity of the server code. For these reasons, we're going to assume that you'll
-      use a single media type for your structured messages. You may use other media types for non-structured messages 
+      use a single media type for your structured messages. You may use other media types for non-structured messages, 
       like images.
     </para>
     <para>
       There are different kinds of media types. <firstterm>Application-specific media types</firstterm> are designed for 
-      a single application or service. For instance, <literal>application/vnd.github+json</literal> is the media type 
-      used by the <citation>GitHub API</citation>. <firstterm>Domain-specific media types</firstterm> are 
+      a single application or service. For instance, <literal>application/vnd.github+json</literal> is a media type 
+      only used by GitHub <citation>GitHub API</citation>. <firstterm>Domain-specific media types</firstterm> are 
       designed to represent problems in one particular domain. For instance, Scalable Vector Graphics 
-      (<literal>image/svg+xml</literal>) <citation>SVG</citation> deals only with vector graphics. 
+      (<literal>image/svg+xml</literal>) deals only with vector graphics <citation>SVG</citation>. 
       <firstterm>General purpose media types</firstterm> can be used for any service in any domain. The best known 
-      general purpose media type is of course <citation>HTML</citation> (<literal>text/html</literal>).
+      general purpose media type is of course <literal>text/html</literal> <citation>HTML</citation>.
     </para>
     <para>
       Another way to categorize media types is by who defined them <citation>RichAmun13</citation>. 
@@ -1199,8 +1242,8 @@
       will have to find a way to express your particular domain in the media type. Remember from 
       <xref linkend="maturity"/> that semantic profiles can bridge that gap. If you're lucky enough to work in a domain
       for which such a semantic profile already exists, then you can re-use that. But even if you're not that lucky,
-      you can still save yourself a lot of work by selecting a general purpose media type. You only have to describe
-      your semantics, instead of the semantics plus the protocol plus the data format.  
+      you can still save yourself a lot of work by selecting a general purpose media type. You then only have to 
+      describe the semantics, instead of the semantics plus the protocol plus the data format.
     </para>
     <para>
       Most media types are derived from an existing base format like XML (e.g. SVG) or JSON (e.g. GitHub). The default
@@ -1216,7 +1259,7 @@
       hyperlinks.
     </para>
     <para>
-      At the time of writing, the jury is still out on which hypermedia types is going to win out as the 
+      At the time of writing, the jury is still out on which hypermedia type is going to win out as the 
       <emphasis>de facto</emphasis> standard media type for REST APIs. This means that any choice you make now has a
       decent chance of ending up being viewed as wrong in the future. That's unfortunate, but there isn't much we
       can do about it. The best we can do is be prepared to change our decision. You can minimize the impact of such a 
@@ -1281,7 +1324,7 @@
       Remember that a level 3b REST API must support both links and forms. While HAL provides hyperlinking capabilities 
       using the <literal>_links</literal> property, it doesn't have anything for handling forms. So with HAL you can 
       only build level 3a APIs. Yet HAL is a big improvement over plain JSON, and
-      it is quite popular. For instance, it is used by default in <citation>Spring HATEAOS</citation>.
+      it is quite popular. For instance, it is used by default in Spring <citation>Spring HATEAOS</citation>.
       HAL's popularity no doubt is due to its simplicity.
     </para>
     
@@ -1343,7 +1386,7 @@
         "payment": {
           "amount": 2.75,
           "currency": "USD",
-          "type": "creditcard",
+          "paymentMethod": "creditcard",
           "cardholderName": "",
           "cardNumber": "",
           "expiryMonth": "",
@@ -1377,7 +1420,7 @@
     </section>
     <para>
       HAL and Mason use keywords starting with <literal>_</literal> or <literal>@</literal> so that they don't
-      conflict with user-defined properties. Siren does things a bit differently. <citation>Siren</citation>
+      conflict with user-defined properties. Siren does things a bit differently <citation>Siren</citation>.
       It prescribes the structure of the message, so that it's always clear what part is defined by Siren and what part 
       is specific to the service. This has the benefit of clarity at the cost of a more deeply nested structure.
     </para>
@@ -1388,14 +1431,14 @@
     <para>
       Here's what an unpaid RESTBucks order could look like in Siren:
     </para>
-    <programlisting>{ "class": [ "order" ],
+    <programlisting>{ "class": [ "http://schema.org/Order" ],
   "properties": [{
     "total": 2.75,
     "currency": "USD"
   },
   "entities": [{
-    "class": [ "item" ],
-    "rel": [ "http://relations.restbucks.com/item" ],
+    "class": [ "http://schema.org/Product" ],
+    "rel": [ "http://schema.org/orderedItem" ],
     "properties": {
       "name": "caffe latte",
       "size": "tall",
@@ -1406,6 +1449,7 @@
   }],
   "actions": [{
     "name": "edit",
+    "class": [ "http://schema.org/UpdateAction" ],
     "title": "Cancel the order",
     "method": "DELETE",
     "href": "http://api.restbucks.com/orders/1234/"
@@ -1426,6 +1470,7 @@
     }]
   }, {
     "name": "payment",
+    "class": [ "http://schema.org/PayAction" ],
     "title": "Pay the order",
     "href": "http://api.restbucks.com/orders/1234/payments/",
     "type": "application/vnd.siren+json",
@@ -1473,8 +1518,8 @@
     <para>
       The <literal>fields</literal> property within <literal>actions</literal> acts much like the
       <literal>template</literal> in Mason's <literal>@actions</literal>, but there is a significant difference:
-      <literal>template</literal> may contain any JSON structure, but <literal>fields</literal> must be a collection
-      of values. Siren thus cannot encode the nested structure that we want in our example. 
+      Mason's <literal>template</literal> may contain any JSON structure, but Siren's <literal>fields</literal> must be 
+      a flat collection of values. Siren thus cannot encode the nested structure that we want in our example.
     </para>
     <para>
       Otherwise, Siren and Mason are similar in capabilities. One difference in Siren's favor is that it adds the 
@@ -1486,8 +1531,8 @@
       <title>UBER</title>
     </section>
     <para>
-      Uniform Basis for Exchanging Representations <citation>UBER</citation>, or 
-      <literal>application/vnd.uber+json</literal>, is another personal standard media type that enables level 4 APIs.
+      Uniform Basis for Exchanging Representations, or <literal>application/vnd.uber+json</literal>, is another 
+      personal standard media type that enables level 4 APIs <citation>UBER</citation>.
     </para>
     <para>
       UBER is optimized for the number of design elements used. While that keeps the specification fairly short, it 
@@ -1592,7 +1637,6 @@
       In the above example, we don't specify <literal>PUT</literal> for changing the order, but rather 
       <literal>replace</literal>. When you use a protocol like CoAP <citation>CoAP</citation> instead of HTTP, that may 
       make sense, but the vast majority of REST APIs don't need that.
-      that.
     </para>
     <para>
       UBER makes a distinction between the media types used in the request and response, using the 
@@ -1604,15 +1648,15 @@
       <title>JSON-LD &amp; Hydra</title>
     </section>
     <para>
-      <citation>JSON-LD</citation> is an open standard maintained by the W3C. <citation>Hydra</citation> is a corporate 
-      standard maintained by the Hydra W3C Community Group that builds on JSON-LD.
+      JSON-LD is an open standard maintained by the W3C <citation>JSON-LD</citation>. Hydra is a corporate standard 
+      maintained by the Hydra W3C Community Group that builds on JSON-LD <citation>Hydra</citation>.
     </para>
     <para>
       JSON-LD is the JSON representation of the Linked Data concept. <firstterm>Linked Data</firstterm> is a method of 
       publishing structured data so that it can be interlinked and queried based on semantics. JSON-LD provides a 
       JSON-based media type that can define any semantics, and Hydra adds the Hydra Core Vocabulary that defines 
-      semantics specific to REST APIs. Hydra is thus an alternative for ALPS that is more in line with the Semantic Web
-      effort <citation>Semantic Web</citation>.
+      semantics specific to REST APIs. The combination is thus an alternative for ALPS that is more in line with the 
+      Semantic Web effort <citation>Semantic Web</citation>.
     </para>
     <para>
       Here's what an unpaid RESTBucks order could look like in JSON-LD with Hydra:
@@ -1623,10 +1667,10 @@
     "hydra:property": {
       "@type": "@vocab"
     },
-    "restbucks": "http://vocab.restbucks.com/",
+    "pto": "http://www.productontology.org/doc/",
     "payment": "http://reference.data.gov.uk/def/payment#",
     "cc": "https://w3id.org/creditcard/v1/",
-    "size": "servingSize",
+    "size": "height",
     "currency": "priceCurrency",
     "total": "price"
   },
@@ -1637,7 +1681,7 @@
     "name": "caffe latte",
     "size": "tall",
     "milk": {
-      "@type": "restbucks:milk",
+      "@type": "pto:Milk",
       "@value": "whole"
     }
   } ],
@@ -1710,19 +1754,18 @@
     </para>
     <para>
       Vocabularies assign meaning to names. In the example above, the <literal>@vocab</literal> sets the default 
-      vocabulary to <literal>schema.org</literal>. This is a huge vocabulary, with definitions for all kinds of things, 
-      like orders.
+      vocabulary to <literal>http://schema.org</literal>.
       Additional vocabularies are declared using JSON properties, where the name is a prefix, and the value is a
       URI to the vocabulary. For instance, <literal>"hydra": "http://www.w3.org/ns/hydra/core#"</literal> defines the
       prefix <literal>hydra</literal> for the Hydra Core Vocabulary.
     </para>
     <para>
       Aliases allow you to use different names from the ones defined in a vocabulary. For instance, 
-      <literal>schema.org</literal> defines a <literal>servingSize</literal>, but we want to use 
+      <literal>schema.org</literal> defines a <literal>height</literal>, but we want to use 
       <literal>size</literal> for the property name. Note that
-      JSON-LD uses URIs extensively. So when we use <literal>"size": "servingSize"</literal>, a JSON-LD processor
-      actually reads that as <literal>servingSize</literal> relative to the <literal>@vocab</literal>, or
-      <literal>http://schema.org/servingSize</literal>. If the value contains a colon, it is understood to start with
+      JSON-LD uses URIs extensively. So when we use <literal>"size": "height"</literal>, a JSON-LD processor
+      actually reads that as <literal>height</literal> relative to the <literal>@vocab</literal>, or
+      <literal>http://schema.org/height</literal>. If the value contains a colon, it is understood to start with
       a prefix and that prefix is replaced by the URI of the vocabulary. So <literal>hydra:operation</literal> resolves
       to <literal>http://www.w3.org/ns/hydra/core#operation</literal>.
     </para>
@@ -1738,12 +1781,12 @@
     </para>
     <para>
       The example payload embeds the semantic context in the message so that we can see structure and semantics in one 
-      place. That's convenient for explaining the media type in a book, but not what you should do in real life. You
-      should move the semantic context to a separate resource and add a profile link header to your messages. 
+      place. That's convenient for explaining the media type in a book like this, but not what you should do in real 
+      life. You should move the semantic context to a separate resource and add a profile link header to your messages.
       This has two advantages. First, it adheres to the Single Responsibility Principle <citation>SOLID</citation> by
       giving your messages a single reason to change (either semantics for the profile or structure for the resources). 
       Second, the semantic context is very likely the same for many, if not all, of your resources. A separate resource 
-      can be cached, so that there is less network traffic.
+      can be cached, reducing the load on the server.
     </para>
     
     <section>
@@ -1859,7 +1902,8 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
 
 { "@id": "http://api.restbucks.com/",
   "@type": "CafeOrCoffeeShop",
-  "menu": "/menu/"
+  "menu": "/menu/",
+  "paymentAccepted": [ "creditcard" ]
 }</programlisting>
 		      To understand what this representation means, the client looks for a <literal>Link</literal> header with
 		      the <literal>http://www.w3.org/ns/json-ld#context</literal> relation. From this header it extracts the 
@@ -1884,7 +1928,6 @@ Cache-Control: max-age=86400, public
       @type: ["menu", "makesOffer"]
     },
     "shop": "seller",
-    "size": "height",
     "total": "price",
     "hydra": "http://www.w3.org/ns/hydra/core#",
     "hydra:property": {
@@ -1898,15 +1941,42 @@ Cache-Control: max-age=86400, public
     "cardSecurityCode": "cc:verificationCode",
     "expiryMonth": "cc:expiryMonth",
     "expiryYear": "cc:expiryYear",
+    "pto": "http://www.productontology.org/doc/",
     "restbucks": "http://vocab.restbucks.com/",
+    "restbucks:item": {
+      "@type": "Product",
+      "hydra:supportedProperty": [ {
+        "@type": "hydra:SupportedProperty",
+        "hydra:property": "name"
+      }, {
+        "@type": "hydra:SupportedProperty",
+        "hydra:property": "size" 
+      }, {
+        "@type": "hydra:SupportedProperty",
+        "hydra:property": "milk" 
+      } ]
+    },
+    "item": "restbucks:item",
     "restbucks:items": {
-      "@type": ["hydra:Collection", "offeredItems", "orderedItems"]
+      "@type": ["hydra:Collection", "offeredItems", "orderedItems"],
+      "member": [ {
+        "@type": "item",
+      } ]
     },
     "items": "restbucks:items",
     "restbucks:serving": {
       "@type": ["@id", "Order"]
     },
-    "serving": "restbucks:serving"
+    "serving": "restbucks:serving",
+    "restbuckstypes": "http://types.restbucks.com/",
+    "milk": {
+      "@id": "pto:Milk",
+      "@type": "restbuckstypes:milk"
+    }
+    "size": {
+      "@id": "height",
+      "@type": "restbuckstypes:size"
+    }
   }
 }</programlisting>
           The response contains a <literal>Cache-Control</literal> header. The <literal>max-age</literal> parameter in 
@@ -1922,6 +1992,11 @@ Cache-Control: max-age=86400, public
           as a coffee shop enables interaction with clients that don't even know the billboard URI and happen to 
           stumble upon the store. For instance, a spider program could try random IP addresses or follow random links 
           and recognize the result as a coffe shop.
+		    </para>
+		    <para>
+		      The client also understands from the <literal>http://schema.org/paymentAccepted</literal> property that this 
+		      coffee shop only accepts credit card payments. If it can't handle that, it can abort the ordering process
+		      right away.
 		    </para>
 		  </listitem>
 		  <listitem>
@@ -1949,7 +2024,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
   } ],
   "hydra:operation": [ {
 	  "@id": "http://api.restbucks.com/orders/",
-	  "@type": "hydra:CreateResourceOperation",
+	  "@type": ["hydra:CreateResourceOperation", "OrderAction"],
 	  "hydra:httpMethod": "POST",
 	  "hydra:expects": {
 	    "@type": "Order",
@@ -1995,12 +2070,12 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <listitem>
         <para>
           Since the client is programmed to understand the concepts <literal>http://schema.org/Order</literal> and 
-          <literal>http://www.w3.org/ns/hydra/core#CreateResourceOperation</literal>, it can place an order. The 
-          expected contents of the request body is specified in the response: the client must supply 
-          <literal>items</literal> and <literal>customer</literal> properties. The JSON-LD context tells the client
-          that <literal>items</literal> is a Hydra collection, so the client knows how to format it. The context also
-          indicates that <literal>customer</literal> is a <literal>http://schema.org/customer</literal>, which the
-          client is programmed to understand:
+          <literal>http://schema.org/OrderAction</literal>, it can place an order. The expected contents of the request 
+          body is specified in the response: the client must supply <literal>items</literal> and 
+          <literal>customer</literal> properties. The JSON-LD context tells the client that <literal>items</literal> is 
+          a Hydra collection, so the client knows how to format it. The context also indicates that 
+          <literal>customer</literal> is a <literal>http://schema.org/customer</literal>, which the client is 
+          programmed to understand:
           <programlisting>POST /orders/ HTTP/1.1
 Host: api.restbucks.com
 Accept: application/ld+json
@@ -2009,8 +2084,8 @@ Content-Type: application/ld+json
 { "items": {
     "member": [ {
       "name": "caffe latte",
-      "size": "tall", // TODO: How does the client know this???
-      "milk": "whole" // TODO: How does the client know this???
+      "size": "tall",
+      "milk": "whole"
     } ]
   },
   "customer": "Chrissy"
@@ -2038,7 +2113,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
   "customer": "Chrissy",
   "hydra:operation": [ {
     "@id": "http://api.restbucks.com/orders/1234/payments/",
-    "@type": "hydra:CreateResourceOperation",
+    "@type": [ "hydra:CreateResourceOperation", "PayAction" ],
     "hydra:httpMethod": "POST",
     "hydra:expects": {
       "@type": "payment",
@@ -2050,7 +2125,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         "hydra:property": "currency"
       }, {
         "@type": "paymentMethod",
-        "hydra:property": "paymentMethod" // TODO: Valid options
+        "hydra:property": "paymentMethod"
       }, {
         "@type": "cc:name",
         "hydra:property": "cardholderName",
@@ -2092,10 +2167,10 @@ Content-Type: application/ld.json
   "currency": "USD",
   "paymentMethod": "creditcard",
   "cardholderName": "C.C. Conway",
-  "cardNumber": "", // TODO: Generate valid credit card number
-  "expiryMonth": "03",
-  "expiryYear": "2018",
-  "cardSecurityCode": "137"
+  "cardNumber": "5525366617069778", 
+  "expiryMonth": "06",
+  "expiryYear": "2019",
+  "cardSecurityCode": "836"
 }</programlisting>
           After processing the credit card, the server responds with a representation of the <literal>Receipt</literal>
           resource:
@@ -2136,8 +2211,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
           that points to the serving it is waiting for:
           <programlisting>GET /orders/1234/serving/ HTTP/1.1
 Host: api.restbucks.com          
-Accept: application/ld+json
-          
+Accept: application/ld+json          
 </programlisting>
           The response will depend on how fast the barista works, but in general the client will have to wait a bit:
           <programlisting>202 Accepted HTTP/1.1
@@ -2147,10 +2221,10 @@ Retry-After: 30
 { "@id": "/orders/1234/serving",          
 }</programlisting>
           The response contains the <literal>Retry-After</literal> header, which gives the client an approximation of
-          the time it still has to wait. This could be based on historical data about how fast baristas prepare similar
-          orders, or it could simply be a fixed value. This value is only an advice, and the client is free to ignore 
-          it. But that most likely isn't going to speed the server up, so there is little point. If all clients follow
-          the advice, the server has more time to handle useful requests and everybody is better of. 
+          the time (in seconds) it still has to wait. This could be based on historical data about how fast baristas 
+          prepare similar orders, or it could simply be a fixed value. This value is only an advice, and the client is 
+          free to ignore it. But that most likely isn't going to speed the server up, so there is little point. If all 
+          clients follow the advice, the server has more time to handle useful requests and everybody is better of.
         </para>
       </listitem>
       <listitem>
@@ -2164,23 +2238,22 @@ Content-Type: application/ld+json
 { "@id": "/orders/1234/serving",
   "hydra:operation": [ {
     "@id": "http://api.restbucks.com/orders/1234/serving/",
-    "@type": "hydra:DeleteResourceOperation", // TODO: Is that really the most descriptive?
+    "@type": "TakeAction",
     "hydra:httpMethod": "DELETE"
   } ]
 }</programlisting>
-          Since the serving is now ready, there is an operation to take it.
+          Since the serving is now ready, there is an operation to take it, as indicated by the 
+          <literal>http://schema.org/TakeAction</literal> operation.
         </para>
       </listitem>
       <listitem>
         <para>
           The client finally takes the serving:
           <programlisting>DELETE /orders/1234/serving HTTP/1.1
-Accept: application/ld+json
-          
+Accept: application/ld+json          
 </programlisting>
           To which the server responds that the process is done:
-          <programlisting>204 No Content HTTP/1.1
-          
+          <programlisting>204 No Content HTTP/1.1         
 </programlisting>
         </para>
       </listitem>
@@ -2190,9 +2263,25 @@ Accept: application/ld+json
   <section>
     <title>Summary</title>
     <para>
-      This chapter showed how to design a REST API in quite a bit of detail. We saw that starting from requirements,
-      documented as state diagrams, it's actually a fairly straightforward process. There are many steps involved, but
-      none of them are very difficult or require a lot of design insight.
+      This chapter showed how to design a REST API in quite a bit of detail. We start from the requirements, documented 
+      as state diagrams. From the transitions between states, we can discover the resources and methods that will help
+      us meet the requirements. 
+    </para>
+    <para>
+      We name the resources with URIs, and the state transitions with link relations that allow the client to discover
+      the URIs.
+    </para>
+    <para>
+      We design the structure of our messages, defined their precise meanings, and select a media type to serialize
+      the messages into bytes.
+    </para>
+    <para>
+      We always validate a design by looking at the HTTP messages exchanged between client and server.
+    </para>
+    <para>
+      While designing a REST API, we'll encounter similar patterns over and over again. Understanding these patterns
+      and when to apply them makes it a lot easier to solve the design issues. The next chapter describes some of those
+      patterns in more detail.
     </para>
   </section>
 </chapter>
