@@ -10,7 +10,7 @@
       and client/sever (2nd platform) applications are now flanked by applications running in browsers, on mobile 
       phones and tablets, in game consoles, in cars, etc. (3rd platform).
     </para>
-    <figure xml:id="3rd-platform">
+    <figure id="3rd-platform">
       <mediaobject>
         <imageobject>
           <imagedata fileref="images/3rd-platform.png" width="15cm"/>
@@ -487,7 +487,7 @@
         profiles, whether in the form of semantic web technology, ALPS, or anything else that serves the same 
         purpose.
       </para>
-      <figure xml:id="maturity2">
+      <figure id="maturity2">
         <mediaobject>
           <imageobject>
             <imagedata fileref="images/maturity2.png" width="10cm" align="center"/>

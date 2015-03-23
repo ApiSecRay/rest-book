@@ -1903,7 +1903,6 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
 { "@id": "http://api.restbucks.com/",
   "@type": "CafeOrCoffeeShop",
   "menu": "/menu/",
-  "paymentAccepted": [ "creditcard" ]
 }</programlisting>
 		      To understand what this representation means, the client looks for a <literal>Link</literal> header with
 		      the <literal>http://www.w3.org/ns/json-ld#context</literal> relation. From this header it extracts the 
@@ -1993,11 +1992,6 @@ Cache-Control: max-age=86400, public
           stumble upon the store. For instance, a spider program could try random IP addresses or follow random links 
           and recognize the result as a coffe shop.
 		    </para>
-		    <para>
-		      The client also understands from the <literal>http://schema.org/paymentAccepted</literal> property that this 
-		      coffee shop only accepts credit card payments. If it can't handle that, it can abort the ordering process
-		      right away.
-		    </para>
 		  </listitem>
 		  <listitem>
 		    <para>
@@ -2019,6 +2013,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     "name": "caffe latte",
     "price": 2.75,
     "currency": "USD"
+    "acceptedPaymentMethod": [ "creditcard" ]
   }, {
     <lineannotation>... Many more items ...</lineannotation>
   } ],
@@ -2059,6 +2054,10 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
           This goes to show how important it is to look at the message flow in detail before declaring your design 
           done. As so often in our profession, the devil is in the details. There are many things to consider, as we'll
           see in subsequent chapters.
+        </para>
+        <para>
+          The client also understands from the <literal>http://schema.org/acceptedPaymentMethod</literal> property that 
+          this offer can only be paid using a credit card. If it can't handle that, it can abort the ordering process.
         </para>
         <para>
           The final part of the representation is a form that allows the client to place an order composed of the items

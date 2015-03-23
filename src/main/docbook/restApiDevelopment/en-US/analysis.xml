@@ -81,7 +81,7 @@
           </listitem>
         </varlistentry>
       </variablelist>
-      <figure xml:id="client-flow">
+      <figure id="client-flow">
         <mediaobject>
           <imageobject>
             <imagedata fileref="images/client.png" scale="68" align="center"/>
@@ -145,7 +145,7 @@
         That's the whole process. Now we have to split that up per actor, since the different actors each go through 
         their own states and thus have their own state diagrams. Here's one for the customer:
       </para>
-      <figure xml:id="sd-customer-happy-path">
+      <figure id="sd-customer-happy-path">
         <mediaobject>
           <imageobject>
             <imagedata fileref="images/sd-customer-happy-path.png" scale="68" align="center"/>
@@ -169,7 +169,7 @@
         <firstterm>happy path</firstterm> or <firstterm>main success</firstterm> scenario. But a customer can 
         also cancel or change an order that she hasn't paid for yet:
       </para>
-      <figure xml:id="sd-customer">
+      <figure id="sd-customer">
         <mediaobject>
           <imageobject>
             <imagedata fileref="images/sd-customer.png" scale="68" align="center"/>
@@ -188,7 +188,7 @@
         <xref linkend="processor"/>.
         Here's the state diagram for the cashier:
       </para>
-      <figure xml:id="sd-cashier">
+      <figure id="sd-cashier">
         <mediaobject>
           <imageobject>
             <imagedata fileref="images/sd-cashier.png" scale="68" align="center"/>
@@ -208,7 +208,7 @@
       <para>
         The state diagram for the barista is a similar loop:
       </para>
-      <figure xml:id="sd-barista">
+      <figure id="sd-barista">
         <mediaobject>
           <imageobject>
             <imagedata fileref="images/sd-barista.png" scale="68" align="center"/>

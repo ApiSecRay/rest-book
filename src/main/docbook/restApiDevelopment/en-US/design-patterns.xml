@@ -1,45 +1,683 @@
 <chapter id="patterns">
   <title>Design Patterns</title>
+  <para>
+    The previous chapter showed how to design a REST API. In this process, there are a lot of decisions to be made.
+    Fortunately, many of those decisions can be solved by applying certain design patterns.
+  </para>
+  <blockquote>
+    <attribution><citation>AIS+77</citation></attribution>
+    <para>
+	    A <firstterm>design pattern</firstterm> describes a problem which occurs over and over again in our environment, 
+	    and then describes the core of the solution to that problem, in such a way that you can use this solution a 
+	    millions times over, without ever doing it the same way twice.
+    </para>
+  </blockquote>
+  <para>
+    This chapter lists some patterns that we have found useful in designing REST APIs. Each pattern description follows
+    a common structure. It starts of with briefly explaining the intent of the pattern, followed by a longer 
+    description of the motivation for the pattern and the situations in which it is applicable. The structure depicts 
+    the essence of the interaction between client and server. The implementation section then gives advice on what to
+    do and what not to do to implement the pattern in your API and what variations are possible. An example clarifies 
+    the basic pattern. Finally, we show how the pattern relates to other patterns.
+  </para>
+  
   <section id="home">
-    <title>Home Documents</title>
+    <title>Home Document</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Provide a single location for clients to start the URI discovery process and for servers to add functionality.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        Clients of a REST API follow the flow of <xref linkend="client-flow"/>. They always start by retrieving a 
+        representation of the resource identified by the billboard URI. From there, they can discover other URIs
+        using link relations. When the resource identified by the billboard URI contains nothing but high-level
+        functions, it enables adding new functions without breaking existing clients. 
+      </para>
+      <para>
+        Every REST API should have a billboard URI, and every billboard URI should identify a home document. There are
+        no downsides to this approach.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-home.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        There is a special media type for home documents <citation>Home Document</citation>. However, since a home
+        document by definition contains nothing more than links, any hypermedia type will do. We therefore suggest
+        to use the same media type that the API uses for other resources.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>GET / HTTP/1.1
+Host: api.restbucks.com
+Accept: application/ld+json</programlisting>
+      <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "http://api.restbucks.com/",
+  "@type": "CafeOrCoffeeShop",
+  "menu": "/menu/"
+}</programlisting>
+      <para>
+        The response is typed to be a coffee shop, but other than that, it contains nothing but links. The 
+        <literal>@id</literal> notation of JSON-LD is equivalent to a link with the <literal>self</literal> link
+        relation, while the <literal>menu</literal> property can be understood from the context to be a link to the
+        menu. If we were later to add non-food items, say coffee mugs, we could add a new link here for clients to
+        discover.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        The links in the home document usually point to collections. See <xref linkend="collection"/>.
+      </para>
+    </simplesect>
   </section>
+  
   <section id="collection">
     <title>Collections</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Make a group of similar resources accessible as a resource of its own.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        Collections allow finding members in a group of similar resources and adding new members to the group.
+        It's very rare for an API not to have a group of similar resources, so virtually all REST APIs use collections.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-collection.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        There are specialized media types for collections, like Atom and Collection+JSON <citation>Atom</citation>
+        <citation>Cj</citation>.
+        Most general purpose media types also have provisions for dealing with collections. We advise to select a 
+        general purpose media type and use its collection features rather than burdening the client with multiple media 
+        types.
+      </para>
+      <para>
+        Collections can get very big. To save bandwidth, it may be a good idea to turn the collection into a paged one.
+        <firstterm>Paged collections</firstterm> serve their members in chunks of a particular size called pages. 
+        Paged collections use the <literal>next</literal> and <literal>prev</literal> standard link relations to 
+        navigate between pages. The offset and size of a page are usually specified as query parameters.
+      </para>
+      <para>
+        Another way to limit bandwidth is to use filters. A <firstterm>filter</firstterm> is a search condition,
+        usually provided in a query parameter, that limits which members of the collection are returned. Filters can
+        be simple name-value pairs, or they can be complex search languages. The OpenSearch specification is one
+        example of a search language that can be used to implement filters. TODO: citation
+      </para>
+      <para>
+        Sometimes it is useful to include a representation of the members in the representation of the collection and
+        sometimes you just want to point to the members. It's usually hard to predict what the client wants in a 
+        particular situation, so it may make sense to use yet another query parameter to indicate whether to inline
+        the members' representations.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        Members are usually added to a collection using the Create pattern. See <xref linkend="create"/>
+      </para>
+    </simplesect>
   </section>
+  
   <section id="create">
     <title>Create by POST</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Create a new resource.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        Some APIs are read-only, with the server offering a particular data set that is completely under its control.
+        Most APIs, however, allow clients to add information. This can be in the form of secondary information, like 
+        reviews on restaurants, or primary information, like the restaurants themselves.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-create.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        Adding new resources is not a safe or idempotent operation (see the sidebar "<xref linkend="http-methods"/>"
+        in <xref linkend="maturity"/>), so it should be implemented using the <literal>POST</literal> HTTP method.
+        The semantics of <literal>POST</literal> are much less constrained than those of the other HTTP methods, which
+        means one can use <literal>POST</literal> for virtually anything. We recommend to reserve the use of 
+        <literal>POST</literal> as much as possible to the Create pattern.
+      </para>
+      <para>
+        The response to a Create request should always have the <literal>201 Created</literal> status code and use the 
+        <literal>Location</literal> header to point to the created resource. Additionally, we recommend that the
+        reponse also includes the representation of the created resource. There may be information in there that the
+        server added (or refused to add), so it makes sense to provide that feedback. It saves the client another
+        roundtrip.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        The Create pattern is usually combined with the Collection pattern (see <xref linkend="collection"/>) to add
+        members to a collection.
+      </para>
+      <para>
+        Sometimes the creation process takes a long time. In that case, you may consider using the Asynchronous pattern
+        (see <xref linkend="async"/>) and return <literal>202 Accepted</literal> rather than <literal>201 
+        Created</literal>.
+      </para>
+    </simplesect>
   </section>
+  
   <section id="polling">
     <title>Polling</title>
-    <para>
-      TODO: Retry-After
-    </para>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Repeatedly request a representation of a resource until it changes state.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        Sometimes a client needs to wait on the server to complete a task before it can move on with its own work, for
+        instance because it needs to process the output of the server task, or because the server creates a new 
+        resource that the client must interact with.
+        One way of implementing the waiting is by having the client repeatedly check whether the server has finished.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-polling.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        Polling a resource is simply repeatedly refreshing it. The refresh operation is usually implemented using the
+        <literal>self</literal> link relation, which is one reason you should always provide that on a resource.
+      </para>
+      <para>
+        If the server takes a long time to finish the task that the client is waiting for, then the client may end up
+        sending many refresh requests. The server has to process all of those, which slows it down and may cause the
+        task to take longer to finish. To prevent this downward spiral, the server should tell the client to how long 
+        to wait using the <literal>Retry-After</literal> header <citation>HTTP</citation>. If possible the server 
+        should provide a good estimate of the wait time so that the client neither waits too short nor too long.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        Polling is one solution to the synchronization problem between client and server. The other is to use 
+        notifications, as described in <xref linkend="notifications"/>.
+      </para>
+      <para>
+        Synchronization between client and server occurs in workflows (see <xref linkend="workflow"/>), in processors
+        (see <xref linkend="processor"/>), and after asynchronous operations (see <xref linkend="aysnc"/>).
+      </para>
+    </simplesect>
   </section>
+  
   <section id="notifications">
     <title>Notifications</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Wait for the server to inform the client of an event.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        Sometimes a client needs to wait on the server to complete a task before it can move on with its own work, for
+        instance because it needs to process the output of the server task, or because the server creates a new 
+        resource that the client must interact with.
+        One way of implementing the waiting is by having the server notify the client when it has finished.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-notification.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        The usual pattern of communication in REST APIs is for the client to issue a request and the server to respond
+        to that. Notifications reverse that pattern, since the server is now the initiator. This can only work if the
+        server knows where to reach the client, which isn't usually the case. So this pattern places a higher demand 
+        on the client than normal: it must be able to accept incoming requests.
+      </para>
+      <para>
+        The client must still initiate the interaction. It sends the server a request to receive a notification. This
+        request must contain the address of the client, so that the server can send the client the notification request
+        later. The server must keep this state information until it has notified the client, which violates the 
+        stateless constraint (see <ref linkend="rest"/>).
+      </para>
+      <para>
+        There are alternatives to using HTTP for implementing notifications. For instance, communication could involve
+        a service bus, where the client subscribes to an event that the server later publishes. Such non-HTTP solutions
+        are out of scope of this book; you can find an overview in <citation>EIP</citation>.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        Notifications are one solution to the synchronization problem between client and server. The other is to use 
+        polling, as described in <xref linkend="polling"/>.
+      </para>
+      <para>
+        Synchronization between client and server occurs in workflows (see <xref linkend="workflow"/>), in processors
+        (see <xref linkend="processor"/>), and after asynchronous operations (see <xref linkend="aysnc"/>).
+      </para>
+    </simplesect>
   </section>
+  
   <section id="async">
     <title>Asynchronous Processing</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Allow the server to delay the response to a request.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        Communication over HTTP is synchronous, meaning that the client sends a request and waits for the server to
+        respond. Sometimes the server takes a long time to respond, however, and we may not want to wait that long. 
+        We may not want to keep an HTTP connection open on the server side, for example, because that blocks other
+        clients. Or we may want the client to move on with other useful work while the server completes the request
+        "in the background".
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-async.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        The server should return the <literal>202 Accepted</literal> status to indicate that it has understood and
+        accepted the request, but is not done processing it. The response body should point to a place where the client
+        can find out whether the process has completed. The <literal>Location</literal> header is one mechanism for
+        communicating that location; a hyperlink in the response body is another.
+      </para>
+      <para>
+        If the server has a decent estimate of how long it will take to complete the process, it may use the
+        <literal>Retry-After</literal> header to communicate that to the client.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        Sometimes the client isn't really interested in the outcome of the server process, and it will continue with
+        its own work. Most of the times, however, the client will want to synchronize with the server and inspect the
+        outcome. It can use either polling (see <xref linkend="polling"/>) or notifications (see 
+        <xref linkend="notifications"/>) for that purpose.
+      </para>
+      <para>
+        Asynchronous communication is sometimes part of a workflow (see <xref linkend="workflow"/>), usually as the
+        last step.
+      </para>
+    </simplesect>
   </section>
+  
   <section>
     <title>Correlations</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Group a series of request/response interactions between client and server.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        Individual request/response interactions are often part of a larger whole. The client is usually trying to 
+        reach a goal that requires multiple such interactions, as shown in <xref linkend="client-flow"/>. Sometimes it
+        can be useful to debug, log, or report on the larger interaction group rather than the individual interactions.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-correlation.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        Since the server is stateless, only the client can indicate the relationship between individual requests. There
+        is no standard solution to this problem, so it's best to use a custom header for this purpose. Even if the 
+        server doesn't understand the header, it can still show up in the logs, which may be useful if the client
+        developer can get access to those. Even if that is not the case, the client can log requests as well, and the
+        correlation can happen there.
+      </para>
+      <para>
+        Another approach is for the server to publish a header for correlation purposes. The value of this header may 
+        be generated by the client before it issues the first request. Alternatively, the server could generate it and 
+        add it to the response, after which the client picks it up and uses it for the remaining requests that need to
+        be correlated with the first request.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        The requests in a transaction (see <xref linkend="transactions"/>) and the steps in a workflow 
+        (see <xref linkend="workflow"/>) are examples where individual requests are part of a larger group that has
+        meaning on its own.
+      </para>
+    </simplesect>
   </section>
-  <section>
+  
+  <section id="transactions">
     <title>Transactions</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Execute a group of interactions as an atomic unit.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        TODO 
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-transaction.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        TODO
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        TODO
+      </para>
+    </simplesect>
   </section>
+  
   <section>
     <title>Batches</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        TODO
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        TODO 
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-batch.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        TODO
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        TODO
+      </para>
+    </simplesect>
   </section>
+  
   <section id="workflow">
     <title>Workflows</title>
-    <para>TODO: Move through various steps to complete a process</para>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        TODO: Move through various steps to complete a process
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        TODO 
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-workflow.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        TODO
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        TODO
+      </para>
+    </simplesect>
   </section>
+  
   <section>
     <title>Lifecycles</title>
-    <para>TODO: Move a single resource through various stages. Avoid action URIs.</para>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        TODO: Move a single resource through various stages. Avoid action URIs.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        TODO 
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="lifecycle" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        TODO
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        TODO
+      </para>
+    </simplesect>
   </section>
+  
   <section id="processor">
     <title>Processors</title>
-    <para>TODO: Repeatedly process items</para>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        TODO: Repeatedly process items
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        TODO 
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-processor.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        TODO
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        TODO
+      </para>
+    </simplesect>
+  </section>
+  
+  <section>
+    <title>Summary</title>
+    <para>
+    </para>
   </section>
 </chapter>

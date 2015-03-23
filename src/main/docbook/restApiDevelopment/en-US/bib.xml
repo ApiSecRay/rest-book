@@ -5,34 +5,6 @@
   </para>
 
   <biblioentry>
-    <abbrev>RichAmun13</abbrev>
-    <citetitle>RESTful Web APIs</citetitle>
-    <authorgroup>
-      <author>
-        <personname>
-          <firstname>Leonard</firstname>
-          <surname>Richardson</surname>
-        </personname>
-      </author>
-      <author>
-        <personname>
-          <firstname>Mike</firstname>
-          <surname>Amundsen</surname>
-        </personname>
-      </author>
-      <author>
-        <personname>
-          <firstname>Sam</firstname>
-          <surname>Ruby</surname>
-        </personname>
-      </author>
-    </authorgroup>
-    <copyright>
-      <year>2013</year>
-    </copyright>
-  </biblioentry>
-
-  <biblioentry>
     <abbrev>Adzic09</abbrev>
     <citetitle>Bridging the communication gap: specification by example</citetitle>
     <authorgroup>
@@ -49,6 +21,58 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>AIS+77</abbrev>
+    <citetitle>A pattern language</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Christopher</firstname>
+          <surname>Alexander</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Sara</firstname>
+          <surname>Ishikawa</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Murray</firstname>
+          <surname>Silverstein</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Max</firstname>
+          <surname>Jacobson</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Ingrid</firstname>
+          <surname>Fiskdahl-King</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Shlomo</firstname>
+          <surname>Angel</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <publisher>
+      <publishername>Oxford University Press</publishername>
+      <address>
+        <city>New York</city>
+      </address>
+    </publisher>
+    <copyright>
+      <year>1977</year>
+    </copyright>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>ALPS</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/draft-amundsen-richardson-foster-alps-01</biblioid>
   </biblioentry>
@@ -60,8 +84,15 @@
   </biblioentry>
 
   <biblioentry>
-    <abbrev>DublinCore</abbrev>
-    <biblioid class="uri">http://dublincore.org/specifications/</biblioid>
+    <abbrev>Atom</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc4287</biblioid>
+    <citetitle>The Atom Syndication Format</citetitle>
+  </biblioentry>
+
+  <biblioentry>
+    <abbrev>Cj</abbrev>
+    <biblioid class="uri">https://github.com/collection-json/spec</biblioid>
+    <citetitle>Collection+JSON</citetitle>
   </biblioentry>
 
   <biblioentry>
@@ -72,6 +103,28 @@
   <biblioentry>
     <abbrev>CoolUris</abbrev>
     <biblioid class="uri">http://www.w3.org/Provider/Style/URI.html</biblioid>
+  </biblioentry>
+
+  <biblioentry>
+    <abbrev>DublinCore</abbrev>
+    <biblioid class="uri">http://dublincore.org/specifications/</biblioid>
+  </biblioentry>
+
+  <!-- TODO: Fill in the details -->
+  <biblioentry>
+    <abbrev>EIP</abbrev>
+    <citetitle>Enterpise Integration Patterns</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>?</firstname>
+          <surname>?</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>?</year>
+    </copyright>
   </biblioentry>
 
   <biblioentry>
@@ -125,6 +178,12 @@
   <biblioentry>
     <abbrev>Hohpe04</abbrev>
     <biblioid class="uri">http://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Home Document</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/draft-nottingham-json-home-03</biblioid>
+    <citetitle>Home Documents for HTTP APIs</citetitle>
   </biblioentry>
   
   <biblioentry>
@@ -230,6 +289,34 @@
     <citetitle>The 'profile' Link Relation Type</citetitle>
   </biblioentry>
   
+  <biblioentry>
+    <abbrev>RichAmun13</abbrev>
+    <citetitle>RESTful Web APIs</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Leonard</firstname>
+          <surname>Richardson</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Mike</firstname>
+          <surname>Amundsen</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Sam</firstname>
+          <surname>Ruby</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2013</year>
+    </copyright>
+  </biblioentry>
+
   <biblioentry>
     <abbrev>Richardson07</abbrev>
     <authorgroup>
