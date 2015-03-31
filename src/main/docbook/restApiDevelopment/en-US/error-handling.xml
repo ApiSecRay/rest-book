@@ -12,6 +12,38 @@
     Use a dedicated media type that contains the error details
     Include the error details in the used media type
   </para>
+
+  <section>
+    <title>HTTP Status Codes</title>
+    <para>
+    </para>
+  </section>
+
+  <section>
+    <title>Problem Details</title>
+    <para>
+    </para>
+  </section>
+
+  <section>
+    <title>Serializing Error Messages</title>
+    <para>
+    </para>
+  </section>
+
+  <section>
+    <title>Security</title>
+    <para>
+    </para>
+  </section>
+
+  <section>
+    <title>Summary</title>
+    <para>
+    </para>
+  </section>
+  
+  <!-- 
   <section>
     <title>Dedicated Error Media Types</title>
     <para>
@@ -98,4 +130,5 @@
       to steal all the good ideas from Problem Details for HTTP APIs.
     </para>
   </section>
+  -->
 </chapter>

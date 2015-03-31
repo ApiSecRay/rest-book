@@ -586,59 +586,66 @@ Then she is happy</programlisting>
        </para>
      </section>
   </section>
+
   
   <section id="non-functional-requirements">
     <title>Non-Functional Requirements</title>
     <para>
       Now that we've looked at the behavioral aspects of a RESTful system, let's look at the other criteria that can be 
       used to judge the operation of a system. A non-functional requirement is an overall property of the system and not 
-      a specific function. Non-functional requirements are sometimes referred to as the qualities or, more informally, 
-      the ilities:
+      a specific function.
     </para>
-    <simplelist type='vert' columns="3">
-      <member>Accessibility</member>
-      <member>Availability</member>
-      <member>Confidentiality</member>
-      <member>Extensibility</member>
-      <member>Evolvability</member>
-      <member>Integrity</member>
-      <member>Interoperability</member>
-      <member>Maintainability</member>
-      <member>Operability</member>
-      <member>Performance</member>
-      <member>Portability</member>
-      <member>Reliability</member>
-      <member>Reusability</member>
-      <member>Robustness</member>
-      <member>Scalability</member>
-      <member>Supportability</member>
-      <member>Testability</member>
-      <member>Usability</member>
-      <member>etc.</member>
-    </simplelist>
-    <para>
-      While all of these topics are important to certain degrees in all systems, not all non-functional requirements
-      are equally interesting for REST APIs. Interoperability obviously is; that's what an API is all about. But 
-      reusability and portability are less interesting and we won't talk about them much in this book. 
-    </para>
-    <para>
-      We already touched upon evolvability in <xref linkend="apis"/> and we'll dive deeper into to this topic and 
-      into maintainability and extensibility in <xref linkend="maintenance"/>.
-      We've also taken a few steps into the field of testability, but we'll return to this important topic in 
-      <xref linkend="test"/>.
-      Performance and scalability are the topics of <xref linkend="performance"/>, while we'll talk more about
-      operability and supportability in <xref linkend="operations"/> and about reliability and robustness in 
-      <xref linkend="error"/>.
-    </para>
-    <para>
-      Confidentiality, integrity, and availability are the basic ingredients of security, the subject of 
-      <xref linkend="security"/>. Security is a vital topic for REST APIs, especially for those APIs that are open to 
-      the public, so we will talk about it in many other chapters as well.
-    </para>
-    <para>
-      Accessibility and usability are about how easy it is to use a system. Let's look at that in some more detail. 
-    </para>
-        
+
+	  <section>
+	    <title>The qualities</title>
+	    <para>
+	      Non-functional requirements are sometimes referred to as the qualities or, more informally, the ilities:
+	    </para>
+	    <simplelist type='vert' columns="3">
+	      <member>Accessibility</member>
+	      <member>Availability</member>
+	      <member>Confidentiality</member>
+	      <member>Extensibility</member>
+	      <member>Evolvability</member>
+	      <member>Integrity</member>
+	      <member>Interoperability</member>
+	      <member>Maintainability</member>
+	      <member>Operability</member>
+	      <member>Performance</member>
+	      <member>Portability</member>
+	      <member>Reliability</member>
+	      <member>Reusability</member>
+	      <member>Robustness</member>
+	      <member>Scalability</member>
+	      <member>Supportability</member>
+	      <member>Testability</member>
+	      <member>Usability</member>
+	      <member>etc.</member>
+	    </simplelist>
+	    <para>
+	      While all of these topics are important to certain degrees in all systems, not all non-functional requirements
+	      are equally interesting for REST APIs. Interoperability obviously is; that's what an API is all about. But 
+	      reusability and portability are less interesting and we won't talk about them much in this book. 
+	    </para>
+	    <para>
+	      We already touched upon evolvability in <xref linkend="apis"/> and we'll dive deeper into to this topic and 
+	      into maintainability and extensibility in <xref linkend="maintenance"/>.
+	      We've also taken a few steps into the field of testability, but we'll return to this important topic in 
+	      <xref linkend="test"/>.
+	      Performance and scalability are the topics of <xref linkend="performance"/>, while we'll talk more about
+	      operability and supportability in <xref linkend="operations"/> and about reliability and robustness in 
+	      <xref linkend="error"/>.
+	    </para>
+	    <para>
+	      Confidentiality, integrity, and availability are the basic ingredients of security, the subject of 
+	      <xref linkend="security"/>. Security is a vital topic for REST APIs, especially for those APIs that are open to 
+	      the public, so we will talk about it in many other chapters as well.
+	    </para>
+	    <para>
+	      Accessibility and usability are about how easy it is to use a system. Let's look at that in some more detail. 
+	    </para>
+    </section>
+            
 	  <section>
 	    <title>Developer eXperience</title>
 	    <para>

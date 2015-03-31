@@ -17,7 +17,7 @@
   <section>
     <title>Security</title>
     <section>
-      <title>Alerts</title>
+      <title>Alerting</title>
     </section> 
     <section>
       <title>Vulnerability Disclosure</title>
@@ -26,5 +26,9 @@
   
   <section>
     <title>Support</title>
+  </section>
+  
+  <section>
+    <title>Summary</title>
   </section>
 </chapter>

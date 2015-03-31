@@ -14,7 +14,7 @@
   </blockquote>
   <para>
     This chapter lists some patterns that we have found useful in designing REST APIs. Each pattern description follows
-    a common structure. It starts of with briefly explaining the intent of the pattern, followed by a longer 
+    a common structure. It starts with briefly explaining the intent of the pattern, followed by a longer 
     description of the motivation for the pattern and the situations in which it is applicable. The structure depicts 
     the essence of the interaction between client and server. The implementation section then gives advice on what to
     do and what not to do to implement the pattern in your API and what variations are possible. An example clarifies 
@@ -22,7 +22,7 @@
   </para>
   
   <section id="home">
-    <title>Home Document</title>
+    <title>Home</title>
     <simplesect>
       <title>Intent</title>
       <para>
@@ -38,8 +38,8 @@
         functions, it enables adding new functions without breaking existing clients. 
       </para>
       <para>
-        Every REST API should have a billboard URI, and every billboard URI should identify a home document. There are
-        no downsides to this approach.
+        Every REST API should have a billboard URI, and every billboard URI should identify a home resource. There is
+        no drawback to this approach.
       </para>
     </simplesect>
     <simplesect>
@@ -85,13 +85,13 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Related Patterns</title>
       <para>
-        The links in the home document usually point to collections. See <xref linkend="collection"/>.
+        The links in the home document usually point to collections (see <xref linkend="collection"/>).
       </para>
     </simplesect>
   </section>
   
   <section id="collection">
-    <title>Collections</title>
+    <title>Collection</title>
     <simplesect>
       <title>Intent</title>
       <para>
@@ -118,7 +118,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Implementation</title>
       <para>
-        There are specialized media types for collections, like Atom and Collection+JSON <citation>Atom</citation>
+        There are specialized media types for collections, like Atom <citation>Atom</citation> and Collection+JSON 
         <citation>Cj</citation>.
         Most general purpose media types also have provisions for dealing with collections. We advise to select a 
         general purpose media type and use its collection features rather than burdening the client with multiple media 
@@ -126,15 +126,24 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       </para>
       <para>
         Collections can get very big. To save bandwidth, it may be a good idea to turn the collection into a paged one.
-        <firstterm>Paged collections</firstterm> serve their members in chunks of a particular size called pages. 
-        Paged collections use the <literal>next</literal> and <literal>prev</literal> standard link relations to 
-        navigate between pages. The offset and size of a page are usually specified as query parameters.
+        <firstterm>Paged collections</firstterm> serve their members in chunks of a particular size called 
+        <firstterm>pages</firstterm>. 
+        Paged collections use the <literal>first</literal>, <literal>next</literal>, <literal>prev</literal>, and 
+        <literal>last</literal> standard link relations to navigate between pages <citation>IANA Registry of Link 
+        Relation Types</citation>. 
+        The size of the pages and which page to retrieve are usually specified as query parameters.
+        We'll talk more about paging in <xref linkend="paging"/>.
       </para>
       <para>
         Another way to limit bandwidth is to use filters. A <firstterm>filter</firstterm> is a search condition,
-        usually provided in a query parameter, that limits which members of the collection are returned. Filters can
-        be simple name-value pairs, or they can be complex search languages. The OpenSearch specification is one
-        example of a search language that can be used to implement filters. TODO: citation
+        usually provided in one or more query parameters, that limits which members of the collection are returned. 
+        Filters range from simple name-value pairs to complex search languages.
+      </para>
+      <para>
+        The OpenSearch specification is a corporate standard backed by Amazon, Microsoft, IBM, and others, that defines 
+        query parameters for paging and filtering <citation>OpenSearch</citation>. Although this isn't an open
+        standard and it isn't used by major search providers Google and Yahoo!, we think that using it is better than 
+        inventing your own query parameters.
       </para>
       <para>
         Sometimes it is useful to include a representation of the members in the representation of the collection and
@@ -157,7 +166,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
   </section>
   
   <section id="create">
-    <title>Create by POST</title>
+    <title>Create</title>
     <simplesect>
       <title>Intent</title>
       <para>
@@ -168,8 +177,8 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Motivation &amp; Applicability</title>
       <para>
         Some APIs are read-only, with the server offering a particular data set that is completely under its control.
-        Most APIs, however, allow clients to add information. This can be in the form of secondary information, like 
-        reviews on restaurants, or primary information, like the restaurants themselves.
+        Most APIs, however, allow clients to add information. This can be in the form of primary information, like 
+        books, or secondary information, like book reviews.
       </para>
     </simplesect>
     <simplesect>
@@ -186,7 +195,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Implementation</title>
       <para>
         Adding new resources is not a safe or idempotent operation (see the sidebar "<xref linkend="http-methods"/>"
-        in <xref linkend="maturity"/>), so it should be implemented using the <literal>POST</literal> HTTP method.
+        in <xref linkend="maturity"/>), so it should be implemented using the HTTP <literal>POST</literal> method.
         The semantics of <literal>POST</literal> are much less constrained than those of the other HTTP methods, which
         means one can use <literal>POST</literal> for virtually anything. We recommend to reserve the use of 
         <literal>POST</literal> as much as possible to the Create pattern.
@@ -195,7 +204,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         The response to a Create request should always have the <literal>201 Created</literal> status code and use the 
         <literal>Location</literal> header to point to the created resource. Additionally, we recommend that the
         reponse also includes the representation of the created resource. There may be information in there that the
-        server added (or refused to add), so it makes sense to provide that feedback. It saves the client another
+        server added (or refused to add), so it makes sense to provide that feedback. It also saves the client another
         roundtrip.
       </para>
     </simplesect>
@@ -207,12 +216,12 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Related Patterns</title>
       <para>
-        The Create pattern is usually combined with the Collection pattern (see <xref linkend="collection"/>) to add
+        The Create pattern is often combined with the Collection pattern (see <xref linkend="collection"/>) to add
         members to a collection.
       </para>
       <para>
-        Sometimes the creation process takes a long time. In that case, you may consider using the Asynchronous pattern
-        (see <xref linkend="async"/>) and return <literal>202 Accepted</literal> rather than <literal>201 
+        Sometimes the creation process can take a long time. In that case, you may consider using the Asynchronous 
+        pattern (see <xref linkend="async"/>) and return <literal>202 Accepted</literal> rather than <literal>201
         Created</literal>.
       </para>
     </simplesect>
@@ -249,13 +258,14 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Implementation</title>
       <para>
         Polling a resource is simply repeatedly refreshing it. The refresh operation is usually implemented using the
-        <literal>self</literal> link relation, which is one reason you should always provide that on a resource.
+        <literal>self</literal> link relation, which is one reason why you should always identify the resource in its
+        representation.
       </para>
       <para>
         If the server takes a long time to finish the task that the client is waiting for, then the client may end up
         sending many refresh requests. The server has to process all of those, which slows it down and may cause the
-        task to take longer to finish. To prevent this downward spiral, the server should tell the client to how long 
-        to wait using the <literal>Retry-After</literal> header <citation>HTTP</citation>. If possible the server 
+        task to take longer to finish. To prevent this downward spiral, the server should tell the client how long 
+        to wait using the <literal>Retry-After</literal> header <citation>HTTP</citation>. If possible, the server 
         should provide a good estimate of the wait time so that the client neither waits too short nor too long.
       </para>
     </simplesect>
@@ -267,18 +277,22 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Related Patterns</title>
       <para>
-        Polling is one solution to the synchronization problem between client and server. The other is to use 
-        notifications, as described in <xref linkend="notifications"/>.
+        Polling is one solution to the synchronization problem between client and server. The other is to use the 
+        Notification pattern (see <xref linkend="notifications"/>).
       </para>
       <para>
         Synchronization between client and server occurs in workflows (see <xref linkend="workflow"/>), in processors
-        (see <xref linkend="processor"/>), and after asynchronous operations (see <xref linkend="aysnc"/>).
+        (see <xref linkend="processor"/>), and after asynchronous operations (see <xref linkend="async"/>).
+      </para>
+      <para>
+        Polling clients may use conditional <literal>GET</literal> requests to reduce network traffic, as explained
+        in <xref linkend="concurrency"/> and <xref linkend="caching"/>.
       </para>
     </simplesect>
   </section>
   
   <section id="notifications">
-    <title>Notifications</title>
+    <title>Notification</title>
     <simplesect>
       <title>Intent</title>
       <para>
@@ -333,11 +347,11 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Related Patterns</title>
       <para>
         Notifications are one solution to the synchronization problem between client and server. The other is to use 
-        polling, as described in <xref linkend="polling"/>.
+        the Polling pattern (see <xref linkend="polling"/>).
       </para>
       <para>
         Synchronization between client and server occurs in workflows (see <xref linkend="workflow"/>), in processors
-        (see <xref linkend="processor"/>), and after asynchronous operations (see <xref linkend="aysnc"/>).
+        (see <xref linkend="processor"/>), and after asynchronous operations (see <xref linkend="async"/>).
       </para>
     </simplesect>
   </section>
@@ -355,7 +369,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         Communication over HTTP is synchronous, meaning that the client sends a request and waits for the server to
         respond. Sometimes the server takes a long time to respond, however, and we may not want to wait that long. 
-        We may not want to keep an HTTP connection open on the server side, for example, because that blocks other
+        We may not want to keep an HTTP connection open on the server side, for example, because that may block other
         clients. Or we may want the client to move on with other useful work while the server completes the request
         "in the background".
       </para>
@@ -374,13 +388,14 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Implementation</title>
       <para>
         The server should return the <literal>202 Accepted</literal> status to indicate that it has understood and
-        accepted the request, but is not done processing it. The response body should point to a place where the client
-        can find out whether the process has completed. The <literal>Location</literal> header is one mechanism for
-        communicating that location; a hyperlink in the response body is another.
+        accepted the request, but is not done processing it <citation>HTTP</citation>.
+        The response should point to a place where the client can find out later whether the process has completed. 
+        The <literal>Location</literal> header is one mechanism for communicating that location; a hyperlink in the 
+        response body is another.
       </para>
       <para>
         If the server has a decent estimate of how long it will take to complete the process, it may use the
-        <literal>Retry-After</literal> header to communicate that to the client.
+        <literal>Retry-After</literal> header to communicate that to the client <citation>HTTP</citation>.
       </para>
     </simplesect>
     <simplesect>
@@ -397,14 +412,307 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         <xref linkend="notifications"/>) for that purpose.
       </para>
       <para>
-        Asynchronous communication is sometimes part of a workflow (see <xref linkend="workflow"/>), usually as the
-        last step.
+        Asynchronous communication is sometimes part of a workflow (see <xref linkend="workflow"/>), often as the
+        last step. Asynchronous communication may also be used in the Lifecycle pattern (see 
+        <xref linkend="lifecycle"/>).
       </para>
     </simplesect>
   </section>
   
-  <section>
-    <title>Correlations</title>
+  <section id="workflow">
+    <title>Workflow</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Move through various steps in a complex process.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        There are many situations in which the server needs to guide the client through a multi-step process, like 
+        buying something from an online store. You may be able to cram such a process in a single request/response, but
+        that often feels unnatural from the client's perspective (see <xref linkend="analysis"/>) and may lead to 
+        brittle designs.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-workflow.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        If possible, group the resources involved in all the steps under one <firstterm>grouping resource</firstterm>
+        that represents the entire workflow. In the example of the online store, that resource would be the order or 
+        shopping cart.
+        Grouping resources this way clearly expresses the intent and also makes it easy to cancel the whole process by 
+        deleting the grouping resource.
+      </para>
+      <para>
+        Sometimes the grouping resource is a temporary resource that will be removed after the client has completed the
+        workflow. At this point, the lines between server and client state start to fade a bit. To stay within the
+        stateless constraint (see <xref linkend="rest"/>), make sure that the resources that the server maintains are
+        interesting to other parties than just the client that created them.
+      </para>
+      <para>
+        If the grouping resource is interesting to other parties, like an order that needs to be fulfilled, then you 
+        may still want to remove it after the workflow is complete. Alternatively, you could move it to some other
+        location to indicate its changed status. For instance, a completed order may be moved from 
+        <literal>/orders/</literal> to <literal>/sales/2015/Q1/</literal> after it has been fulfilled.
+      </para>
+      <para>
+        Note that moving a resource means the that resource's URI is no longer cool (see the sidebar 
+        "<xref linkend="uris"/>" in <xref linkend="name-resources"/>), so make sure the client wouldn't need access to 
+        it anymore. If there is any chance that the client may still need to access the resource, then consider keeping 
+        the URI around and responding with a 3xx status code and a <literal>Location</literal> header that tells the 
+        client where the resource moved to <citation>HTTP</citation>.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        The grouping resource is usually added to a collection (see <xref linkend="collection"/>) using the Create 
+        pattern (see <xref linkend="create"/>). The collection is often reachable from the Home resource (see
+        <xref linkend="home"/>). When multiple parties are involved in the various steps, then the lifecycle pattern
+        (see <xref linkend="lifecycle"/>) may apply.
+      </para>
+      <para>
+        An alternative to using a grouping resource is to group all the logical requests into a single HTTP request
+        (see <xref linkend="batch"/>). 
+      </para>
+    </simplesect>
+  </section>
+  
+  <section id="lifecycle">
+    <title>Lifecycle</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Move a resource through a sequence of stages.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        Sometimes multiple parties need to cooperate on a single resource. For instance a customer, cashier, and 
+        barista work on the same orderin RESTBucks. Each party handles part of the process and hands off to another 
+        party. The hand-offs are coordinated using the state of the resource.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-lifecycle.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        The state of the resource determines what can be done with it. In RESTful systems, this is usually indicated by 
+        what links are available to operate on the resource.
+      </para>
+      <para>
+        An alternative is to make the state explicit using a property. Each client watches the state property to see if 
+        it's their turn to operate on it. Use this approach only if you really can't distinguish the various states by
+        using links only.
+      </para>
+      <para>
+        This pattern is one place where it is especially tempting for some people to put the possible actions on the
+        resource in URIs. For instance, a task in a workflow may offer an operation for a user to acquire it and 
+        sometimes you'll see this modeled using a URI like <literal>/tasks/1/acquire</literal>. That is not the
+        resource oriented approach that the REST architectural style prescribes. A more RESTful approach would be to
+        update the state by sending a <literal>PATCH</literal> request to <literal>/tasks/1</literal> that updates
+        the <literal>assignedTo</literal> property.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        Lifecycles often apprear in the context of a workflow (see <xref linkend="workflow"/>). The Workflow pattern 
+        focuses on the view of the system from a single client, while the lifecycle pattern focuses more on how
+        multiple clients collaborate using the same resource.
+      </para>
+      <para>
+        The hand-offs between different parties may be synchronous or asynchronous (see <xref linkend="async"/>). In the
+        latter case, parties can watch the state of the resource using polling (see <xref linkend="polling"/>) or
+        notifications (see <xref linkend="notifications"/>). A party may be a processor (see 
+        <xref linkend="processor"/>).
+      </para>
+    </simplesect>
+  </section>
+  
+  <section id="processor">
+    <title>Processor</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Repeatedly process similar items.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        Sometimes we need producer-consumer like systems where one (type of) client produces resources that another
+        consumes. In RESTBucks, for example, the cashier processes the payment of orders that the customer creates, 
+        while the barista prepares them. 
+        example.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-processor.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        Producer-consumer systems usually communicate via a queue, and that may the best solution for you. If 
+        decoupling of client and server from any particula queueing technology is important in your situation, you may 
+        also consider a more RESTful approach.
+      </para>
+      <para>
+        One option is to make the processing synchronous. The consumer sits idle waiting until the producer offers
+        an item to be processed. The producer waits for the consumer to processes the item and report back the results.
+      </para>
+      <para>
+        Another solution is to make the processing asynchronous. This looks more like the traditional queueing approach,
+        with some collection resource playing the role of queue. The producer creates a new work item resource in the
+        collection, and in time the consumer processes it. The consumer can either poll for new resources, or get 
+        notified whenever a new resource is created.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        A processor usually processes similar items that are part of the same collection (see 
+        <xref linkend="collection"/>). A processor can be one of the parties collaborating in a lifecycle (see
+        <xref linkend="lifecycle"/>) or workflow (see <xref linkend="workflow"/>). 
+      </para>
+      <para>
+        A processor must acquire new items to process. Polling (see <xref linkend="polling"/>) and Notification (see 
+        <xref linkend="notifications"/>) are two ways in which the processor can learn about them.
+      </para>
+    </simplesect>
+  </section>
+  
+  <section id="concurrency">
+    <title>Concurrency</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Handle concurrent requests from multiple clients without one client undoing work from another client.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        Any RESTful system is by definition a client-server system (see <xref linkend="rest"/>). One issue that often
+        comes up in such systems is that the view that any client has of the server becomes outdated when other clients
+        update resources. A client that acts on such outdated information may initiate actions that have unintended
+        consequences.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-concurrency.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        The HTTP specification defines a number of headers that help solve concurrency issues <citation>HTTP</citation>
+        using so-called <firstterm>validators</firstterm> in <firstterm>conditional requests</firstterm>. Conditional 
+        requests are HTTP requests that include one or more header fields indicating a precondition to be tested before
+        applying the method semantics to the target resource.
+      </para>
+      <para>
+        A server can use the <literal>Last-Modified</literal> response header to indicate when information was last 
+        updated. The client can then supply the value of that header using the <literal>If-Unmodified-Since</literal>
+        request header. If the information was updated since the provided date, the server will refuse the client's 
+        request.
+      </para>
+      <para>
+        Another validator is the <literal>If-Match</literal> request header that checks against a value provided 
+        earlier in an <literal>ETag</literal> response header. The <literal>If-Match</literal> validator takes 
+        precedence over <literal>If-Unmodified-Since</literal>. 
+      </para>
+      <para>
+        An <literal>ETag</literal>, or entity-tag, is an opaque validator for differentiating between multiple 
+        representations of the same resource. Since this value is opaque, the client doesn't need to understand it and
+        the server is free to use whatever implementation it sees fit.  
+      </para>
+      <para>
+        <literal>ETag</literal> is usually a stronger validator than <literal>Last-Modified</literal>, because
+        a server's clock has a limited resolution. When using <literal>Last-Modified</literal>, there is still a 
+        risk that updates get lost when they arrive within a second of each other. In general, it's therefore better to
+        use <literal>ETag</literal>s.
+      </para>
+      <para>
+        Note that conditional requests can be used for read requests as well as for updates, as we'll see in
+        <xref linkend="caching"/>.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <para>
+        The classic example is transferring money between bank accounts. Suppose there is one account resource with a
+        <literal>balance</literal> property and two clients that want to transfer money into the account. The first
+        client issues a request to read the balance and gets a response. It then issues another request to update the
+        balance. Before the first and second requests, another clients reads the balance. After the first client issues
+        its update request, the second client does the same and undoes the work of the first client, because it used
+        outdated information.
+      </para>
+      <programlisting>TODO: request</programlisting>
+      <programlisting>TODO: response</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        The different parties in the Lifecycle pattern (see <xref linkend="lifecycle"/>) may run into concurrency 
+        issues. Polling (see <xref linkend="polling"/>) clients may use conditional <literal>GET</literal> requests
+        to reduce network traffic.
+      </para>
+    </simplesect>
+  </section>
+
+  <section id="correlation">
+    <title>Correlation</title>
     <simplesect>
       <title>Intent</title>
       <para>
@@ -432,17 +740,23 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Implementation</title>
       <para>
-        Since the server is stateless, only the client can indicate the relationship between individual requests. There
+        Sometimes all the correlation you need is in the URI. For instance, different resources that are part of a
+        workflow may be grouped under one resource that represents the whole workflow. In such cases, no explicit
+        correlation is necessary.
+      </para>
+      <para>
+        If you do need to explicitly correlate messages, then remember that the server is stateless (see 
+        <xref linkend="rest"/>), so only the client can indicate the relationship between individual requests. There
         is no standard solution to this problem, so it's best to use a custom header for this purpose. Even if the 
         server doesn't understand the header, it can still show up in the logs, which may be useful if the client
         developer can get access to those. Even if that is not the case, the client can log requests as well, and the
-        correlation can happen there.
+        correlation can happen on that side.
       </para>
       <para>
-        Another approach is for the server to publish a header for correlation purposes. The value of this header may 
+        Another approach is for the service to publish a header for correlation purposes. The value of this header may 
         be generated by the client before it issues the first request. Alternatively, the server could generate it and 
-        add it to the response, after which the client picks it up and uses it for the remaining requests that need to
-        be correlated with the first request.
+        add it to the response to the first request, after which the client picks it up and uses it for subsequent 
+        requests in the group.
       </para>
     </simplesect>
     <simplesect>
@@ -461,7 +775,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
   </section>
   
   <section id="transactions">
-    <title>Transactions</title>
+    <title>Transaction</title>
     <simplesect>
       <title>Intent</title>
       <para>
@@ -471,7 +785,16 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Motivation &amp; Applicability</title>
       <para>
-        TODO 
+        Since a REST server is supposed to be stateless, each request it receives is treated independently of others.
+        Sometimes, however, a client wants a small set of requests to either go through all together, or none at all. 
+        This is a special form of correlation (see <xref linkend="correlation"/>), where the server understands and 
+        attaches a special meaning to the correlation.
+      </para>
+      <para>
+        If possible, try to do without grouping requests in a transaction. Maybe your API is too fine-grained and you 
+        can make the need for transactions disappear by making the API less chatty.
+        Introduce higher-level resources that can meet the client's transactional needs by putting all the 
+        functionality in a single request.
       </para>
     </simplesect>
     <simplesect>
@@ -487,7 +810,42 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Implementation</title>
       <para>
-        TODO
+        There are at least two ways to implement transactions. The easiest implementation is to follow the pattern for 
+        correlations (see <xref linkend="correlation"/>) and supply some sort of header that indicates the transaction. 
+        You may need extra resources to begin, commit and/or roll back the transaction. If you introduce a resource for
+        beginning transactions, then the server will be able to generate the transaction ID that the client sends with
+        subsequent requests.
+      </para>
+      <para>
+        Note that this approach means that the server needs to keep application state, so it violates the stateless 
+        constraint (see <xref linkend="rest"/>) and therefore can't be considered RESTful.
+      </para>
+      <para>
+        You'll have to decide whether the effect of the client's requests are visible
+        to other clients before the transaction is committed. In other words, you'll have to decide the isolation level.
+        Relational databases usually provide full ACID (atomicity, consistency, isolation, and durability) properties, 
+        but many NoSQL databases don't. Think through all the consequences of your choices very carefully, because 
+        things can get a bit hairy. Document your decisions precisely, so that clients know what to expect.
+      </para>
+      <para>
+        An alternative approach to implementing transactions is to literally group the various requests into one, 
+        using some <literal>multipart</literal> media type (see <xref linkend="batch"/>). The request that the client 
+        sends will be made up of multiple parts that each represent what would have been an individual request in the
+        transaction. The parts are separated by some boundary.
+        This approach puts a high burden on both client and server implementations to compose and decompose the multiple
+        parts, but at least you'll stay within the stateless constraint.
+      </para>
+      <para>
+        The major downside of this style is that it can get very complicated very quickly when the requests that 
+        make up the transaction are interdependent. This happens when the input of one request depends on the 
+        output of a previous request. That is often the case: if the requests were completely independent, then there 
+        probably wouldn't be a need to treat them as an atomic unit. So this method may or may not be a viable solution 
+        to your problem.
+      </para>
+      <para>
+        All in all, we think it's best to avoid the Transaction pattern if you can. By looking at the requirements from 
+        the client's perspective, like we saw in <xref linkend="analysis"/>, you reduce the chances of building your API
+        at a granularity level that is wrong for your clients. 
       </para>
     </simplesect>
     <simplesect>
@@ -498,23 +856,25 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Related Patterns</title>
       <para>
-        TODO
+        The correlation pattern (see <xref linkend="correlation"/>) provides one way of grouping the requests that make
+        up the transaction. The batch pattern (see <xref linkend="batch"/>) is another.
       </para>
     </simplesect>
   </section>
   
-  <section>
-    <title>Batches</title>
+  <section id="batch">
+    <title>Batch</title>
     <simplesect>
       <title>Intent</title>
       <para>
-        TODO
+        Send multiple logical requests in a single HTTP request.
       </para>
     </simplesect>
     <simplesect>
       <title>Motivation &amp; Applicability</title>
       <para>
-        TODO 
+        Batches can be used for a variety of reasons, like transactional semantics (see <xref linkend="transactions"/>) 
+        and reduction of the number of network roundtrips in constrained environments like mobile scenarios.
       </para>
     </simplesect>
     <simplesect>
@@ -530,7 +890,13 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Implementation</title>
       <para>
-        TODO
+        Group the various requests into one body, using some <literal>multipart</literal> media type. The HTTP 
+        request that the client sends will be made up of multiple parts that each represent an individual logical 
+        request. The parts are separated by some boundary so that the server can distinguish them.
+      </para>
+      <para>
+        This approach puts a high burden on both client and server implementations to compose and decompose the multiple
+        parts.
       </para>
     </simplesect>
     <simplesect>
@@ -541,136 +907,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Related Patterns</title>
       <para>
-        TODO
-      </para>
-    </simplesect>
-  </section>
-  
-  <section id="workflow">
-    <title>Workflows</title>
-    <simplesect>
-      <title>Intent</title>
-      <para>
-        TODO: Move through various steps to complete a process
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Motivation &amp; Applicability</title>
-      <para>
-        TODO 
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Structure</title>
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="images/pat-workflow.png" scale="68" align="center"/>
-        </imageobject>
-      </mediaobject>
-      <para>
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Implementation</title>
-      <para>
-        TODO
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
-    </simplesect>
-    <simplesect>
-      <title>Related Patterns</title>
-      <para>
-        TODO
-      </para>
-    </simplesect>
-  </section>
-  
-  <section>
-    <title>Lifecycles</title>
-    <simplesect>
-      <title>Intent</title>
-      <para>
-        TODO: Move a single resource through various stages. Avoid action URIs.
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Motivation &amp; Applicability</title>
-      <para>
-        TODO 
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Structure</title>
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="lifecycle" scale="68" align="center"/>
-        </imageobject>
-      </mediaobject>
-      <para>
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Implementation</title>
-      <para>
-        TODO
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
-    </simplesect>
-    <simplesect>
-      <title>Related Patterns</title>
-      <para>
-        TODO
-      </para>
-    </simplesect>
-  </section>
-  
-  <section id="processor">
-    <title>Processors</title>
-    <simplesect>
-      <title>Intent</title>
-      <para>
-        TODO: Repeatedly process items
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Motivation &amp; Applicability</title>
-      <para>
-        TODO 
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Structure</title>
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="images/pat-processor.png" scale="68" align="center"/>
-        </imageobject>
-      </mediaobject>
-      <para>
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Implementation</title>
-      <para>
-        TODO
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
-    </simplesect>
-    <simplesect>
-      <title>Related Patterns</title>
-      <para>
-        TODO
+        Batch requests can be used to implement transactions (see <xref linkend="transactions"/>).
       </para>
     </simplesect>
   </section>
@@ -678,6 +915,11 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
   <section>
     <title>Summary</title>
     <para>
+      This chapter presents some design patterns that you'll see over and over again in REST APIs. If you apply these
+      patterns judiciously in the context of the methodology of <xref linkend="design"/> then you should be in good 
+      shape to meet most functional requirements.
+      A couple of non-functional requirements make a big impact on an API's chances of success, and we will cover 
+      them in detail in <xref linkend="error"/>, <xref linkend="performance"/>, and <xref linkend="security"/>.
     </para>
   </section>
 </chapter>

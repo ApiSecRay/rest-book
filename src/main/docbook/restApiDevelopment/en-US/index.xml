@@ -2,7 +2,7 @@
 <book xmlns:xi="http://www.w3.org/2001/XInclude" xmlns="http://docbook.org/ns/docbook" version="5.0" xml:lang="en-US">
   <info>
     <title>REST API Development</title>
-    <subtitle>A complete guide to building RESTful systems</subtitle>
+    <subtitle>A complete guide to building usable, scalable, and secure RESTful systems</subtitle>
 
     <author>
       <personname>

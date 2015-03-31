@@ -254,6 +254,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>OpenSearch</abbrev>
+    <biblioid class="uri">http://www.opensearch.org/Specifications/OpenSearch/1.1</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>RDF</abbrev>
     <biblioid class="uri">http://www.w3.org/RDF/</biblioid>
     <citetitle>Resource Description Framework</citetitle>

@@ -584,7 +584,7 @@
     </table>
   </section>
   
-  <section>
+  <section id="name-resources">
     <title>Name Resources With URIs</title>
     <para>
       Every resource should be identified by a URI. From the client’s perspective, this is an implementation detail,

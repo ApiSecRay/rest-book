@@ -1,15 +1,23 @@
 <chapter>
   <title>REST API Description Language (RADL)</title>
+
   <section>
     <title>Purpose</title>
   </section>
+
   <section>
     <title>Structure</title>
   </section>
+
   <section>
     <title>Designing With RADL</title>
   </section>
+
   <section id="tools">
     <title>Tooling</title>
+  </section>
+  
+  <section>
+    <title>Summary</title>
   </section>
 </chapter>

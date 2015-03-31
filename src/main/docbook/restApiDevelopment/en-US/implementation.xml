@@ -4,27 +4,22 @@
   <section>
     <title>Model-View-Controller (MVC)</title>
   </section>
+
   <section>
     <title>DRY</title>
     <para>
       TODO: Define URL structure, media type, namespace, etc. in a single place.
     </para>
   </section>
+
   <section>
     <title>Generating Code From RADL</title>
   </section>
+
   <section>
     <title>Extracting RADL From Code</title>
   </section>
-  <section id="external">
-    <title>Calling external services</title>
-    <para>
-      TODO: Calling external services. Circuit breakers, etc.
-    </para>
-  </section>
-  <section id="sdk">
-    <title>Providing Client Libraries</title>
-  </section>
+
   <section>
     <title>Security</title>
     <section>
@@ -33,5 +28,20 @@
     <section>
       <title>Output Encoding</title>
     </section>
+  </section>
+  
+  <section id="external">
+    <title>Calling external services</title>
+    <para>
+      TODO: Calling external services. Circuit breakers, etc.
+    </para>
+  </section>
+
+  <section id="sdk">
+    <title>Providing Client Libraries</title>
+  </section>
+
+  <section>
+    <title>Summary</title>
   </section>
 </chapter>

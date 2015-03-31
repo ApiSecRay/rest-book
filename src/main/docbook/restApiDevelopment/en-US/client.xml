@@ -1,6 +1,19 @@
 <chapter id="client">
   <title>Developing REST Clients</title>
-  <para>
-    TODO: Resolving URIs. Autonomous vs human-driven clients.
-  </para>
+  
+  <section>
+    <title>Human-Driven Clients</title>
+  </section>
+
+  <section>
+    <title>Autonomous Clients</title>
+  </section>
+
+  <section>
+    <title>Resolving URIs</title>
+  </section>
+  
+  <section>
+    <title>Summary</title>
+  </section>
 </chapter>

@@ -2,7 +2,7 @@
   <title>Test</title>
   
   <section>
-    <title>BDD</title>
+    <title>Automated Regression Testing</title>
   </section>
 
   <section>
@@ -12,5 +12,9 @@
   <section>
     <title>Security</title>
     <para>static and dynamic analysis, fuzzing</para>
+  </section>
+  
+  <section>
+    <title>Summary</title>
   </section>
 </chapter>

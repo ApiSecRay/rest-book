@@ -65,15 +65,22 @@
       present the next choices to the user.
     </para>
   </section>
+
   <section id="authentication">
     <title>Authentication</title>
     <para>HTTP signatures, tickets</para>
   </section>
+
   <section>
     <title>Authorization</title>
     <para>RBAC, OAuth, UMA, XACML</para>
   </section>
+
   <section>
     <title>Auditing</title>
+  </section>
+  
+  <section>
+    <title>Summary</title>
   </section>
 </chapter>
