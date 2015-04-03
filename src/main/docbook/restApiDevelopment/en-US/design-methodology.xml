@@ -2171,10 +2171,31 @@ Content-Type: application/ld.json
   "expiryYear": "2019",
   "cardSecurityCode": "836"
 }</programlisting>
-          After processing the credit card, the server responds with a representation of the <literal>Receipt</literal>
-          resource:
-          <programlisting>201 Created HTTP/1.1
+          After processing the credit card, the server responds by redirecting the client to the 
+          <literal>Receipt</literal> resource, since the payment is no longer interesting:
+          <programlisting>303 See Other HTTP/1.1
 Location: http://api.restbucks.com/orders/1234/receipt/
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "/orders/1234/receipt/",
+}</programlisting>
+          If we know or fear that it may take a long time to process a credit card payment, maybe because we've 
+          outsourced that functionality and have to call into a third party service, we may change the design to move 
+          from synchronous to asynchronous processing. We talk more about that pattern in <xref linkend="async"/>.
+          Alternatively, we could implement the <literal>Payments</literal> resource to set an upper bound to the
+          time we're prepared to wait for the external service. We'll talk more about that in 
+          <xref linkend="external"/>.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The client follows the redirection to the receipt. Browsers do this automatically, and most HTTP libraries 
+          can be instructed to do the same.
+          <programlisting>POST /orders/1234/payments/ HTTP/1.1
+Accept: application/ld+json</programlisting>
+          <programlisting>200 OK HTTP/1.1
 Content-Type: application/ld+json
 Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
     type="application/ld+json"
@@ -2196,12 +2217,6 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
   "paymentMethod": "creditcard",
   "serving": "/orders/1234/serving/"
 }</programlisting>
-          If we know or fear that it may take a long time to process a credit card payment, maybe because we've 
-          outsourced that functionality and have to call into a third party service, we may change the design to move 
-          from synchronous to asynchronous processing. We talk more about that pattern in <xref linkend="async"/>.
-          Alternatively, we could implement the <literal>Payments</literal> resource to set an upper bound to the
-          time we're prepared to wait for the external service. We'll talk more about that in 
-          <xref linkend="external"/>.
         </para>
       </listitem>
       <listitem>
@@ -2213,17 +2228,19 @@ Host: api.restbucks.com
 Accept: application/ld+json          
 </programlisting>
           The response will depend on how fast the barista works, but in general the client will have to wait a bit:
-          <programlisting>202 Accepted HTTP/1.1
+          <programlisting>200 OK HTTP/1.1
 Content-Type: application/ld+json
 Retry-After: 30
 
 { "@id": "/orders/1234/serving",          
 }</programlisting>
-          The response contains the <literal>Retry-After</literal> header, which gives the client an approximation of
-          the time (in seconds) it still has to wait. This could be based on historical data about how fast baristas 
-          prepare similar orders, or it could simply be a fixed value. This value is only an advice, and the client is 
-          free to ignore it. But that most likely isn't going to speed the server up, so there is little point. If all 
-          clients follow the advice, the server has more time to handle useful requests and everybody is better of.
+          The response doesn't contain any link for the customer to take her serving, which shows that the barista is
+          still busy preparing it. The response contains the <literal>Retry-After</literal> header, which gives the 
+          client an approximation of the time (in seconds) it still has to wait. This could be based on historical 
+          data about how fast baristas prepare similar orders, or it could simply be a fixed value. This value is only 
+          an advice, and the client is free to ignore it. But that most likely isn't going to speed the server up, so 
+          there is little point. If all clients follow the advice, the server has more time to handle useful requests 
+          and everybody is better of.
         </para>
       </listitem>
       <listitem>
@@ -2262,7 +2279,7 @@ Accept: application/ld+json
   <section>
     <title>Summary</title>
     <para>
-      This chapter showed how to design a REST API in quite a bit of detail. We start from the requirements, documented 
+      This chapter shows how to design a REST API in quite a bit of detail. We start from the requirements, documented 
       as state diagrams. From the transitions between states, we can discover the resources and methods that will help
       us meet the requirements. 
     </para>
@@ -2279,8 +2296,8 @@ Accept: application/ld+json
     </para>
     <para>
       While designing a REST API, we'll encounter similar patterns over and over again. Understanding these patterns
-      and when to apply them makes it a lot easier to solve the design issues. The next chapter describes some of those
-      patterns in more detail.
+      and when to apply them makes it a lot easier to answer the myriad of design questions that invariably come up. 
+      The next chapter describes some of those patterns in more detail.
     </para>
   </section>
 </chapter>
