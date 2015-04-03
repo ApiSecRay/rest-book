@@ -1157,10 +1157,11 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <para>
       This chapter presents some design patterns that you'll see over and over again in REST APIs. If you apply these
       patterns judiciously in the context of the methodology of <xref linkend="design"/> then you should be in good 
-      shape to meet most functional requirements.
+      shape to meet most functional requirements. In <xref linkend="radl"/>, we'll show how tooling can support this
+      methodology.
     </para>
     <para>
-      A couple of non-functional requirements make a big impact on an API's chances of success, and we will cover 
+      Some of the non-functional requirements make a big impact on an API's chances of success. We will look at 
       them next in <xref linkend="error"/>, <xref linkend="performance"/>, and <xref linkend="security"/>.
     </para>
   </section>

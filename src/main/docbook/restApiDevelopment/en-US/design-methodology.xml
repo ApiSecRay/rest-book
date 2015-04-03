@@ -2279,25 +2279,42 @@ Accept: application/ld+json
   <section>
     <title>Summary</title>
     <para>
-      This chapter shows how to design a REST API in quite a bit of detail. We start from the requirements, documented 
-      as state diagrams. From the transitions between states, we can discover the resources and methods that will help
-      us meet the requirements. 
+      This chapter shows how to design a REST API:
     </para>
+    <orderedlist>
+      <listitem>
+		    <para>
+		      We start from the requirements, documented 
+		      as state diagrams. From the transitions between states, we can discover the resources and methods that will help
+		      us meet the requirements. 
+		    </para>
+      </listitem>
+      <listitem>
+		    <para>
+		      We name the resources with URIs, and the state transitions with link relations that allow the client to discover
+		      those URIs.
+		    </para>
+      </listitem>
+      <listitem>
+		    <para>
+		      We design the structure of our messages, defined their precise meanings, and select a media type to serialize
+		      the messages into the bytes we sent over the wire.
+		    </para>
+      </listitem>
+      <listitem>
+		    <para>
+		      We always validate a design by looking at the HTTP messages exchanged between client and server.
+		    </para>
+      </listitem>
+    </orderedlist>
     <para>
-      We name the resources with URIs, and the state transitions with link relations that allow the client to discover
-      the URIs.
-    </para>
-    <para>
-      We design the structure of our messages, defined their precise meanings, and select a media type to serialize
-      the messages into bytes.
-    </para>
-    <para>
-      We always validate a design by looking at the HTTP messages exchanged between client and server.
+      While this process is easy to do by hand, we will show that it's even easier with some help of tooling in
+      <xref linkend="radl"/>.
     </para>
     <para>
       While designing a REST API, we'll encounter similar patterns over and over again. Understanding these patterns
       and when to apply them makes it a lot easier to answer the myriad of design questions that invariably come up. 
-      The next chapter describes some of those patterns in more detail.
+      The next chapter describes some of those patterns.
     </para>
   </section>
 </chapter>
