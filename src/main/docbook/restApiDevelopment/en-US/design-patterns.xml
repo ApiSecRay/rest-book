@@ -2,7 +2,7 @@
   <title>Design Patterns</title>
   <para>
     The previous chapter showed how to design a REST API. In this process, there are a lot of decisions to be made.
-    Fortunately, many of those decisions can be solved by applying certain design patterns.
+    Fortunately, many of those decisions are easier made by applying certain design patterns.
   </para>
   <blockquote>
     <attribution><citation>AIS+77</citation></attribution>
@@ -120,9 +120,9 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         There are specialized media types for collections, like Atom <citation>Atom</citation> and Collection+JSON 
         <citation>Cj</citation>.
-        Most general purpose media types also have provisions for dealing with collections. We advise to select a 
-        general purpose media type and use its collection features rather than burdening the client with multiple media 
-        types.
+        Most general purpose media types also have provisions for dealing with collections as well. We advise to select 
+        a general purpose media type and use its collection features rather than burdening the client with multiple 
+        media types.
       </para>
       <para>
         Collections can get very big. To save bandwidth, it may be a good idea to turn the collection into a paged one.
@@ -154,8 +154,34 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     </simplesect>
     <simplesect>
       <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
+      <programlisting>GET /orders/ HTTP/1.1
+Host: api.restbuck.com
+Accept: application/ld+json</programlisting>
+      <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld.json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "http://api.restbucks.com/orders/"
+  "member": [ {
+    "@id": "123/",
+  }, {
+    "@id": "234/",
+  }, {
+    "@id": "345/",
+  } ]
+}</programlisting>
+      <programlisting>GET /orders/123/ HTTP/1.1
+Host: api.restbuck.com
+Accept: application/ld+json</programlisting>
+      <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld.json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "http://api.restbucks.com/orders/123",
+  <lineannotation>... Properties and links ...</lineannotation>
+}</programlisting>
     </simplesect>
     <simplesect>
       <title>Related Patterns</title>
@@ -185,6 +211,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Structure</title>
       <mediaobject>
         <imageobject>
+          <!-- TODO: Location above created item -->
           <imagedata fileref="images/pat-create.png" scale="68" align="center"/>
         </imageobject>
       </mediaobject>
@@ -204,14 +231,50 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         The response to a Create request should always have the <literal>201 Created</literal> status code and use the 
         <literal>Location</literal> header to point to the created resource. Additionally, we recommend that the
         reponse also includes the representation of the created resource. There may be information in there that the
-        server added (or refused to add), so it makes sense to provide that feedback. It also saves the client another
-        roundtrip.
+        server added, like links, or input that the server rejeced. It makes sense to provide that feedback and save 
+        the client a roundtrip.
       </para>
     </simplesect>
     <simplesect>
       <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
+      <programlisting>POST /orders/ HTTP/1.1
+Host: api.restbuck.com
+Accept: application/ld+json
+Content-Type: application/ld+json
+
+{ "items": {
+		"member": [ {
+			"name": "caffe latte",
+			"size": "tall",
+			"milk": "whole"
+		} ]
+  },
+	"customer": "Chrissy"
+}</programlisting>
+      <programlisting>HTTP/1.1 201 Created
+Location: http://api.restbucks.com/orders/1234/
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "http://api.restbucks.com/orders/1234/",
+	"@type": "Order",
+	"items": {
+		member: [ {
+			"name": "caffe latte",
+			"size": "tall",
+			"milk": "whole",
+			"price": 2.75,
+			"currency": "USD"
+		} ]
+	},
+	"total": 2.75,
+	"currency": "USD",
+	"customer": "Chrissy",
+	"hydra:operation": [ {
+	  <lineannotation>... Operations ...</lineannotation>
+	} ]
+}</programlisting>
     </simplesect>
     <simplesect>
       <title>Related Patterns</title>
@@ -227,6 +290,134 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     </simplesect>
   </section>
   
+  <section id="async">
+    <title>Asynchronous Processing</title>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Allow the server to delay the response to a request.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+      <para>
+        Communication over HTTP is synchronous, meaning that the client sends a request and waits for the server to
+        respond. Sometimes the server takes a long time to respond, however, and we may not want to wait that long. 
+        Waiting keeps the HTTP connection open on the server side and there is usually a limited pool of connections. 
+        Once this pool is depleted, new requests are blocked and throughput suffers.
+      </para>
+      <para>
+        Another reason for not wanting to wait is to let the client move on with other useful work while the server 
+        completes the request "in the background". This could also be achieved using threads on the client, but that 
+        makes the client more complicated.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <!-- TODO: Replace "wait a while" with "Do something else" -->
+          <imagedata fileref="images/pat-async.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        The server should return the <literal>202 Accepted</literal> status to indicate that it has understood and
+        accepted the request, but is not done processing it <citation>HTTP</citation>.
+        The response should point to a place where the client can find out later whether the process has completed. 
+        The <literal>Location</literal> header is one mechanism for communicating that location; a hyperlink in the 
+        response body is another. We recommend using both so the client can process it in the most convenient way.
+      </para>
+      <para>
+        If the server has a decent estimate of how long it will take to complete the process, it may use the
+        <literal>Retry-After</literal> header to communicate that to the client <citation>HTTP</citation>.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Example</title>
+          <programlisting>POST /orders/1234/payments/ HTTP/1.1
+Accept: application/ld+json
+Content-Type: application/ld.json
+
+{ "amount": 2.75,
+  "currency": "USD",
+  "paymentMethod": "creditcard",
+  "cardholderName": "C.C. Conway",
+  "cardNumber": "5525366617069778", 
+  "expiryMonth": "06",
+  "expiryYear": "2019",
+  "cardSecurityCode": "836"
+}</programlisting>
+          After processing the credit card, the server responds with a representation of the <literal>Receipt</literal>
+          resource:
+          <programlisting>201 Created HTTP/1.1
+Location: http://api.restbucks.com/orders/1234/receipt/
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "/orders/1234/receipt/",
+  "dateTime": "2015-03-16T19:58:00+01:00",
+  "shop": "RESTBucks",
+  "items": {
+    member: [ {
+      "name": "caffe latte",
+      "size": "tall",
+      "milk": "whole",
+      "price": 2.75,
+      "currency": "USD"
+    } ]
+  },
+  "total": 2.75,
+  "currency": "USD",
+  "paymentMethod": "creditcard",
+  "serving": "/orders/1234/serving/"
+}</programlisting>
+      <programlisting>GET /orders/1234/serving/ HTTP/1.1
+Host: api.restbucks.com
+Accept: application/ld+json</programlisting>
+      <programlisting>202 Accepted HTTP/1.1
+Content-Type: application/ld+json
+Retry-After: 30
+
+{ "@id": "/orders/1234/serving",
+}</programlisting>
+      <programlisting>GET /orders/1234/serving/ HTTP/1.1
+Host: api.restbucks.com
+Accept: application/ld+json</programlisting>
+      <programlisting>200 OK HTTP/1.1
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "/orders/1234/serving",
+	"hydra:operation": [ {
+		"@id": "http://api.restbucks.com/orders/1234/serving/",
+		"@type": "TakeAction",
+		"hydra:httpMethod": "DELETE"
+	} ]
+}</programlisting>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        Sometimes the client isn't really interested in the outcome of the server process, and it will continue with
+        its own work. Most of the times, however, the client will want to synchronize with the server and inspect the
+        outcome. It can use the Polling (see <xref linkend="polling"/>) and Notification patterns (see 
+        <xref linkend="notifications"/>) for that purpose.
+      </para>
+      <para>
+        Asynchronous communication is sometimes part of a workflow (see <xref linkend="workflow"/>), often as the
+        last step. Asynchronous communication may also be used in the Lifecycle pattern (see 
+        <xref linkend="lifecycle"/>).
+      </para>
+    </simplesect>
+  </section>
+  
   <section id="polling">
     <title>Polling</title>
     <simplesect>
@@ -238,9 +429,9 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Motivation &amp; Applicability</title>
       <para>
-        Sometimes a client needs to wait on the server to complete a task before it can move on with its own work, for
-        instance because it needs to process the output of the server task, or because the server creates a new 
-        resource that the client must interact with.
+        Sometimes a client needs to wait for the server to complete a task before it can move on with its own work, for
+        instance because it needs to process the output of the server task or because the server adds a link to a newly
+        created resource that the client must interact with.
         One way of implementing the waiting is by having the client repeatedly check whether the server has finished.
       </para>
     </simplesect>
@@ -258,8 +449,8 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Implementation</title>
       <para>
         Polling a resource is simply repeatedly refreshing it. The refresh operation is usually implemented using the
-        <literal>self</literal> link relation, which is one reason why you should always identify the resource in its
-        representation.
+        <literal>self</literal> link relation, which is one reason why you should always identify the resource when
+        sending a representation.
       </para>
       <para>
         If the server takes a long time to finish the task that the client is waiting for, then the client may end up
@@ -271,8 +462,35 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     </simplesect>
     <simplesect>
       <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
+      <programlisting>GET /orders/1234/serving/ HTTP/1.1
+Host: api.restbucks.com
+Accept: application/ld+json</programlisting>
+      <programlisting>202 Accepted HTTP/1.1
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+Retry-After: 30
+
+{ "@id": "/orders/1234/serving",
+}</programlisting>
+      <para>
+        The client waits a while (preferrably the 30 seconds that the server indicates), and then tries again:
+      </para>
+      <programlisting>GET /orders/1234/serving/ HTTP/1.1
+Host: api.restbucks.com
+Accept: application/ld+json</programlisting>
+      <programlisting>200 OK HTTP/1.1
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "/orders/1234/serving",
+  "hydra:operation": [ {
+    "@id": "http://api.restbucks.com/orders/1234/serving/",
+    "@type": "TakeAction",
+    "hydra:httpMethod": "DELETE"
+  } ]
+}</programlisting>
     </simplesect>
     <simplesect>
       <title>Related Patterns</title>
@@ -302,9 +520,9 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Motivation &amp; Applicability</title>
       <para>
-        Sometimes a client needs to wait on the server to complete a task before it can move on with its own work, for
-        instance because it needs to process the output of the server task, or because the server creates a new 
-        resource that the client must interact with.
+        Sometimes a client needs to wait for the server to complete a task before it can move on with its own work, for
+        instance because it needs to process the output of the server task or because the server adds a link to a newly
+        created resource that the client must interact with.
         One way of implementing the waiting is by having the server notify the client when it has finished.
       </para>
     </simplesect>
@@ -322,15 +540,15 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Implementation</title>
       <para>
         The usual pattern of communication in REST APIs is for the client to issue a request and the server to respond
-        to that. Notifications reverse that pattern, since the server is now the initiator. This can only work if the
-        server knows where to reach the client, which isn't usually the case. So this pattern places a higher demand 
-        on the client than normal: it must be able to accept incoming requests.
+        to that. A notification reverses the client and server roles, since the "server" is now the initiator. This can 
+        only work if the server knows where to reach the client, which isn't usually the case. So this pattern places a 
+        higher demand on the client than normal: it must be able to accept incoming requests.
       </para>
       <para>
         The client must still initiate the interaction. It sends the server a request to receive a notification. This
         request must contain the address of the client, so that the server can send the client the notification request
         later. The server must keep this state information until it has notified the client, which violates the 
-        stateless constraint (see <ref linkend="rest"/>).
+        stateless constraint (see <xref linkend="rest"/>).
       </para>
       <para>
         There are alternatives to using HTTP for implementing notifications. For instance, communication could involve
@@ -340,8 +558,65 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     </simplesect>
     <simplesect>
       <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
+      <para>
+        Here the client provides a URI where the server can call back to in the <literal>notificationUrl</literal>
+        property when it starts the long running action:
+      </para>
+      <programlisting>POST /orders/1234/payments/ HTTP/1.1
+Accept: application/ld+json
+Content-Type: application/ld.json
+
+{ "amount": 2.75,
+	"currency": "USD",
+	"paymentMethod": "creditcard",
+	"cardholderName": "C.C. Conway",
+	"cardNumber": "5525366617069778",
+	"expiryMonth": "06",
+	"expiryYear": "2019",
+	"cardSecurityCode": "836",
+	"notificationUrl": "http://client.com/served/"
+}</programlisting>
+      <programlisting>201 Created HTTP/1.1
+Location: http://api.restbucks.com/orders/1234/receipt/
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
+type="application/ld+json"
+
+{ "@id": "/orders/1234/receipt/",
+	"dateTime": "2015-03-16T19:58:00+01:00",
+	"shop": "RESTBucks",
+	"items": {
+		member: [ {
+			"name": "caffe latte",
+			"size": "tall",
+			"milk": "whole",
+			"price": 2.75,
+			"currency": "USD"
+		} ]
+	},
+	"total": 2.75,
+	"currency": "USD",
+	"paymentMethod": "creditcard",
+	"serving": "/orders/1234/serving/"
+}</programlisting>
+      <para>
+        The client can do something else or simply wait. After some time, the server is done preparing the serving and
+        calls back into the client:
+      </para>
+      <programlisting>POST /served/ HTTP/1.1
+Host: client.com
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
+type="application/ld+json"
+
+{ "@id": "/orders/1234/serving",
+  "hydra:operation": [ {
+    "@id": "http://api.restbucks.com/orders/1234/serving/",
+    "@type": "TakeAction",
+    "hydra:httpMethod": "DELETE"
+  } ]
+}</programlisting>
+      <programlisting>204 No Content HTTP/1.1</programlisting>
     </simplesect>
     <simplesect>
       <title>Related Patterns</title>
@@ -352,69 +627,6 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         Synchronization between client and server occurs in workflows (see <xref linkend="workflow"/>), in processors
         (see <xref linkend="processor"/>), and after asynchronous operations (see <xref linkend="async"/>).
-      </para>
-    </simplesect>
-  </section>
-  
-  <section id="async">
-    <title>Asynchronous Processing</title>
-    <simplesect>
-      <title>Intent</title>
-      <para>
-        Allow the server to delay the response to a request.
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Motivation &amp; Applicability</title>
-      <para>
-        Communication over HTTP is synchronous, meaning that the client sends a request and waits for the server to
-        respond. Sometimes the server takes a long time to respond, however, and we may not want to wait that long. 
-        We may not want to keep an HTTP connection open on the server side, for example, because that may block other
-        clients. Or we may want the client to move on with other useful work while the server completes the request
-        "in the background".
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Structure</title>
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="images/pat-async.png" scale="68" align="center"/>
-        </imageobject>
-      </mediaobject>
-      <para>
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Implementation</title>
-      <para>
-        The server should return the <literal>202 Accepted</literal> status to indicate that it has understood and
-        accepted the request, but is not done processing it <citation>HTTP</citation>.
-        The response should point to a place where the client can find out later whether the process has completed. 
-        The <literal>Location</literal> header is one mechanism for communicating that location; a hyperlink in the 
-        response body is another.
-      </para>
-      <para>
-        If the server has a decent estimate of how long it will take to complete the process, it may use the
-        <literal>Retry-After</literal> header to communicate that to the client <citation>HTTP</citation>.
-      </para>
-    </simplesect>
-    <simplesect>
-      <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
-    </simplesect>
-    <simplesect>
-      <title>Related Patterns</title>
-      <para>
-        Sometimes the client isn't really interested in the outcome of the server process, and it will continue with
-        its own work. Most of the times, however, the client will want to synchronize with the server and inspect the
-        outcome. It can use either polling (see <xref linkend="polling"/>) or notifications (see 
-        <xref linkend="notifications"/>) for that purpose.
-      </para>
-      <para>
-        Asynchronous communication is sometimes part of a workflow (see <xref linkend="workflow"/>), often as the
-        last step. Asynchronous communication may also be used in the Lifecycle pattern (see 
-        <xref linkend="lifecycle"/>).
       </para>
     </simplesect>
   </section>
@@ -433,13 +645,14 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         There are many situations in which the server needs to guide the client through a multi-step process, like 
         buying something from an online store. You may be able to cram such a process in a single request/response, but
         that often feels unnatural from the client's perspective (see <xref linkend="analysis"/>) and may lead to 
-        brittle designs.
+        brittle designs. It's often better to design a flow of multiple requests that are connected via links. 
       </para>
     </simplesect>
     <simplesect>
       <title>Structure</title>
       <mediaobject>
         <imageobject>
+          <!-- TODO: steps -> items, other -> relation, subs -> sub-items -->
           <imagedata fileref="images/pat-workflow.png" scale="68" align="center"/>
         </imageobject>
       </mediaobject>
@@ -462,31 +675,37 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         interesting to other parties than just the client that created them.
       </para>
       <para>
-        If the grouping resource is interesting to other parties, like an order that needs to be fulfilled, then you 
-        may still want to remove it after the workflow is complete. Alternatively, you could move it to some other
-        location to indicate its changed status. For instance, a completed order may be moved from 
-        <literal>/orders/</literal> to <literal>/sales/2015/Q1/</literal> after it has been fulfilled.
+        If the grouping resource is interesting to other parties, like an order that needs to be fulfilled by some 
+        backoffice process, then you may still want to remove it after the workflow is complete.
+        Alternatively, you could move it to some other location to indicate its changed nature. For instance, a 
+        completed order could be moved from <literal>/orders/</literal> to <literal>/sales/2015/Q1/</literal> after it 
+        had been fulfilled.
       </para>
       <para>
         Note that moving a resource means the that resource's URI is no longer cool (see the sidebar 
         "<xref linkend="uris"/>" in <xref linkend="name-resources"/>), so make sure the client wouldn't need access to 
         it anymore. If there is any chance that the client may still need to access the resource, then consider keeping 
-        the URI around and responding with a 3xx status code and a <literal>Location</literal> header that tells the 
-        client where the resource moved to <citation>HTTP</citation>.
+        the URI around and responding with a 3xx status code <citation>HTTP</citation> and a 
+        <literal>Location</literal> header that tells the client where the resource moved to.
       </para>
     </simplesect>
     <simplesect>
       <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
+      <para>
+        See <xref linkend="http-happy-path"/> for an example of ordering a drink with RESTBucks.
+      </para>
     </simplesect>
     <simplesect>
       <title>Related Patterns</title>
       <para>
         The grouping resource is usually added to a collection (see <xref linkend="collection"/>) using the Create 
         pattern (see <xref linkend="create"/>). The collection is often reachable from the Home resource (see
-        <xref linkend="home"/>). When multiple parties are involved in the various steps, then the lifecycle pattern
-        (see <xref linkend="lifecycle"/>) may apply.
+        <xref linkend="home"/>).
+      </para>
+      <para>
+        When multiple parties are involved in the various steps, then the lifecycle pattern
+        (see <xref linkend="lifecycle"/>) may apply. For logging or reporting purposes, you may want to correlate the
+        requests that make up the workflow (see <xref linkend="correlation"/>).
       </para>
       <para>
         An alternative to using a grouping resource is to group all the logical requests into a single HTTP request
@@ -507,7 +726,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Motivation &amp; Applicability</title>
       <para>
         Sometimes multiple parties need to cooperate on a single resource. For instance a customer, cashier, and 
-        barista work on the same orderin RESTBucks. Each party handles part of the process and hands off to another 
+        barista work on the same order in RESTBucks. Each party handles part of the process and hands off to another 
         party. The hand-offs are coordinated using the state of the resource.
       </para>
     </simplesect>
@@ -530,15 +749,15 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         An alternative is to make the state explicit using a property. Each client watches the state property to see if 
         it's their turn to operate on it. Use this approach only if you really can't distinguish the various states by
-        using links only.
+        the presence or absence of links.
       </para>
       <para>
         This pattern is one place where it is especially tempting for some people to put the possible actions on the
         resource in URIs. For instance, a task in a workflow may offer an operation for a user to acquire it and 
         sometimes you'll see this modeled using a URI like <literal>/tasks/1/acquire</literal>. That is not the
         resource oriented approach that the REST architectural style prescribes. A more RESTful approach would be to
-        update the state by sending a <literal>PATCH</literal> request to <literal>/tasks/1</literal> that updates
-        the <literal>assignedTo</literal> property.
+        send a <literal>PATCH</literal> request to <literal>/tasks/1</literal> to update the 
+        <literal>assignedTo</literal> property.
       </para>
     </simplesect>
     <simplesect>
@@ -549,15 +768,17 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Related Patterns</title>
       <para>
-        Lifecycles often apprear in the context of a workflow (see <xref linkend="workflow"/>). The Workflow pattern 
-        focuses on the view of the system from a single client, while the lifecycle pattern focuses more on how
-        multiple clients collaborate using the same resource.
+        Lifecycles often appear in the context of a workflow (see <xref linkend="workflow"/>). The Workflow pattern 
+        focuses on the various resources used by a single client, while the lifecycle pattern focuses on how multiple 
+        clients collaborate using the same resource(s).
       </para>
       <para>
         The hand-offs between different parties may be synchronous or asynchronous (see <xref linkend="async"/>). In the
         latter case, parties can watch the state of the resource using polling (see <xref linkend="polling"/>) or
-        notifications (see <xref linkend="notifications"/>). A party may be a processor (see 
-        <xref linkend="processor"/>).
+        notifications (see <xref linkend="notifications"/>).
+      </para>
+      <para>
+        Some collaborating parties may be processors (see <xref linkend="processor"/>).
       </para>
     </simplesect>
   </section>
@@ -574,9 +795,8 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Motivation &amp; Applicability</title>
       <para>
         Sometimes we need producer-consumer like systems where one (type of) client produces resources that another
-        consumes. In RESTBucks, for example, the cashier processes the payment of orders that the customer creates, 
-        while the barista prepares them. 
-        example.
+        consumes. In RESTBucks, for example, the cashier processes payment of orders that the customer creates, 
+        while the barista prepares turns those orders into servings. 
       </para>
     </simplesect>
     <simplesect>
@@ -592,9 +812,9 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Implementation</title>
       <para>
-        Producer-consumer systems usually communicate via a queue, and that may the best solution for you. If 
-        decoupling of client and server from any particula queueing technology is important in your situation, you may 
-        also consider a more RESTful approach.
+        Producer-consumer systems traditionally communicate via a queue, and that may the best solution for you. If 
+        decoupling of client and server from any particular queueing technology is important in your situation, 
+        however, you may also consider a more RESTful approach.
       </para>
       <para>
         One option is to make the processing synchronous. The consumer sits idle waiting until the producer offers
@@ -603,8 +823,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         Another solution is to make the processing asynchronous. This looks more like the traditional queueing approach,
         with some collection resource playing the role of queue. The producer creates a new work item resource in the
-        collection, and in time the consumer processes it. The consumer can either poll for new resources, or get 
-        notified whenever a new resource is created.
+        collection, and in time the consumer processes it.
       </para>
     </simplesect>
     <simplesect>
@@ -620,8 +839,8 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         <xref linkend="lifecycle"/>) or workflow (see <xref linkend="workflow"/>). 
       </para>
       <para>
-        A processor must acquire new items to process. Polling (see <xref linkend="polling"/>) and Notification (see 
-        <xref linkend="notifications"/>) are two ways in which the processor can learn about them.
+        A processor must acquire new items to process. Polling (see <xref linkend="polling"/>) and notifications (see 
+        <xref linkend="notifications"/>) are two ways in which the processor can discover new items.
       </para>
     </simplesect>
   </section>
@@ -638,9 +857,9 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Motivation &amp; Applicability</title>
       <para>
         Any RESTful system is by definition a client-server system (see <xref linkend="rest"/>). One issue that often
-        comes up in such systems is that the view that any client has of the server becomes outdated when other clients
-        update resources. A client that acts on such outdated information may initiate actions that have unintended
-        consequences.
+        comes up in such systems is that the view that any client has of the resource state maintained by the server 
+        becomes outdated when other clients update those resources. A client that acts on outdated information may 
+        inadvertently undo another client's work, for example overwriting data that another client added.
       </para>
     </simplesect>
     <simplesect>
@@ -656,47 +875,44 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Implementation</title>
       <para>
-        The HTTP specification defines a number of headers that help solve concurrency issues <citation>HTTP</citation>
-        using so-called <firstterm>validators</firstterm> in <firstterm>conditional requests</firstterm>. Conditional 
-        requests are HTTP requests that include one or more header fields indicating a precondition to be tested before
-        applying the method semantics to the target resource.
+        The HTTP specification defines a number of headers that help solve concurrency issues using conditional 
+        requests <citation>HTTP</citation>. <firstterm>Conditional requests</firstterm> are HTTP requests that include 
+        one or more header fields indicating a precondition to be tested before applying the method semantics to the 
+        target resource. These header fields are called <firstterm>validators</firstterm>.
       </para>
       <para>
         A server can use the <literal>Last-Modified</literal> response header to indicate when information was last 
-        updated. The client can then supply the value of that header using the <literal>If-Unmodified-Since</literal>
-        request header. If the information was updated since the provided date, the server will refuse the client's 
-        request.
+        updated. The client can then supply that value in the <literal>If-Unmodified-Since</literal> request header. 
+        If the information was updated since the provided date, the server will refuse the client's request.
       </para>
       <para>
         Another validator is the <literal>If-Match</literal> request header that checks against a value provided 
-        earlier in an <literal>ETag</literal> response header. The <literal>If-Match</literal> validator takes 
-        precedence over <literal>If-Unmodified-Since</literal>. 
-      </para>
-      <para>
+        earlier in an <literal>ETag</literal> response header.
         An <literal>ETag</literal>, or entity-tag, is an opaque validator for differentiating between multiple 
         representations of the same resource. Since this value is opaque, the client doesn't need to understand it and
         the server is free to use whatever implementation it sees fit.  
+        The <literal>If-Match</literal> validator takes precedence over <literal>If-Unmodified-Since</literal>.
       </para>
       <para>
-        <literal>ETag</literal> is usually a stronger validator than <literal>Last-Modified</literal>, because
-        a server's clock has a limited resolution. When using <literal>Last-Modified</literal>, there is still a 
-        risk that updates get lost when they arrive within a second of each other. In general, it's therefore better to
+        <literal>ETag</literal> is usually a stronger validator than <literal>Last-Modified</literal>, which has a 
+        resolution of one second. When using <literal>Last-Modified</literal>, there is thus a risk that updates get 
+        lost when multiple requests arrive within a second of each other. In general, it's therefore better to
         use <literal>ETag</literal>s.
       </para>
       <para>
-        Note that conditional requests can be used for read requests as well as for updates, as we'll see in
-        <xref linkend="caching"/>.
+        Note that conditional requests can be used with the <literal>GET</literal> method as well as with unsafe 
+        methods, as we'll see in <xref linkend="caching"/>.
       </para>
     </simplesect>
     <simplesect>
       <title>Example</title>
       <para>
-        The classic example is transferring money between bank accounts. Suppose there is one account resource with a
-        <literal>balance</literal> property and two clients that want to transfer money into the account. The first
-        client issues a request to read the balance and gets a response. It then issues another request to update the
-        balance. Before the first and second requests, another clients reads the balance. After the first client issues
-        its update request, the second client does the same and undoes the work of the first client, because it used
-        outdated information.
+        The classic example of a concurrency problem is transferring money between bank accounts. Suppose there is one 
+        account resource with a <literal>balance</literal> property and two clients that want to transfer money into 
+        the account. The first client issues a request to read the balance and gets a response. It then issues another 
+        request to update the balance. Before the first and second requests, another clients reads the balance. After 
+        the first client issues its update request, the second client does the same and undoes the work of the first 
+        client, because it used outdated information.
       </para>
       <programlisting>TODO: request</programlisting>
       <programlisting>TODO: response</programlisting>
@@ -749,8 +965,8 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         <xref linkend="rest"/>), so only the client can indicate the relationship between individual requests. There
         is no standard solution to this problem, so it's best to use a custom header for this purpose. Even if the 
         server doesn't understand the header, it can still show up in the logs, which may be useful if the client
-        developer can get access to those. Even if that is not the case, the client can log requests as well, and the
-        correlation can happen on that side.
+        developer can get access to those. At the very least the client can log requests itself, and the correlation 
+        can happen on the client's side.
       </para>
       <para>
         Another approach is for the service to publish a header for correlation purposes. The value of this header may 
@@ -787,8 +1003,8 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         Since a REST server is supposed to be stateless, each request it receives is treated independently of others.
         Sometimes, however, a client wants a small set of requests to either go through all together, or none at all. 
-        This is a special form of correlation (see <xref linkend="correlation"/>), where the server understands and 
-        attaches a special meaning to the correlation.
+        This is a special form of correlation, where the server understands and attaches a special meaning to the 
+        correlation.
       </para>
       <para>
         If possible, try to do without grouping requests in a transaction. Maybe your API is too fine-grained and you 
@@ -812,9 +1028,9 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         There are at least two ways to implement transactions. The easiest implementation is to follow the pattern for 
         correlations (see <xref linkend="correlation"/>) and supply some sort of header that indicates the transaction. 
-        You may need extra resources to begin, commit and/or roll back the transaction. If you introduce a resource for
-        beginning transactions, then the server will be able to generate the transaction ID that the client sends with
-        subsequent requests.
+        You may need extra resources to begin, commit, and roll back the transaction. If you introduce a resource for
+        beginning transactions, then the server will be able to generate the transaction ID that the client must send 
+        with subsequent requests.
       </para>
       <para>
         Note that this approach means that the server needs to keep application state, so it violates the stateless 
@@ -833,14 +1049,13 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         sends will be made up of multiple parts that each represent what would have been an individual request in the
         transaction. The parts are separated by some boundary.
         This approach puts a high burden on both client and server implementations to compose and decompose the multiple
-        parts, but at least you'll stay within the stateless constraint.
+        parts, but it stays within the stateless constraint.
       </para>
       <para>
-        The major downside of this style is that it can get very complicated very quickly when the requests that 
-        make up the transaction are interdependent. This happens when the input of one request depends on the 
-        output of a previous request. That is often the case: if the requests were completely independent, then there 
-        probably wouldn't be a need to treat them as an atomic unit. So this method may or may not be a viable solution 
-        to your problem.
+        The Batch pattern can get very complicated very quickly when the requests that make up the transaction are 
+        interdependent. This happens when the input of one request depends on the output of a previous request. That is 
+        often the case: if the requests were completely independent, then there probably wouldn't be a need to treat 
+        them as an atomic unit. So this method may or may not be a viable solution to the problem.
       </para>
       <para>
         All in all, we think it's best to avoid the Transaction pattern if you can. By looking at the requirements from 
@@ -874,13 +1089,15 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Motivation &amp; Applicability</title>
       <para>
         Batches can be used for a variety of reasons, like transactional semantics (see <xref linkend="transactions"/>) 
-        and reduction of the number of network roundtrips in constrained environments like mobile scenarios.
+        and reduction of the number of network roundtrips in constrained environments such as in mobile scenarios.
       </para>
     </simplesect>
     <simplesect>
       <title>Structure</title>
       <mediaobject>
         <imageobject>
+          <!-- TODO: Add body parts -->
+          <!-- TODO: Should be multipart/mixed -->
           <imagedata fileref="images/pat-batch.png" scale="68" align="center"/>
         </imageobject>
       </mediaobject>
@@ -890,13 +1107,44 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Implementation</title>
       <para>
-        Group the various requests into one body, using some <literal>multipart</literal> media type. The HTTP 
-        request that the client sends will be made up of multiple parts that each represent an individual logical 
-        request. The parts are separated by some boundary so that the server can distinguish them.
+        Group the various requests into one body, using some <literal>multipart</literal> media type 
+        <citation>Multipart</citation>. The body of HTTP request that the client sends is made up of multiple 
+        <firstterm>body parts</firstterm> that each represent an individual logical request and are preceded and
+        followed by a <firstterm>boundary delimiter line</firstterm>.
       </para>
       <para>
-        This approach puts a high burden on both client and server implementations to compose and decompose the multiple
-        parts.
+        The boundary is specified by the client in the <literal>boundary</literal> parameter of the multipart media 
+        type, e.g. <literal>Content-Type: multipart//mixed; boundary="gc0p4Jq0M2Yt08j34c0p"</literal>. A boundary 
+        delimiter line consists of two hyphens (<literal>--</literal>), the boundary, and optionally whitespace.
+        Boundaries must not be longer than 70 US ASCII characters. The message should end with a boundary line followed 
+        by two more hyphens, e.g. <literal>--gc0p4Jq0M2Yt08j34c0p--</literal>.
+      </para>
+      <para>
+        Each body part is similar to a regular HTTP message, with some headers, a blank line, and an entity body. A
+        body part is not exactly the same as a message, however. Headers are not required in a body part, in which case 
+        the body part will start with a blank line and the <literal>text/plain</literal> media type is assumed (unless
+        the media type is <literal>multipart/digest</literal>, then it's <literal>message/rfc822</literal>). Another
+        difference is that only the header fields whose names start with <literal>Content-</literal> are officially 
+        supported, which means that gateways are allowed to drop all other headers.
+      </para>
+      <para>
+        You most likely will want to use the <literal>multipart/mixed</literal> media type, because then the order of 
+        the body parts is significant.
+      </para>
+      <para>
+        This approach puts a higher burden on both client and server implementations than using regular media types,
+        because they need to compose and decompose the body parts. Most HTTP libraries will do this hard work for you,
+        however.
+      </para>
+      <para>
+        The Batch pattern can get very complicated very quickly when the requests that make up the transaction are 
+        interdependent. This happens when the input of one request depends on the output of a previous request. That is 
+        often the case: if the requests were completely independent, then there probably wouldn't be a need to treat 
+        them as an atomic unit. So this method may or may not be a viable solution to the problem.
+      </para>
+      <para>
+        Like the Transaction pattern, this is an advanced pattern that may be more trouble than it's worth. Think
+        carefully about alternatives before you commit to it.
       </para>
     </simplesect>
     <simplesect>
@@ -918,8 +1166,10 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       This chapter presents some design patterns that you'll see over and over again in REST APIs. If you apply these
       patterns judiciously in the context of the methodology of <xref linkend="design"/> then you should be in good 
       shape to meet most functional requirements.
+    </para>
+    <para>
       A couple of non-functional requirements make a big impact on an API's chances of success, and we will cover 
-      them in detail in <xref linkend="error"/>, <xref linkend="performance"/>, and <xref linkend="security"/>.
+      them next in <xref linkend="error"/>, <xref linkend="performance"/>, and <xref linkend="security"/>.
     </para>
   </section>
 </chapter>

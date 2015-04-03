@@ -1876,7 +1876,7 @@
     </para>
   </section>
 
-  <section>
+  <section id="http-happy-path">
     <title>The Design In Action</title>
     <para>
       We've now completed the design process. Let's look at the result in the form that ultimately matters the most:

@@ -254,6 +254,12 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Multipart</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc2046</biblioid>
+    <citetitle>Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>OpenSearch</abbrev>
     <biblioid class="uri">http://www.opensearch.org/Specifications/OpenSearch/1.1</biblioid>
   </biblioentry>
