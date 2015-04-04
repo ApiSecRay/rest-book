@@ -2001,7 +2001,7 @@ Cache-Control: max-age=86400, public
 Host: api.restbucks.com
 Accept: application/ld+json</programlisting>
           The server responds with a representation of the <literal>Menu</literal> resource:
-          <programlisting>200 OK HTTP/1.1
+          <programlisting>HTTP/1.1 200 OK
 Content-Type: application/ld+json          
 Cache-Control: max-age=86400, public
 Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
@@ -2090,7 +2090,7 @@ Content-Type: application/ld+json
   "customer": "Chrissy"
 }</programlisting>
           The server responds with a representation of the created <literal>Order</literal> resource:
-          <programlisting>201 Created HTTP/1.1
+          <programlisting>HTTP/1.1 201 Created
 Location: http://api.restbucks.com/orders/1234/          
 Content-Type: application/ld+json
 Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
@@ -2173,13 +2173,13 @@ Content-Type: application/ld.json
 }</programlisting>
           After processing the credit card, the server responds by redirecting the client to the 
           <literal>Receipt</literal> resource, since the payment is no longer interesting:
-          <programlisting>303 See Other HTTP/1.1
+          <programlisting>HTTP/1.1 303 See Other
 Location: http://api.restbucks.com/orders/1234/receipt/
 Content-Type: application/ld+json
 Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
     type="application/ld+json"
 
-{ "@id": "/orders/1234/receipt/",
+{ "@id": "/orders/1234/receipt/"
 }</programlisting>
           If we know or fear that it may take a long time to process a credit card payment, maybe because we've 
           outsourced that functionality and have to call into a third party service, we may change the design to move 
@@ -2195,7 +2195,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
           can be instructed to do the same.
           <programlisting>POST /orders/1234/payments/ HTTP/1.1
 Accept: application/ld+json</programlisting>
-          <programlisting>200 OK HTTP/1.1
+          <programlisting>HTTP/1.1 200 OK
 Content-Type: application/ld+json
 Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
     type="application/ld+json"
@@ -2228,7 +2228,7 @@ Host: api.restbucks.com
 Accept: application/ld+json          
 </programlisting>
           The response will depend on how fast the barista works, but in general the client will have to wait a bit:
-          <programlisting>200 OK HTTP/1.1
+          <programlisting>HTTP/1.1 200 OK
 Content-Type: application/ld+json
 Retry-After: 30
 
@@ -2248,7 +2248,7 @@ Retry-After: 30
           After waiting a while, the client will try again. The response may be the same a couple of times, especially
           if the server doesn't use historical data to predict the retry time. But eventually the barista is done and
           the customer "gets notified" that the serving is ready:
-          <programlisting>200 OK HTTP/1.1
+          <programlisting>HTTP/1.1 200 OK
 Content-Type: application/ld+json
 
 { "@id": "/orders/1234/serving",
@@ -2265,12 +2265,11 @@ Content-Type: application/ld+json
       <listitem>
         <para>
           The client finally takes the serving:
-          <programlisting>DELETE /orders/1234/serving HTTP/1.1
+          <programlisting>DELETE /orders/1234/serving/ HTTP/1.1
 Accept: application/ld+json          
 </programlisting>
           To which the server responds that the process is done:
-          <programlisting>204 No Content HTTP/1.1         
-</programlisting>
+          <programlisting>HTTP/1.1 204 No Content</programlisting>
         </para>
       </listitem>
     </orderedlist>

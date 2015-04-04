@@ -354,7 +354,7 @@ Content-Type: application/ld.json
   "expiryYear": "2019",
   "cardSecurityCode": "836"
 }</programlisting>
-        <programlisting>202 Accepted HTTP/1.1
+        <programlisting>HTTP/1.1 202 Accepted
 Location: http://api.restbucks.com/orders/1234/payments/1/
 Content-Type: application/ld+json
 Retry-After: 20
@@ -379,13 +379,13 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <programlisting>GET /orders/1234/payments/1/ HTTP/1.1
 Host: api.restbucks.com
 Accept: application/ld+json</programlisting>
-      <programlisting>303 See Other HTTP/1.1
+      <programlisting>HTTP/1.1 303 See Other
 Location: http://api.restbucks.com/orders/1234/receipt/      
 Content-Type: application/ld+json
 Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
     type="application/ld+json"
 
-{ "@id": "/orders/1234/receipt/",
+{ "@id": "/orders/1234/receipt/"
 }</programlisting>
       <para>
         In this example all went well, and the payment is no longer needed. The client is automatically redirected to 
@@ -460,7 +460,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <programlisting>GET /orders/1234/serving/ HTTP/1.1
 Host: api.restbucks.com
 Accept: application/ld+json</programlisting>
-      <programlisting>200 OK HTTP/1.1
+      <programlisting>HTTP/1.1 200 OK
 Content-Type: application/ld+json
 Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
     type="application/ld+json"
@@ -474,7 +474,7 @@ Retry-After: 30
       <programlisting>GET /orders/1234/serving/ HTTP/1.1
 Host: api.restbucks.com
 Accept: application/ld+json</programlisting>
-      <programlisting>200 OK HTTP/1.1
+      <programlisting>HTTP/1.1 200 OK
 Content-Type: application/ld+json
 Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
     type="application/ld+json"
@@ -571,7 +571,7 @@ Content-Type: application/ld.json
 	"cardSecurityCode": "836",
 	"notificationUrl": "http://client.com/served/"
 }</programlisting>
-      <programlisting>201 Created HTTP/1.1
+      <programlisting>HTTP/1.1 201 Created
 Location: http://api.restbucks.com/orders/1234/receipt/
 Content-Type: application/ld+json
 Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
@@ -611,7 +611,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     "hydra:httpMethod": "DELETE"
   } ]
 }</programlisting>
-      <programlisting>204 No Content HTTP/1.1</programlisting>
+      <programlisting>HTTP/1.1 204 No Content</programlisting>
     </simplesect>
     <simplesect>
       <title>Related Patterns</title>
@@ -756,8 +756,95 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     </simplesect>
     <simplesect>
       <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
+      <para>
+        A RESTBucks customer pays for a drink she ordered:
+        <programlisting>POST /orders/1234/payments/ HTTP/1.1
+Accept: application/ld+json
+Content-Type: application/ld.json
+
+{ "amount": 2.75,
+  "currency": "USD",
+  "paymentMethod": "creditcard",
+  "cardholderName": "C.C. Conway",
+  "cardNumber": "5525366617069778", 
+  "expiryMonth": "06",
+  "expiryYear": "2019",
+  "cardSecurityCode": "836"
+}</programlisting>
+          <programlisting>HTTP/1.1 303 See Other
+Location: http://api.restbucks.com/orders/1234/receipt/
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "/orders/1234/receipt/",
+}</programlisting>
+        The barista picks up the paid order and prepares it:
+        <programlisting>GET /orders/?status=paid HTTP/1.1
+Accept: application/ld+json</programlisting>
+        <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "/orders/?status=paid",
+  "@type": "hydra:Collection",
+  "member": [ {
+    "@id": "/orders/1234/"
+  } ]
+}</programlisting>
+        <programlisting>GET /orders/1234/ HTTP/1.1
+Accept: application/ld+json</programlisting>
+        <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "/orders/1234/"
+  "@type": "Order",
+  "items": {
+    member: [ {
+      "name": "caffe latte",
+      "size": "tall",
+      "milk": "whole",
+    } ]
+  },
+  "hydra:operation": [ {
+    "@id": "http://api.restbucks.com/orders/1234/serving/",
+    "@type": [ "hydra:ReplaceResourceOperation", "CookAction" ],
+    "hydra:httpMethod": "PUT"
+  } ]
+}</programlisting>
+        The barista gets a different representation of the order than the customer based on his identity. We'll talk
+        more about that in <xref linkend="security"/>. The barista doesn't need any details about the cost, so those
+        are not included. There is an operation to notify the server that the serving is prepared, defined by 
+        <literal>http://schema.org/CookAction</literal>. The barista calls that once he's done:
+        <programlisting>PUT /orders/1234/serving/ HTTP/1.1
+Accept: application/ld+json</programlisting>
+        <programlisting>HTTP/1.1 204 No Content</programlisting>
+        In the meantime, the customer has been polling the status of the serving. Now that the barista is done, she
+        "gets notified" of that fact:
+          <programlisting>GET /orders/1234/serving/ HTTP/1.1
+Host: api.restbucks.com          
+Accept: application/ld+json          
+</programlisting>
+          <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+
+{ "@id": "/orders/1234/serving",
+  "hydra:operation": [ {
+    "@id": "http://api.restbucks.com/orders/1234/serving/",
+    "@type": "TakeAction",
+    "hydra:httpMethod": "DELETE"
+  } ]
+}</programlisting>
+       And finally she takes her serving: 
+       <programlisting>DELETE /orders/1234/serving/ HTTP/1.1
+Accept: application/ld+json          
+</programlisting>
+       To which the server responds that the process is done:
+       <programlisting>HTTP/1.1 204 No Content</programlisting>
+      </para>
     </simplesect>
     <simplesect>
       <title>Related Patterns</title>
@@ -822,8 +909,60 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     </simplesect>
     <simplesect>
       <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
+      <para>
+        A RESTBucks barista is a processor that waits for paid orders:
+        <programlisting>GET /orders/?status=paid HTTP/1.1
+Accept: application/ld+json</programlisting>
+        <programlisting>HTTP/1.1 204 No Content</programlisting>
+        After polling for a while, he has more luck:
+        <programlisting>GET /orders/?status=paid HTTP/1.1
+Accept: application/ld+json</programlisting>
+        <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "/orders/?status=paid",
+  "@type": "hydra:Collection",
+  "member": [ {
+    "@id": "/orders/1234/"
+  } ]
+}</programlisting>
+        Now that he has found a paid order, the barista can go prepare the serving for it:
+        <programlisting>GET /orders/1234/ HTTP/1.1
+Accept: application/ld+json</programlisting>
+        <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "/orders/1234/"
+  "@type": "Order",
+  "items": {
+    member: [ {
+      "name": "caffe latte",
+      "size": "tall",
+      "milk": "whole",
+    } ]
+  },
+  "hydra:operation": [ {
+    "@id": "http://api.restbucks.com/orders/1234/serving/",
+    "@type": [ "hydra:ReplaceResourceOperation", "CookAction" ],
+    "hydra:httpMethod": "PUT"
+  } ]
+}</programlisting>
+        The barista gets a different representation of the order than the customer based on his identity. We'll talk
+        more about that in <xref linkend="security"/>. The barista doesn't need any details about the cost, so those
+        are not included. There is an operation to notify the server that the serving is prepared, defined by 
+        <literal>http://schema.org/CookAction</literal>. The barista calls that once he's done:
+        <programlisting>PUT /orders/1234/serving/ HTTP/1.1
+Accept: application/ld+json</programlisting>
+        <programlisting>HTTP/1.1 204 No Content</programlisting>
+        All done with this order, the barista looks for the next:
+        <programlisting>GET /orders/?status=paid HTTP/1.1
+Accept: application/ld+json</programlisting>
+        <programlisting>HTTP/1.1 204 No Content</programlisting>
+      </para>
     </simplesect>
     <simplesect>
       <title>Related Patterns</title>
@@ -854,6 +993,14 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         comes up in such systems is that the view that any client has of the resource state maintained by the server 
         becomes outdated when other clients update those resources. A client that acts on outdated information may 
         inadvertently undo another client's work, for example overwriting data that another client added.
+      </para>
+      <para>
+        The classic example of a concurrency problem is transferring money between bank accounts. Suppose there is one 
+        account resource with a <literal>balance</literal> property and two clients that want to transfer money into 
+        the account. The first client issues a request to read the balance and gets a response. It then issues another 
+        request to update the balance. Before the first and second requests, another clients reads the balance. After 
+        the first client issues its update request, the second client does the same and undoes the work of the first 
+        client, because it used outdated information.
       </para>
     </simplesect>
     <simplesect>
@@ -901,15 +1048,97 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Example</title>
       <para>
-        The classic example of a concurrency problem is transferring money between bank accounts. Suppose there is one 
-        account resource with a <literal>balance</literal> property and two clients that want to transfer money into 
-        the account. The first client issues a request to read the balance and gets a response. It then issues another 
-        request to update the balance. Before the first and second requests, another clients reads the balance. After 
-        the first client issues its update request, the second client does the same and undoes the work of the first 
-        client, because it used outdated information.
+        In order to help customers faster, RESTBucks uses more than one barista to prepare servings. To avoid two or
+        more baristas working on the same order, each barista has to claim the order's serving before they can start 
+        preparing it. A serving that is claimed by one barista can no longer be claimed by another.
       </para>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
+      <para>
+        Barista 1 looks for a paid order to prepare:
+        <programlisting>GET /orders/?status=paid HTTP/1.1
+Accept: application/ld+json</programlisting>
+        <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+
+{ "@id": "/orders/?status=paid",
+  "@type": "hydra:Collection",
+  "member": [ {
+    "@id": "/orders/1234/"
+  } ]
+}</programlisting>
+        <programlisting>GET /orders/1234/ HTTP/1.1
+Accept: application/ld+json</programlisting>
+        <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+ETag: 1    
+
+{ "@id": "/orders/1234/"
+  "@type": "Order",
+  "items": {
+    member: [ {
+      "name": "caffe latte",
+      "size": "tall",
+      "milk": "whole",
+    } ]
+  },
+  "hydra:operation": [ {
+    "@id": "http://api.restbucks.com/orders/1234/serving/",
+    "@type": [ "hydra:ReplaceResourceOperation", "AllocateAction" ],
+    "hydra:httpMethod": "PUT",
+    "hydra:expects": {
+      "hydra:supportedProperty": [ {
+        "@type": "Person",
+        "hydra:property": "preparedBy",
+        "hydra:required": true
+      }
+    }
+  } ]
+}</programlisting>
+        Barista 2 does the exact same thing and gets the same response. Now barista 1 tries to claim the serving:
+        <programlisting>PUT /orders/1234/serving/ HTTP/1.1
+If-Match: 1
+Content-Type: application/ld+json        
+Accept: application/ld+json
+
+{ "preparedBy": "Barista 1"
+}</programlisting>
+        <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+ETag: 2
+
+{ "@id": "/orders/1234/serving/",
+  "preparedBy": "Barista 1"
+  "hydra:operation": [ {
+    "@id": "http://api.restbucks.com/orders/1234/serving/",
+    "@type": [ "hydra:ReplaceResourceOperation", "CookAction" ],
+    "hydra:httpMethod": "PUT"
+  } ]
+}</programlisting>
+        The success response means barista 1 can start preparing the serving using the <literal>CookAction</literal>. 
+        In the meantime, barista 2 also tries to claim the serving:
+        <programlisting>PUT /orders/1234/serving/ HTTP/1.1
+If-Match: 1
+Content-Type: application/ld+json        
+Accept: application/ld+json
+
+{ "preparedBy": "Barista 2"
+}</programlisting>
+        But this fails because the serving is already claimed by barista 1:
+        <programlisting>HTTP/1.1 412 Precondition Failed
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+ETag: 2
+
+{ "@id": "/orders/1234/serving/",
+  "preparedBy": "Barista 1
+}</programlisting>
+      </para>
     </simplesect>
     <simplesect>
       <title>Related Patterns</title>
@@ -971,8 +1200,30 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     </simplesect>
     <simplesect>
       <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
+      <para>
+        Suppose we have multiple baristas preparing servings for RESTBucks customers. If we assign each a unique ID and
+        use that as a correlation ID in all their requests, we can collect metrics like how many servings per day they
+        they prepare, how often they run into concurrency issues, or how long they have to wait on average for a paid
+        order. Armed with this information, we could optimize the number of baristas and how long they wait before they
+        polling for paid orders. We'll talk more about data-driven process optimizations in <xref linkend="logging"/>.
+      </para>
+      <para>
+        All we have to do to make this possible is to add a simple header to each request:
+        <programlisting>GET /orders/?status=paid HTTP/1.1
+Accept: application/ld+json</programlisting>
+        <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+Barista-Id: 1    
+
+{ "@id": "/orders/?status=paid",
+  "@type": "hydra:Collection",
+  "member": [ {
+    "@id": "/orders/1234/"
+  } ]
+}</programlisting>
+      </para>
     </simplesect>
     <simplesect>
       <title>Related Patterns</title>

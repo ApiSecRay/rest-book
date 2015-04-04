@@ -8,7 +8,7 @@
     <title>Separating Configuration From Code</title>
   </section>
   
-  <section>
+  <section id="logging">
     <title>Logging and Monitoring</title>
     <para>KPIs</para>
     <para>Correlating business processes with fine-grained messages</para>
