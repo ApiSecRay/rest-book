@@ -166,6 +166,29 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Fowler97</abbrev>
+    <citetitle>Analysis Patterns: Reusable Object Models</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Martin</firstname>
+          <surname>Fowler</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <publisher>
+      <publishername>Addison-Wesley Publishing Company</publishername>
+      <address>
+        <city>Reading</city>
+        <city>Massachusetts</city>
+      </address>
+    </publisher>
+    <copyright>
+      <year>1997</year>
+    </copyright>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>GitHub API</abbrev>
     <biblioid class="uri">https://developer.github.com/v3/</biblioid>
   </biblioentry>

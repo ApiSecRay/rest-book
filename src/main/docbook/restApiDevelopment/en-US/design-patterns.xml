@@ -1252,10 +1252,18 @@ Barista-Id: 1
         correlation.
       </para>
       <para>
+        One example of a transaction is transferring money between bank accounts. We want to withdraw money from one
+        account and deposit it to another as an atomic unit. If the withdrawal fails, we don't want the deposit, or else
+        we'd be creating money. Conversely, if the deposit fails, we don't want the withdrawal or we'd be destroying
+        money.
+      </para>
+      <para>
         If possible, try to do without grouping requests in a transaction. Maybe your API is too fine-grained and you 
         can make the need for transactions disappear by making the API less chatty.
         Introduce higher-level resources that can meet the client's transactional needs by putting all the 
-        functionality in a single request.
+        functionality in a single request. In the banking example, you can get rid of transactions by using posting 
+        rules <citation>Fowler97</citation> or by introducing a single "transfer" resource that captures the money
+        transfer.
       </para>
     </simplesect>
     <simplesect>
@@ -1275,7 +1283,8 @@ Barista-Id: 1
         correlations (see <xref linkend="correlation"/>) and supply some sort of header that indicates the transaction. 
         You may need extra resources to begin, commit, and roll back the transaction. If you introduce a resource for
         beginning transactions, then the server will be able to generate the transaction ID that the client must send 
-        with subsequent requests.
+        with subsequent requests. Commit and rollback are idempotent operations, so you could use the 
+        <literal>PUT</literal> and <literal>DELETE</literal> HTTP methods, respectively.
       </para>
       <para>
         Note that this approach means that the server needs to keep application state, so it violates the stateless 
@@ -1310,8 +1319,113 @@ Barista-Id: 1
     </simplesect>
     <simplesect>
       <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
+      <para>
+        The following example is a bit contrived, because we really don't need transactions in RESTBucks, but 
+        imagine that customer Chrissy brings her friend Joe. They both want a coffee, but only if the other person also
+        gets one. Chrissy goes first:
+      <programlisting>POST /orders/ HTTP/1.1
+Host: api.restbuck.com
+Accept: application/ld+json
+Content-Type: application/ld+json
+Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
+
+{ "items": {
+    "member": [ {
+      "name": "caffe latte",
+      "size": "tall",
+      "milk": "whole"
+    } ]
+  },
+  "customer": "Chrissy"
+}</programlisting>
+      <programlisting>HTTP/1.1 201 Created
+Location: http://api.restbucks.com/orders/1234/
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+Transaction-Commit: /transactions/6c9d7cec-1a42-447e-be0a-61041a4b4b96/    
+
+{ "@id": "http://api.restbucks.com/orders/1234/",
+  "@type": "Order",
+  "items": {
+    member: [ {
+      "name": "caffe latte",
+      "size": "tall",
+      "milk": "whole",
+      "price": 2.75,
+      "currency": "USD"
+    } ]
+  },
+  "total": 2.75,
+  "currency": "USD",
+  "customer": "Chrissy",
+  "hydra:operation": [ {
+    <lineannotation>... Operations ...</lineannotation>
+  } ]
+}</programlisting>
+      The client uses a UUID as the transaction ID to ensure that she doesn't accidentally pick one that someone else 
+      may pick as well. The server responds with a <literal>Transaction-Commit</literal> header that tells the client 
+      where to commit the transaction later. Chrissy continues her workflow up till and including paying for her order.
+      Then it's Joe's turn to do the same, using the same <literal>Transaction-Id</literal> as Chrissy used:
+      <programlisting>POST /orders/ HTTP/1.1
+Host: api.restbuck.com
+Accept: application/ld+json
+Content-Type: application/ld+json
+Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
+
+{ "items": {
+    "member": [ {
+      "name": "caramel macchiato",
+      "size": "grande"
+    } ]
+  },
+  "customer": "Joe"
+}</programlisting>
+      <programlisting>HTTP/1.1 201 Created
+Location: http://api.restbucks.com/orders/1234/
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+Transaction-Commit: /transactions/6c9d7cec-1a42-447e-be0a-61041a4b4b96/    
+
+{ "@id": "http://api.restbucks.com/orders/1235/",
+  "@type": "Order",
+  "items": {
+    member: [ {
+      "name": "caramel macchiato",
+      "size": "grande",
+      "price": 4.25,
+      "currency": "USD"
+    } ]
+  },
+  "total": 4.25,
+  "currency": "USD",
+  "customer": "Joe",
+  "hydra:operation": [ {
+    <lineannotation>... Operations ...</lineannotation>
+  } ]
+}</programlisting>
+        When Joe has paid too, the transaction is committed using one of the operations returned after paying for the
+        order (not shown):
+      <programlisting>PUT /transactions/6c9d7cec-1a42-447e-be0a-61041a4b4b96/ HTTP/1.1
+Host: api.restbuck.com
+Accept: application/ld+json</programlisting>
+      <programlisting>HTTP/1.1 200 OK
+Content-Type: application/ld+json
+Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
+    type="application/ld+json"
+    
+{ "@id": "/transactions/6c9d7cec-1a42-447e-be0a-61041a4b4b96/",
+  "@type": "hydra:Collection",
+  "member": [ {
+    "@id": "/orders/1234/serving/",
+    "customer": "Chrissy"
+  }, {
+    "@id": "/orders/1235/serving/",
+    "customer": "Joe"
+  } ]
+}</programlisting>
+      </para>
     </simplesect>
     <simplesect>
       <title>Related Patterns</title>
@@ -1360,7 +1474,8 @@ Barista-Id: 1
         type, e.g. <literal>Content-Type: multipart//mixed; boundary="gc0p4Jq0M2Yt08j34c0p"</literal>. A boundary 
         delimiter line consists of two hyphens (<literal>--</literal>), the boundary, and optionally whitespace.
         Boundaries must not be longer than 70 US ASCII characters. The message should end with a boundary line followed 
-        by two more hyphens, e.g. <literal>--gc0p4Jq0M2Yt08j34c0p--</literal>.
+        by two more hyphens, e.g. <literal>--gc0p4Jq0M2Yt08j34c0p--</literal>. A good way to make sure the boundary
+        doesn't occur anywhere in any of the body parts, is to use a UUID.
       </para>
       <para>
         Each body part is similar to a regular HTTP message, with some headers, a blank line, and an entity body. A
@@ -1392,8 +1507,56 @@ Barista-Id: 1
     </simplesect>
     <simplesect>
       <title>Example</title>
-      <programlisting>TODO: request</programlisting>
-      <programlisting>TODO: response</programlisting>
+      <para>
+        Let's use the same contrived example as for transactions, where Chrissy and Joe both order a drink and want to
+        pay for it only if the other gets their drink:
+        <programlisting>POST /batches/ HTTP/1.1
+Content-Type: multipart/mized; boundary="290a551af70843a4bff0982547dcf9fc"
+Accept: application/ld+json
+        
+--290a551af70843a4bff0982547dcf9fc
+Content-Type: application/http
+
+POST /orders/ HTTP/1.1
+Host: api.restbuck.com
+Accept: application/ld+json
+Content-Type: application/ld+json
+Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
+
+{ "items": {
+    "member": [ {
+      "name": "caffe latte",
+      "size": "tall",
+      "milk": "whole"
+    } ]
+  },
+  "customer": "Chrissy"
+}
+--290a551af70843a4bff0982547dcf9fc
+Content-Type: application/http
+
+POST /orders/ HTTP/1.1
+Host: api.restbuck.com
+Accept: application/ld+json
+Content-Type: application/ld+json
+Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
+
+{ "items": {
+    "member": [ {
+      "name": "caramel macchiato",
+      "size": "grande",
+    } ]
+  },
+  "customer": "Joe"
+}
+--290a551af70843a4bff0982547dcf9fc
+<lineannotation>... More messages ...</lineannotation>
+--290a551af70843a4bff0982547dcf9fc--        
+        </programlisting>
+        The example uses the <literal>application/http</literal> media type to enclose the HTTP messages inside the
+        batch message, but you can use other media types as well, as long as both client and server agree on what the 
+        enclosed messages mean.
+      </para>
     </simplesect>
     <simplesect>
       <title>Related Patterns</title>
