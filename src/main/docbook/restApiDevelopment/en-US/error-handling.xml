@@ -1,134 +1,348 @@
 <chapter id="error">
   <title>Error Handling</title>
   <para>
-    TODO: Reliability, robustness
-  </para>
-  <para>
-    The HTTP protocol uses status codes to return error information. This facility, while extremely useful, is too 
-    limited for many use cases. So how do we return more detailed information?
-  </para>
-  <para>
-    There are basically two approaches we can take:
-    Use a dedicated media type that contains the error details
-    Include the error details in the used media type
+    In an ideal world everything would always go according to plan. Unfortunately, we do not live in such a world, so
+    we need to handle expected and unexpected deviations from the plan. Robustness and reliability are big parts of the
+    usability of an API, and they are the subjects of this chapter.
   </para>
 
   <section>
-    <title>HTTP Status Codes</title>
+    <title>Status Codes</title>
     <para>
+      The way the HTTP protocol deals with failure and success is very simple: each response starts with a status
+      line that include a status code <citation>HTTP</citation>. A <firstterm>status code</firstterm> is a numeric
+      identifier for a class of success scenarios.
+    </para>
+    <para>
+      Each status code comes with a canonical description, but an implementation is free to use different descriptions. 
+      A client should therefore only look at the numeric codes.
+    </para>
+    <para>
+      Status codes exist in five different ranges:
+    </para>
+    <variablelist>
+      <varlistentry>
+        <term>100-199 Informational</term>
+        <listitem>
+          <para>
+            Status codes in this range indicate an interim response, encouraging the client to continue with the
+            remainder of the request. You're not likely to need status codes from this range in your APIs.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>200-299 Successful</term>
+        <listitem>
+          <para>
+            Status codes in this range indicate success. The <literal>200 OK</literal> status code is a generic way
+            of indicating success; the other codes in this range provide more detail. For instance, 
+            <literal>204 No Content</literal> tells the client not to expect an entity-body in the response message.
+          </para>
+          <para>
+            The most used status codes in this range are <literal>200 OK</literal>, <literal>201 Created</literal> (see
+            <xref linkend="create"/>), <literal>202 Accepted</literal> (see <xref linkend="async"/>), and 
+            <literal>204 No Content</literal>.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>300-399 Redirection</term>
+        <listitem>
+          <para>
+            Status codes in this range indicate that the request should be directed elsewhere. We can't tell from the
+            response whether the request will fail or succeed, because we're not addressing it to the right person,
+            as it were. The response will typically contain a <literal>Location</literal> header that contains the
+            URI where the client can find the resource.
+          </para>
+          <para>
+            The most used status codes in this range are <literal>301 Moved Permanently</literal>, 
+            <literal>303 See Other</literal>, and <literal>304 Not Modified</literal> (see <xref linkend="caching"/>).
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>400-499 Client Error</term>
+        <listitem>
+          <para>
+            Status codes in this range indicate failure because of a mistake by the client. The 
+            <literal>400 Bad Request</literal> status is a generic way of indicating a client error; the other codes
+            in this range provide more detail. For instance, <literal>404 Not Found</literal> tells the client that
+            there is no resource at the provided URI. 
+          </para>
+          <para>
+            The most used status codes in this range are <literal>404 Bad Request</literal>, 
+            <literal>401 Unauthorized</literal>, (see <xref linkend="authentication"/>), 
+            <literal>403 Forbidden</literal> (see <xref linkend="authorization"/>), <literal>404 Not Found</literal>,
+            <literal>409 Conflict</literal>, and <literal>412 Precondition Failed</literal> (see 
+            <xref linkend="concurrency"/> and <xref linkend="conditional"/>).
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>500-599 Server Error</term>
+        <listitem>
+          <para>
+            Status codes in this range indicate failure because of something that went wrong on the server side. The
+            <literal>500 Internal Server Error</literal> status is a generic way of indicating a server error; the other 
+            codes in this range provide more detail. For instance, <literal>503 Service Unavailable</literal> tells the
+            client that the request temporarily can't be processed, but that the client may try again at a later time.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    <para>
+      It is important that you pick the correct status code, so that the client is in the best possible position to
+      recover from the error condition. Use the most appropriate specific code available, rather than the generic
+      400 or 500 codes. If no status code seems to work well, use one of the generic codes as a last resort.
+    </para>
+    <para>
+      Don't invent new status codes, because clients will not know how to handle them. Instead, you should provide 
+      problem details. Let's look at those next.
     </para>
   </section>
 
   <section>
-    <title>Problem Details</title>
+    <title>Error Messages</title>
     <para>
+      Suppose a RESTBucks customer is paying for her order using a credit card, and the credit card processing fails.
+      It could be a mistake by the client, like submitting an invalid card number.
+      Since there aren't any specific status codes for credit card problems, you will likely have little choice but to 
+      return the generic <literal>400 Bad Request</literal>. That code doesn't tell the client whether the credit card 
+      number was invalid, the card has expired, or whether any of several other error conditions occurred.
+    </para>
+    <para>
+      In other words, a status code tells the client <emphasis>what</emphasis> went wrong, but doesn't explain 
+      <emphasis>why</emphasis>. Since this is often critical information for a client to be able to recover from the
+      error, we propose that you provide more information than just status codes. We call this additional information
+      <firstterm>problem details</firstterm>.
+    </para>
+    <para>
+      Clients must be prepared to handle any error condition, so you should document all problems that may arise in 
+      your domain.
+      The easiest way to do that, is to assign each error condition a unique error ID, so that clients can write error 
+      handling code that dispatches on the error ID. In the HTTP world, IDs are URIs, so we propose that you name your 
+      error conditions with URIs. Ideally, these URIs resolve to web addresses where client developers can learn more 
+      about the error conditions and how to recover from them.
+    </para>
+    <para>
+      An error ID is not usually sufficient, so you will likely want to provide more details in the response, like a 
+      description of the error condition. The description is a human readable explanation of what went wrong. By 
+      returning the description in the error response, you relieve the client developer from looking it up in your
+      documentation.
+    </para>
+    <para>
+      For diagnostic purposes, it may be beneficial to assign a unique ID not only to the generic error condition, but
+      also to the specific instance of the error condition. That gives customer support a chance to look up the
+      specifics should a customer make an inquiry about the error, for example. Such information may also be logged for
+      forensic purposes, especially with server errors (see <xref linkend="logging"/>).
+    </para>
+    <para>
+      Provide any additional information that is specific to the request and that you think may put the client in a 
+      better position to solve the problem.
+      For instance, if the error condition is that an ordered beverage is out of stock, then it is helpful to indicate 
+      which one. This helps customers who order more than one item to identify and correct the problem.
+    </para>
+    <para>
+      It's good to inform clients that things didn't go as planned. But we shouldn't stop there. The working model of
+      REST is that the server provides the clients options to move toward completing its goal, and there is no reason
+      for error messages to be an exception. If the server knows of ways to help to client fix the problem, it should
+      provide options for doing so in the error response.
+    </para>
+    <para>
+      Sometimes this doesn't require anything to be added to the message. For instance, if the server uses an external
+      service that is temporarily unavailable, it may respond with <literal>503 Service Unavailable</literal>, a 
+      <literal>Retry-After</literal> header, and a <literal>self</literal> link. This is enough information for the
+      client to wait a while and then retry.
+    </para>
+    <para>
+      At other times the client needs a bit more. For instance, when the client orders a drink that is out of stock,
+      the server could propose an alternative that is available. For each error case you need to think hard about how
+      to make the client's life as easy as possible and what information the server could offer to realize that.
     </para>
   </section>
-
+  
   <section>
     <title>Serializing Error Messages</title>
     <para>
+      There are two places in the HTTP response where we could conceivably put the problem details: in one or more
+      headers or in the entity-body. There aren't any standard headers defined for this purpose, however. The only one
+      that comes close is <literal>Warning</literal>, which is used to carry additional information about the status or 
+      transformation of a message that might not be reflected in the status code. 
+    </para>
+    <para>
+      Since we have multiple pieces of information that we want to convey to the client, it seems more appropriate to 
+      use the entity-body. That raises the question of how to serialize the problem details.
+    </para>
+    <para>
+      There are at least two media types that are designed specifically for representing error conditions 
+      <citation>ProblemDetail</citation>, <citation>ErrorJson</citation>. 
+      However, if the media type you selected has a way of representing error conditions, then we propose you use that 
+      mechanism rather than burdening your clients with multiple media types.
+    </para>
+    <para>
+      There is another reason why a separate media type for errors is undesirable. HTTP has the notion of content
+      negotiation <citation>HTTP</citation>, where the client uses the <literal>Accept</literal> header to indicate
+      which media types it is willing to handle. Most clients will not assume that things go wrong, and will not
+      add the error media type to <literal>Accept</literal>. While technically the server is allowed to deviate from
+      the media types that the client requested, we think that makes it more difficult to write a client than it needs
+      to be.
+    </para>
+    <para>
+      So we prefer to use one media type for all responses, including error responses.
+      However, that doesn't mean we can't learn something from specific error media types.
+      For instance, the structure proposed by <citation>ProblemDetail</citation> is quite useful:
+    </para>
+    <informaltable>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>type</td>
+          <td>
+            An absolute URI that identifies the problem type. When dereferenced, it should provide human-readable 
+            documentation for the problem type
+          </td>
+        </tr>
+        <tr>
+          <td>title</td>
+          <td>
+            A short, human-readable summary of the problem type
+          </td>
+        </tr>
+        <tr>
+          <td>status</td>
+          <td>
+            The HTTP status code generated by the origin server for this occurrence of the problem
+          </td>
+        </tr>
+        <tr>
+          <td>detail</td>
+          <td>
+            An human readable explanation specific to this occurrence of the problem
+          </td>
+        </tr>
+        <tr>
+          <td>instance</td>
+          <td>
+            An absolute URI that identifies the specific occurrence of the problem.  It may or may not yield further
+            information if dereferenced.
+          </td>
+        </tr>
+      </tbody>
+    </informaltable>
+    <para>
+      The <literal>type</literal> field corresponds to what we've been referring to as the error ID, while 
+      <literal>title</literal> matches what we've called description. We wouldn't repeat <literal>status</literal> in
+      the entity-body, since it's already part of the status line of the response.
+    </para>
+    <para>
+      There isn't a universally accepted way of representing error conditions, but we propose you use the above fields
+      rather than inventing your own way of representing error conditions. You can always add any additional information 
+      you think will help the client developers or server operators.
+    </para>
+  </section>
+  
+  <section>
+    <title>Semantics</title>
+    <para>
+      For a client to be able to handle a given issue, it must first understand what it means. So we should capture the 
+      semantics of our error messages like we did for our regular messages (see <xref linkend="semantics"/>).
+    </para>
+    <informaltable>
+      <thead>
+        <tr>
+          <th>Data Item</th>
+          <th>Defined By</th>
+          <th>Definition Maintained By</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>type</td>
+          <td>http://schema.org/error</td>
+          <td>Schema.org</td>
+        </tr>
+        <tr>
+          <td>title</td>
+          <td>http://schema.org/description</td>
+          <td>Schema.org</td>
+        </tr>
+        <tr>
+          <td>detail</td>
+          <td>http://tools.ietf.org/html/draft-ietf-appsawg-http-problem#detail</td>
+          <td><citation>ProblemDetails</citation></td>
+        </tr>
+        <tr>
+          <td>instance</td>
+          <td>http://tools.ietf.org/html/draft-ietf-appsawg-http-problem#instance</td>
+          <td><citation>ProblemDetails</citation></td>
+        </tr>
+      </tbody>
+    </informaltable>
+    <para>
+      Schema.org has definitions for <literal>type</literal> and <literal>title</literal>, but there aren't any
+      vocabularies at the time of writing that define <literal>detail</literal> and <literal>instance</literal>. So
+      we took the liberty of using the Problem Details specification as a stand-in for a semantic definition. The
+      URLs listed don't resolve and will also change should the draft ever become an RFC. This is less than ideal, so
+      you could opt to provide your own semantic definitions instead.
     </para>
   </section>
 
   <section>
     <title>Security</title>
     <para>
+      We'll discuss security in great detail in <xref linkend="security"/>, but here we must mention a couple of
+      things that are specific to error handling. They all have to do with how much information we should be willing
+      to give out to clients.
+    </para>
+    <para>
+      The first thing to consider is whether merely knowing that a resource exists is sensitive information in and of
+      itself or not.
+    </para>
+    <para>
+      For example, a Human Resources system may expose a collection of employees that are candidates for a promotion
+      at <literal>/promotions/{function}/{candidate}/</literal>, where 
+      <literal>function</literal> is a job title and <literal>candidate</literal> is an employee badge number. What
+      should be returned if a client asks for <literal>/promotions/distinguished_engineer/072462/</literal> but it 
+      doesn't have permission to know who the candidates are for this promotion?
+    </para>
+    <para>
+      Following our earlier advice, you should return <literal>403 Forbidden</literal>, as this is the most specific 
+      status code that makes sense. With this response, the client won't be able to see the details of the candidate's 
+      application, but it can deduce that this particular candidate applied for the promotion, or else it would have
+      received a <literal>404 Not Found</literal> response.
+      In cases like this, it may be safer to return <literal>404 Not Found</literal> so that the client can't make the
+      distinction.  
+    </para>
+    <para>
+      Another common pitfall is to display technical information in error responses, like stack traces for server
+      errors. Although these can be very helpful for debugging purposes, they can also be used by attackers. For
+      instance, a stack trace may reveal that a particular open source component is used and an attacker may then 
+      exploit known vulnerabilities against that component to break into your system.
+    </para>
+    <para>
+      The right way to handle this is to log the technical information (see <xref linkend="logging"/>), along with
+      the error instance ID. In the HTTP response, only return a generic error message and the same error instance ID.
+      Developers will now have to look in the log files to find the technical information, which is a little less
+      convenient for them, but you have a much better chance of keeping your system safe.
     </para>
   </section>
 
   <section>
     <title>Summary</title>
     <para>
+      This chapter presents some guidance on how to deal with failures. Errors are a fact of life, and we must plan
+      for them just as much as we do for the happy path. In fact, helping the client recover and get back on track to
+      completing its goal is an excellent way to delight your users.
+    </para>
+    <para>
+      We now turn our attention to another topic that is essential in providing a good Developer eXperience: 
+      performance.
     </para>
   </section>
   
-  <!-- 
-  <section>
-    <title>Dedicated Error Media Types</title>
-    <para>
-      There are at least two candidates in this space:
-      Problem Details for HTTP APIs is an IETF draft that we’ve used in some of our APIs to good effect. It treats 
-      both problem types and instances as URIs and is extensible. This media type is available in both JSON and XML 
-      flavors.
-      application/vnd.error+json is for JSON media types only. It also feels less complete and mature.
-    </para>
-    <para>
-      A media type dedicated to error reporting has the advantage of being reusable in many REST APIs. Any existing 
-      libraries for handling them could save us some effort. We also don’t have to think about how to structure the 
-      error details, as someone else has done all that hard work for us.
-    </para>
-    <para>
-      However, putting error details in a dedicated media type also increases the burden on clients, since they now 
-      have to handle an additional media type.
-    </para>
-    <para>
-      Another disadvantage has to do with the Accept header. It’s highly unlikely that clients will specify the error 
-      media type in Accept. In general, we should either return 406 or ignore the Accept header when we can’t honor 
-      it. The first option is not acceptable (pun intended), the second is not very elegant.
-    </para>
-  </section>
-  <section>
-    <title>Including Error Details In Regular Media Types</title>
-    <para>
-      We could also design our media types such that they allow specifying error details. In this post, I’m going to stick with three mature media types: Mason, Siren, and UBER.
-    </para>
-    <para>
-      Mason uses the <computeroutput>@error</computeroutput> property:
-      <programlisting>
-      {
-        &quot;@error&quot;: {
-          &quot;@id&quot;: &quot;b2613385-a3b2-47b7-b336-a85ac405bc66&quot;,
-          &quot;@message&quot;: &quot;There was a problem with one or more input values.&quot;,
-          &quot;@code&quot;: &quot;INVALIDINPUT&quot;
-        }
-      }
-      </programlisting>
-      The existing error properties are compatible with Problem Details for HTTP APIs, and they can be extended.
-    </para>
-    <para>
-      Siren doesn’t have a specific structure for errors, but we can easily model errors with the existing structures:
-      <programlisting>
-      {
-        &quot;class&quot;: [
-          &quot;error&quot;
-        ],
-        &quot;properties&quot;: {
-          &quot;id&quot;: &quot;b2613385-a3b2-47b7-b336-a85ac405bc66&quot;,
-          &quot;message&quot;: &quot;There was a problem with one or more input values.&quot;,
-          &quot;code&quot;: &quot;INVALIDINPUT&quot;
-        }
-      }
-      </programlisting>
-    </para>
-    <para>
-      We can even go a step further and use entities to add detailed sub-errors. This would be very useful for 
-      validation errors, for instance, where you can report all errors to the client at once. We could also use the 
-      existing actions property to include a retry action. And we could use the error properties from Problem Details 
-      for HTTP APIs.
-    </para>
-    <para>
-      UBER has an explicit error structure:
-      <programlisting>
-      {
-        &quot;uber&quot;: {
-          &quot;version&quot;: &quot;1.0&quot;,
-          &quot;error&quot;: {
-            &quot;data&quot;: [
-              { &quot;name&quot;: &quot;id&quot;, &quot;value&quot; : &quot;b2613385-a3b2-47b7-b336-a85ac405bc66&quot; },
-              { &quot;name&quot;: &quot;message&quot;, &quot;value&quot; : &quot;There was a problem with one or more input values.&quot; },
-              { &quot;name&quot;: &quot;code&quot;, &quot;value&quot;: &quot;INVALIDINPUT&quot; }
-            ]
-          }
-        }
-      }
-      </programlisting>
-      Again, we could reuse the error properties from Problem Details for HTTP APIs.
-    </para>
-    <para>
-      Our advice would be to use the error structure of your existing media type and use the extensibility features 
-      to steal all the good ideas from Problem Details for HTTP APIs.
-    </para>
-  </section>
-  -->
 </chapter>

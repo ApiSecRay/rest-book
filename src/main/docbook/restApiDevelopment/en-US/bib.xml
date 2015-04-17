@@ -128,6 +128,11 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>ErrorJson</abbrev>
+    <biblioid class="uri">https://github.com/blongden/vnd.error</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>Evans04</abbrev>
     <citetitle>Domain-driven design: tackling complexity in the heart of software</citetitle>
     <authorgroup>
@@ -285,6 +290,12 @@
   <biblioentry>
     <abbrev>OpenSearch</abbrev>
     <biblioid class="uri">http://www.opensearch.org/Specifications/OpenSearch/1.1</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>ProblemDetail</abbrev>
+    <biblioid class="uri">https://tools.ietf.org/html/draft-ietf-appsawg-http-problem-00</biblioid>
+    <citetitle>Problem Details for HTTP APIs</citetitle>
   </biblioentry>
   
   <biblioentry>

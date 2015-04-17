@@ -71,7 +71,7 @@
     <para>HTTP signatures, tickets</para>
   </section>
 
-  <section>
+  <section id="authorization">
     <title>Authorization</title>
     <para>RBAC, OAuth, UMA, XACML</para>
   </section>

@@ -1,12 +1,31 @@
 <chapter id="performance">
   <title>Performance and Scalability</title>
+  <para>
+    Performance and scalability are two different but related qualities (see 
+    <xref linkend="non-functional-requirements"/>). <firstterm>Performance</firstterm> is the amount of useful work
+    accomplished in a some period of time. <firstterm>Scalability</firstterm> is the ability to handle a growing amount 
+    of work over time. Performance is about how long a single activity takes; scalability is about how long an
+    activity takes as more and more work is performed by the system.
+  </para>
+  <para>
+    As we saw before, scalability is one of the raisons d'etre of REST. This chapter delves into the things you can
+    do to ensure good performance and scalability.
+  </para>
   
   <section>
     <title>Statelessness</title>
   </section>
   
+  <section id="conditional">
+    <title>Conditional <literal>GET</literal>s</title>
+  </section>
+  
   <section id="caching">
     <title>Caching</title>
+    <para>
+      Responses with the following status codes are cacheable by default: 
+      200, 203, 204, 206, 300, 301, 404, 405, 410, 414, and 501.
+    </para>
   </section>
   
   <section>
