@@ -646,7 +646,7 @@ Then she is happy</programlisting>
 	    </para>
     </section>
             
-	  <section>
+	  <section id="dx">
 	    <title>Developer eXperience</title>
 	    <para>
 	      The term <firstterm>Developer eXperience</firstterm> (DX) is derived from User eXperience (UX), the art and

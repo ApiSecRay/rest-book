@@ -1,6 +1,7 @@
 <chapter id="implementation">
   <title>Implementation</title>
   
+  <!-- TODO: Error handling  -->
   <section>
     <title>Model-View-Controller (MVC)</title>
   </section>

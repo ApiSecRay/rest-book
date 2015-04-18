@@ -1567,6 +1567,13 @@ Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
   </section>
   
   <section>
+    <title>Design Patterns In RESTBucks</title>
+    <para>
+      TODO:
+    </para>
+  </section>
+  
+  <section>
     <title>Summary</title>
     <para>
       This chapter presents some design patterns that you'll see over and over again in REST APIs. If you apply these

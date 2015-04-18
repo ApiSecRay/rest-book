@@ -7,7 +7,7 @@
   </para>
 
   <section>
-    <title>Status Codes</title>
+    <title>Error Conditions</title>
     <para>
       The way the HTTP protocol deals with failure and success is very simple: each response starts with a status
       line that include a status code <citation>HTTP</citation>. A <firstterm>status code</firstterm> is a numeric
@@ -96,14 +96,6 @@
       400 or 500 codes. If no status code seems to work well, use one of the generic codes as a last resort.
     </para>
     <para>
-      Don't invent new status codes, because clients will not know how to handle them. Instead, you should provide 
-      problem details. Let's look at those next.
-    </para>
-  </section>
-
-  <section>
-    <title>Error Messages</title>
-    <para>
       Suppose a RESTBucks customer is paying for her order using a credit card, and the credit card processing fails.
       It could be a mistake by the client, like submitting an invalid card number.
       Since there aren't any specific status codes for credit card problems, you will likely have little choice but to 
@@ -117,8 +109,8 @@
       <firstterm>problem details</firstterm>.
     </para>
     <para>
-      Clients must be prepared to handle any error condition, so you should document all problems that may arise in 
-      your domain.
+      Clients must be prepared to handle any error condition, so you should document all problems that may arise when
+      using your API.
       The easiest way to do that, is to assign each error condition a unique error ID, so that clients can write error 
       handling code that dispatches on the error ID. In the HTTP world, IDs are URIs, so we propose that you name your 
       error conditions with URIs. Ideally, these URIs resolve to web addresses where client developers can learn more 
@@ -155,14 +147,15 @@
       client to wait a while and then retry.
     </para>
     <para>
-      At other times the client needs a bit more. For instance, when the client orders a drink that is out of stock,
-      the server could propose an alternative that is available. For each error case you need to think hard about how
-      to make the client's life as easy as possible and what information the server could offer to realize that.
+      At other times the client needs a bit more information.
+      For instance, when the client orders a drink that is out of stock, the server could propose an alternative that 
+      is available. For each error case you need to think hard about how to make the client's life as easy as possible 
+      and what information the server could offer to realize that.
     </para>
   </section>
   
   <section>
-    <title>Serializing Error Messages</title>
+    <title>Serializing Error Conditions As Messages</title>
     <para>
       There are two places in the HTTP response where we could conceivably put the problem details: in one or more
       headers or in the entity-body. There aren't any standard headers defined for this purpose, however. The only one
@@ -244,10 +237,6 @@
       rather than inventing your own way of representing error conditions. You can always add any additional information 
       you think will help the client developers or server operators.
     </para>
-  </section>
-  
-  <section>
-    <title>Semantics</title>
     <para>
       For a client to be able to handle a given issue, it must first understand what it means. So we should capture the 
       semantics of our error messages like we did for our regular messages (see <xref linkend="semantics"/>).
@@ -290,18 +279,14 @@
       URLs listed don't resolve and will also change should the draft ever become an RFC. This is less than ideal, so
       you could opt to provide your own semantic definitions instead.
     </para>
-  </section>
-
-  <section>
-    <title>Security</title>
     <para>
       We'll discuss security in great detail in <xref linkend="security"/>, but here we must mention a couple of
-      things that are specific to error handling. They all have to do with how much information we should be willing
+      things that are specific to error messages. They all have to do with how much information we should be willing
       to give out to clients.
     </para>
     <para>
       The first thing to consider is whether merely knowing that a resource exists is sensitive information in and of
-      itself or not.
+      itself.
     </para>
     <para>
       For example, a Human Resources system may expose a collection of employees that are candidates for a promotion
@@ -312,11 +297,11 @@
     </para>
     <para>
       Following our earlier advice, you should return <literal>403 Forbidden</literal>, as this is the most specific 
-      status code that makes sense. With this response, the client won't be able to see the details of the candidate's 
-      application, but it can deduce that this particular candidate applied for the promotion, or else it would have
+      status code that is applicable. While the client won't be able to see the details of the candidate's 
+      application, it can deduce that this particular candidate applied for the promotion, or else it would have
       received a <literal>404 Not Found</literal> response.
-      In cases like this, it may be safer to return <literal>404 Not Found</literal> so that the client can't make the
-      distinction.  
+      In cases like this, it may therefore be safer to return <literal>404 Not Found</literal> so that the client can't 
+      make the distinction.
     </para>
     <para>
       Another common pitfall is to display technical information in error responses, like stack traces for server
@@ -330,6 +315,515 @@
       Developers will now have to look in the log files to find the technical information, which is a little less
       convenient for them, but you have a much better chance of keeping your system safe.
     </para>
+  </section>
+  
+  <section>
+    <title>Discovering Error Conditions</title>
+    <para>
+      Now that we know about error conditions and how to serialize them as messages, the one remaining unanswered
+      question is: How do you find all the things that could potentially go wrong in your API?
+      This is where state diagrams (see <xref linkend="state-diagrams"/>) come to the rescue again. With that 
+      information, the procedure is very simple.
+    </para>
+    <procedure id="find-errors">
+      <title>Discover Error Conditions</title>
+      <step>
+		    <para>
+		      Collect all transitions from all state diagrams.
+		    </para>
+		  </step>
+		  <step>
+		    <para>
+		      For each transition, answer the following questions:
+		    </para>
+	      <substeps>
+	        <step>
+	          <para>What could the client do wrong when sending the request?</para>
+	        </step>
+	        <step>
+	          <para>What could go wrong when the server handles the client's request?</para>
+	        </step>
+	      </substeps> 
+      </step>
+      <step>
+        For each error condition found, think of all the ways you can help the client recover from it.
+      </step>
+    </procedure>
+    <para>
+      Take these questions very seriously and don't skimp over them. Testers are very good at answering these questions,
+      particularly about what the client could do wrong. Developers may give insight into all the potential problems
+      on the server side. Pull in any expertise that you lack, because you don't want to miss anything. It's better to 
+      prepare early for unpleasant events than to find out about them in production.
+    </para>
+    <para>
+      It's important to realize what assumptions you're making when you answer the questions. Many errors occur because
+      of assumptions that turned out to be false. This is easier said than done, of course, but simply telling yourself
+      to watch out for hidden assumptions may improve your chances of success.      
+    </para>
+    <para>
+      There is one assumption in particular that many people make without being aware of it: that the client is using 
+      the API in a reasonable manner. In other words that the client is trying to achieve one of the goals that we have 
+      discovered during the analysis phase (see <xref linkend="analysis"/>).
+      This assumption is false in the case of a malicious user that is trying to break your system or break into it. 
+      We'll discuss this topic in quite some detail in <xref linkend="threat-modeling"/>.
+    </para>
+    <para>
+      When you go through this exercise, you'll quickly discover that some error conditions repeat itself over and over.
+      This is especially true for generic server errors, like running out of memory. This has the unfortunate side 
+      effect that you may start assuming that these are all the things that can go wrong. Remain focused on the job
+      at hand: to find as many potential error conditions as possible. Remember that you do this so you can prepare 
+      everybody for the errors: write documentation for clients, handle errors properly in the server (see 
+      <xref linkend="implementation"/>), and install monitoring in operations (see <xref linkend="logging"/>).
+    </para>
+    <para>
+      Let's try out the error discovery procedure on RESTBucks. For brevity, we'll confine ourselves to the state 
+      diagram in <xref linkend="sd-customer-happy-path"/>.
+    </para>
+    <orderedlist>
+      <listitem>
+        <para>
+          The first transition is <literal>Read menu</literal>.
+        </para>
+        <para>
+          Since this transition requires no input from the client, there isn't much that it can do wrong, other than the
+          things that any client can always do wrong:
+        </para>
+        <informaltable colsep="0" frame="bottom">
+          <tgroup cols="4" rowsep="1">
+            <colspec colwidth="1*" colname="col-first"/>
+            <colspec colwidth="5*"/>
+            <colspec colwidth="3*"/>
+            <colspec colwidth="3*" colname="col-last"/>
+            <thead>
+		          <row>
+		            <entry>Status</entry>
+		            <entry>Type</entry>
+		            <entry>Title</entry>
+		            <entry>Recovery</entry>
+		          </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry namest="col-first" nameend="col-last"/>
+              </row>
+            </tbody>
+          </tgroup>
+          <tgroup cols="4" rowsep="0">
+            <colspec colwidth="1*"/>
+            <colspec colwidth="5*"/>
+            <colspec colwidth="3*"/>
+            <colspec colwidth="3*"/>
+		        <tbody>
+		          <row>
+		            <entry>404</entry>
+		            <entry>http://errors.restbucks.com/not-found</entry>
+		            <entry>The URI you requested doesn't exists or is not accessible by you</entry>
+	              <entry>N/A</entry>
+		          </row>
+		          <row>
+		            <entry>405</entry>
+		            <entry>http://errors.restbucks.com/method-not-allowed</entry>
+		            <entry>The method you used is not supported on this URI</entry>
+		            <entry>N/A</entry>
+		          </row>
+		          <row>
+		            <entry>406</entry>
+		            <entry>http://errors.restbucks.com/not-acceptible</entry>
+		            <entry>
+		              The media type you requested in the <literal>Accept</literal> header is not supported for this method
+		              on this URI.
+	              </entry>
+		            <entry>List the media types that the server is capable of handling</entry>
+		          </row>
+		        </tbody>
+          </tgroup>
+        </informaltable>
+        <para>
+          It's up to you to decide whether you want to assign specific error IDs to generic cases like the client
+          requesting an unknown URI, or that you simply rely on the corresponding HTTP status codes.
+        </para>
+        <para>
+          There is something to be said for both approaches. Even though providing such errors is duplication of the 
+          HTTP specification, it means that there is always a body in the error message and that that body always 
+          follows the same structure. That makes it a bit easier to write clients correctly.
+        </para>
+        <para>
+          While we don't like duplication, we do like delighting the user with everything we do. Little improvements 
+          here and there can add up significantly to a much better overall Developer eXperience (see 
+          <xref linkend="dx"/>).
+        </para>
+        <para>
+          For instance, our description of <literal>http://errors.restbucks.com/not-found</literal> explicitly states
+          that a <literal>404 Not Found</literal> status code may be returned when the client doesn't have permission
+          to access the resource. A client developer may not guess that and may waste considerable time troubleshooting 
+          the issue if we don't provide that clarification.
+        </para>
+        <para>
+          Some error conditions really shouldn't occur in a RESTful system, like a client requesting an unknown URI
+          or using an unsupported HTTP method. This information should have been discovered by the client from the
+          server's responses.
+        </para>
+        <para>
+          You may be inclined to exclude such errors from the list, but remember that the underlying assumption is that 
+          the client behaves as a good REST client. You may want to monitor when that assumption is violated, so that 
+          you can help misguided client developers and ward off attackers (see <xref linkend="alerting"/>). You can
+          only monitor what you have identified as worthy of monitoring, so it makes sense to identify these kinds of
+          errors even though they shouldn't occur.
+        </para>
+        <para>
+          What could go wrong on the server's side?
+        </para>
+        <informaltable colsep="0" frame="bottom">
+          <tgroup cols="4" rowsep="1">
+            <colspec colwidth="1*" colname="col-first"/>
+            <colspec colwidth="5*"/>
+            <colspec colwidth="3*"/>
+            <colspec colwidth="3*" colname="col-last"/>
+            <thead>
+              <row>
+                <entry>Status</entry>
+                <entry>Type</entry>
+                <entry>Title</entry>
+                <entry>Recovery</entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry namest="col-first" nameend="col-last"/>
+              </row>
+            </tbody>
+          </tgroup>
+          <tgroup cols="4" rowsep="0">
+            <colspec colwidth="1*"/>
+            <colspec colwidth="5*"/>
+            <colspec colwidth="3*"/>
+            <colspec colwidth="3*"/>
+            <tbody>
+              <row>
+	              <entry>500</entry>
+	              <entry>http://errors.restbucks.com/server-error</entry>
+	              <entry>
+	                Something went wrong on our side. We have logged the problem so our staff can look into it. We're
+	                sorry for the inconvenience.
+	              </entry>
+	              <entry>
+	                Maybe a link to report the issue with customer support?
+	              </entry>
+	            </row>
+	            <row>
+	              <entry>503</entry>
+	              <entry>http://errors.restbucks.com/service-unavailable</entry>
+	              <entry>The server is temporarily not able to handle the request.</entry>
+	              <entry>
+	                <literal>Retry-After</literal> header.
+	              </entry>
+	            </row>
+	          </tbody>
+	        </tgroup>
+        </informaltable>
+        <para>
+          To fulfill the request for the menu, the server has to collect the menu items from somewhere. Chances are
+          that these items are stored in a database of some sort. The server will have to establish a connection with
+          this database, and that could go wrong (unless maybe the database is an in-memory database). This is a
+          specific case of a more general pattern: the server may depend on external services that may be unavailable
+          for some reason (see <xref linkend="external"/>). Since this is hopefully a temporary condition, you should
+          return <literal>503 Service Unavailable</literal> rather than <literal>500 Internal Server Error</literal>.
+        </para>
+        <para>
+          If the server knows from experience how long these outages usually last, it can provide the 
+          <literal>Retry-After</literal> header with an estimate, in the hope that clients will not make the situation
+          worse by constantly retrying failed requests. If you don't have such an estimate, you may put in a more or 
+          less random but high enough number to reduce the number of retries.
+        </para>
+        <para>
+          There are many other things that could go wrong: the server may run out of memory, it may run into a 
+          programming error like accessing a null pointer, etc. etc. These are all technical causes that you shouldn't
+          tell the client about. You should log it, for sure, so the problem can be picked up and dealt with, but you
+          shouldn't bother the client with details that it can't do anything about (or that it could exploit). Just
+          return <literal>500 Internal Server Error</literal> with some generic message.
+        </para>
+        <para>
+          The distinction between this and the previous class of errors is purely in how the client can recover from 
+          the error condition. Whenever the client encounters a <literal>503 Service Unavailable</literal> status code,
+          the client may decide to wait a while and then try again. There is no such point with a <literal>500 Internal
+          Server Error</literal> status, as the problem is likely to persist and the only thing the client can do is
+          give up on its current goal.
+        </para>
+        <para>
+          There is one thing that a client could do when it receives a <literal>500 Internal Server Error</literal>, 
+          especially when it's ultimately driven by a human, and that is to open a support ticket. Think carefully
+          before you do this whether you're going to be able to handle a flood of tickets when something goes wrong.
+          Also only do this if you think the client may have specific information about the circumstances in which the 
+          error occurred that would be hard or impossible to derive from the server's log files. If the client would 
+          bother to report the issue and provide that information, it might help solve the problem faster.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The next transition is <literal>Place order</literal>, which requires the client to provide the menu items it
+          wants to order. There are several things the client could do wrong:
+        </para>
+        <informaltable colsep="0" frame="bottom">
+          <tgroup cols="4" rowsep="1">
+            <colspec colwidth="1*" colname="col-first"/>
+            <colspec colwidth="5*"/>
+            <colspec colwidth="3*"/>
+            <colspec colwidth="3*" colname="col-last"/>
+            <thead>
+              <row>
+                <entry>Status</entry>
+                <entry>Type</entry>
+                <entry>Title</entry>
+                <entry>Recovery</entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry namest="col-first" nameend="col-last"/>
+              </row>
+            </tbody>
+          </tgroup>
+          <tgroup cols="4" rowsep="0">
+            <colspec colwidth="1*"/>
+            <colspec colwidth="5*"/>
+            <colspec colwidth="3*"/>
+            <colspec colwidth="3*"/>
+            <tbody>
+	            <row>
+	              <entry>400</entry>
+	              <entry>http://errors.restbucks.com/missing-item</entry>
+	              <entry>The order you provided doesn't contain any menu item.</entry>
+	              <entry>Return the menu representation so that the client can add items to its order.</entry>
+	            </row>
+              <row>
+	              <entry>400</entry>
+	              <entry>http://errors.restbucks.com/unknown-item</entry>
+	              <entry>The menu item you requested is unknown to the server.</entry>
+	              <entry>
+	                List the unknown menu item so that the client can remove it from its order. If you can reasonably 
+	                guess that the client meant something else instead, you may include "Did you mean" suggestions.
+	              </entry>
+	            </row>
+              <row>
+	              <entry>400</entry>
+	              <entry>http://errors.restbucks.com/invalid-item</entry>
+	              <entry>The attributes you provided are invalid for the requested menu item.</entry>
+	              <entry>List the invalid menu item so that the client can change it.</entry>
+	            </row>
+              <row>
+	              <entry>400</entry>
+	              <entry>http://errors.restbucks.com/item-out-of-stock</entry>
+	              <entry>The menu item you requested is temporarily out of stock.</entry>
+                <entry>
+                  List the out of stock menu item so that the client can replace it with something else. Provide a link
+                  to the menu so the client can see what items are still available.
+                </entry>
+	            </row>
+	            <row>
+	              <entry>400</entry>
+	              <entry>http://errors.restbucks.com/missing-customer</entry>
+	              <entry>The order you provided doesn't contain a customer name.</entry>
+	              <entry>Echo back the order so that the client can add the customer name to it.</entry>
+	            </row>
+	          </tbody>
+          </tgroup>
+        </informaltable>
+        <para>
+          The case with an out of stock item is interesting. The client requested the menu and the server only returned
+          available items, but by the time the client submitted the order some other orders were processed that took 
+          the last of the stock. The client couldn't have know this, so isn't at fault. But we still have to return 
+          <literal>400 Bad Request</literal> rather than a 5xx status, because that will tell the client that it can 
+          recover by changing its request.
+        </para>
+        <para>
+          Everything that could go wrong on the server is already captured by the existing error conditions.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The next transition is <literal>Pay order</literal>. Here's what the client could do wrong:
+        </para>
+        <informaltable colsep="0" frame="bottom">
+          <tgroup cols="4" rowsep="1">
+            <colspec colwidth="1*" colname="col-first"/>
+            <colspec colwidth="5*"/>
+            <colspec colwidth="3*"/>
+            <colspec colwidth="3*" colname="col-last"/>
+            <thead>
+              <row>
+                <entry>Status</entry>
+                <entry>Type</entry>
+                <entry>Title</entry>
+                <entry>Recovery</entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry namest="col-first" nameend="col-last"/>
+              </row>
+            </tbody>
+          </tgroup>
+          <tgroup cols="4" rowsep="0">
+            <colspec colwidth="1*"/>
+            <colspec colwidth="5*"/>
+            <colspec colwidth="3*"/>
+            <colspec colwidth="3*"/>
+            <tbody>
+              <row>
+                <entry>400</entry>
+                <entry>http://errors.restbucks.com/invalid-payment</entry>
+                <entry>The payment details you provided contain invalid values.</entry>
+                <entry>List the invalid fields, their correct formats, and the provided values.</entry>
+              </row>
+              <row>
+                <entry>400</entry>
+                <entry>http://errors.restbucks.com/overpaid</entry>
+                <entry>The amount of money you paid is more than what the order costs.</entry>
+                <entry>List the required and provided amounts.</entry>
+              </row>
+              <row>
+                <entry>400</entry>
+                <entry>http://errors.restbucks.com/payment-not-processed</entry>
+                <entry>The payment you provided could not be processed.</entry>
+                <entry>If the payment processor returned a non-technical error, you may forward it.</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </informaltable>
+        <para>
+          Everything that could go wrong on the server is already captured by the existing error conditions.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The next transition is <literal>Take receipt</literal>. This requires no input and there aren't any 
+          additional things the client or server can do wrong.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The next transition is <literal>Receive notification</literal>. This also requires no input and there aren't 
+          any additional things the client or server can do wrong here either.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The final transition is <literal>Take serving</literal>. Again this requires no input.
+        </para>
+      </listitem>
+    </orderedlist>
+    <para>
+      Here are all the RESTBuck error conditions:
+    </para>
+    <table frame="topbot" rowsep="0" id="restbucks-errors">
+      <title>Error Conditions For RESTBucks Customer</title>
+      <tgroup cols="4">
+        <thead>
+          <row>
+            <entry>Status</entry>
+            <entry>Type</entry>
+            <entry>Title</entry>
+            <entry>Recovery</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry>404</entry>
+            <entry>http://errors.restbucks.com/not-found</entry>
+            <entry>The URI you requested doesn't exists or is not accessible by you</entry>
+            <entry>N/A</entry>
+          </row>
+          <row>
+            <entry>405</entry>
+            <entry>http://errors.restbucks.com/method-not-allowed</entry>
+            <entry>The method you used is not supported on this URI</entry>
+            <entry>N/A</entry>
+          </row>
+          <row>
+            <entry>406</entry>
+            <entry>http://errors.restbucks.com/not-acceptible</entry>
+            <entry>
+              The media type you requested in the <literal>Accept</literal> header is not supported for this method
+              on this URI.
+            </entry>
+            <entry>List the media types that the server is capable of handling</entry>
+          </row>
+          <row>
+            <entry>400</entry>
+            <entry>http://errors.restbucks.com/missing-item</entry>
+            <entry>The order you provided doesn't contain any menu item.</entry>
+            <entry>Return the menu representation so that the client can add items to its order.</entry>
+          </row>
+          <row>
+            <entry>400</entry>
+            <entry>http://errors.restbucks.com/unknown-item</entry>
+            <entry>The menu item you requested is unknown to the server.</entry>
+            <entry>
+              List the unknown menu item so that the client can remove it from its order. If you can reasonably 
+              guess that the client meant something else instead, you may include "Did you mean" suggestions.
+            </entry>
+          </row>
+          <row>
+            <entry>400</entry>
+            <entry>http://errors.restbucks.com/invalid-item</entry>
+            <entry>The attributes you provided are invalid for the requested menu item.</entry>
+            <entry>List the invalid menu item so that the client can change it.</entry>
+          </row>
+          <row>
+            <entry>400</entry>
+            <entry>http://errors.restbucks.com/item-out-of-stock</entry>
+            <entry>The menu item you requested is temporarily out of stock.</entry>
+            <entry>
+              List the out of stock menu item so that the client can replace it with something else. Provide a link
+              to the menu so the client can see what items are still available.
+            </entry>
+          </row>
+          <row>
+            <entry>400</entry>
+            <entry>http://errors.restbucks.com/missing-customer</entry>
+            <entry>The order you provided doesn't contain a customer name.</entry>
+            <entry>Echo back the order so that the client can add the customer name to it.</entry>
+          </row>
+          <row>
+            <entry>400</entry>
+            <entry>http://errors.restbucks.com/invalid-payment</entry>
+            <entry>The payment details you provided contain invalid values.</entry>
+            <entry>List the invalid fields, their correct formats, and the provided values.</entry>
+          </row>
+          <row>
+            <entry>400</entry>
+            <entry>http://errors.restbucks.com/overpaid</entry>
+            <entry>The amount of money you paid is more than what the order costs.</entry>
+            <entry>List the required and provided amounts.</entry>
+          </row>
+          <row>
+            <entry>400</entry>
+            <entry>http://errors.restbucks.com/payment-not-processed</entry>
+            <entry>The payment you provided could not be processed.</entry>
+            <entry>If the payment processor returned a non-technical error, you may forward it.</entry>
+          </row>
+          <row>
+            <entry>500</entry>
+            <entry>http://errors.restbucks.com/server-error</entry>
+            <entry>
+              Something went wrong on our side. We have logged the problem so our staff can look into it. We're
+              sorry for the inconvenience.
+            </entry>
+            <entry>
+              Maybe a link to report the issue with customer support?
+            </entry>
+          </row>
+          <row>
+            <entry>503</entry>
+            <entry>http://errors.restbucks.com/service-unavailable</entry>
+            <entry>The server is temporarily not able to handle the request.</entry>
+            <entry>
+              <literal>Retry-After</literal> header.
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
   </section>
 
   <section>

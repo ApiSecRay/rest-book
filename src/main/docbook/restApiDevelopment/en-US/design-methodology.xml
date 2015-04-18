@@ -35,6 +35,9 @@
     <step>
       <para>Select a media type to serialize messages.</para>
     </step>
+    <step>
+      <para>Validate the design.</para>
+    </step>
   </procedure>
   <para>
     Note that this is a variation of the design process described in <citation>Richardson07</citation>. It's adapted to
@@ -523,8 +526,8 @@
         </para>
       </listitem>
     </orderedlist>
-    <table>
-      <title>Resource Model To Support RESTBucks Customer</title>
+    <table rowsep="0" frame="topbot">
+      <title>Partial Resource Model To Support RESTBucks Customer</title>
       <tgroup cols="3">
         <thead>
           <row>
@@ -656,8 +659,8 @@
     <para>
       Armed with this knowledge, let's take a swing at identifying our RESTBucks resources with URIs:
     </para>
-    <table>
-      <title>Partial resource model for RESTBucks customer</title>
+    <table rowsep="0" frame="topbot" id="restbucks-resources">
+      <title>Partial resource model to support RESTBucks customer</title>
       <tgroup cols="4">
         <thead>
           <row>
@@ -1796,7 +1799,7 @@
       The previous sections presented a bunch of hypermedia types that Mike Amundsen collectively calls the 
       "hypermedia zoo". Here is a summary of their characteristics:
     </para>
-    <table>
+    <table rowsep="0" frame="topbot">
       <title>Comparison Of Hypermedia Types</title>
       <tgroup cols="7">
         <thead>
@@ -1877,9 +1880,10 @@
   </section>
 
   <section id="http-happy-path">
-    <title>The Design In Action</title>
+    <title>Validate The Design</title>
     <para>
-      We've now completed the design process. Let's look at the result in the form that ultimately matters the most:
+      We've now completed the creative part of the design process. To validate that we did a good job, we should always 
+      look at the result in the form that ultimately matters the most:
       the HTTP messages exchanged between client and server. We'll leave out some uninteresting headers, like 
       <literal>Date</literal> and <literal>Content-Length</literal>, to save space.
     </para>
@@ -2193,7 +2197,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         <para>
           The client follows the redirection to the receipt. Browsers do this automatically, and most HTTP libraries 
           can be instructed to do the same.
-          <programlisting>POST /orders/1234/payments/ HTTP/1.1
+          <programlisting>GET /orders/1234/receipt/ HTTP/1.1
 Accept: application/ld+json</programlisting>
           <programlisting>HTTP/1.1 200 OK
 Content-Type: application/ld+json

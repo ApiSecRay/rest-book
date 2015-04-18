@@ -21,7 +21,8 @@
     that return information. Tampering is applicable for PUT, POST, and DELETE. Denial of Service is applicable
     for all methods.
   </para>
-  <section>
+  
+  <section id="threat-modeling">
     <title>Threat Modeling REST APIs</title>
     <para>
       A good way to think about security is by looking at all the data flows. That’s why threat modeling usually 
