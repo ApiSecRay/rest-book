@@ -526,7 +526,7 @@
         </para>
       </listitem>
     </orderedlist>
-    <table rowsep="0" frame="topbot">
+    <table rowsep="0" colsep="0" pgwide="1" frame="topbot">
       <title>Partial Resource Model To Support RESTBucks Customer</title>
       <tgroup cols="3">
         <thead>
@@ -642,7 +642,7 @@
         Now that we've seen some of the best practices around URIs, let's look at some of the anti-patterns. The first
         is putting actions in URIs. For instance, a task resource located at <literal>/tasks/1/</literal> could have
         an operation to complete it. One way of modeling that is to perform a <literal>POST</literal> at 
-        <literal>/tasks/1/complete</literal>. Don't do that. URIs by definition identify resources, and the complete
+        <literal>/tasks/1/complete/</literal>. Don't do that. URIs by definition identify resources, and the complete
         action is not a resource itself, but an operation on a resource. Operations in HTTP are modeled by the HTTP
         methods, not by URIs. In the task example, you could introduce a <literal>status</literal> property, for 
         instance, and set it to <literal>completed</literal> using the <literal>PATCH</literal> or 
@@ -659,7 +659,7 @@
     <para>
       Armed with this knowledge, let's take a swing at identifying our RESTBucks resources with URIs:
     </para>
-    <table rowsep="0" frame="topbot" id="restbucks-resources">
+    <table rowsep="0" colsep="0" pgwide="1" frame="topbot" tocentry="1" id="restbucks-resources">
       <title>Partial resource model to support RESTBucks customer</title>
       <tgroup cols="4">
         <thead>
@@ -1799,7 +1799,7 @@
       The previous sections presented a bunch of hypermedia types that Mike Amundsen collectively calls the 
       "hypermedia zoo". Here is a summary of their characteristics:
     </para>
-    <table rowsep="0" frame="topbot">
+    <table rowsep="0" colsep="0" pgwide="1" tocentry="1" frame="topbot">
       <title>Comparison Of Hypermedia Types</title>
       <tgroup cols="7">
         <thead>

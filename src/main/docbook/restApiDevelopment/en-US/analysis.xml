@@ -367,7 +367,7 @@ Then she is happy</programlisting>
       </para>
      </section>
       
-     <section>
+     <section id="bdd-to-sd">
        <title>Deriving State Diagrams From BDD Scenarios</title>
        <para>
          Once we have BDD scenarios in Gherkin syntax, we can translate and merge those into a single state diagram

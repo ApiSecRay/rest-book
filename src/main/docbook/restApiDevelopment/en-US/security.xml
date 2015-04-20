@@ -67,6 +67,12 @@
     </para>
   </section>
 
+  <section>
+    <title>Transport Layer Security</title>
+    <para>
+    </para>
+  </section>
+  
   <section id="authentication">
     <title>Authentication</title>
     <para>HTTP signatures, tickets</para>

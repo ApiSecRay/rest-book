@@ -74,7 +74,7 @@
             <literal>401 Unauthorized</literal>, (see <xref linkend="authentication"/>), 
             <literal>403 Forbidden</literal> (see <xref linkend="authorization"/>), <literal>404 Not Found</literal>,
             <literal>409 Conflict</literal>, and <literal>412 Precondition Failed</literal> (see 
-            <xref linkend="concurrency"/> and <xref linkend="conditional"/>).
+            <xref linkend="concurrency"/> and <xref linkend="caching"/>).
           </para>
         </listitem>
       </varlistentry>
@@ -600,8 +600,7 @@
 	              <entry>http://errors.restbucks.com/unknown-item</entry>
 	              <entry>The menu item you requested is unknown to the server.</entry>
 	              <entry>
-	                List the unknown menu item so that the client can remove it from its order. If you can reasonably 
-	                guess that the client meant something else instead, you may include "Did you mean" suggestions.
+	                List the unknown item so the client can remove it. You may include "Did you mean" suggestions.
 	              </entry>
 	            </row>
               <row>
@@ -615,8 +614,8 @@
 	              <entry>http://errors.restbucks.com/item-out-of-stock</entry>
 	              <entry>The menu item you requested is temporarily out of stock.</entry>
                 <entry>
-                  List the out of stock menu item so that the client can replace it with something else. Provide a link
-                  to the menu so the client can see what items are still available.
+                  List the out of stock item so the client can replace or remove it. Link to the menu so the client can 
+                  see is still available.
                 </entry>
 	            </row>
 	            <row>
@@ -713,11 +712,15 @@
       </listitem>
     </orderedlist>
     <para>
-      Here are all the RESTBuck error conditions:
+      Here are all the RESTBuck error conditions we've discovered:
     </para>
-    <table frame="topbot" rowsep="0" id="restbucks-errors">
+    <table frame="topbot" rowsep="0" colsep="0" pgwide="1" tocentry="1" id="restbucks-errors">
       <title>Error Conditions For RESTBucks Customer</title>
       <tgroup cols="4">
+        <colspec colwidth="1*"/>
+        <colspec colwidth="5*"/>
+        <colspec colwidth="3*"/>
+        <colspec colwidth="3*"/>
         <thead>
           <row>
             <entry>Status</entry>
@@ -727,27 +730,6 @@
           </row>
         </thead>
         <tbody>
-          <row>
-            <entry>404</entry>
-            <entry>http://errors.restbucks.com/not-found</entry>
-            <entry>The URI you requested doesn't exists or is not accessible by you</entry>
-            <entry>N/A</entry>
-          </row>
-          <row>
-            <entry>405</entry>
-            <entry>http://errors.restbucks.com/method-not-allowed</entry>
-            <entry>The method you used is not supported on this URI</entry>
-            <entry>N/A</entry>
-          </row>
-          <row>
-            <entry>406</entry>
-            <entry>http://errors.restbucks.com/not-acceptible</entry>
-            <entry>
-              The media type you requested in the <literal>Accept</literal> header is not supported for this method
-              on this URI.
-            </entry>
-            <entry>List the media types that the server is capable of handling</entry>
-          </row>
           <row>
             <entry>400</entry>
             <entry>http://errors.restbucks.com/missing-item</entry>
@@ -759,8 +741,7 @@
             <entry>http://errors.restbucks.com/unknown-item</entry>
             <entry>The menu item you requested is unknown to the server.</entry>
             <entry>
-              List the unknown menu item so that the client can remove it from its order. If you can reasonably 
-              guess that the client meant something else instead, you may include "Did you mean" suggestions.
+              List the unknown item so the client can remove it. You may include "Did you mean" suggestions.
             </entry>
           </row>
           <row>
@@ -774,8 +755,8 @@
             <entry>http://errors.restbucks.com/item-out-of-stock</entry>
             <entry>The menu item you requested is temporarily out of stock.</entry>
             <entry>
-              List the out of stock menu item so that the client can replace it with something else. Provide a link
-              to the menu so the client can see what items are still available.
+              List the out of stock item so the client can replace or remove it. Link to the menu so the client can 
+              see is still available.
             </entry>
           </row>
           <row>
@@ -801,6 +782,27 @@
             <entry>http://errors.restbucks.com/payment-not-processed</entry>
             <entry>The payment you provided could not be processed.</entry>
             <entry>If the payment processor returned a non-technical error, you may forward it.</entry>
+          </row>
+          <row>
+            <entry>404</entry>
+            <entry>http://errors.restbucks.com/not-found</entry>
+            <entry>The URI you requested doesn't exists or is not accessible by you</entry>
+            <entry>N/A</entry>
+          </row>
+          <row>
+            <entry>405</entry>
+            <entry>http://errors.restbucks.com/method-not-allowed</entry>
+            <entry>The method you used is not supported on this URI</entry>
+            <entry>N/A</entry>
+          </row>
+          <row>
+            <entry>406</entry>
+            <entry>http://errors.restbucks.com/not-acceptible</entry>
+            <entry>
+              The media type you requested in the <literal>Accept</literal> header is not supported for this method
+              on this URI.
+            </entry>
+            <entry>List the media types that the server is capable of handling</entry>
           </row>
           <row>
             <entry>500</entry>

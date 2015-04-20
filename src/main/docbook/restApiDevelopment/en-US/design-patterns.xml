@@ -748,9 +748,9 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         This pattern is one place where it proves to be especially tempting for some people to put the possible actions 
         on the resource in URIs. For instance, a task in a workflow may offer an operation for a user to acquire it and
-        sometimes you'll see this modeled using a URI like <literal>/tasks/1/acquire</literal>. That is not the
+        sometimes you'll see this modeled using a URI like <literal>/tasks/1/acquire/</literal>. That is not the
         resource oriented approach that the REST architectural style prescribes. A more RESTful approach would be to
-        send a <literal>PATCH</literal> request to <literal>/tasks/1</literal> to update the 
+        send a <literal>PATCH</literal> request to <literal>/tasks/1/</literal> to update the 
         <literal>assignedTo</literal> property.
       </para>
     </simplesect>
@@ -1564,13 +1564,6 @@ Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
         Batch requests can be used to implement transactions (see <xref linkend="transactions"/>).
       </para>
     </simplesect>
-  </section>
-  
-  <section>
-    <title>Design Patterns In RESTBucks</title>
-    <para>
-      TODO:
-    </para>
   </section>
   
   <section>

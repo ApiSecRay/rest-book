@@ -2,17 +2,17 @@
   <title>Developing REST Clients</title>
   
   <section>
-    <title>Human-Driven Clients</title>
-  </section>
-
-  <section>
-    <title>Autonomous Clients</title>
+    <title>Human-Driven vs Autonomous Clients</title>
   </section>
 
   <section>
     <title>Resolving URIs</title>
   </section>
   
+  <section id="application-state">
+    <title>Storing Application State</title>
+  </section>
+
   <section>
     <title>Summary</title>
   </section>

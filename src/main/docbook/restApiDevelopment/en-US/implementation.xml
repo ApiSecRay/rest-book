@@ -6,10 +6,18 @@
     <title>Model-View-Controller (MVC)</title>
   </section>
 
-  <section>
-    <title>DRY</title>
+  <section id="dry">
+    <title>Keeping it DRY</title>
     <para>
       TODO: Define URL structure, media type, namespace, etc. in a single place.
+    </para>
+  </section>
+  
+  <section id="reactive">
+    <title>Reactive programming</title>
+    <para>
+      <firstterm>Reactive programming</firstterm> is an emerging discipline which combines concurrency and 
+      event-based and asynchronous systems. It is at the core of many high-performance concurrent systems.
     </para>
   </section>
 
@@ -23,7 +31,7 @@
 
   <section>
     <title>Security</title>
-    <section>
+    <section id="input-validation">
       <title>Input Validation</title>
     </section>
     <section>

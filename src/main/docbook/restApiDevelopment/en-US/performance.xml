@@ -2,38 +2,411 @@
   <title>Performance and Scalability</title>
   <para>
     Performance and scalability are two different but related qualities (see 
-    <xref linkend="non-functional-requirements"/>). <firstterm>Performance</firstterm> is the amount of useful work
-    accomplished in a some period of time. <firstterm>Scalability</firstterm> is the ability to handle a growing amount 
-    of work over time. Performance is about how long a single activity takes; scalability is about how long an
-    activity takes as more and more work is performed by the system.
+    <xref linkend="non-functional-requirements"/>).
   </para>
   <para>
-    As we saw before, scalability is one of the raisons d'etre of REST. This chapter delves into the things you can
-    do to ensure good performance and scalability.
+    <firstterm>Performance</firstterm> is the amount of useful work accomplished in a some period of time. 
+    <firstterm>Scalability</firstterm> is the ability to handle a growing amount of work over time. 
+    In other words, performance is about how long the system takes to perform a single activity,
+    while scalability is about how that time changes as more and more work is performed by the system.
+  </para>
+  <para>
+    There are two types of scalability: <firstterm>Vertical Scaling</firstterm> addresses the scalability of a single 
+    instance of the service, while <firstterm>Horizontal Scaling</firstterm> focuses on multiple instances.
+    Vertical scaling increases the work done by making the individual servers more powerful, while horizontal scaling 
+    does the same by adding more servers.
+  </para>
+  <para>
+    More powerful servers are relatively more expensive than less capable servers, so the economics are in favor of 
+    horizontal scaling.
+    Whenever we talk about scalability in this book, we always refer to the horizontal variant.
+  </para>
+  <para>
+    Ideally, we want to keep the performance constant as the workload grows by simply adding more servers. This is 
+    called <firstterm>linear scalability</firstterm>.
+  </para>
+  <para>
+    Scalability is one of the driving forces behind the REST architectural style (see <xref linkend="introduction"/>). 
+    This chapter offers a bag of tricks to help you achieve good performance and scalability.
   </para>
   
-  <section>
+  <section id="stateless">
     <title>Statelessness</title>
+    <para>
+      We touched upon the stateless constraint in <xref linkend="rest"/>, where we saw that the information to 
+      be maintained between two requests in an interaction between any one client and the (cluster of) server(s) is 
+      divided up into two parts: application state and resource state.
+    </para>
+    <para>
+      Resource state is the information that needs to be maintained for more than one client or for more than one 
+      "session" of the same client. We use the term "session" very loosely here; it just means a collection of related 
+      HTTP messages where the client is trying to achieve a single goal.
+    </para>
+    <para>
+      Any information that is not resource state is application state. This is whatever information the client needs to 
+      maintain while in pursuit of its goal. We'll discuss maintaining application state in clients in
+      <xref linkend="application-state"/>.
+    </para>
+    <para>
+      Some of the application state is only ever used by the client and remain local to it. The other part is required 
+      for the server to process a request, which means the client must embed it in the message it sends to the server. 
+    </para>
+    <para>
+      There is a trade-off here. Any state that the server must maintain will have to be persisted in some sort of 
+      database. Moving information from resource to application state means that the server has less to persist and
+      since storing information into a database and retrieving from it take time, overall the performance of the server 
+      increases.
+    </para>
+    <para>
+      However, there is now more information transmitted in the messages between client and server. This has two 
+      negative effects. The first is that there is more network traffic, so the server needs more IO time to read a
+      message. The second is that the server needs more CPU time to unpack the message.
+    </para>
+    <para>
+      Generally speaking, this trade-off works well in favor of statelessness. By carefully implementing the IO 
+      handling, the server can reduce the impact of bigger messages. A growing trend in this area is reactive
+      programming (see <xref linkend="reactive"/>).
+    </para>
+    <para>
+      JavaScript handles JSON-based messages natively. Other combinations of media type and technology stack usually
+      rely on specialized libraries to handle message serialization and deserialization. These libraries vary greatly 
+      in speed, so do your homework well. Switching message serialization implementations may be an easy way to gain
+      significant performance improvements. As with all performance optimizations, measure carefully across a range
+      of realistic loads before you decide anything.
+    </para>
+    <para>
+      Using less database connections or keeping them open for a shorter amount of time also helps with scalability.
+      Database connections are scarce resources that are often pooled. The more requests need them, and the longer
+      they are kept open, the bigger the chance that a new request will have to wait for a connection from the pool
+      and the longer it will have to wait on average to acquire one. These problems become bigger when more requests
+      are being handled, which means we have worse than linear scalability.
+    </para>
+    <para>
+      In RESTBucks, the customer composes an order from the items on the menu. The order in progress is application
+      state rather than resource state, so it is maintained by the client. Only when the customer is done composing her 
+      order, will it be transferred to the server.
+    </para>
+    <para>
+      We could have designed the order-in-progress as resource state, but that would have been wasteful of server 
+      resources. The server doesn't need to do anything with the order until it is complete. Other clients don't need 
+      to be aware of the order until it is finalized either. Finally, the client doesn't need to maintain the order
+      between sessions. What are the odds that you'll want to start composing an order today, then stop and come back
+      to it tomorrow?
+    </para>
   </section>
   
-  <section id="conditional">
-    <title>Conditional <literal>GET</literal>s</title>
+  <section id="granularity">
+    <title>Granularity</title>
+    <para>
+      The granularity of the calls in an API has an impact on performance and scalability too. We speak of a 
+      <firstterm>fine-grained</firstterm> API when its calls are relatively small in terms of code size and execution 
+      time. The opposite of a fine-grained API is a coarse-grained one. 
+    </para>
+    <para>
+      Fine-grained APIs are more convenient to use, because they are very targeted and easy to understand. So from a 
+      Developer eXperience (DX) perspective, you'll usually want to go for something more granular.
+    </para>
+    <para>
+      However, when API calls are smaller, a client needs to execute more of them to achieve the same goal. This means 
+      more network latency and more overhead in the server to handle all those requests. So from a performance and
+      scalability perspective, you'll want to go for something less granular.
+    </para>
+    <para>
+      Where to draw the line is hard to say in general, because it really depends on the specifics of the API and the
+      goals that clients are trying to achieve. Since premature optimization is the root of all evil 
+      <citation>Knuth74</citation>, we advise to start with good DX and only make the API more coarse-grained when
+      and where needed.
+    </para>
+    <para>
+      The granularity of network calls is distinct from but related to that of granularity of data. The relationship is
+      easy to see when we consider data transfer objects.
+    </para>
+    <para>
+      A <firstterm>Data Transfer Object</firstterm> (DTO) is defined as <quote>an object that carries data between 
+      processes in order to reduce the number of method calls</quote> <citation></citation>. This should sound familiar,
+      because that's exactly what self-describing messages in RESTful systems are. 
+    </para>
+    <para>
+      This means that all the best practices around DTOs apply to REST messages too. One example is to 
+      <quote>encapsulate the serialization mechanism for transferring data over the wire</quote>. We'll discuss how to
+      do that in <xref linkend="dry"/>.
+    </para>
+    <para>
+      DTOs are very different from domain objects. <firstterm>Domain objects</firstterm> implement the ubiquitous 
+      language used by subject matter experts and thus are discovered <citation>Evans04</citation>. DTOs, on the other 
+      hand, are designed to meet certain non-functional characteristics, like performance, and are subject to all kinds 
+      of design trade-offs.
+    </para>
+    <para>
+      You may be tempted to expose your domain objects directly as messages, especially when you're using a technology
+      stack that makes this easy, like Spring Data REST <citation>SpringDataRest</citation>. While this may work,
+      it can easily lead to poor performance, because domain objects are often very granular.
+    </para>
+    <para>
+      There is nothing wrong with starting out with domain objects for your messages, as long as you remember that they
+      are not the same. Don't architect yourself into a corner; leave open the option of using messages that are not 
+      domain objects.
+      If you start with the functionality rather than the data, as we discussed in <xref linkend="state-diagrams"/>, 
+      you're much less likely to walk into the messages-as-domain-objects trap.
+    </para>
+    <para>
+      So how do you make your messages more coarse-grained? 
+    </para>
+    <para>
+      One approach is to take your state diagrams and look for adjacent transitions that can be combined. In the case 
+      of <xref linkend="sd-customer-happy-path"/>, for instance, you could combine the <literal>Place order</literal> 
+      and <literal>Pay</literal> transitions. Or <literal>Pay</literal> and <literal>Take receipt</literal>. Or all
+      three of them.
+    </para>
+    <para>
+      As with any performance optimization, you should measure the effect of the change. Only keep a change if it
+      significantly improves performance, because you're often making the API less convenient to use when you combine
+      transitions. Remember that the state diagram captures real usage scenarios, especially when they were derived
+      from BDD scenarios (see <xref linkend="bdd-to-sd"/>).
+    </para>
+    <para>
+      Think carefully about how you've changed the interactions. If you combine <literal>Place order</literal> and
+      <literal>Pay</literal>, for example, you're taking away the ability to change the order or to cancel it. In this
+      case, that's probably okay, because both operations can still be achieved. Changing the order has to be done
+      before it is sent and canceling it means not sending any order at all.  
+    </para>
+    <para>
+      Another approach to arrive at a more coarse-grained API is to completely rethink the interaction model that you
+      captured in a state diagram. This isn't always possible to do, since you still have to meet the requirements.
+      But sometimes it helps to think about the requirements differently.
+    </para>
+    <para>
+      For example, some of the messages exchanged in RESTBuck have to deal with payments. We could envision a 
+      different model where customers pay a large sum up front and orders are deducted from their balance. Or maybe
+      customers could pay after we send them an invoice for all their orders of the last month.  
+    </para>
+    <para>
+      As these examples show, rethinking your interaction usually means rethinking your business. Needless to say, that
+      has a big impact and may not be an option. But if it is, it can open up big opportunities for performance
+      improvements.
+    </para>
+    <para>
+      There is a third approach that specifically works with collection resources (see <xref linkend="collection"/>).
+      It is called inlining, which means embedding representations of the collection's items inside the representation
+      of the collection itself.
+    </para>
+    <para>
+      Inlining may or may not be a good idea. For large collections, you probably want to reduce the amount of bytes
+      transferred rather than increase it (see <xref linkend="paging"/>). For smaller collections, it may make sense
+      to inline the items to save a network roundtrip. This is especially the case if the client can filter the items 
+      in the collection so it only return interesting items.
+    </para>
+    <para>
+      Since it's often hard to predict whether inlining is a good idea, it's usually best to leave the choice up to the 
+      client. It can use a URI query parameter to indicate whether it wants the server to inline the collection items.
+    </para>
+    <para>
+      We can generalize the concept of inlining beyond collections. If two resources are related, we can embed a 
+      representation of one into the representation of the other so that the client doesn't have to follow the link
+      between these resources anymore.
+    </para>
+    <para>
+      For instance, consider an API that maintains persons and their addresses. Each person may have multiple addresses 
+      and each address may house multiple people. Normally we would make the addresses of a person a separate 
+      collection resource, but we can also include all of them in the representation of the person. Clients requesting
+      information about a person may often want to know their addresses, so this may save a few network roundtrips.
+    </para>
+    <para>
+      We can take this technique too far as well. A representation of a person that embeds the representation of an
+      address that embeds the representation of a country that embeds representations of all its states that ...
+      Before you know it the server spends a lot of time querying the database for data that the client will never
+      need and then wastes more time transmitting all that data.
+    </para>
+    <para>
+      For collections the concept is simple and is usually indicated by the <literal>inline</literal> URI query
+      parameter. There isn't such a standard for the general inline case. A boolean parameter may not make sense if
+      the inlining could be multiple levels deep. A <literal>depth</literal> parameter could be the solution in that
+      case.
+    </para>
+    <para>
+      If you're making it possible to inline multiple levels, then you risk running into infinite recursion. For 
+      example, the representation of a person may include the representation of its spouse, which may include the 
+      representation of its spouse (which is the original person), which ...
+    </para>
+    <para>
+      It's up to the server to detect such cyclic relationships and take corrective action. You don't want to leave 
+      that up to the client because it may accidentally forget that or it may be an attacker doing it on purpose in an
+      attempt to bring your system down.
+    </para>
+    <para>
+      Even when infinite recursion is not possible, you may still be at risk. In a large data model with a high level of 
+      connectedness, a large value of <literal>depth</literal> may drain your server of resources and be used as a
+      denial of service attack. Use input validation to prevent such attacks, as explained in 
+      <xref linkend="input-validation"/>.
+    </para>
+  </section>
+  
+  <section>
+    <title>Return Created Or Updated Representations</title>
+    <para>
+      In many cases, a client will create a resource and then continues to work on its representation. It may create
+      sub-resources, for instance, or follow relations. This is especially common in the Workflow pattern (see 
+      <xref linkend="workflow"/>).
+    </para>
+    <para>
+      In such cases we can easily save the client a network roundtrip by returning the representation of the created
+      resource in the response along with the <literal>201 Created</literal> status. You should return exactly the
+      representation that the client would receive as a response to a <literal>GET</literal> on the URI in the
+      <literal>Location</literal> header.
+    </para>
+    <para>
+      This technique is also applicable when a resource is being updated using the <literal>PUT</literal> or 
+      <literal>PATCH</literal> method. You might think that a client won't <literal>GET</literal> what it just 
+      <literal>PUT</literal>, but there are definitely cases where that is to be expected. For instance, the server may
+      respond to updating a status property by adding a link that wasn't available before and the client may want to
+      follow the link.
+    </para>
+    <para>
+      If you have doubts whether is technique is a good idea, look at your logs (see <xref linkend="logging"/>) to see 
+      if <literal>PUT</literal>s or <literal>PATCH</literal>es are followed by <literal>GET</literal>s. This requires
+      that you can correlate requests by sender, which you can usually do by IP address. Be careful when using load
+      balancers, however, since they may hide the client's address.
+    </para>
+    <para>
+      As usual, there is a trade-off. Using this technique will save network roundtrips at the expense of larger 
+      response messages. It will take the server a little longer to compose the larger messages and it will take the 
+      messages a little longer to travel the network. These costs are almost always significantly lower than the gain 
+      of fewer requests, making this technique one of the few widely applicable low hanging fruits.
+    </para>
+    <para>
+      We've already seen this technique in action in <xref linkend="http-happy-path"/>. The RESTBucks client places
+      an order using <literal>POST</literal> and the server returns a representation of the order, including an 
+      operation to pay for it. The client can execute this operation immediately, without having to go 
+      <literal>GET</literal> a representation of the order.
+    </para>
+  </section>
+  
+  <section id="paging">
+    <title>Paging &amp; Filtering</title>
+    <para>
+      As we saw in <xref linkend="collection"/>, collections are fundamental to almost every API. Some collections
+      will remain modest in size, but other collections can become very large indeed. What will a client requesting 
+      such a large collection do with the result? There are a few cases where a client really wants to plough through
+      a billion items, but such cases are rare, especially when the items are presented to a human user.
+    </para>
+    <para>
+      Two scenarios are likely. The first is that the client is looking for one specific item in the collection. It
+      can identify this item by name or some other property and it will go through the returned items looking for the
+      one it wants. For instance, a RESTBucks customer may go through the items on the menu looking for a latte.
+    </para>
+    <para>
+      The other likely scenario is that the client doesn't quite know what item it is looking for, but it knows a 
+      couple of things that must hold true for an item to be interesting. For example, a RESTBucks customer may
+      browser the menu looking for a hot beverage without caffeine.
+    </para>
+    <para>
+      Both scenarios have in common that the number of items that are of interest to the client is small compared to
+      the total number of items. Therefore, returning all of the items is wasteful.
+    </para>
+    <para>
+      There are basically two ways to limit the number of items returned. The first is to blindly return some items
+      but not others; the second is to return only items that are interesting to the client. The first option is
+      called <emphasis>paging</emphasis>; the second is <emphasis>filtering</emphasis>.
+    </para>
+    <para>
+      A paged collection serves its members in chunks of a particular size called pages. Page collections accept
+      URI query parameters that indicate the starting page number and the number of items per page that the client
+      wants to receive. The representation contains links to the previous and next pages, if applicable. The client 
+      then navigates the pages in search for the item it is interested in.
+    </para>
+    <para>
+      Pages can be useful in situations where the client doesn't really know what it's looking for, like when it simply
+      wants to present some items to a human user. There are usually alternative and better designs where that isn't
+      needed, however. This is one of those rare occasions where usablitity and performance may go hand in hand, so
+      don't waste that unique opportunity.
+    </para>
+    <para>
+      Note that if a client want to process all items, then it actually hurts performance to break up the collection
+      in pages, because it now requires more messages to transmit all items. Again, measure before you decide upon
+      anything.
+    </para>
+    <para>
+      Paging is pretty dumb in the sense that the server has no clue which of the items transmitted are interesting to
+      the client. That means that the chances are pretty good that time and bandwidth are wasted transmitting items that
+      are not particularly interesting to the client. The exception is when the collection is ordered and the smaller
+      items are more interesting than the smaller ones (or vice versa).
+    </para>
+    <para>
+      Filtering is usually a better solution. A filter is a search condition that limits which collection items are
+      returned. The search condition is usually expressed using URI query parameters, for instance using those defined
+      by the OpenSearch standard <citation>OpenSearch</citation>.
+    </para>
+    <para>
+      Filter expressions range from simple name/value pairs to full-blown search languages. Name/value pairs are
+      often convenient to select a few items from a large set, as SQL has taught us. They are easy to capture in URI
+      query parameters, and easy to translate into database queries.
+    </para>
+    <para>
+      Inventing your own search language is a big undertaking, although you can usually start small. You'll have to ask
+      yourself whether it is worth the trouble. A search language couples the client to the server implementation 
+      beyond the API, which violates the goal of the REST architectural style to decrease coupling. We therefore
+      advise to try name/value pairs first.
+    </para>
+    <para>
+      If you do decide to use a full-on search language, look at existing languages first. You may be able to re-use
+      all or parts of existing search languages <citation>XPath</citation> <citation>JSONPath</citation>
+      <citation>OCL</citation>.
+    </para>
+    <para>
+      We've already seen an example of a filter in <xref linkend="lifecycle"/>, where a RESTBucks barista client 
+      queries the server for paid orders using the filter expression <literal>status=paid</literal>. It could have
+      added paging on top of that to make sure it would only ever get one order back.
+    </para>
+    <para>
+      For collections or other resources that support inlining (see <xref linkend="granularity"/>), you need to decide
+      whether your filter can look at the embedded resources or not. There is a possibility that you'll end up making
+      you filter so complex that you are in fact inventing your own search language.
+    </para>
+    <para>
+      We can take the idea of filtering to its logical conclusion. Imagine a collection that inlines all its items, and
+      the items can inline their relationships, which can inline their relationships, etc. Further imagine that we
+      have a filter that can look at arbitrarily deep resources. This is the basic idea behind faceted search.
+    </para>
+    <para>
+      <firstterm>Faceted search</firstterm> is a technique for accessing information organized according to a faceted 
+      classification system, allowing users to explore a collection of information by applying multiple filters. A 
+      faceted classification system classifies each information element along multiple explicit dimensions, called 
+      <firstterm>facets</firstterm>, enabling the classifications to be accessed and ordered in multiple ways
+      <citation>WikiFaceted</citation>.
+    </para>
+    <para>
+      Facets allow clients to zoom in on the information they want in a very natural way. Human users love it because
+      it is so easy to use. As you can imagine, however, it requires lots of server resources and may hurt both
+      performance and scalability. This is one of those cases where you'll have to trade two different aspects of
+      usability against each other.
+    </para>
   </section>
   
   <section id="caching">
     <title>Caching</title>
     <para>
+      Having a coarser-grained API means sending less messages over the network to get the same work done. 
+      This is one example of doing less to improve performance. Another example is to cache information.
+    </para>
+    <para>
+      A <firstterm>cache</firstterm> is a component that stores data so future requests for that data can be served 
+      faster; the data stored in a cache might be the results of an earlier computation, or the duplicates of data 
+      stored elsewhere <citation>WikiCache</citation>.
+    </para>
+    <para>
+      A common problem with caches is that they may go <firstterm>stale</firstterm> when the information they contain 
+      is no longer up-to-date. Anyone using data from a stale cache may draw the wrong conclusions and take 
+      inappropriate actions.
+    </para>
+    <para>
+	    When we discussed concurrency in <xref linkend="concurrency"/>, we saw how to use the <literal>ETag</literal>
+	    and <literal>If-Match</literal> headers to avoid overwriting someone else's changes. The same system is also
+	    helpful when caching information.
+    </para>
+    <para>
       Responses with the following status codes are cacheable by default: 
       200, 203, 204, 206, 300, 301, 404, 405, 410, 414, and 501.
     </para>
-  </section>
-  
-  <section>
-    <title>Granularity</title>
-  </section>
-  
-  <section id="paging">
-    <title>Paging</title>
   </section>
   
   <section id="ranges">

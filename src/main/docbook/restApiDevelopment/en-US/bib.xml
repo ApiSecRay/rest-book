@@ -246,6 +246,22 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>JSONPath</abbrev>
+    <biblioid class="uri">http://goessner.net/articles/JsonPath/</biblioid>
+  </biblioentry>
+  
+  <bibliomixed>
+    <abbrev>Knuth74</abbrev>
+    <bibliomset relation='article'>
+      <surname>Knuth</surname>, <firstname>Donald</firstname> (December 1974).
+      <title role='article'>Structured Programming with go to Statements</title>.
+    </bibliomset>
+    <bibliomset relation='journal'>
+      <title>ACM Journal Computing Surveys</title>. <volumenum>6</volumenum> (<issuenum>4</issuenum>): <artpagenums>268</artpagenums>.
+    </bibliomset>
+  </bibliomixed>
+ 
+  <biblioentry>
     <abbrev>JSON-LD</abbrev>
     <biblioid class="uri">http://www.w3.org/TR/json-ld/</biblioid>
   </biblioentry>
@@ -285,6 +301,11 @@
     <abbrev>Multipart</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/rfc2046</biblioid>
     <citetitle>Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>OCL</abbrev>
+    <biblioid class="uri">http://www.omg.org/spec/OCL/2.4/PDF/</biblioid>
   </biblioentry>
   
   <biblioentry>
@@ -424,6 +445,12 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Spring Data REST</abbrev>
+    <!-- TODO: Check URI -->
+    <biblioid class="uri">http://projects.spring.io/spring-data-rest/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>Spring HATEAOS</abbrev>
     <biblioid class="uri">http://projects.spring.io/spring-hateoas/</biblioid>
   </biblioentry>
@@ -477,8 +504,23 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>WikiCache</abbrev>
+    <biblioid class="uri">https://en.wikipedia.org/wiki/Cache_%28computing%29</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>WikiFaceted</abbrev>
+    <biblioid class="uri">https://en.wikipedia.org/wiki/Faceted_search</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>XML-RPC</abbrev>
     <biblioid class="uri">http://xmlrpc.scripting.com/default.html</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>XPath</abbrev>
+    <biblioid class="uri">http://www.w3.org/TR/xpath-31/</biblioid>
   </biblioentry>
   
 </bibliography>

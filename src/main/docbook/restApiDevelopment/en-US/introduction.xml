@@ -1,4 +1,4 @@
-<chapter>
+<chapter id="introduction">
   <title>Introduction</title>
 
   <section id="apis">
@@ -103,7 +103,7 @@
         certain data needs to be available from multiple clients and between client sessions. We call that data
         <firstterm>resource state</firstterm>. But there is other data associated with the path the client has taken
         in pursuit of its goal. We call this data <firstterm>application state</firstterm>. The stateless constraint
-        deals only with application state.
+        deals only with application state. We'll talk more about statelessness in <xref linkend="stateless"/>.
       </para>
       <para>
         The <emphasis>code-on-demand constraint</emphasis> additionally pushes processing to the client. We see this 
