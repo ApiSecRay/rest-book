@@ -1504,6 +1504,10 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         Like the Transaction pattern, this is an advanced pattern that may be more trouble than it's worth. Think
         carefully about alternatives before you commit to it.
       </para>
+      <para>
+        TODO: Don't use <literal>application/http</literal> for the content type of the body parts, as this leaks
+        information of the protocol into the messages and will break when moving to HTTP/2.
+      </para>
     </simplesect>
     <simplesect>
       <title>Example</title>

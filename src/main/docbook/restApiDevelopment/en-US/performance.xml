@@ -11,6 +11,10 @@
     while scalability is about how that time changes as more and more work is performed by the system.
   </para>
   <para>
+    Better performance means less time required to perform a <firstterm>job</firstterm>, or unit of work. This leaves 
+    more time for doing other jobs, which often translates to better scalability.
+  </para>
+  <para>
     There are two types of scalability: <firstterm>vertical scaling</firstterm> addresses the scalability of a single 
     instance of the service, while <firstterm>horizontal scaling</firstterm> focuses on multiple instances.
     Vertical scaling increases the work done by making the individual servers more powerful, while horizontal scaling 
@@ -26,9 +30,9 @@
     called <firstterm>linear scalability</firstterm>.
   </para>
   <para>
-    Each server added to the cluster contributes processing power. But there is also some overhead of maintaining the
+    Each server added to the cluster contributes processing power, but there is also some overhead of maintaining the
     cluster. The percentage of useful work that an additional server can deliver is called the 
-    <firstterm>scalability factor</firstterm>. A constant scalability factor implies linear scalability.
+    <firstterm>scalability factor</firstterm>. A scalability factor of 1 implies linear scalability.
   </para>
   <para>
     When the scalability factor is lower than 1.0, we have sub-linear scalability. This will usually be the case; the 
@@ -63,8 +67,8 @@
     <para>
       There is a trade-off here. Any state that the server must maintain will have to be persisted in some sort of 
       database. Moving information from resource to application state means that the server has less to persist and
-      since storing information into a database and retrieving it from the database take time, overall the performance 
-      of the server increases.
+      since storing information into a database and retrieving it from the database both take time, the overall 
+      performance of the server increases when there is less information to persist.
     </para>
     <para>
       However, there is now more information transmitted in the messages between client and server. This has two 
@@ -100,30 +104,31 @@
       websites, but that would have been wasteful of server resources. The server doesn't need to do anything with the 
       order until it is complete. Other clients don't need to be aware of the order until it is finalized either. 
       Finally, the client doesn't need to maintain the order between sessions. What are the odds that you'll want to 
-      start composing an order today, then stop and come back to it tomorrow?
+      start buying coffee today, then stop and come back to it tomorrow?
     </para>
     <para>
       By the way, the reason that these e-commerce websites store the shopping cart as resource state, is not because
       the people building these websites don't know what they're doing. Their clients are browsers, not the more 
-      capable REST clients that we're envisioning consuming our API.
+      capable REST clients that we're envisioning consuming our API. Also, for some e-commerce scenarios it does make 
+      sense to start buying something and come back to complete the transaction later.
     </para>
   </section>
   
   <section id="granularity">
     <title>Granularity</title>
     <para>
-      The granularity of the calls in an API has an impact on performance and scalability too. We speak of a 
+      The granularity of the calls in an API can have a big impact on performance and scalability. We speak of a 
       <firstterm>fine-grained</firstterm> API when its calls are relatively small in terms of code size and execution 
       time. The opposite of a fine-grained API is a <firstterm>coarse-grained</firstterm> one. 
     </para>
     <para>
       Fine-grained APIs are more convenient to use, because they are very targeted and easy to understand. So from a 
-      Developer eXperience (DX) perspective, you'll usually want to go for something more granular.
+      Developer eXperience (DX) perspective, you'll usually want to go for something more fine-grained.
     </para>
     <para>
       However, when API calls are smaller, a client needs to execute more of them to achieve the same goal. This means 
       more network latency and more overhead in the server to handle all those requests. So from a performance and
-      scalability perspective, you'll want to go for something less granular.
+      scalability perspective, you'll want to go for something more coarse-grained.
     </para>
     <para>
       Where to draw the line is hard to say in general, because it really depends on the specifics of the API and the
@@ -132,12 +137,12 @@
       and where needed.
     </para>
     <para>
-      The granularity of network calls is distinct from but related to that of granularity of data. The relationship is
+      The granularity of network calls is distinct from but related to the granularity of data. The relationship is
       easy to see when we consider data transfer objects.
     </para>
     <para>
       A <firstterm>Data Transfer Object</firstterm> (DTO) is defined as <quote>an object that carries data between 
-      processes in order to reduce the number of method calls</quote> <citation>TODO</citation>.
+      processes in order to reduce the number of method calls</quote> <citation>Fowler12</citation>.
       If this sounds familiar, then that's because that's exactly what self-describing messages in RESTful systems are.
     </para>
     <para>
@@ -158,8 +163,10 @@
     </para>
     <para>
       There is nothing wrong with starting out with domain objects for your messages, as long as you remember that they
-      are not the same. Don't architect yourself into a corner; leave open the option of using messages that are not 
-      domain objects.
+      are not the same. Don't change your domain objects to reduce the number of HTTP messages exchanged, but map 
+      several domain objects onto a single message / DTO to get better performance.
+    </para>
+    <para>
       If you start with the functionality rather than the data, as we discussed in <xref linkend="state-diagrams"/>, 
       you're much less likely to walk into the domain-objects-as-messages trap.
     </para>
@@ -183,8 +190,8 @@
       <literal>Pay</literal>, for example, you're taking away the ability to change the order or to cancel it. In this
       case, that's probably okay, because both operations can still be achieved. Changing the order has to be done
       before it is sent and canceling it means not sending any order at all. This example thus works very well. We
-      would still propose that you only make this change after you've established through measurements that it is going
-      to improve performance in realistic scenarios.  
+      would still propose that you only make this change after you've established <emphasis>through 
+      measurements</emphasis> that it is going to improve performance <emphasis>in realistic scenarios</emphasis>.
     </para>
     <para>
       Another approach to arrive at a more coarse-grained API is to completely rethink the interaction model that you
@@ -194,12 +201,14 @@
     <para>
       For example, some of the messages exchanged in RESTBuck have to deal with payments. We could envision a 
       different model where customers pay a large sum up front and their orders are deducted from their balance. 
-      Or maybe customers could pay after we send them an invoice for all their orders of the last month.
+      Or maybe customers could pay after the fact, when we send them an invoice for their recent orders. Both approaches
+      reduce the number of messages exchanged, because a single payment message now covers a number of orders.
     </para>
     <para>
       As these examples show, rethinking your interaction usually means rethinking your business. Needless to say, that
       has a big impact and may not be an option. But if it is, it can open up big opportunities for performance
-      improvements.
+      improvements. Sometimes such an opportunity may even have the fortunate side effect of improving the Developer 
+      eXperience as well.
     </para>
     <para>
       There is a third approach that works especially well with collection resources (see <xref linkend="collection"/>).
@@ -209,8 +218,8 @@
     <para>
       Inlining may or may not be a good idea. For large collections, you probably want to reduce the amount of bytes
       transferred rather than increase it (see <xref linkend="paging"/>). For smaller collections, it may make sense
-      to inline the items to save a network roundtrip. This is especially the case if the client can filter the items 
-      in the collection so it only return interesting items.
+      to inline the items to save some network roundtrips. This is especially the case if the client can filter the 
+      items in the collection so it only returns interesting items.
     </para>
     <para>
       Since it's often hard to predict whether inlining is a good idea, it's usually best to leave the choice up to the 
@@ -234,29 +243,30 @@
       We can take this technique too far as well. Imagine a representation of a person that embeds the representation 
       of an address that embeds the representation of a country that embeds representations of all its states that ...
       Before you know it the server spends a lot of time querying the database for data that the client will never
-      need and then wastes more time transmitting all that data.
+      need and in doing so waste more time transmitting all that data than it saves in network roundtrips.
     </para>
     <para>
-      For collections the concept is simple and is usually indicated by the <literal>inline</literal> URI query
-      parameter. There isn't such a standard for the general inline case. A boolean parameter may not make sense if
-      the inlining could be multiple levels deep. A <literal>depth</literal> parameter could be the solution in that
-      case.
+      For collections the concept of inlining is simple and is usually indicated by the <literal>inline</literal> URI 
+      query parameter.
+      There isn't such a standard for the general inline case. A boolean parameter may not make sense if the inlining 
+      could be multiple levels deep. A <literal>depth</literal> parameter could be the solution in that case.
     </para>
     <para>
       If you're making it possible to inline multiple levels, then you risk running into infinite recursion. For 
-      example, the representation of a person may include the representation of its spouse, which may include the 
-      representation of its spouse (which is the original person), which ...
+      example, the representation of a person may include the representation of its spouse, which in turn may include 
+      the representation of its spouse (which is the original person), which ...
     </para>
     <para>
-      It's up to the server to detect such cyclic relationships and take corrective action. You don't want to leave 
-      that up to the client because it may accidentally forget that or it may be an attacker doing it on purpose in an
-      attempt to bring your system down. (We discuss malicious usage in <xref linkend="threat-modeling"/>.)
+      It's up to the server to detect such cyclic relationships and take corrective action, as we'll discuss in 
+      <xref linkend="input-validation"/>.
+      You don't want to leave that up to the client because it may accidentally forget that or it may be an attacker 
+      doing it on purpose in an attempt to bring your system down. (We discuss malicious usage in 
+      <xref linkend="threat-modeling"/>.)
     </para>
     <para>
       Even when infinite recursion is not possible, you may still be at risk. In a large data model with a high level of 
       connectedness, a large value of <literal>depth</literal> may drain your server of resources and be used as a
-      denial of service attack. Use input validation to prevent such attacks, as explained in 
-      <xref linkend="input-validation"/>.
+      denial of service attack. Again, use input validation to prevent such attacks.
     </para>
   </section>
   
@@ -264,13 +274,13 @@
     <title>Return Created Or Updated Representations</title>
     <para>
       In many cases, a client will create a resource and then continues to work on its representation. It may create
-      sub-resources, for instance, or follow relations. This is especially common in the Workflow pattern (see 
+      sub-resources, for instance, or follow link relations. This is especially common in the Workflow pattern (see 
       <xref linkend="workflow"/>).
     </para>
     <para>
       In such cases we can easily save the client a network roundtrip by returning the representation of the created
-      resource in the response along with the <literal>201 Created</literal> status. You should return exactly the
-      representation that the client would receive as a response to a <literal>GET</literal> on the URI in the
+      resource in the response with the <literal>201 Created</literal> status. You should return exactly the
+      representation that the client would receive in response to a <literal>GET</literal> on the URI in the
       <literal>Location</literal> header, including a link with the <literal>self</literal> link relation that contains
       the location of the created resource.
     </para>
@@ -279,11 +289,13 @@
       <literal>PATCH</literal> methods. You might think that a client wouldn't <literal>GET</literal> what it just 
       <literal>PUT</literal>, but there are definitely cases where that is to be expected. For instance, the server may
       respond to updating a status property by adding a link that wasn't available before and the client may want to
-      follow the link.
+      follow the link. This is one example where the server adds information to the resource beyond what the client
+      provides, but there are others. This added information may be a reason for the client to request the created or
+      updated resource.
     </para>
     <para>
       If you have doubts whether this technique is a good idea in your specific situation, look at your logs (see 
-      <xref linkend="logging"/>) to verify whether <literal>PUT</literal>s or <literal>PATCH</literal>es are usually 
+      <xref linkend="logging"/>) to determine how often <literal>PUT</literal>s or <literal>PATCH</literal>es are 
       followed by <literal>GET</literal>s. This requires that you can correlate requests by sender, which you can 
       usually do by IP address. Be careful when using load balancers, however, since they may hide the client's address.
     </para>
@@ -294,7 +306,7 @@
       of having to process fewer requests, making this technique one of the few widely applicable low hanging fruits.
     </para>
     <para>
-      We've already seen this technique in action in <xref linkend="http-happy-path"/>. The RESTBucks client places
+      We've already seen this technique in action for RESTBucks in <xref linkend="http-happy-path"/>. The client places
       an order using <literal>POST</literal> and the server returns a representation of the order, including an 
       operation to pay for it. The client can execute this operation immediately, without first having to 
       <literal>GET</literal> a representation of the order.
@@ -311,14 +323,15 @@
     </para>
     <para>
       Two scenarios are likely. The first is that the client is looking for one specific item in the collection. It
-      can identify this item by name or some other property and it will go through the returned items looking for the
-      one it wants. For instance, a RESTBucks customer may go through the items on the menu looking for the latte that
+      can identify this item by name or some other property and it will go through the returned items looking for this
+      special item. For instance, a RESTBucks customer may go through the items on the menu looking for the latte that
       the customer is craving.
     </para>
     <para>
       The other likely scenario is that the client doesn't quite know what item it is looking for, but it knows a 
-      couple of things that must hold true for an item to be interesting. For example, a RESTBucks customer may
-      browse the menu looking for a hot beverage without caffeine.
+      couple of things that must be true for an item to be interesting. For example, a RESTBucks customer may
+      browse the menu looking for a hot beverage without caffeine without knowing beforehand what items match those
+      criteria.
     </para>
     <para>
       Both scenarios have in common that the number of items that are of interest to the client is small compared to
@@ -331,7 +344,7 @@
     </para>
     <para>
       A paged collection serves its members in chunks of a particular size called <firstterm>pages</firstterm>. 
-      Page collections accept URI query parameters that indicate the starting page number and the number of items per 
+      Paged collections accept URI query parameters that indicate the starting page number and the number of items per 
       page that the client wants to receive.
       The representation contains links to the previous and next pages, if applicable.
       The client then navigates the pages in search for the item it is interested in.
@@ -339,8 +352,8 @@
     <para>
       It's best to implement paging using support from the underlying database. For instance, you could modify your
       query to the database such that it returns the correct items. If you can't do that, you may be forced to have the
-      database return all items, only to not use most of them. Not only would that loose much of the potential 
-      performance gain, it could have disastrous effects on scalability.
+      database return all items, only to discard most of them when building the response. Not only would that loose 
+      much of the potential performance gain, it could have disastrous effects on scalability.
       Again, it's imperative that you measure the impact of your implementation.  
     </para>
     <para>
@@ -352,7 +365,7 @@
     <para>
       Note that if a client wants to process all items, then it actually hurts performance to break up the collection
       in pages, because it now requires more messages to transmit all items and extra links to the other pages.
-      Again, measure before you decide upon anything.
+      Again, think through your use cases and measure carefully before you decide upon anything.
     </para>
     <para>
       Paging is pretty dumb in the sense that the server has no clue which of the items transmitted are interesting to
@@ -361,9 +374,9 @@
       items are more interesting than the latter ones (or vice versa). 
     </para>
     <para>
-      A good example is the timeline that many social networks present: older messages are usually less interesting 
-      than newer ones, so the most recent ones are presented first and the user may scroll as far back in time as 
-      desired.
+      A good example of this is the timeline that many social networks present: older messages are usually less 
+      interesting than newer ones, so the most recent ones are presented first and the user may scroll as far back in 
+      time as desired. This is an excellent case for paging.
     </para>
     <para>
       Filtering is usually a better solution than paging, because it allows the client to tell the server what items it
@@ -377,24 +390,30 @@
       query parameters, and easy to translate into database queries.
     </para>
     <para>
-      Inventing your own search language is a big undertaking, although you can usually start small. You'll have to ask
-      yourself whether it is worth the trouble, however. A search language requires a parser for that language. If you 
-      start small and have to change the language, you may be force to support more than one version of the search
-      language, which could make the parser more complicated. you can prevent that by specifying the search query in 
-      the entity-body rather than in a query parameter, so that the client can use content negotiation to indicate 
+      Inventing your own search language is a big undertaking (although you can usually start small) and you'll have to 
+      ask yourself whether it is worth the trouble. A search language requires a parser for that language. If you
+      start small and have to change the language, you may be forced to support more than one version of the search
+      language, which could make the parser more complicated. You can prevent that by specifying the search query in 
+      the entity-body rather than in a query parameter and have the client use content negotiation to indicate 
       which version of the search language it speaks. We'll talk more about content negotiation as a means to support
       evolution of APIs in <xref linkend="breaking-changes"/>.
     </para>
     <para>
       A search language couples the client to the server implementation beyond its REST API. In effect, the language 
-      extends the API. If you're not careful, you may end up building a new API that doesn't benefit from the REST
-      architectural style.
+      extends the API. If you're not careful, you may end up building a new API that doesn't benefit from the 
+      advantages of the REST architectural style.
     </para>
     <para>
-      If, in spite of these warnings, you do decide to design a full-on search language, look at several existing 
+      If the number of combinations of things to search for is limited, you may forego a filter and offer a specialized
+      resources instead. For instance, in RESTBucks we could have introduced a collection resource that returns paid
+      orders, rather than using a filter.
+    </para>
+    <para>
+      If, in spite of these warnings, you do decide to design a full-featured search language, look at several existing 
       languages first <citation>XPath</citation> <citation>JSONPath</citation> <citation>OCL</citation>. You may be able 
-      to re-use all or parts of existing them. This means less design work for you (and potentially even less 
-      implementation work), but also less things to learn for the consumers of your search language.
+      to re-use all or parts of existing search languages. This means less design work for you (and potentially also 
+      less implementation work if you can re-use libraries), but also less things to learn for the consumers of your 
+      search language.
     </para>
     <para>
       We've already seen an example of a filter in <xref linkend="lifecycle"/>, where a RESTBucks barista client 
@@ -409,7 +428,7 @@
     <para>
       We can take the ideas of inlining and filtering to their logical conclusion. Imagine a collection that inlines 
       all its items, and the items can inline their relationships, which can inline their relationships, etc. 
-      Further imagine that we have a filter that can look at arbitrarily deep resources.
+      Further imagine that we have a filter that can look deeply into the inlined resources.
       This is the basic idea behind faceted search.
     </para>
     <para>
@@ -432,10 +451,11 @@
       A <firstterm>cache</firstterm> is a component that stores data so future requests for that data can be served 
       faster; the data stored in a cache might be the results of an earlier computation, or the duplicates of data 
       stored elsewhere <citation>WikiCache</citation>.
+      Web browsers use caches and so may REST clients. Many HTTP libraries offer such functionality out of the box.
     </para>
     <para>
       A common problem with caches is that they may go <firstterm>stale</firstterm> when the information they contain 
-      is no longer up-to-date. Anyone using data from a stale cache may draw the wrong conclusions and take 
+      is no longer up-to-date. A client using data from a stale cache may draw the wrong conclusions and take 
       inappropriate actions. In some cases this may be perfectly acceptible, but in other cases it may make the 
       diffence between life and death, so do your homework and find out which situation you're in.
     </para>
@@ -453,23 +473,35 @@
       A client that <literal>GET</literal>s a resource, may save the representation that the server responds with in 
       its cache. The next time that it wants to retrieve that same resource, it can send a <firstterm>conditional
       <literal>GET</literal></firstterm> request by adding the <literal>ETag</literal> or 
-      <literal>If-Unmodified-Since</literal> header. If the resource hasn't changed, the server responds with a
-      <literal>TODO</literal> status <emphasis>without the entity-body</emphasis>. The client then retrieves the
-      cached representation.
+      <literal>If-Unmodified-Since</literal> header. Conditional <literal>GET</literal>s are covered by RFC 7232 
+      <citation>HTTP</citation>.
+    </para>
+    <para>
+      If the resource hasn't changed, the server responds to a conditional <literal>GET</literal> with a
+      <literal>304 Not Modified</literal> status <emphasis>without the entity-body</emphasis>. The client then
+      retrieves the representation from its cache instead.
     </para>
     <para>
       If the resource has changed since it was cached, the server responds with the normal status code and includes the
-      new representation in the entity-body of the message. The client then updates its cache with the new information.
+      new representation in the entity-body of the message. The client then updates its cache with the new 
+      representation.
     </para>
     <para>
-      This system ensures that no stale data is ever used, at the expense of some additional, but small, messages.
-      Whether this is a good trade-off depends on the cache hit ratio. You can improve that ratio by adding a 
-      caching proxy.
+      If the client doesn't have a representation in its cache, it must send a normal request. This is called a 
+      <firstterm>cache miss</firstterm>, as opposed to a <firstterm>cache hit</firstterm>. The percentage of accesses 
+      that result in cache hits is known as the <firstterm>hit rate</firstterm> or <firstterm>hit ratio</firstterm> of 
+      the cache.
     </para>
     <para>
-      A proxy is a program that sits between client and server. In other words, it acts as a server to the client and 
-      as a client to the server. Remember from <xref linkend="rest"/> that the layered system constraint allows us to 
-      insert a proxy between client and server without breaking anything.
+      Conditional <literal>GET</literal>s ensure that no stale data is ever used, at the expense of some additional, 
+      but small, messages. Whether this is a good trade-off depends on the cache hit ratio. You can improve that ratio 
+      by adding a caching proxy.
+    </para>
+    <para>
+      A <firstterm>proxy</firstterm> is a program that sits between client and server. In other words, it acts as a 
+      server to the client and as a client to the server. Remember from <xref linkend="rest"/> that the layered system 
+      constraint allows us to insert a proxy between client and server without breaking either. To distinguish between
+      the proxy and the original server, the latter is referred to as the <firstterm>origin server</firstterm>.
     </para>
     <para>
       A <firstterm>caching proxy</firstterm> is a proxy that maintains a large cache of the responses that the server 
@@ -477,23 +509,105 @@
       alone ever could.
     </para>
     <para>
-      A caching proxy is usually part of the server landscape and clients are seldomly aware of it. It makes economic 
-      sense for a company to install caching proxies, because it reduces the load on the servers that do the actual 
-      work. This means less database operations, for example, which improves scalability. Better scalability means the
-      company needs to employ fewer servers to handle the same traffic.
+      A caching proxy is usually part of the server landscape and clients are seldomly aware of it. It often makes 
+      economic sense for the organization that runs the servers to install caching proxies, because it reduces the load 
+      on the servers that do the actual work. This means less database operations, for example, which improves 
+      scalability. Better scalability means the company needs to employ fewer servers to handle the same traffic.
     </para>
     <para>
-      An alternative for deploying your own caching proxies is to use a <firstterm>Content Distribution 
-      Network</firstterm> (CDN) like Akamai. A CDN provides a cluster of caching proxies in various locations and they
-      are smart enough to serve content for one that is geographically close to the client. In addition to caching, 
-      this has the advantage that it takes less time for the messages to traverse the network.
+      An alternative for deploying your own caching proxies is to use a <firstterm>Content Distribution
+      Network</firstterm> (CDN, also known as <firstterm>Content Delivery Network</firstterm>).
+      The goal of a CDN is to serve content to end-users with high availability and high performance.
+      A CDN provides a cluster of caching proxies in various locations and they are often smart enough to serve content 
+      for one that is geographically close to the client. In addition to caching, this has the advantage that it takes 
+      less time for the messages to traverse the network. This doesn't help with performance or scalability on the 
+      server, but it does improve the <firstterm>perceived performance</firstterm> on the client.
     </para>
     <para>
-      Unfortunately, not all messages can be cached. 
+      Unfortunately, not all messages can be cached. Caching only works for information retrieval, not for updates.
+      In other words, caching is limited to <literal>GET</literal> requests. But not all <literal>GET</literal>
+      requests can be cached either, for various reasons:
+    </para>
+    <orderedlist>
+      <listitem>
+		    <para>
+		      The server may not give an answer at all, as indicated by the <literal>202 Accepted</literal> 
+		      status code. So a client should inspect the status code to determine whether it can cache the representation.
+		      Responses with the following status codes are cacheable by default: 
+		      200, 203, 204, 206, 300, 301, 404, 405, 410, 414, and 501.
+		    </para>
+      </listitem>
+      <listitem>
+		    <para>
+		      The request may be to a protected resource (see <xref linkend="authorization"/>). One client may have
+		      access to the resource, but another not. So the resource must either be cached specifically for the requesting
+		      user, or not at all. With a large number of users, caching per user may not be practical, as the cache hit 
+		      ratio becomes too low or the memory usage of the cache too high.
+		    </para>
+      </listitem>
+      <listitem>
+		    <para>
+		      If the request is secured using HTTPS (see <xref linkend="tls"/>), it won't be cached either.
+		      This is a major problem for REST APIs, that often must use HTTPS to protect sensitive content. You can solve this
+		      problem by terminating the HTTPS connection at the load balancer, and then have the load balancer route the 
+		      traffic to a cluster of caching proxies rather than the origin servers. The downside of this approach is that
+		      the traffic is now unprotected within the provider's network and thus accessible to insiders. We'll talk more
+		      about insider threats in <xref linkend="threat-modeling"/>.
+		    </para>
+      </listitem>
+      <listitem>
+		    <para>
+		      If there is no validator (<literal>ETag</literal> or <literal>Last-Modified</literal>) present in the
+		      response, then it is considered uncacheable. We strongly advise to return one of these headers with all
+		      responses for both caching and concurrency purposes.
+		    </para>
+      </listitem>
+      <listitem>
+		    <para>
+		      The server can explicitly state that its response should not be cached using the 
+		      <literal>Cache-Control</literal> header defined by RFC 7234 <citation>HTTP</citation>. This header gives
+		      the server a lot of control to indicate the <firstterm>freshness</firstterm> of the response. The
+		      <literal>Pragma: no-cache</literal> header value is an older and more limited alternative to 
+		      <literal>Cache-Control</literal>.
+		    </para>
+      </listitem>
+    </orderedlist>
+    <para>
+      The <literal>Expires</literal> header may be used to set the freshness of the response. It tells all caches how 
+      long the associated representation is fresh for. A fresh representation may be returned from the cache without
+      even sending a conditional <literal>GET</literal> to the origin server.
     </para>
     <para>
-      Responses with the following status codes are cacheable by default: 
-      200, 203, 204, 206, 300, 301, 404, 405, 410, 414, and 501.
+      Different resources will have vastly different values for the <literal>Expires</literal> header. A Home
+      resource (see <xref linkend="home"/>) will probably be good for quite some time, but other resources will not.
+    </para>
+    <para>
+      The value of the <literal>Expires</literal> header is an HTTP date, which means the precision is one second. Note
+      that an HTTP data is in Greenwich Mean Time (GMT), not local time. The problem with using dates, of course, is 
+      that client and server must share the same clock, which is not at all guaranteed unless they're known to use the
+      same time server. It's therefore better to use the <literal>Cache-Control</literal> header.
+    </para>
+    <para>
+      The <literal>Cache-Control</literal> header supports several parameters. <literal>no-cache</literal> means the
+      response is never fresh. In other words, the client must always send a conditional <literal>GET</literal>.
+      <literal>no-store</literal> goes one step further and instructs the client not to cache the representation at all.
+    </para>
+    <para>
+      The <literal>private</literal> parameter allows caching only for caches that are specific to one user (e.g. on
+      the client, but not in a caching proxy). The <literal>public</literal> parameter marks authenticated responses
+      as cacheable. By default, any resource protected by authentication is not cacheable. You should combine the
+      <literal>public</literal> and <literal>no-cache</literal> parameters for protected resources. Also only make
+      resources protected that absolutely require protection.
+    </para>
+    <para>
+      Probably the most important parameter is <literal>max-age</literal>. It is similar to the 
+      <literal>Expires</literal> header in that it controls the freshness of the response, but it doesn't suffer from 
+      the clock synchronization issue. The value of this parameter is the number of seconds the representation is fresh,
+      rather than a date.
+    </para>
+    <para>
+      <literal>Cache-Control</literal> takes precedence over <literal>Expires</literal>. To avoid confusion, we advise
+      to use only <literal>Cache-Control</literal>. See <xref linkend="http-happy-path"/> for an example.
     </para>
   </section>
   
@@ -522,16 +636,50 @@
     </para>
     <para>
       For all these reasons, it is better to have smaller messages. We would, therefore, like to split up large messages
-      into chunks. This is precisely the idea behind content ranges.
+      into chunks. This is precisely what happens when we use content ranges.
     </para>
     <para>
-      The client indicates the range of bytes from the content that it wants to receive, hence the name. The HTTP
-      specification defines the <literal>Content-Range</literal> header for this purpose <citation>HTTP</citation>.
+      With this technique, the client indicates the range of bytes from the content that it wants to receive, hence the 
+      name. The HTTP specification defines the <literal>Content-Range</literal> header for this purpose 
+      <citation>HTTP</citation>.
+    </para>
+    <para>
+      TODO: Re-read HTTP spec and add anything relevant here.
     </para>
   </section>
   
   <section>
     <title>Load Balancing</title>
+    <para>
+      You will most likely want to employ more than one server in a cluster. A single server can't handle a growing
+      amount of traffic, and if it fails then your entire service is down. 
+      As soon as you have more than one server, a choice must be made which one handles an incoming request.
+    </para>
+    <para>
+      For this purpose, you will want to deploy a <firstterm>load balancer</firstterm>, whose sole job it is to route
+      incoming requests from clients to a server that can process them.
+      Load balancers can be implemented in hardware or in software.
+    </para>
+    <para>
+      The algorithm that a load balancer uses may impact performance and scalability. The simplest algorithm is
+      round robin, where each server gets to handle a request in turn. This is easy to implement and usually works well.
+    </para>
+    <para>
+      Round robin load balancing can break down when there is a large variance in the time it takes to process requests.
+      When some requests are fast, but others take a lot of time to handle, it may happen that one server gets a
+      disproportial number of "difficult" requests to process. These requests then queue up on the unlucky server and
+      spend most of their time waiting to be served. 
+    </para>
+    <para>
+      This can be prevented by making the load balancer more intelligent. It could measure the time it takes a server
+      to process a request. If a server is starting to take longer on average than other servers, the load balancer
+      can send fewer requests to that server to give it a chance to catch up.
+    </para>
+    <para>
+      As you may have guessed from the words "chance" and "unlucky", this is not normally an issue. Watch your
+      servers for relative response times and utilization (see <xref linkend="logging"/>) and find out if you're 
+      affected.
+    </para>
   </section>
   
   <section>

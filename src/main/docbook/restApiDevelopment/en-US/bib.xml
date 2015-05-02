@@ -171,6 +171,22 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Fowler12</abbrev>
+    <citetitle>Patterns of Enterprise Application Architecture</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Martin</firstname>
+          <surname>Fowler</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2012</year>
+    </copyright>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>Fowler97</abbrev>
     <citetitle>Analysis Patterns: Reusable Object Models</citetitle>
     <authorgroup>

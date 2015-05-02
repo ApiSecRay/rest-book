@@ -11,6 +11,36 @@
     <para>
       TODO: Define URL structure, media type, namespace, etc. in a single place.
     </para>
+    <para>
+      Remember from <xref linkend="granularity"/> that the HTTP messages that client and server exchange in a RESTful 
+      system are data transfer objects (DTOs).
+      You should have exactly one place in your code where you convert your internal DTO to a message that is sent over 
+      the wire.
+      In JAX-RS, for example, that one place should be an Entity Provider. In Spring, the same mechanism is called a 
+      Message Converter. Note that both frameworks have support for several often-used serialization formats.
+    </para>
+    <para>
+      Following this advice not only makes it easier to change media types (e.g. from plain JSON or HAL to a more 
+      mature media type like JSON-LD with Hydra). It also makes it easy to support multiple media types. This in turn 
+      enables you to switch media types without breaking clients, as we'll see in <xref linkend="breaking-changes"/>.
+    </para>
+    <para>
+      A DTO should not have any behavior; it’s purpose in life is to transfer data between remote systems. This is a
+      major difference from a domain object.
+      There are two basic approaches for dealing with the data in a DTO. 
+    </para>
+    <para>
+      The first is to make them immutable objects, where all the input is provided in the constructor and the data can 
+      only be read. This doesn’t work well for large objects, however, and it doesn’t play nice with serialization 
+      frameworks.
+    </para>
+    <para>
+      The better approach is to make all the properties writable. Since a DTO must not have logic, this is one of the 
+      few occasions where you can safely make the fields public and omit the getters and setters.
+			Of course, that means some other part of the code is responsible for filling the DTO with combinations of 
+			properties that together make sense. Conversely, you should validate DTOs that come in from the client. We'll
+			show you how in <xref linkend="input-validation"/>.
+    </para>
   </section>
   
   <section id="reactive">

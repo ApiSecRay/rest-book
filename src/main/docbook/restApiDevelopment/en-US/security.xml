@@ -13,6 +13,10 @@
       Availability
   </para>
   <para>
+    CDNs serve a large fraction of the Internet content today. They provide the content provider a degree of 
+    protection from DoS attacks by using their large distributed server infrastructure to absorb the attack traffic.
+  </para>
+  <para>
     In terms of Microsoft’s STRIDE approach, the security compromises we want to avoid with each of these are 
     Information Disclosure, Tampering, and Denial of Service.
   </para>
@@ -67,7 +71,7 @@
     </para>
   </section>
 
-  <section>
+  <section id="tls">
     <title>Transport Layer Security</title>
     <para>
     </para>

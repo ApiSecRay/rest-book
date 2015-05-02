@@ -11,6 +11,11 @@
   
   <section id="breaking-changes">
     <title>Breaking Changes</title>
+    <para>
+      Introducing new media types is one way to evolve your REST API when you must make backwards incompatible changes.
+      You can continue to serve old clients with the old media type, while new clients can take advantage of the new 
+      media type.
+    </para>
   </section>
 
   <section>
