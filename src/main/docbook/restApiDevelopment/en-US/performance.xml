@@ -449,59 +449,22 @@
     </para>
     <para>
       A <firstterm>cache</firstterm> is a component that stores data so future requests for that data can be served 
-      faster; the data stored in a cache might be the results of an earlier computation, or the duplicates of data 
+      faster. The data stored in a cache may be the result of an earlier computation, or a duplicate of data 
       stored elsewhere <citation>WikiCache</citation>.
       Web browsers use caches and so may REST clients. Many HTTP libraries offer such functionality out of the box.
     </para>
     <para>
-      A common problem with caches is that they may go <firstterm>stale</firstterm> when the information they contain 
-      is no longer up-to-date. A client using data from a stale cache may draw the wrong conclusions and take 
-      inappropriate actions. In some cases this may be perfectly acceptible, but in other cases it may make the 
-      diffence between life and death, so do your homework and find out which situation you're in.
-    </para>
-    <para>
-      If you can serve stale data without running into issues then go ahead and return data from a cache. The remainder
-      of this section assumes that returning stale data is not acceptable. 
-    </para>
-    <para>
-	    When we discussed concurrency in <xref linkend="concurrency"/>, we saw how to use the <literal>ETag</literal>
-	    / <literal>If-Match</literal> and <literal>Date</literal> / <literal>If-Unmodified-Since</literal> header 
-	    combinations to avoid overwriting someone else's changes.
-	    We can use the same system to prevent us from returning stale data.
-    </para>
-    <para>
-      A client that <literal>GET</literal>s a resource, may save the representation that the server responds with in 
-      its cache. The next time that it wants to retrieve that same resource, it can send a <firstterm>conditional
-      <literal>GET</literal></firstterm> request by adding the <literal>ETag</literal> or 
-      <literal>If-Unmodified-Since</literal> header. Conditional <literal>GET</literal>s are covered by RFC 7232 
-      <citation>HTTP</citation>.
-    </para>
-    <para>
-      If the resource hasn't changed, the server responds to a conditional <literal>GET</literal> with a
-      <literal>304 Not Modified</literal> status <emphasis>without the entity-body</emphasis>. The client then
-      retrieves the representation from its cache instead.
-    </para>
-    <para>
-      If the resource has changed since it was cached, the server responds with the normal status code and includes the
-      new representation in the entity-body of the message. The client then updates its cache with the new 
-      representation.
-    </para>
-    <para>
-      If the client doesn't have a representation in its cache, it must send a normal request. This is called a 
-      <firstterm>cache miss</firstterm>, as opposed to a <firstterm>cache hit</firstterm>. The percentage of accesses 
-      that result in cache hits is known as the <firstterm>hit rate</firstterm> or <firstterm>hit ratio</firstterm> of 
-      the cache.
-    </para>
-    <para>
-      Conditional <literal>GET</literal>s ensure that no stale data is ever used, at the expense of some additional, 
-      but small, messages. Whether this is a good trade-off depends on the cache hit ratio. You can improve that ratio 
-      by adding a caching proxy.
+      If the client doesn't have a representation in its cache, it has no choice but to send a normal request. This is 
+      called a <firstterm>cache miss</firstterm>, as opposed to a <firstterm>cache hit</firstterm> when the data is
+      found in the cache. The percentage of accesses that result in cache hits is known as the <firstterm>hit 
+      rate</firstterm> or <firstterm>hit ratio</firstterm> of the cache.
+      You can improve that ratio by adding a caching proxy.
     </para>
     <para>
       A <firstterm>proxy</firstterm> is a program that sits between client and server. In other words, it acts as a 
       server to the client and as a client to the server. Remember from <xref linkend="rest"/> that the layered system 
-      constraint allows us to insert a proxy between client and server without breaking either. To distinguish between
-      the proxy and the original server, the latter is referred to as the <firstterm>origin server</firstterm>.
+      constraint allows us to insert a proxy between client and server without either even noticing. To distinguish 
+      between the proxy and the actual server, the latter is referred to as the <firstterm>origin server</firstterm>.
     </para>
     <para>
       A <firstterm>caching proxy</firstterm> is a proxy that maintains a large cache of the responses that the server 
@@ -524,6 +487,77 @@
       server, but it does improve the <firstterm>perceived performance</firstterm> on the client.
     </para>
     <para>
+      A common problem with caches is that they may go <firstterm>stale</firstterm> when the information they contain 
+      is no longer up-to-date. A client using data from a stale cache may draw the wrong conclusions and take 
+      inappropriate actions. In some cases this may be perfectly acceptible, but in other cases it may make the 
+      diffence between life and death, so do your homework and find out which situation you're in.
+    </para>
+    <para>
+      The opposite of stale data is <firstterm>fresh</firstterm> data. 
+      The server has two mechanisms to indicate how long a response stays fresh.
+    </para>
+    <para>
+      The first mechanism is the <literal>Expires</literal> header defined by RFC 7234 <citation>HTTP</citation>.
+      It tells all caches how long the associated representation is fresh for. A fresh representation may be returned 
+      from the cache immediately, avoiding any request to the origin server.
+    </para>
+    <para>
+      Different resources will have vastly different values for the <literal>Expires</literal> header.
+      A Home resource (see <xref linkend="home"/>) will probably be good for quite some time, but other resources may 
+      not.
+    </para>
+    <para>
+      The value of the <literal>Expires</literal> header is an HTTP date, which means the precision is one second. Note
+      that an HTTP date is in Greenwich Mean Time (GMT), not local time. The problem with using dates, of course, is 
+      that client and server must share the same clock, which is not at all guaranteed unless they're known to use the
+      same time server. It's therefore better to use the <literal>Cache-Control</literal> header.
+    </para>
+    <para>
+      The <literal>Cache-Control</literal> header supports several parameters. The <literal>max-age</literal> parameter
+      is the second mechanism to report the freshness interval. It is similar to the <literal>Expires</literal> header 
+      in that it controls the freshness of the response, but it doesn't suffer from the clock synchronization issue, 
+      because the value of this parameter is the number of seconds the representation is fresh, rather than a date.
+    </para>
+    <para>
+      <literal>Cache-Control</literal> takes precedence over <literal>Expires</literal>. To avoid confusion, we advise
+      to use only <literal>Cache-Control</literal>. See <xref linkend="http-happy-path"/> for an example of
+      <literal>Cache-Control</literal> in RESTBucks.
+    </para>
+    <para>
+      The <literal>no-cache</literal> parameter of the <literal>Cache-Control</literal> header means the response is 
+      never fresh. This is equivalent to a <literal>max-age</literal> with the value 0.
+    </para>
+    <para>
+      If a response is found in the cache that is outside the freshness interval, then the response may be either fresh
+      or stale. The client can't know which is the case, so it has two options. It can either send a normal request, 
+      just as it would do in case of a cache miss, or it can try to determine whether the cache is in fact still fresh.
+    </para>
+    <para>
+	    When we discussed concurrency in <xref linkend="concurrency"/>, we saw how to use the <literal>ETag</literal>
+	    / <literal>If-Match</literal> and <literal>Date</literal> / <literal>If-Unmodified-Since</literal> header 
+	    combinations to avoid overwriting someone else's changes.
+	    We can use the same system to check the freshness of cached data.
+    </para>
+    <para>
+      The client sends a <firstterm>conditional <literal>GET</literal></firstterm> request by adding the 
+      <literal>If-Match</literal> or <literal>If-Unmodified-Since</literal> header. Conditional <literal>GET</literal>s are 
+      covered by RFC 7232 <citation>HTTP</citation>.
+      If the resource is still fresh, the server responds to a conditional <literal>GET</literal> with a
+      <literal>304 Not Modified</literal> status <emphasis>without the entity-body</emphasis>. The client then
+      retrieves the representation from its cache instead.
+    </para>
+    <para>
+      If, on the other hand, the resource has changed compared to the value of the <literal>If-Match</literal> or 
+      <literal>If-Unmodified-Since</literal> headers, the server responds with the normal status code and includes the
+      new representation in the entity-body of the message. The client then updates its cache with the new 
+      representation.
+    </para>
+    <para>
+      Conditional <literal>GET</literal>s ensure that no stale data is ever used, at the expense of some additional, 
+      but small, messages. Whether this is a good trade-off depends on the cache hit ratio. As we've seen, we can 
+      improve this ratio using caching proxies. 
+    </para>
+    <para>
       Unfortunately, not all messages can be cached. Caching only works for information retrieval, not for updates.
       In other words, caching is limited to <literal>GET</literal> requests. But not all <literal>GET</literal>
       requests can be cached either, for various reasons:
@@ -531,84 +565,58 @@
     <orderedlist>
       <listitem>
 		    <para>
-		      The server may not give an answer at all, as indicated by the <literal>202 Accepted</literal> 
-		      status code. So a client should inspect the status code to determine whether it can cache the representation.
+		      The server may not return a representation of the resource, for instance when it returns the <literal>202 
+		      Accepted</literal> status code.
+		      So a client should inspect the status code to determine whether it can cache the representation.
 		      Responses with the following status codes are cacheable by default: 
-		      200, 203, 204, 206, 300, 301, 404, 405, 410, 414, and 501.
+		      200, 203, 204, 206, 300, 301, 404, 405, 410, 414, and 501. Other status codes are only cacheable if the 
+		      server indicates so using the <literal>Cache-Control</literal> header.
 		    </para>
       </listitem>
       <listitem>
 		    <para>
-		      The request may be to a protected resource (see <xref linkend="authorization"/>). One client may have
+		      The request may be to a protected resource (see <xref linkend="authentication"/>). One client may have
 		      access to the resource, but another not. So the resource must either be cached specifically for the requesting
 		      user, or not at all. With a large number of users, caching per user may not be practical, as the cache hit 
-		      ratio becomes too low or the memory usage of the cache too high.
+		      ratio becomes too low (or the amount of memory needed for the cache too high).
+		    </para>
+		    <para>
+		      The <literal>private</literal> parameter of the <literal>Cache-Control</literal> header allows caching only 
+		      for caches that are specific to one user (e.g. on the client, but not in a caching proxy).
+		      The <literal>public</literal> parameter marks authenticated responses as cacheable. By default, any resource 
+		      protected by authentication is not cacheable, so you should only make resources protected that absolutely 
+		      require it. When you do so, combine the <literal>public</literal> and <literal>no-cache</literal> parameters
+		      to allow caching with conditional <literal>GET</literal>s. This doesn't save any network roundtrips, but it
+		      does benefit from smaller messages.
 		    </para>
       </listitem>
       <listitem>
 		    <para>
 		      If the request is secured using HTTPS (see <xref linkend="tls"/>), it won't be cached either.
-		      This is a major problem for REST APIs, that often must use HTTPS to protect sensitive content. You can solve this
-		      problem by terminating the HTTPS connection at the load balancer, and then have the load balancer route the 
-		      traffic to a cluster of caching proxies rather than the origin servers. The downside of this approach is that
-		      the traffic is now unprotected within the provider's network and thus accessible to insiders. We'll talk more
-		      about insider threats in <xref linkend="threat-modeling"/>.
+		      This is a major problem for REST APIs, that often must use HTTPS to protect sensitive content.
+		      You can solve this problem by terminating the HTTPS connection at the load balancer, and then have the load 
+		      balancer route the traffic to a cluster of caching proxies rather than the origin servers.
+		      The downside of this approach is that the traffic is now unprotected within the provider's network and thus 
+		      accessible to insiders. We'll talk more about insider threats in <xref linkend="threat-modeling"/>.
 		    </para>
       </listitem>
       <listitem>
 		    <para>
 		      If there is no validator (<literal>ETag</literal> or <literal>Last-Modified</literal>) present in the
-		      response, then it is considered uncacheable. We strongly advise to return one of these headers with all
-		      responses for both caching and concurrency purposes.
+		      response, then it is also considered uncacheable. We strongly advise to return one of these headers with all
+		      responses for both caching and concurrency control purposes.
 		    </para>
       </listitem>
       <listitem>
 		    <para>
+		      Some resources fluctuate so much, that caching is just a waste of memory.
 		      The server can explicitly state that its response should not be cached using the 
-		      <literal>Cache-Control</literal> header defined by RFC 7234 <citation>HTTP</citation>. This header gives
-		      the server a lot of control to indicate the <firstterm>freshness</firstterm> of the response. The
-		      <literal>Pragma: no-cache</literal> header value is an older and more limited alternative to 
-		      <literal>Cache-Control</literal>.
+		      <literal>Cache-Control</literal> header and the <literal>no-store</literal> parameter.
+		      The <literal>Pragma: no-cache</literal> header value is an older and more limited alternative to
+		      <literal>Cache-Control</literal>. It is not as widely supported, so we advise against its use.
 		    </para>
       </listitem>
     </orderedlist>
-    <para>
-      The <literal>Expires</literal> header may be used to set the freshness of the response. It tells all caches how 
-      long the associated representation is fresh for. A fresh representation may be returned from the cache without
-      even sending a conditional <literal>GET</literal> to the origin server.
-    </para>
-    <para>
-      Different resources will have vastly different values for the <literal>Expires</literal> header. A Home
-      resource (see <xref linkend="home"/>) will probably be good for quite some time, but other resources will not.
-    </para>
-    <para>
-      The value of the <literal>Expires</literal> header is an HTTP date, which means the precision is one second. Note
-      that an HTTP data is in Greenwich Mean Time (GMT), not local time. The problem with using dates, of course, is 
-      that client and server must share the same clock, which is not at all guaranteed unless they're known to use the
-      same time server. It's therefore better to use the <literal>Cache-Control</literal> header.
-    </para>
-    <para>
-      The <literal>Cache-Control</literal> header supports several parameters. <literal>no-cache</literal> means the
-      response is never fresh. In other words, the client must always send a conditional <literal>GET</literal>.
-      <literal>no-store</literal> goes one step further and instructs the client not to cache the representation at all.
-    </para>
-    <para>
-      The <literal>private</literal> parameter allows caching only for caches that are specific to one user (e.g. on
-      the client, but not in a caching proxy). The <literal>public</literal> parameter marks authenticated responses
-      as cacheable. By default, any resource protected by authentication is not cacheable. You should combine the
-      <literal>public</literal> and <literal>no-cache</literal> parameters for protected resources. Also only make
-      resources protected that absolutely require protection.
-    </para>
-    <para>
-      Probably the most important parameter is <literal>max-age</literal>. It is similar to the 
-      <literal>Expires</literal> header in that it controls the freshness of the response, but it doesn't suffer from 
-      the clock synchronization issue. The value of this parameter is the number of seconds the representation is fresh,
-      rather than a date.
-    </para>
-    <para>
-      <literal>Cache-Control</literal> takes precedence over <literal>Expires</literal>. To avoid confusion, we advise
-      to use only <literal>Cache-Control</literal>. See <xref linkend="http-happy-path"/> for an example.
-    </para>
   </section>
   
   <section id="ranges">
