@@ -626,7 +626,7 @@
       uploaded file or a generated report. This has its own set of performance and scalability issues.
     </para>
     <para>
-      Transmitting large messages means holding a connection open for a long time. If the server uses threads from a
+      Transmitting large messages means holding a TCP connection open for a long time. If the server uses threads from a
       thread pool to handle messages, this means that one thread stays busy for a long time. This in turn means that
       a new request may block while waiting for a thread to become available for processing it. This is a shame,
       because the thread may not be doing much other than waiting for I/O.
@@ -634,10 +634,11 @@
     <para>
       This realization led people to devise other ways of handling requests than using a thread per request. The
       difference in performance between the Nginx and Apache web servers, for example, is a clear indicator that there 
-      is much to be gained from pursuing such alternatives. The Node.js server is another good example.
+      is much to be gained from pursuing such alternatives. The Node.js server is another good example. We'll discuss
+      this so-called reactive programming in <xref linkend="reactive"/>.
     </para>
     <para>
-      Even with such reactive approaches, though, there are downsides to serving large messages. The number of TCP 
+      Even with reactive programming, though, there are downsides to serving large messages. The number of TCP 
       connections that may be simultanously open in your infrastructure may be limited as well, for instance. Or your
       clients may be on mobile devices with spotty network connectivity. Large messages are more likely to fail in such
       conditions. To add insult to injury, the messages would have to be re-transmitted until fully received. 
@@ -661,9 +662,9 @@
     <para>
       You will most likely want to employ more than one server in a cluster. A single server can't handle a growing
       amount of traffic, and if it fails then your entire service is down. 
-      As soon as you have more than one server, a choice must be made which one handles an incoming request.
     </para>
     <para>
+      As soon as you have more than one server, a choice must be made which one handles an incoming request.
       For this purpose, you will want to deploy a <firstterm>load balancer</firstterm>, whose sole job it is to route
       incoming requests from clients to a server that can process them.
       Load balancers can be implemented in hardware or in software.
@@ -679,18 +680,27 @@
       spend most of their time waiting to be served. 
     </para>
     <para>
-      This can be prevented by making the load balancer more intelligent. It could measure the time it takes a server
-      to process a request. If a server is starting to take longer on average than other servers, the load balancer
-      can send fewer requests to that server to give it a chance to catch up.
+      This can be prevented by making the load balancer more intelligent. For instance, it could measure the time it 
+      takes a server to process a request. If a server is starting to take longer on average than other servers, the 
+      load balancer can send fewer requests to that server to give it a chance to catch up.
     </para>
     <para>
       As you may have guessed from the words "chance" and "unlucky", this is not normally an issue. Watch your
       servers for relative response times and utilization (see <xref linkend="logging"/>) and find out if you're 
-      affected.
+      affected. If you are, you can usually fix the problem by reconfiguring your load balancer to use a more 
+      appropriate algorithm.
     </para>
   </section>
   
   <section>
     <title>Summary</title>
+    <para>
+      This chapter deals with an important aspect of REST APIs: performance and scalability. These qualities are
+      important from both the client and server side. For the client, performance is one aspect of usability. For
+      the server, performance and scalability may have dramatic economic consequences.
+    </para>
+    <para>
+      Another quality that is important for both client and server is security, to which we turn our attention next.
+    </para>
   </section>
 </chapter>
