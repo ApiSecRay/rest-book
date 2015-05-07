@@ -1,38 +1,134 @@
 <chapter id="security">
-  <!-- TODO: Reorganize for better flow. Introduce security vocabulary. -->
   <title>Security</title>
   <para>
     Exposing your data or application through a REST API is a wonderful way to reach a wide audience. The downside of 
     a wide audience, however, is that it’s not just the good guys who come looking. Especially publicly available APIs
-    risk attracting all kinds of malicious users.
+    risk attracting all kinds of people we'd rather keep out. Unless your API serves nothing but free, public, and
+    read-only data, you must secure it.
   </para>
   <para>
-    Security consists of three factors:
-      Confidentiality
-      Integrity
-      Availability
+    Security consists of three factors, collectively known as the CIA-triad:
+  </para>
+  <variablelist>
+    <varlistentry>
+      <term>Confidentiality</term>
+      <listitem>
+        <para>
+	        The extent to which information is shared only with those who are eligible to see it. If confidentiality is
+	        compromised, we speak of <firstterm>Information Disclosure</firstterm>.
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>Integrity</term>
+	    <listitem>
+	      <para>
+		      The extent to which information can only be added, changed, and removed by authorized agents. If integrity is
+		      compromised, we speak of <firstterm>Tampering</firstterm>.
+	      </para>
+	    </listitem>  
+    </varlistentry>
+    <varlistentry>
+      <term>Availability</term>
+			<listitem>
+			  <para>
+				  The extent to which information is accessible to those who need it, when they need it. If availability is 
+				  compromised, we speak of <firstterm>Denial of Service</firstterm> (DoS).
+			  </para>
+			  <para>
+			    As we saw in <xref linkend="caching"/>, CDNs serve a large fraction of Internet content today. They provide 
+			    the content provider a degree of protection from DoS attacks by using their large distributed server 
+			    infrastructure to absorb the attack traffic.
+			  </para>
+			</listitem>
+    </varlistentry>
+  </variablelist>
+  <para>
+    In the context of an HTTP-based API, Information Disclosure is applicable for <literal>GET</literal> methods and 
+    any other methods that return information. Tampering is applicable for <literal>PUT</literal>, 
+    <literal>POST</literal>, and <literal>DELETE</literal>. Denial of Service is a concern with all HTTP methods.
   </para>
   <para>
-    CDNs serve a large fraction of the Internet content today. They provide the content provider a degree of 
-    protection from DoS attacks by using their large distributed server infrastructure to absorb the attack traffic.
+    Security may be compromised by accident or on purpose. In the latter case, we speak of an 
+    <firstterm>attack</firstterm>. If security is compromised, we say that a <firstterm>vulnerability</firstterm>
+    is <firstterm>exploited</firstterm>, but vulnerabilities may exist even if they are not exploited (yet).
   </para>
   <para>
-    In terms of Microsoft’s STRIDE approach, the security compromises we want to avoid with each of these are 
-    Information Disclosure, Tampering, and Denial of Service.
+    Vulnerabilities exist for a variety of reasons, which fall broadly into two classes. We may have overlooked 
+    something during our design, in which case we speak of a <firstterm>design flaw</firstterm>, or we may have
+    implemented a sound design in an inappropriate way, in which case we speak of a <firstterm>bug</firstterm>. 
+    Vulnerabilities are split about evenly between flaws and bugs, so you really can't build a secure system unless you 
+    deal with both.
   </para>
   <para>
-    In the context of an HTTP-based API, Information Disclosure is applicable for GET methods and any other methods 
-    that return information. Tampering is applicable for PUT, POST, and DELETE. Denial of Service is applicable
-    for all methods.
+    Not all vulnerabilities are equally severe. The US National Institute of Standards and Technology (NIST) has
+    developed a scoring system named <firstterm>Common Vulnerability Scoring System</firstterm> 
+    <citation>TODO</citation> to compare relative severity.
+    There is an online risk rating tool that calculates the CVSS score based on a number of different aspects. 
+    These scores range from 0 (no problem at all) to 10 (extremely severe and very easy to exploit).
+    You can use CVSS scores to prioritize your efforts.
   </para>
   
   <section id="threat-modeling">
-    <title>Threat Modeling REST APIs</title>
+    <title>Threat Modeling</title>
+	  <para>
+	    As with many other non-functional requirements, security is best built in rather than bolted on after the fact 
+	    <citation>McGraw06</citation>.
+	    Preventing design flaws is the subject of this chapter, while we look at bugs with security implications in 
+	    <xref linkend="implementation"/>. Both activities should be part of a development approach that considers security
+	    at every step, what Microsoft calls a <firstterm>Security Development Lifecycle</firstterm>
+	    <citation>SDL</citation>.
+	  </para>
+	  <para>
+	    An SDL is a structured approach to building security in. It consists of many activities that we won't cover in 
+	    this book, like providing developers with specific security training. While essential for building secure 
+	    software, these activities are not specific to REST APIs. We will, however, look at the main tool in the design 
+	    phase of the SDL: threat modeling.
+	  </para>
     <para>
-      A good way to think about security is by looking at all the data flows. That’s why threat modeling usually 
-      starts with a Data Flow Diagram (DFD). In the context of a REST API, a close approximation to the DFD is the 
-      state diagram. For proper access control, we need to secure all the transitions.
-  </para>
+      <firstterm>Threat modeling</firstterm> is a design activity where the designer explicitly considers the security
+      aspect of the system in four steps <citation>Shostack14</citation>:
+    </para>
+    <orderedlist>
+      <listitem>
+        <para>
+          Model the system. In this step you think about what you're going to build.
+          Since it's the data that we're trying to protect, most threat models start by looking at the various ways
+          data flows through the system. The notation that's usually used for this is a diagram called a 
+          <firstterm>Data Flow Diagram</firstterm> (DFD), which shows the processes, data stores, and data flows between
+          them.
+        </para>
+        <para>
+          State diagrams (see <xref linkend="state-diagrams"/>) contain some of the same information as DFDs, so they 
+          can help you get started.  
+          TODO: Elaborate.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Find threats. In this step you think about what can go wrong once the system is built. This is where you try
+          to think like an attacker. This is often very difficult for developers that haven't had proper training, so
+          you'll probably want to bring in specific expertise.
+        </para>
+        <para>
+          You can use the STRIDE model or attack trees to discover threats. 
+          TODO: Elaborate.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Address threats. In this step you think about potential corrective measures. In the best case scenario, you
+          can modify or add to your design in such a way that the threat goes away completely. In other cases, you'll
+          have to settle for <firstterm>mitigating</firstterm> threats. 
+        </para>
+      </listitem>
+      <listitem>
+        <para>Validate. In this step you verify that you did a decent job of analysis.</para>
+      </listitem>
+    </orderedlist>
+
+
+  <!-- TODO -->
   <para>
       The traditional way to do that, is to specify restrictions at the level of URI and HTTP method. For instance, 
       this is the approach that Spring Security takes. The problem with this approach, however, is that both the 

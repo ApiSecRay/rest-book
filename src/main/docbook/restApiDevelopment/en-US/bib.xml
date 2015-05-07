@@ -446,6 +446,27 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>SDL</abbrev>
+    <biblioid class="uri">http://www.microsoft.com/en-us/sdl/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Shostack14</abbrev>
+    <citetitle>Threat Modeling: Designing for Security</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Adam</firstname>
+          <surname>Shostack</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2014</year>
+    </copyright>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>Siren</abbrev>
     <biblioid class="uri">https://github.com/kevinswiber/siren</biblioid>
   </biblioentry>

@@ -59,7 +59,7 @@
     <title>Extracting RADL From Code</title>
   </section>
 
-  <section>
+  <section id="secure-impl">
     <title>Security</title>
     <section id="input-validation">
       <title>Input Validation</title>
