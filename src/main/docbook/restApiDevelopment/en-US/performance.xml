@@ -695,7 +695,7 @@
   <section>
     <title>Summary</title>
     <para>
-      This chapter deals with an important aspect of REST APIs: performance and scalability. These qualities are
+      This chapter deals with two important aspects of REST APIs: performance and scalability. These qualities are
       important from both the client and server side. For the client, performance is one aspect of usability. For
       the server, performance and scalability may have dramatic economic consequences.
     </para>
