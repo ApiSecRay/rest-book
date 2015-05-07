@@ -36,8 +36,17 @@
   </para>
   <para>
     When the scalability factor is lower than 1.0, we have sub-linear scalability. This will usually be the case; the 
-    trick is to get as close to linear scalability as possible.
+    trick is to get as close to linear scalability as possible. The difference between linear and sub-linear 
+    scalability is shows in <xref linkend="scalability"/>.
   </para>
+  <figure id="scalability">
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="images/scalability.png" scale="68" align="center"/>
+      </imageobject>
+    </mediaobject>
+    <title>Linear vs. sub-linear scalability</title>
+  </figure>
   <para>
     Scalability is one of the driving forces behind the REST architectural style (see <xref linkend="introduction"/>). 
     This chapter offers a bag of tricks to help you achieve good performance and scalability.
@@ -346,9 +355,18 @@
       A paged collection serves its members in chunks of a particular size called <firstterm>pages</firstterm>. 
       Paged collections accept URI query parameters that indicate the starting page number and the number of items per 
       page that the client wants to receive.
-      The representation contains links to the previous and next pages, if applicable.
+      The representation contains links to the first, last, previous and next pages, if applicable, as shown in
+      <xref linkend="paged-collection"/>.
       The client then navigates the pages in search for the item it is interested in.
     </para>
+    <figure id="paged-collection">
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/paging.png" scale="50" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <title>A paged collection</title>
+    </figure>
     <para>
       It's best to implement paging using support from the underlying database. For instance, you could modify your
       query to the database such that it returns the correct items. If you can't do that, you may be forced to have the
@@ -538,6 +556,14 @@
 	    combinations to avoid overwriting someone else's changes.
 	    We can use the same system to check the freshness of cached data.
     </para>
+    <figure id="caching-proxy">
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/caching-proxy.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <title>A caching proxy</title>
+    </figure>
     <para>
       The client sends a <firstterm>conditional <literal>GET</literal></firstterm> request by adding the 
       <literal>If-Match</literal> or <literal>If-Unmodified-Since</literal> header. Conditional <literal>GET</literal>s are 
@@ -649,8 +675,11 @@
     </para>
     <para>
       With this technique, the client indicates the range of bytes from the content that it wants to receive, hence the 
-      name. The HTTP specification defines the <literal>Content-Range</literal> header for this purpose 
-      <citation>HTTP</citation>.
+      name. RFC 7233 defines the <literal>Content-Range</literal> header for this purpose <citation>HTTP</citation>.
+    </para>
+    <para>
+      Unfortunately, some caches don't store content ranges. Test your environment carefully, or you risk undoing
+      one performance optimization by introducing another.
     </para>
     <para>
       TODO: Re-read HTTP spec and add anything relevant here.
