@@ -40,8 +40,8 @@
           </para>
           <para>
             The most used status codes in this range are <literal>200 OK</literal>, <literal>201 Created</literal> (see
-            <xref linkend="create"/>), <literal>202 Accepted</literal> (see <xref linkend="async"/>), and 
-            <literal>204 No Content</literal>.
+            <xref linkend="create"/>), <literal>202 Accepted</literal> (see <xref linkend="async"/>), 
+            <literal>204 No Content</literal>, and <literal>206 Partial Content</literal>.
           </para>
         </listitem>
       </varlistentry>

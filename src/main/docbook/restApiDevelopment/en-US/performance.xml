@@ -11,10 +11,6 @@
     while scalability is about how that time changes as more and more work is performed by the system.
   </para>
   <para>
-    Better performance means less time required to perform a <firstterm>job</firstterm>, or unit of work. This leaves 
-    more time for doing other jobs, which often translates to better scalability.
-  </para>
-  <para>
     There are two types of scalability: <firstterm>vertical scaling</firstterm> addresses the scalability of a single 
     instance of the service, while <firstterm>horizontal scaling</firstterm> focuses on multiple instances.
     Vertical scaling increases the work done by making the individual servers more powerful, while horizontal scaling 
@@ -31,13 +27,13 @@
   </para>
   <para>
     Each server added to the cluster contributes processing power, but there is also some overhead of maintaining the
-    cluster. The percentage of useful work that an additional server can deliver is called the 
+    cluster and coordinating work. The percentage of useful work that an additional server can deliver is called the 
     <firstterm>scalability factor</firstterm>. A scalability factor of 1 implies linear scalability.
   </para>
   <para>
     When the scalability factor is lower than 1.0, we have sub-linear scalability. This will usually be the case; the 
     trick is to get as close to linear scalability as possible. The difference between linear and sub-linear 
-    scalability is shows in <xref linkend="scalability"/>.
+    scalability is shown in <xref linkend="scalability"/>.
   </para>
   <figure id="scalability">
     <mediaobject>
@@ -118,8 +114,8 @@
     <para>
       By the way, the reason that these e-commerce websites store the shopping cart as resource state, is not because
       the people building these websites don't know what they're doing. Their clients are browsers, not the more 
-      capable REST clients that we're envisioning consuming our API. Also, for some e-commerce scenarios it does make 
-      sense to start buying something and come back to complete the transaction later.
+      capable REST clients that we're envisioning consuming our API. Also, for some e-commerce scenarios it really does 
+      make sense to start buying something and come back to complete the transaction later.
     </para>
   </section>
   
@@ -173,7 +169,7 @@
     <para>
       There is nothing wrong with starting out with domain objects for your messages, as long as you remember that they
       are not the same. Don't change your domain objects to reduce the number of HTTP messages exchanged, but map 
-      several domain objects onto a single message / DTO to get better performance.
+      several domain objects onto a single message to get better performance.
     </para>
     <para>
       If you start with the functionality rather than the data, as we discussed in <xref linkend="state-diagrams"/>, 
@@ -191,8 +187,7 @@
     <para>
       As with any performance optimization, you should measure the effect of the change. Only keep a change if it
       significantly improves performance, because you're often making the API less convenient to use when you combine
-      transitions. Remember that the state diagram captures real usage scenarios, especially when they were derived
-      from BDD scenarios (see <xref linkend="bdd-to-sd"/>).
+      transitions. Remember that the state diagram captures real usage scenarios (see <xref linkend="bdd-to-sd"/>).
     </para>
     <para>
       Think carefully about how you've changed the interactions. If you combine <literal>Place order</literal> and
@@ -208,8 +203,8 @@
       But sometimes it helps to think about the requirements differently.
     </para>
     <para>
-      For example, some of the messages exchanged in RESTBuck have to deal with payments. We could envision a 
-      different model where customers pay a large sum up front and their orders are deducted from their balance. 
+      For example, some of the messages exchanged in RESTBuck deal with payments. We could envision a 
+      different model where customers pay a larger sum up front and their orders are deducted from their balance. 
       Or maybe customers could pay after the fact, when we send them an invoice for their recent orders. Both approaches
       reduce the number of messages exchanged, because a single payment message now covers a number of orders.
     </para>
@@ -233,9 +228,13 @@
     <para>
       Since it's often hard to predict whether inlining is a good idea, it's usually best to leave the choice up to the 
       client. It can use a URI query parameter to indicate whether it wants the server to inline the collection items.
-      Use a sensible default value if you can. If your API has multiple collections, which most APIs do, then pick a
+      Use a sensible default value if you can.
+    </para>
+    <para>
+      If your API has multiple collections, which most APIs do, then pick a
       default that works for the majority and use that as the default for all of them. Consistency is an important
-      aspect of the Developer eXperience.
+      aspect of the Developer eXperience. If you have trouble deciding the default value, go with 
+      <literal>false</literal> to be on the safe side.
     </para>
     <para>
       We can go a step further and generalize the concept of inlining beyond collections. If two resources are related, 
@@ -246,7 +245,7 @@
       For instance, consider an API that maintains persons and their addresses. Each person may have multiple addresses 
       and each address may house multiple people. Normally we would make the addresses of a person a separate 
       collection resource, but we can also include all of them in the representation of the person. Clients requesting
-      information about a person may often want to know their addresses, so this may save a few network roundtrips.
+      information about a person may often want to know their addresses, so this may save some network roundtrips.
     </para>
     <para>
       We can take this technique too far as well. Imagine a representation of a person that embeds the representation 
@@ -275,7 +274,7 @@
     <para>
       Even when infinite recursion is not possible, you may still be at risk. In a large data model with a high level of 
       connectedness, a large value of <literal>depth</literal> may drain your server of resources and be used as a
-      denial of service attack. Again, use input validation to prevent such attacks.
+      denial of service attack (see <xref linkend="security"/>). Again, use input validation to prevent such attacks.
     </para>
   </section>
   
@@ -287,7 +286,7 @@
       <xref linkend="workflow"/>).
     </para>
     <para>
-      In such cases we can easily save the client a network roundtrip by returning the representation of the created
+      In such cases we can easily save the client a network roundtrip by including the representation of the created
       resource in the response with the <literal>201 Created</literal> status. You should return exactly the
       representation that the client would receive in response to a <literal>GET</literal> on the URI in the
       <literal>Location</literal> header, including a link with the <literal>self</literal> link relation that contains
@@ -325,7 +324,7 @@
   <section id="paging">
     <title>Paging &amp; Filtering</title>
     <para>
-      As we saw in <xref linkend="collection"/>, collections are fundamental to almost every API. Some collections
+      Collections are fundamental to almost every API, as we saw in <xref linkend="collection"/>. Some collections
       will remain modest in size, but other collections can become very large. What will a client requesting 
       such a large collection do with the result? There are a few cases where a client really wants to plough through
       a million (or billion!) items, but such cases are rare, especially when the items are presented to a human user.
@@ -339,15 +338,15 @@
     <para>
       The other likely scenario is that the client doesn't quite know what item it is looking for, but it knows a 
       couple of things that must be true for an item to be interesting. For example, a RESTBucks customer may
-      browse the menu looking for a hot beverage without caffeine without knowing beforehand what items match those
-      criteria.
+      browse the menu looking for a hot beverage that does not contain caffeine without knowing beforehand what items 
+      match those criteria.
     </para>
     <para>
       Both scenarios have in common that the number of items that are of interest to the client is small compared to
       the total number of items. Therefore, returning all of the items is wasteful and should be avoided.
     </para>
     <para>
-      There are basically two ways to limit the number of items returned. The first is to blindly return some items
+      There are two ways to limit the number of items returned. The first is to blindly return some items
       but not others; the second is to return only items that are interesting to the client. The first option is
       called <emphasis>paging</emphasis>; the second is <emphasis>filtering</emphasis>.
     </para>
@@ -357,7 +356,7 @@
       page that the client wants to receive.
       The representation contains links to the first, last, previous and next pages, if applicable, as shown in
       <xref linkend="paged-collection"/>.
-      The client then navigates the pages in search for the item it is interested in.
+      The client then navigates the pages in search for the item(s) it is interested in.
     </para>
     <figure id="paged-collection">
       <mediaobject>
@@ -368,7 +367,8 @@
       <title>A paged collection</title>
     </figure>
     <para>
-      It's best to implement paging using support from the underlying database. For instance, you could modify your
+      If the items in the collection come from a database, it's best to implement paging using support from that 
+      database. For instance, you could modify your
       query to the database such that it returns the correct items. If you can't do that, you may be forced to have the
       database return all items, only to discard most of them when building the response. Not only would that loose 
       much of the potential performance gain, it could have disastrous effects on scalability.
@@ -378,12 +378,12 @@
       Paging can be useful in situations where the client doesn't really know what it's looking for, like when it simply
       wants to present some items to a human user. There are usually alternative and better designs where that isn't
       needed, however. This is one of those rare occasions where usablitity and performance may actually go hand in 
-      hand, so don't waste that unique opportunity.
+      hand, so if that's the case then jump on that unique opportunity.
     </para>
     <para>
       Note that if a client wants to process all items, then it actually hurts performance to break up the collection
       in pages, because it now requires more messages to transmit all items and extra links to the other pages.
-      Again, think through your use cases and measure carefully before you decide upon anything.
+      Again, think through your use cases and measure carefully.
     </para>
     <para>
       Paging is pretty dumb in the sense that the server has no clue which of the items transmitted are interesting to
@@ -397,7 +397,8 @@
       time as desired. This is an excellent case for paging.
     </para>
     <para>
-      Filtering is usually a better solution than paging, because it allows the client to tell the server what items it
+      In most case, however, filtering is a better solution than paging, because it allows the client to tell the 
+      server what items it
       is interested in, preventing the server from having to transmit uninteresting items. A filter is a search 
       condition that limits which collection items are returned. The search condition is usually expressed using URI 
       query parameters, for instance using those defined by the OpenSearch standard <citation>OpenSearch</citation>.
@@ -408,8 +409,13 @@
       query parameters, and easy to translate into database queries.
     </para>
     <para>
-      Inventing your own search language is a big undertaking (although you can usually start small) and you'll have to 
-      ask yourself whether it is worth the trouble. A search language requires a parser for that language. If you
+      We've already seen an example of a filter in <xref linkend="lifecycle"/>, where a RESTBucks barista client 
+      queries the server for paid orders using the filter expression <literal>status=paid</literal>. It could have
+      added paging on top of that to make sure it would only ever get one order back.
+    </para>
+    <para>
+      Inventing your own search language is a big undertaking (although you may be able to start small) and you'll have 
+      to ask yourself whether it is worth the trouble. A search language requires a parser for that language. If you
       start small and have to change the language, you may be forced to support more than one version of the search
       language, which could make the parser more complicated. You can prevent that by specifying the search query in 
       the entity-body rather than in a query parameter and have the client use content negotiation to indicate 
@@ -417,9 +423,9 @@
       evolution of APIs in <xref linkend="breaking-changes"/>.
     </para>
     <para>
-      A search language couples the client to the server implementation beyond its REST API. In effect, the language 
-      extends the API. If you're not careful, you may end up building a new API that doesn't benefit from the 
-      advantages of the REST architectural style.
+      Another disadvantage of a search language is that it couples the client to the server implementation beyond its 
+      REST API. In effect, the language extends the API. If you're not careful, you may end up building a new API that 
+      doesn't benefit from the advantages of the REST architectural style.
     </para>
     <para>
       If the number of combinations of things to search for is limited, you may forego a filter and offer a specialized
@@ -434,14 +440,9 @@
       search language.
     </para>
     <para>
-      We've already seen an example of a filter in <xref linkend="lifecycle"/>, where a RESTBucks barista client 
-      queries the server for paid orders using the filter expression <literal>status=paid</literal>. It could have
-      added paging on top of that to make sure it would only ever get one order back.
-    </para>
-    <para>
       For collections or other resources that support inlining (see <xref linkend="granularity"/>), you need to decide
-      whether your filter can look at the inlined resources or not. There is a possibility that you'll end up making
-      you filter so complex that you are in fact inventing a small search language.
+      whether your filter can look at the inlined resources and, if so, how. be careful, because there is a possibility 
+      that you'll end up making you filter so complex that you are in fact inventing a small search language.
     </para>
     <para>
       We can take the ideas of inlining and filtering to their logical conclusion. Imagine a collection that inlines 
@@ -507,8 +508,8 @@
     <para>
       A common problem with caches is that they may go <firstterm>stale</firstterm> when the information they contain 
       is no longer up-to-date. A client using data from a stale cache may draw the wrong conclusions and take 
-      inappropriate actions. In some cases this may be perfectly acceptible, but in other cases it may make the 
-      diffence between life and death, so do your homework and find out which situation you're in.
+      inappropriate actions. In some cases this may be perfectly acceptible, but in other cases it may mean the 
+      difference between life and death, so do your homework and find out which situation you're in.
     </para>
     <para>
       The opposite of stale data is <firstterm>fresh</firstterm> data. 
@@ -522,7 +523,8 @@
     <para>
       Different resources will have vastly different values for the <literal>Expires</literal> header.
       A Home resource (see <xref linkend="home"/>) will probably be good for quite some time, but other resources may 
-      not.
+      not. For instance, if your API serves stock traders, it's probably not a good idea to cache stock prices for too
+      long.
     </para>
     <para>
       The value of the <literal>Expires</literal> header is an HTTP date, which means the precision is one second. Note
@@ -534,7 +536,7 @@
       The <literal>Cache-Control</literal> header supports several parameters. The <literal>max-age</literal> parameter
       is the second mechanism to report the freshness interval. It is similar to the <literal>Expires</literal> header 
       in that it controls the freshness of the response, but it doesn't suffer from the clock synchronization issue, 
-      because the value of this parameter is the number of seconds the representation is fresh, rather than a date.
+      because the value of this parameter is the number of seconds the representation stays fresh, rather than a date.
     </para>
     <para>
       <literal>Cache-Control</literal> takes precedence over <literal>Expires</literal>. To avoid confusion, we advise
@@ -612,8 +614,9 @@
 		      The <literal>public</literal> parameter marks authenticated responses as cacheable. By default, any resource 
 		      protected by authentication is not cacheable, so you should only make resources protected that absolutely 
 		      require it. When you do so, combine the <literal>public</literal> and <literal>no-cache</literal> parameters
-		      to allow caching with conditional <literal>GET</literal>s. This doesn't save any network roundtrips, but it
-		      does benefit from smaller messages.
+		      to allow caching with conditional <literal>GET</literal>s. This doesn't save any network roundtrips, because 
+		      there must always be an up-to-date check, but it does benefit from smaller messages being transmitted in case 
+		      the cache is still fresh.
 		    </para>
       </listitem>
       <listitem>
@@ -621,7 +624,8 @@
 		      If the request is secured using HTTPS (see <xref linkend="tls"/>), it won't be cached either.
 		      This is a major problem for REST APIs, that often must use HTTPS to protect sensitive content.
 		      You can solve this problem by terminating the HTTPS connection at the load balancer, and then have the load 
-		      balancer route the traffic to a cluster of caching proxies rather than the origin servers.
+		      balancer route the traffic to a cluster of caching proxies rather than the origin servers. We discuss
+		      load balancers in <xref linkend="load-balancing"/>.
 		      The downside of this approach is that the traffic is now unprotected within the provider's network and thus 
 		      accessible to insiders. We'll talk more about insider threats in <xref linkend="threat-modeling"/>.
 		    </para>
@@ -638,8 +642,8 @@
 		      Some resources fluctuate so much, that caching is just a waste of memory.
 		      The server can explicitly state that its response should not be cached using the 
 		      <literal>Cache-Control</literal> header and the <literal>no-store</literal> parameter.
-		      The <literal>Pragma: no-cache</literal> header value is an older and more limited alternative to
-		      <literal>Cache-Control</literal>. It is not as widely supported, so we advise against its use.
+		      The <literal>Pragma: no-cache</literal> header value is an older and more limited alternative to achieve the
+		      same. It is not as widely supported, however, so we advise against its use.
 		    </para>
       </listitem>
     </orderedlist>
@@ -661,7 +665,7 @@
       This realization led people to devise other ways of handling requests than using a thread per request. The
       difference in performance between the Nginx and Apache web servers, for example, is a clear indicator that there 
       is much to be gained from pursuing such alternatives. The Node.js server is another good example. We'll discuss
-      this so-called reactive programming in <xref linkend="reactive"/>.
+      these more modern approaches in <xref linkend="reactive"/>.
     </para>
     <para>
       Even with reactive programming, though, there are downsides to serving large messages. The number of TCP 
@@ -671,40 +675,140 @@
     </para>
     <para>
       For all these reasons, it is better to have smaller messages. We would, therefore, like to split up large messages
-      into chunks. This is precisely what happens when we use content ranges.
+      into chunks. We can do that using content ranges. With this technique, the client indicates the range of bytes 
+      from the content that it wants to receive, hence the name.
     </para>
     <para>
-      With this technique, the client indicates the range of bytes from the content that it wants to receive, hence the 
-      name. RFC 7233 defines the <literal>Content-Range</literal> header for this purpose <citation>HTTP</citation>.
+      RFC 7233 defines several headers for this purpose <citation>HTTP</citation>:
+    </para>
+    <variablelist>
+      <varlistentry>
+        <term><literal>Accept-Ranges</literal></term>
+        <listitem>
+          <para>
+            This response header field allows a server to indicate that it supports range requests for the target 
+            resource. The value of the header is either <literal>none</literal> to indicate that range requests are not 
+            allowed, or a unit of ranges. The only unit defined by the HTTP specification is <literal>bytes</literal>.
+          </para>
+          <para>
+            A client may issue a range request without having seen an <literal>Accept-Ranges</literal> header in the
+            response (or else we'd have a chicken and egg problem).
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><literal>Range</literal></term>
+        <listitem>
+          <para>
+            This request header field on modifies the semantics of the <literal>GET</literal> method to request 
+            transfer of only one or more subranges of the selected representation data, rather than the entire selected
+            representation data. The value consists of one or more ranges of bytes.
+          </para>
+          <para>
+            A byte range consists of two positions, separated by a dash (<literal>-</literal>), e.g. 
+            <literal>0-499</literal> to receive the first 500 bytes. A client may also leave out one of the two 
+            positions, e.g. <literal>-500</literal> for the last 500 bytes, or <literal>500-</literal> for the 501th
+            and following bytes.
+          </para>
+          <para>
+            The <literal>Range</literal> header value may consist of more than one byte range separated by commas,
+             e.g. <literal>0-0,-1</literal> for the first and last bytes.
+          </para>
+          <para>
+            A server must ignore range requests for any method other than <literal>GET</literal>. Even for 
+            <literal>GET</literal> requests, it may ignore them and send the full representation. If the request is
+            conditional, and it would result in <literal>304 Not Modified</literal>, the server must also ignore the
+            range aspect of the request.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><literal>If-Range</literal></term>
+        <listitem>
+          <para>
+            This request header field can be used to make a <firstterm>conditional range request</firstterm>. If the 
+            representation is unchanged, the requested ranges are returned. If, however, the representation has 
+            changed, the entire representation is returned.
+          </para>
+          <para>
+	          The value of this header is either an ETag or an HTTP date, as explained in <xref linkend="caching"/>.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><literal>Content-Range</literal></term>
+        <listitem>
+          <para>
+            This response header field describes what range of the selected representation is enclosed. This may be
+            different from the requested range, for instance when the client left out the starting or ending position,
+            or when the client requested more bytes than the representation contains.
+          </para>
+          <para>
+            The value of this header is the range unit followed by the range, followed by the total length, 
+            e.g. <literal>bytes 0-500/1234</literal>. If the total length is unknown or costly to determine, the server
+            may send an asterisk (<literal>*</literal>) instead, e.g. <literal>bytes 0-500/*</literal>.
+          </para>
+          <para>
+            This response header field must only be used if the server returns a single range. For multiple ranges,
+            the server must use the <literal>multipart/byteranges</literal> media type, which is another variation of 
+            the multipart media types we saw in <xref linkend="batch"/>. Each body part will contain the 
+            <literal>Content-Range</literal> header with the range for that part.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    <para>
+      If a server honors a range request, it must send the <literal>206 Partial Content</literal> status code 
+      rather than <literal>200 OK</literal>. When multiple ranges are requested, a server may coalesce any of the
+      ranges that overlap, or that are separated by a gap that is smaller than the overhead of sending multiple 
+      parts (typically around 80 bytes).
+    </para>
+    <para>
+      If the <literal>Range</literal> header field contains an invalid range, e.g. where the starting position is
+      greater than the ending position, then the server should return <literal>416 Range Not Satisfiable</literal>. It
+      should also return this status if none of the requested ranges overlap the current representation's length. A
+      server may return <literal>200 OK</literal> with the complete representation instead. 
+    </para>
+    <para>
+      Whenever a <literal>416 Range Not Satisfiable</literal> status is returned, the server should also include the
+      <literal>Content-Range</literal> header with the actual representation length. 
+      For instance, if the representation is 500 bytes, then a request with <literal>Range: 600-900</literal> should 
+      get a <literal>416</literal> response with <literal>Content-Range: bytes */500</literal>.
+    </para>
+    <para>
+      We haven't used content ranges in RESTBucks, because all the messages that we've seen so far were fairly small.
+      One place where we could apply content ranges would be for images of the items on the menu.
     </para>
     <para>
       Unfortunately, some caches don't store content ranges. Test your environment carefully, or you risk undoing
       one performance optimization by introducing another.
     </para>
-    <para>
-      TODO: Re-read HTTP spec and add anything relevant here.
-    </para>
   </section>
   
-  <section>
+  <section id="load-balancing">
     <title>Load Balancing</title>
     <para>
       You will most likely want to employ more than one server in a cluster, since a single server can't handle a 
       growing amount of traffic and when it fails your entire service is down.
     </para>
     <para>
-      As soon as you have more than one server, a choice must be made which one handles an incoming request.
-      For this purpose, you will want to deploy a <firstterm>load balancer</firstterm>, whose sole job it is to 
-      optimize resource use, maximize throughput, minimize response time, and avoid overload of any single resource.
+      As soon as you have more than one server, a choice must be made which one handles an incoming request. You don't
+      want to leave that choice to the client, because that would be coupling the client to the server farm.
+    </para>
+    <para>
+      Instead, you will want to deploy a <firstterm>load balancer</firstterm>, whose job it is to optimize resource 
+      use, maximize throughput, minimize response time, and avoid overload of any single resource.
       Load balancers can be implemented in hardware or in software.
     </para>
     <para>
       Load balancers are usually placed in a demilitarized zone (DMZ) a physical or logical subnetwork that contains 
       and exposes an organization's external-facing services to a larger and untrusted network like the Internet. DMZs
-      improve security by shielding the server cluster from the outside world. Load balancers should themselves be
-      clustered to avoid any single point of failure. Since load balancers have less work to do, a cluster of size
-      two is often sufficient. Load balancers are often the terminating point of an TLS connection, as we'll see in 
-      <xref linkend="tls"/>.
+      improve security by shielding the server cluster from the outside world.
+      Load balancers are often the terminating point of an TLS connection, as we'll see in <xref linkend="tls"/>.
+    </para>
+    <para>
+      Load balancers should themselves be clustered to avoid any single point of failure. Since load balancers have 
+      less work to do than the origin servers, a cluster of size two is usually sufficient.
     </para>
     <para>
       Load balancers can improve performance by reducing the amount of traffic through compression. A load balancer
@@ -713,8 +817,9 @@
       had to send the entire request to the client directly.
     </para>
     <para>
-      The algorithm that a load balancer uses may impact performance and scalability. The simplest algorithm is
-      round robin, where each server gets to handle a request in turn. This is easy to implement and usually works well.
+      The algorithm that a load balancer uses may impact performance and scalability. The simplest algorithms are 
+      random and round robin. The latter distributes requests to each server in turn. This is easy to implement and 
+      usually works well.
     </para>
     <para>
       Round robin load balancing can break down when there is a large variance in the time it takes to process requests.
@@ -730,7 +835,8 @@
     <para>
       There are other load balancing algorithms, like weigted round robin and least connections. Watch your
       servers for relative response times and utilization (see <xref linkend="logging"/>) to find out if you're 
-      affected and need to switch algorithm. You can usually do that by reconfiguring your load balancer.
+      affected by request distribution problems and need to switch algorithms. You can easilly do that by reconfiguring 
+      your load balancer.
     </para>
   </section>
   
@@ -738,7 +844,7 @@
     <title>Summary</title>
     <para>
       This chapter deals with two important aspects of REST APIs: performance and scalability. These qualities are
-      important from both the client and server side. For the client, performance is one aspect of usability. For
+      important from both the client and server perspective. For the client, performance is one aspect of usability. For
       the server, performance and scalability may have dramatic economic consequences.
     </para>
     <para>
