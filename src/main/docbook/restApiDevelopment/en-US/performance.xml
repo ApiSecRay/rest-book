@@ -554,7 +554,7 @@
 	    When we discussed concurrency in <xref linkend="concurrency"/>, we saw how to use the <literal>ETag</literal>
 	    / <literal>If-Match</literal> and <literal>Date</literal> / <literal>If-Unmodified-Since</literal> header 
 	    combinations to avoid overwriting someone else's changes.
-	    We can use the same system to check the freshness of cached data.
+	    We can use the same system to check the freshness of cached data, as shown in <xref linkend="caching-proxy"/>.
     </para>
     <figure id="caching-proxy">
       <mediaobject>
@@ -689,14 +689,28 @@
   <section>
     <title>Load Balancing</title>
     <para>
-      You will most likely want to employ more than one server in a cluster. A single server can't handle a growing
-      amount of traffic, and if it fails then your entire service is down. 
+      You will most likely want to employ more than one server in a cluster, since a single server can't handle a 
+      growing amount of traffic and when it fails your entire service is down.
     </para>
     <para>
       As soon as you have more than one server, a choice must be made which one handles an incoming request.
-      For this purpose, you will want to deploy a <firstterm>load balancer</firstterm>, whose sole job it is to route
-      incoming requests from clients to a server that can process them.
+      For this purpose, you will want to deploy a <firstterm>load balancer</firstterm>, whose sole job it is to 
+      optimize resource use, maximize throughput, minimize response time, and avoid overload of any single resource.
       Load balancers can be implemented in hardware or in software.
+    </para>
+    <para>
+      Load balancers are usually placed in a demilitarized zone (DMZ) a physical or logical subnetwork that contains 
+      and exposes an organization's external-facing services to a larger and untrusted network like the Internet. DMZs
+      improve security by shielding the server cluster from the outside world. Load balancers should themselves be
+      clustered to avoid any single point of failure. Since load balancers have less work to do, a cluster of size
+      two is often sufficient. Load balancers are often the terminating point of an TLS connection, as we'll see in 
+      <xref linkend="tls"/>.
+    </para>
+    <para>
+      Load balancers can improve performance by reducing the amount of traffic through compression. A load balancer
+      can also employ <firstterm>TCP buffering</firstterm>, where it buffers responses from the server and spoon-feeds 
+      the data out to slow clients, allowing the web server to free a thread for other tasks faster than it would if it 
+      had to send the entire request to the client directly.
     </para>
     <para>
       The algorithm that a load balancer uses may impact performance and scalability. The simplest algorithm is
@@ -710,14 +724,13 @@
     </para>
     <para>
       This can be prevented by making the load balancer more intelligent. For instance, it could measure the time it 
-      takes a server to process a request. If a server is starting to take longer on average than other servers, the 
-      load balancer can send fewer requests to that server to give it a chance to catch up.
+      takes a server to process a request and send requests to the server that responds fastest. This algorithm is 
+      known as least response time, and it gives overloaded servers a chance to catch up.
     </para>
     <para>
-      As you may have guessed from the words "chance" and "unlucky", this is not normally an issue. Watch your
-      servers for relative response times and utilization (see <xref linkend="logging"/>) and find out if you're 
-      affected. If you are, you can usually fix the problem by reconfiguring your load balancer to use a more 
-      appropriate algorithm.
+      There are other load balancing algorithms, like weigted round robin and least connections. Watch your
+      servers for relative response times and utilization (see <xref linkend="logging"/>) to find out if you're 
+      affected and need to switch algorithm. You can usually do that by reconfiguring your load balancer.
     </para>
   </section>
   
