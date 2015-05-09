@@ -278,7 +278,7 @@
     </para>
   </section>
   
-  <section>
+  <section id="return-representation">
     <title>Return Created Or Updated Representations</title>
     <para>
       In many cases, a client will create a resource and then continues to work on its representation. It may create
@@ -366,6 +366,22 @@
       </mediaobject>
       <title>A paged collection</title>
     </figure>
+    <para>
+      There is an alternative implementation of paging where the server is in control of what pages are returned rather 
+      than the client. This approach uses a <firstterm>continuation token</firstterm> issued by the server. Here's how
+      that works.
+    </para>
+    <para>
+      The client issues a <literal>GET</literal> request for the collection. The server responds with the first page
+      and a continuation token. The client then issues another <literal>GET</literal> request which includes the 
+      continuation token. The server responds with the second page, and a new continuation token. This goes on until
+      the server returns the last page, which does not include a continuation token.
+    </para>
+    <para>
+      The advantage of this approach is that the server is in total control. It can vary page sizes if the workload
+      suddenly increases, for instance. The downside is that the client can only go forward, and has no control over
+      how many items are returned.
+    </para>
     <para>
       If the items in the collection come from a database, it's best to implement paging using support from that 
       database. For instance, you could modify your
