@@ -44,9 +44,10 @@
     </varlistentry>
   </variablelist>
   <para>
-    In the context of an HTTP-based API, Information Disclosure is applicable for <literal>GET</literal> methods and 
-    any other methods that return information. Tampering is applicable for <literal>PUT</literal>, 
-    <literal>POST</literal>, and <literal>DELETE</literal>. Denial of Service is a concern with all HTTP methods.
+    In the context of an HTTP-based API, Information Disclosure is a concern for <literal>GET</literal> methods and 
+    any other methods that return information (see <xref linkend="return-representation"/>). Tampering is applicable 
+    for <literal>PUT</literal>, <literal>POST</literal>, and <literal>DELETE</literal>. Denial of Service is a concern 
+    with all HTTP methods.
   </para>
   <para>
     Security may be compromised by accident or on purpose. In the latter case, we speak of an 
@@ -58,7 +59,7 @@
     something during our design, in which case we speak of a <firstterm>design flaw</firstterm>, or we may have
     implemented a sound design in an inappropriate way, in which case we speak of a <firstterm>bug</firstterm>. 
     Vulnerabilities are split about evenly between flaws and bugs, so you really can't build a secure system unless you 
-    deal with both.
+    take measures to prevent both.
   </para>
   <para>
     Not all vulnerabilities are equally severe. The US National Institute of Standards and Technology (NIST) has
@@ -66,8 +67,52 @@
     <citation>TODO</citation> to compare relative severity.
     There is an online risk rating tool that calculates the CVSS score based on a number of different aspects. 
     These scores range from 0 (no problem at all) to 10 (extremely severe and very easy to exploit).
-    You can use CVSS scores to prioritize your efforts.
+    You can use CVSS scores to guide your risk management strategy.
   </para>
+  <para>
+    Security vulnerabilities are one form of risks for your project. As such, you can use your regular risk management 
+    strategy to handle them. you can handle security risks in the following ways:
+  </para>
+  <variablelist>
+    <varlistentry>
+      <term>Eliminate</term>
+      <listitem>
+        <para>
+          You change the design or implementation such that the risk goes away completely. This is the best option, but
+          it's often not possible.
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>Mitigate</term>
+      <listitem>
+        <para>
+          You introduce a <firstterm>compensating control</firstterm>. For instance, using Transport Layer Security
+          (TLS, see <xref linkend="tls"/>) can protect data in transit.
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>Transfer</term>
+      <listitem>
+        <para>
+          You make the risk someone else's problem. For instance, you could see information disclosure of your 
+          customer's data as their problem. The customer would then be responsible for encrypting data before they
+          upload it to your system (i.e. mitigate their risk) if they can't live with this.
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>Accept</term>
+      <listitem>
+        <para>
+          You simply accept the risk. Life isn't risk free and in many cases we can live with minor risks. Use the
+          CVSS score to clearly define what you consider a minor risk. The cut-off score depends on your situation and 
+          will vary from API to API.
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
   
   <section id="threat-modeling">
     <title>Threat Modeling</title>
