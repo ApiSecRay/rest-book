@@ -7,115 +7,221 @@
     read-only data, you must secure it.
   </para>
   <para>
-    Security consists of three factors, collectively known as the CIA-triad:
+    This chapter explains what exactly security is, and describes what tools we have available to achieve it and when
+    and how to apply them.
   </para>
-  <variablelist>
-    <varlistentry>
-      <term>Confidentiality</term>
-      <listitem>
-        <para>
-	        The extent to which information is shared only with those who are eligible to see it. If confidentiality is
-	        compromised, we speak of <firstterm>Information Disclosure</firstterm>.
-        </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry>
-      <term>Integrity</term>
-	    <listitem>
-	      <para>
-		      The extent to which information can only be added, changed, and removed by authorized agents. If integrity is
-		      compromised, we speak of <firstterm>Tampering</firstterm>.
-	      </para>
-	    </listitem>  
-    </varlistentry>
-    <varlistentry>
-      <term>Availability</term>
-			<listitem>
-			  <para>
-				  The extent to which information is accessible to those who need it, when they need it. If availability is 
-				  compromised, we speak of <firstterm>Denial of Service</firstterm> (DoS).
-			  </para>
-			  <para>
-			    As we saw in <xref linkend="caching"/>, CDNs serve a large fraction of Internet content today. They provide 
-			    the content provider a degree of protection from DoS attacks by using their large distributed server 
-			    infrastructure to absorb the attack traffic.
-			  </para>
-			</listitem>
-    </varlistentry>
-  </variablelist>
-  <para>
-    In the context of an HTTP-based API, Information Disclosure is a concern for <literal>GET</literal> methods and 
-    any other methods that return information (see <xref linkend="return-representation"/>). Tampering is applicable 
-    for <literal>PUT</literal>, <literal>POST</literal>, and <literal>DELETE</literal>. Denial of Service is a concern 
-    with all HTTP methods.
-  </para>
-  <para>
-    Security may be compromised by accident or on purpose. In the latter case, we speak of an 
-    <firstterm>attack</firstterm>. If security is compromised, we say that a <firstterm>vulnerability</firstterm>
-    is <firstterm>exploited</firstterm>, but vulnerabilities may exist even if they are not exploited (yet).
-  </para>
-  <para>
-    Vulnerabilities exist for a variety of reasons, which fall broadly into two classes. We may have overlooked 
-    something during our design, in which case we speak of a <firstterm>design flaw</firstterm>, or we may have
-    implemented a sound design in an inappropriate way, in which case we speak of a <firstterm>bug</firstterm>. 
-    Vulnerabilities are split about evenly between flaws and bugs, so you really can't build a secure system unless you 
-    take measures to prevent both.
-  </para>
-  <para>
-    Not all vulnerabilities are equally severe. The US National Institute of Standards and Technology (NIST) has
-    developed a scoring system named <firstterm>Common Vulnerability Scoring System</firstterm> 
-    <citation>TODO</citation> to compare relative severity.
-    There is an online risk rating tool that calculates the CVSS score based on a number of different aspects. 
-    These scores range from 0 (no problem at all) to 10 (extremely severe and very easy to exploit).
-    You can use CVSS scores to guide your risk management strategy.
-  </para>
-  <para>
-    Security vulnerabilities are one form of risks for your project. As such, you can use your regular risk management 
-    strategy to handle them. you can handle security risks in the following ways:
-  </para>
-  <variablelist>
-    <varlistentry>
-      <term>Eliminate</term>
-      <listitem>
-        <para>
-          You change the design or implementation such that the risk goes away completely. This is the best option, but
-          it's often not possible.
-        </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry>
-      <term>Mitigate</term>
-      <listitem>
-        <para>
-          You introduce a <firstterm>compensating control</firstterm>. For instance, using Transport Layer Security
-          (TLS, see <xref linkend="tls"/>) can protect data in transit.
-        </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry>
-      <term>Transfer</term>
-      <listitem>
-        <para>
-          You make the risk someone else's problem. For instance, you could see information disclosure of your 
-          customer's data as their problem. The customer would then be responsible for encrypting data before they
-          upload it to your system (i.e. mitigate their risk) if they can't live with this.
-        </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry>
-      <term>Accept</term>
-      <listitem>
-        <para>
-          You simply accept the risk. Life isn't risk free and in many cases we can live with minor risks. Use the
-          CVSS score to clearly define what you consider a minor risk. The cut-off score depends on your situation and 
-          will vary from API to API.
-        </para>
-      </listitem>
-    </varlistentry>
-  </variablelist>
   
-  <section id="threat-modeling">
-    <title>Threat Modeling</title>
+  <section>
+    <title>Security 101</title>
+	  <para>
+	    Security consists of three factors, collectively known as the CIA-triad:
+	  </para>
+	  <variablelist>
+	    <varlistentry>
+	      <term>Confidentiality</term>
+	      <listitem>
+	        <para>
+		        The extent to which information is shared only with those who are eligible to see it. If confidentiality is
+		        compromised, we speak of <firstterm>Information Disclosure</firstterm>.
+	        </para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Integrity</term>
+		    <listitem>
+		      <para>
+			      The extent to which information can only be added, changed, and removed by authorized agents. If integrity is
+			      compromised, we speak of <firstterm>Tampering</firstterm>.
+		      </para>
+		    </listitem>  
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Availability</term>
+				<listitem>
+				  <para>
+					  The extent to which information is accessible to those who need it, when they need it. If availability is 
+					  compromised, we speak of <firstterm>Denial of Service</firstterm> (DoS).
+				  </para>
+				  <para>
+				    As we saw in <xref linkend="caching"/>, CDNs serve a large fraction of Internet content today. They provide 
+				    the content provider a degree of protection from DoS attacks by using their large distributed server 
+				    infrastructure to absorb the attack traffic.
+				  </para>
+				</listitem>
+	    </varlistentry>
+	  </variablelist>
+	  <para>
+	    In the context of an HTTP-based API, Information Disclosure is a concern for <literal>GET</literal> methods and 
+	    any other methods that return information (see <xref linkend="return-representation"/>). Tampering is applicable 
+	    for <literal>PUT</literal>, <literal>POST</literal>, and <literal>DELETE</literal>. Denial of Service is a concern 
+	    with all HTTP methods.
+	  </para>
+	  <para>
+	    Security may be compromised by accident or on purpose. In the latter case, we speak of an 
+	    <firstterm>attack</firstterm>. If security is compromised, we say that a <firstterm>vulnerability</firstterm>
+	    is <firstterm>exploited</firstterm>, but vulnerabilities may exist even if they are not exploited (yet).
+	  </para>
+	  <para>
+	    Vulnerabilities exist for a variety of reasons, which fall broadly into two classes. We may have overlooked 
+	    something during our design, in which case we speak of a <firstterm>design flaw</firstterm>, or we may have
+	    implemented a sound design in an inappropriate way, in which case we speak of a <firstterm>bug</firstterm>. 
+	    Vulnerabilities are split about evenly between flaws and bugs, so you really can't build a secure system unless you 
+	    take measures to prevent both.
+	  </para>
+	  <para>
+	    Not all vulnerabilities are equally severe. The US National Institute of Standards and Technology (NIST) has
+	    developed a scoring system named <firstterm>Common Vulnerability Scoring System</firstterm> 
+	    <citation>CVSS</citation> to compare relative severity.
+	    There is an online risk rating tool that calculates the CVSS score based on a number of different aspects. 
+	    These scores range from 0 (no problem at all) to 10 (extremely severe and very easy to exploit).
+	    You can use CVSS scores to guide your risk management strategy.
+	  </para>
+	  <para>
+	    Security vulnerabilities are yet another form of risk for your project, so you can use your regular risk management 
+	    strategy to handle them. In general, risks can be handled in the following ways:
+	  </para>
+	  <variablelist>
+	    <varlistentry>
+	      <term>Eliminate</term>
+	      <listitem>
+	        <para>
+	          You change the design or implementation such that the risk goes away completely. This is the best option, but
+	          unfortunately often impossible.
+	        </para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Mitigate</term>
+	      <listitem>
+	        <para>
+	          You introduce a <firstterm>compensating control</firstterm> to counteract the bad effects that would occur 
+	          when the risk materializes. For instance, you can use Transport Layer Security (TLS, see 
+	          <xref linkend="tls"/>) to protect data in transit from being disclosed or tampered with.
+	        </para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Transfer</term>
+	      <listitem>
+	        <para>
+	          You make the risk someone else's problem. For instance, you could see information disclosure of your 
+	          customer's data as their problem. The customer would then be responsible for encrypting data before they
+	          upload it to your system if they can't live with this risk. In this example, the customer mitigates the risk 
+	          that you transferred onto them using encryption as the compensating control.
+	        </para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Accept</term>
+	      <listitem>
+	        <para>
+	          You simply accept the risk. Life isn't risk free and in many cases we can live with minor risks. Use the
+	          CVSS score to clearly define what you consider a minor risk. The cut-off score depends on your specific 
+	          situation and your risk tolerance.
+	        </para>
+	      </listitem>
+	    </varlistentry>
+	  </variablelist>
+	  <para>
+	    In most cases, risk elimination is impossible, and risk mitigation is the preferred option. 
+	    We can use a number of compensating controls for this, which fall into a couple of broad classes:
+	  </para>
+	  <variablelist>
+	    <varlistentry>
+	      <term>Authentication</term>
+	      <listitem>
+	        <para>
+	          The act of verifying someone's identity using one or more of the authentication factors:
+	        </para>
+	        <itemizedlist>
+	          <listitem>
+	            <para>
+	              Something that you know, like a password or secret key
+	            </para>
+	          </listitem>
+	          <listitem>
+	            <para>
+	              Something that you have, like a One Time Password generating device such as RSA SecureID
+	            </para>
+	          </listitem>
+	          <listitem>
+	            <para>
+	              Something that you are, like a fingerprint or an iris image
+	            </para>
+	          </listitem>
+	        </itemizedlist>          
+		      <para>
+		        Some of these factors are stronger than others. A password, for instance, isn't very secure. Unless forced
+		        otherwise, many people pick weak passwords like <literal>password1</literal>, which is the most commonly used
+		        password at the time of writing. Even when people pick strong passwords, they tend to reuse them across 
+		        services, which means that a breach of one service poses a threat to other services.
+		      </para>
+		      <para>
+		        Combining several types of authentication factors makes the authentication process a lot more secure. We 
+		        speak of <firstterm>two-factor authentication</firstterm> if two different factors are used. In practice 
+		        this is usually something that you know and something that you have. You'll sometimes also see this 
+		        referred to as <firstterm>multi-factor authentication</firstterm> or <firstterm>two-step 
+		        authentication</firstterm>.
+		      </para>
+		      <para>
+		        We'll discuss authentication of REST APIs in <xref linkend="authentication"/>.
+		      </para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Authorization</term>
+	      <listitem>
+	        <para>
+	          The act of assigning different permissions to different users. Authorization is sometimes also referred to
+	          as <firstterm>access control</firstterm>.
+	        </para>
+	        <para>
+	          In order to assign permissions to users, you need to know their identity. In other words, authorization
+	          requires authentication.
+	        </para>
+		      <para>
+		        We'll discuss authorization of REST APIs in <xref linkend="authorization"/>.
+		      </para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Auditing</term>
+	      <listitem>
+	        <para>
+	          The act of keeping a record of who did what when. The audit records are collectively known as the 
+	          <firstterm>audit trail</firstterm>. Auditing also requires authentication.
+	        </para>
+	        <para>
+	          We'll discuss auditing of REST APIs in <xref linkend="auditing"/>.
+	        </para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Encryption</term>
+	      <listitem>
+	        <para>
+	          The act of transforming a <firstterm>plain text</firstterm> into a <firstterm>cypher text</firstterm> using
+	          a special mathematical function known as a <firstterm>cypher algorithm</firstterm>.
+	          TODO: elaborate
+	        </para>
+	        <para>
+	          There are two kinds of encryption algorithms. <firstterm>Symmetric encryption</firstterm> allows 
+	          <firstterm>decryption</firstterm> of the cypher text back into the plain text, whereas 
+	          <firstterm>asymmetric encryption</firstterm> is a one-way function. Asymmetric encryption is more secure,
+	          but also more expensive.
+	        </para>
+	        <para>
+	          Encryption can be applied at different stages. When data that flows from one actor or process to another
+	          is encrypted, we speak of encryption of data in transit. We discuss that in <xref linkend="tls"/>. When
+	          encryption is applied to data that is stored, then we speak of encryption of data at rest. This is vital to
+	          protect your customer's data, but it is not specific to REST APIs and therefore out of scope for this book.
+	        </para>
+	        <para>
+	          Without encryption their can be no security. Authentication requires encryption. TODO: why?
+	        </para>
+	      </listitem>
+	    </varlistentry>
+	  </variablelist>
 	  <para>
 	    As with many other non-functional requirements, security is best built in rather than bolted on after the fact 
 	    <citation>McGraw06</citation>.
@@ -127,64 +233,194 @@
 	  <para>
 	    An SDL is a structured approach to building security in. It consists of many activities that we won't cover in 
 	    this book, like providing developers with specific security training. While essential for building secure 
-	    software, these activities are not specific to REST APIs. We will, however, look at the main tool in the design 
-	    phase of the SDL: threat modeling.
+	    software, these activities are not specific to REST APIs and thus out of scope for the current discussion. 
 	  </para>
+	  <para>
+	    What we will cover is the main tool of the design phase of the SDL: threat modeling. This activity will tell you
+	    what tools from our security toolbox you'll need to employ. 
+	  </para>
+  </section>
+    
+  <section id="threat-modeling">
+    <title>Threat Modeling</title>
     <para>
       <firstterm>Threat modeling</firstterm> is a design activity where the designer explicitly considers the security
-      aspect of the system in four steps <citation>Shostack14</citation>:
+      aspect of the system in four steps <citation>Shostack14</citation>. Here's how it works:
     </para>
-    <orderedlist>
-      <listitem>
+    <procedure>
+      <title>Threat Modeling</title>
+      <step>
+        <para>Model the system.</para>
         <para>
-          Model the system. In this step you think about what you're going to build.
+          In this step you think about what you're going to build.
           Since it's the data that we're trying to protect, most threat models start by looking at the various ways
-          data flows through the system. The notation that's usually used for this is a diagram called a 
-          <firstterm>Data Flow Diagram</firstterm> (DFD), which shows the processes, data stores, and data flows between
-          them.
+          data flows through the system.
         </para>
         <para>
-          State diagrams (see <xref linkend="state-diagrams"/>) contain some of the same information as DFDs, so they 
-          can help you get started.  
-          TODO: Elaborate.
+          The notation that's most often used for this is a diagram called a <firstterm>Data Flow Diagram</firstterm> 
+          (DFD), which shows the processes, data stores, and data flows between them. We won't be using DFDs here,
+          because they contain information about the API's implementation that is beyond the scope of this book, like
+          what data stores are used to store resource state.
         </para>
-      </listitem>
-      <listitem>
         <para>
-          Find threats. In this step you think about what can go wrong once the system is built. This is where you try
+          In the following, we're only going to look at security
+          from the API's perspective. Since security is only as strong as its weakest link, you really should look at
+          securing your implementation as well. Consult specific security books as needed.
+        </para>
+        <para>
+          The state diagrams we developed in <xref linkend="state-diagrams"/> are also useful diagrams to build your 
+          threat model. Each state diagram is developed for one persona and it is important from a security perspective
+          to know the various personas and what they should and shouldn't be able to do.  
+        </para>
+        <para>
+          The most interesting parts of a state diagram for our current exercise is the transition. Each transition
+          implies the flow of data from client to server and/or back. We already inventoried the data that flows across
+          the transitions in <xref linkend="design-messages"/>.
+        </para>
+        <para>
+          With the actors and messages, we have the basic building blocks for the model of the API.
+        </para>
+      </step>
+      <step>
+        <para>Find threats.</para>
+        <para>
+          In this step you think about what can go wrong once the system is built. This is where you try
           to think like an attacker. This is often very difficult for developers that haven't had proper training, so
           you'll probably want to bring in specific expertise.
         </para>
         <para>
-          You can use the STRIDE model or attack trees to discover threats. 
-          TODO: Elaborate.
+          There are a couple of structured approaches to help you discover threats, like STRIDE, attack trees, and 
+          attack libraries, that will give you much better results than simply brainstorming the possible threats.
         </para>
-      </listitem>
-      <listitem>
         <para>
-          Address threats. In this step you think about potential corrective measures. In the best case scenario, you
-          can modify or add to your design in such a way that the threat goes away completely. In other cases, you'll
-          have to settle for <firstterm>mitigating</firstterm> threats. 
+          STRIDE is an acronym for the various classes of security threats: Spoofing, Tampering, Repudiation,
+          Information disclosure, Denial of service, and Elevation of privileges. We've already discussed tampering,
+          information disclosure and denial of service.
         </para>
-      </listitem>
-      <listitem>
-        <para>Validate. In this step you verify that you did a decent job of analysis.</para>
-      </listitem>
-    </orderedlist>
+        <para>
+          Spoofing occurs when one actor impersonates another. 
+          Repudiation is when an actor does something and then can successfully claim that they didn't do it. 
+          Elevation of privileges occurs when one actor can operate with the privileges of another.
+          In the STRIDE approach, you check each of the elements in the model against the various classes of threats
+          to identify which are applicable.
+        </para>
+        <para>
+          TODO: attack trees
+        </para>
+        <para>
+          TODO: attack libraries
+        </para>
+      </step>
+      <step>
+        <para>Address threats.</para>
+        <para>
+          In this step you treat the identified threats as risks, and you apply your risk management process to
+          eliminate, mitigate, transfer, or accept the security risks they pose. We'll see some common ways of doing
+          that in the following sections.  
+        </para>
+      </step>
+      <step>
+        <para>Validate.</para>
+        <para>
+          In this step you verify that you did a decent job of analysis. One way of doing that is to compare your
+          threat model against that of a similar system. Another is to walk someone who wasn't involved in the
+          threat modeling effort through the model and see if they can spot errors and/or omissions.
+        </para>
+      </step>
+   </procedure>
+   <para>
+     Let's apply this procedure to RESTBucks. We've already done most of the work for building the model in 
+     <xref linkend="analysis"/>. Our actors are the customer, the cashier, and the barista. The state diagrams are in
+     <xref linkend="sd-customer"/>,<xref linkend="sd-cashier"/>, and <xref linkend="sd-barista"/>.
+   </para>
+   <para>
+     TODO: identify threats & mitigations
+   </para>
+  </section>
 
-
-  <!-- TODO -->
-  <para>
-      The traditional way to do that, is to specify restrictions at the level of URI and HTTP method. For instance, 
-      this is the approach that Spring Security takes. The problem with this approach, however, is that both the 
-      method and the URI are implementation choices. URIs shouldn’t be known to anybody but the API 
-      designer/developer; the client will discover them through link relations. Even the HTTP methods can be hidden 
-      until runtime with mature media types like Mason or Siren. This is great for decoupling the client and server, 
-      but now we have to specify our security constraints in terms of implementation details! This means only the 
-      developers can specify the access control policy.
+  <section id="tls">
+    <title>Transport Layer Security</title>
+    <para>
+      Transport Layer Security (TLS) is the successor to Secure Sockets Layer (SSL). When combined with HTTP, we speak
+      of HTTPS. It is a protocol for encrypting data in transit.
     </para>
     <para>
-      That, of course, flies in the face of best security practices, where the access control policy is externalized 
+      TODO: Elaborate
+    </para>
+    <para>
+      As we saw in <xref linkend="caching"/>, messages sent over HTTPS cannot be cached by intermediaries like
+      caching proxies. That leaves two places where we can still employ caching: at the beginning and end of the 
+      encrypted channel. The beginning is the REST client, while the server is the end. Since caches at a single client
+      will often suffer from a low cache hit ratio, it is advisable to employ caching proxies at the server after 
+      termination of the TLS connection. To this end, it is common to terminate the TLS connection at the load balancer
+      (see <xref linkend="load-balancing"/>) and use plain HTTP connections within the data center.
+    </para>
+    <para>
+      This approach leaves us vulnerable to information disclosure within the data center. To mitigate this risk of
+      insider threats, we should at the minimum employ auditing (see <xref linkend="auditing"/>), so that we can
+      detect such abuse and hope that the threat of taking corrective action after the fact is enough of a deterrent
+      for insiders to behave themselves.
+    </para>
+  </section>
+  
+  <section id="authentication">
+    <title>Authentication</title>
+    
+    <section>
+      <title>HTTP Authentication</title>
+      <para>
+        TODO:
+      </para>
+    </section>
+
+    <section>
+      <title>HTTP Signatures</title>
+      <para>
+        TODO:
+      </para>
+    </section>
+
+    <section>
+      <title>Tickets</title>
+	    <para>
+	      Remember that authentication, the act of verifying someone's identity, is the basis for both authorization and
+	      auditing. This means we must have access to the user's identity for each request. In traditional web applications,
+	      the user logs on once, after which a <firstterm>session</firstterm> is established. The session is identified by
+	      some session identifier that is usually stored in a cookie. The server associates the session identifier with
+	      the user's attributes.
+	    </para>
+	    <para>
+	      The problem with this approach is that the session that the server stores is state that we rather wouldn't store.
+	      An alternative that is much better suited for stateless servers is to use tickets. 
+	    </para>
+      <para>
+        TODO: A <firstterm>ticket</firstterm> is ...
+      </para>
+    </section>
+  </section>
+
+  <section id="authorization">
+    <title>Authorization</title>
+	  <para>
+      The traditional way to implement authorization of REST APIs is to specify restrictions at the level of URI and 
+      HTTP method. For instance, this is the approach that Spring Security takes.
+    </para>
+    <para>
+      There are two places where such access control checks comes into play. The first is obviously when receiving a 
+      request. You should also check permissions on any links you want to put in the response. The links that the 
+      requester is not allowed to follow should be omitted from the response, because the links are supposed to be
+      options that the client can choose from for its next move.
+    </para>
+    <para>
+      The problem with specifying access control in terms of URIs and HTTP methods is that these are implementation 
+      details. 
+      URIs shouldn’t be known to anybody but the API designer/developer; the client will discover them through link 
+      relations. Even the HTTP methods can be hidden until runtime with mature media types like JSON-LD with Hydra.
+      This is great for decoupling the client and server, but now we have to specify our security constraints in terms 
+      of implementation details! This means that only the developers can specify the access control policy.
+    </para>
+    <para>
+      This flies in the face of best security practices, where the access control policy is externalized 
       from the code (so it can be reused across applications) and specified by a security officer rather than a 
       developer. So how do we satisfy both requirements?
     </para>
@@ -200,36 +436,58 @@
       but we also need the properties.
     </para>
     <para>
-      In XACML terms, the link relation indicates the action to be performed, while the properties correspond to 
+      The link relation indicates the action to be performed, while the properties correspond to 
       resource attributes. Add to that the subject attributes obtained through the authentication process, and you 
-      have all the ingredients for making an XACML request!
+      have all the ingredients for making an XACML request.
     </para>
     <para>
-      There are two places where such access control checks comes into play. The first is obviously when receiving a 
-      request. You should also check permissions on any links you want to put in the response. The links that the 
-      requester is not allowed to follow, should be omitted from the response, so that the client can faithfully 
-      present the next choices to the user.
+      TODO: Think this through. When implementing a controller, we no longer have access to the link relation that
+      led to the method being invoked on the URI...
     </para>
+    
+    <section>
+      <title>eXtensible Access Control Markup Language</title>
+      <para>
+        TODO:
+      </para>
+    </section>
+    
+    <section>
+      <title>OAuth</title>
+      <para>
+        TODO:
+      </para>
+    </section>
   </section>
 
-  <section id="tls">
-    <title>Transport Layer Security</title>
-    <para>
-    </para>
-  </section>
-  
-  <section id="authentication">
-    <title>Authentication</title>
-    <para>HTTP signatures, tickets</para>
-  </section>
-
-  <section id="authorization">
-    <title>Authorization</title>
-    <para>RBAC, OAuth, UMA, XACML</para>
-  </section>
-
-  <section>
+  <section id="auditing">
     <title>Auditing</title>
+    <para>
+      Auditing is the act of keeping a record of who did what when. This is our primary tool for dealing with 
+      non-repudiation attacks. A client can no longer claim it didn't do something, because we have records to prove
+      that it did. 
+    </para>
+    <para>
+      Auditing requires a couple of things to be in place. We need proper authentication to ensure we know who is
+      performing the actions that we're keeping records of. We also need to make sure that nobody can tamper with the
+      audit trail. This is especially important as a mitigation against insider threats, as administrators may have
+      access to the audit trail.
+    </para>
+    <para>
+      We can protect our audit trail against tampering by signing it. TODO: elaborate
+    </para>
+    <para>
+      Even with signed audit records we may still not be out of the woods. We must also protect audit records against
+      malicious input that could change the meaning. For instance, if each audit record is stored as a single line in a 
+      text file, then a message containing a newline may cause multiple audit records to be written. This attack is
+      known as <firstterm>log forging</firstterm>. The mitigating control against this vulnerability is to do proper
+      output encoding, as we'll discuss in <xref linkend="output-encoding"/>.
+    </para>
+    <para>
+      With a tamper-proof audit trail in place we can in theory detect malicious activity by insiders. To turn theory
+      into practice, we should employ alerting to notify a broad group of administrators when something fishy is going
+      on (see <xref linkend="alerting"/>).
+    </para>
   </section>
   
   <section>

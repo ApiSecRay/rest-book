@@ -106,6 +106,12 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>CVSS</abbrev>
+    <biblioid class="uri">http://nvd.nist.gov/cvss.cfm</biblioid>
+    <citetitle>Common Vulnerability Scoring System</citetitle>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>DublinCore</abbrev>
     <biblioid class="uri">http://dublincore.org/specifications/</biblioid>
   </biblioentry>

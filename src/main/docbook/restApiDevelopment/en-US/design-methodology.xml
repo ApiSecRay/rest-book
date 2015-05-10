@@ -839,7 +839,7 @@
     </para>
   </section>
 
-  <section>
+  <section id="design-messages">
     <title>Design Messages</title>
     <para>
       At this point we are done with the interaction part of our resource model. All that is left to do, is address the

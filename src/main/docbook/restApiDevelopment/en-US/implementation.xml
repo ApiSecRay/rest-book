@@ -64,7 +64,7 @@
     <section id="input-validation">
       <title>Input Validation</title>
     </section>
-    <section>
+    <section id="output-encoding">
       <title>Output Encoding</title>
     </section>
   </section>
