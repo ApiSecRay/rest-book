@@ -379,8 +379,9 @@
     </para>
     <para>
       The advantage of this approach is that the server is in total control. It can vary page sizes if the workload
-      suddenly increases, for instance. The downside is that the client can only go forward, and has no control over
-      how many items are returned.
+      suddenly increases, for instance. It can know if there are any newly created items since the clien'ts last call.
+      The downside is that the client has no control over how many items are returned and that the server has to 
+      maintain application state.
     </para>
     <para>
       If the items in the collection come from a database, it's best to implement paging using support from that 

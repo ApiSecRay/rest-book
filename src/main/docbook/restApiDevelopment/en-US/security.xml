@@ -7,8 +7,8 @@
     read-only data, you must secure it.
   </para>
   <para>
-    This chapter explains what exactly security is, and describes what tools we have available to achieve it and when
-    and how to apply them.
+    This chapter describes what security is, discusses the tools we have available to achieve it, and explains when
+    and how to apply those tools.
   </para>
   
   <section>
@@ -43,6 +43,7 @@
 					  compromised, we speak of <firstterm>Denial of Service</firstterm> (DoS).
 				  </para>
 				  <para>
+				    TODO: Move somewhere else
 				    As we saw in <xref linkend="caching"/>, CDNs serve a large fraction of Internet content today. They provide 
 				    the content provider a degree of protection from DoS attacks by using their large distributed server 
 				    infrastructure to absorb the attack traffic.
@@ -66,14 +67,14 @@
 	    something during our design, in which case we speak of a <firstterm>design flaw</firstterm>, or we may have
 	    implemented a sound design in an inappropriate way, in which case we speak of a <firstterm>bug</firstterm>. 
 	    Vulnerabilities are split about evenly between flaws and bugs, so you really can't build a secure system unless you 
-	    take measures to prevent both.
+	    take measures to prevent both categories.
 	  </para>
 	  <para>
 	    Not all vulnerabilities are equally severe. The US National Institute of Standards and Technology (NIST) has
 	    developed a scoring system named <firstterm>Common Vulnerability Scoring System</firstterm> 
-	    <citation>CVSS</citation> to compare relative severity.
+	    <citation>CVSS</citation> to compare the relative severity of vulnerabilities.
 	    There is an online risk rating tool that calculates the CVSS score based on a number of different aspects. 
-	    These scores range from 0 (no problem at all) to 10 (extremely severe and very easy to exploit).
+	    These scores range from 0 (no problem at all) to 10 (critical and easy to exploit).
 	    You can use CVSS scores to guide your risk management strategy.
 	  </para>
 	  <para>
@@ -105,8 +106,8 @@
 	      <listitem>
 	        <para>
 	          You make the risk someone else's problem. For instance, you could see information disclosure of your 
-	          customer's data as their problem. The customer would then be responsible for encrypting data before they
-	          upload it to your system if they can't live with this risk. In this example, the customer mitigates the risk 
+	          customer's data as their problem. A customer that doesn't want to live with this risk could then encrypt 
+	          their data before they uploaded it to your system. In this example, the customer mitigates the risk
 	          that you transferred onto them using encryption as the compensating control.
 	        </para>
 	      </listitem>
@@ -127,6 +128,48 @@
 	    We can use a number of compensating controls for this, which fall into a couple of broad classes:
 	  </para>
 	  <variablelist>
+      <varlistentry>
+        <term>Encryption</term>
+        <listitem>
+          <para>
+            The act of transforming a <firstterm>plain text</firstterm> into a <firstterm>cypher text</firstterm> using
+            a special mathematical function known as a <firstterm>cryptographic algorithm</firstterm>. This algorithm 
+            takes a special number called a <firstterm>cryptographic key</firstterm> and some data (the plain text) as 
+            input and transforms (encrypts) it into some output (the cypher text), which can be converted back 
+            (decrypted) to the original input using the same algorithm and the same or another key.
+          </para>
+          <para>
+            <firstterm>Symmetric encryption</firstterm> uses a single key to encrypt and decrypt data. Since this key 
+            unlocks sensitive data, it must be protected itself. We call this <firstterm>key management</firstterm>. 
+            Asymmetric encryption uses two keys. The first is called the <firstterm>public key</firstterm>, and can be 
+            freely shared with anybody. The second one is the <firstterm>private key</firstterm> and must be kept 
+            secret at all cost, just like an symmetric key. Asymmetric encryption is also referred to as 
+            <firstterm>public-key cryptography</firstterm>. 
+          </para>
+          <para>
+            A <firstterm>public key certificate</firstterm> (also known as a digital certificate or identity 
+            certificate) is an electronic document used to prove ownership of a public key. The certificate includes 
+            information about the key, information about its owner's identity, and the digital signature of an entity 
+            that has verified that the certificate's contents are correct. If the signature is valid, and the person 
+            examining the certificate trusts the signer, then they know they can use that key to communicate with its 
+            owner.
+          </para>
+          <para>
+            The signer of a public key certificate is usually a <firstterm>certificate authority</firstterm> (CA), a
+            company which charges customers to issue certificates for them. Browsers come with a bunch of pre-installed
+            public key certificates of CAs. These are also known as <firstterm>root certificates</firstterm>, because
+            they can be seen as the root of a tree, where each node in the tree is a certificate that is signed by its 
+            parent.
+          </para>
+          <para>
+            Encryption can be applied at different stages. When data that flows from one actor or process to another
+            is encrypted, we speak of encryption of <firstterm>data in transit</firstterm>. We discuss that in 
+            <xref linkend="tls"/>. When encryption is applied to data that is stored, then we speak of encryption of 
+            <firstterm>data at rest</firstterm>. This is vital to protect your customer's data, but it is not specific 
+            to REST APIs and therefore out of scope for this book.
+          </para>
+        </listitem>
+      </varlistentry>
 	    <varlistentry>
 	      <term>Authentication</term>
 	      <listitem>
@@ -141,7 +184,8 @@
 	          </listitem>
 	          <listitem>
 	            <para>
-	              Something that you have, like a One Time Password generating device such as RSA SecureID
+	              Something that you have, like a One Time Password generating device such as RSA SecureID, or a mobile
+	              phone
 	            </para>
 	          </listitem>
 	          <listitem>
@@ -152,16 +196,22 @@
 	        </itemizedlist>          
 		      <para>
 		        Some of these factors are stronger than others. A password, for instance, isn't very secure. Unless forced
-		        otherwise, many people pick weak passwords like <literal>password1</literal>, which is the most commonly used
-		        password at the time of writing. Even when people pick strong passwords, they tend to reuse them across 
-		        services, which means that a breach of one service poses a threat to other services.
+		        otherwise, many people pick weak passwords like <literal>password1</literal>, which is the most commonly 
+		        used password at the time of writing (it replaced the previous favorite of <literal>password</literal>, so
+		        that's progress of some sort). Even when people pick strong passwords, they tend to reuse them across
+		        services, which means that a breach of another service poses a threat to yours.
 		      </para>
 		      <para>
-		        Combining several types of authentication factors makes the authentication process a lot more secure. We 
+		        Combining several types of authentication factors makes the authentication process more secure. We 
 		        speak of <firstterm>two-factor authentication</firstterm> if two different factors are used. In practice 
 		        this is usually something that you know and something that you have. You'll sometimes also see this 
 		        referred to as <firstterm>multi-factor authentication</firstterm> or <firstterm>two-step 
 		        authentication</firstterm>.
+		      </para>
+		      <para>
+		        Authentication usually uses from form of encryption. If passwords are used, they should be encrypted using
+		        a one-way algorithm. Public key cryptography can also be used for authentication, especially of computer
+		        programs rather than human users.
 		      </para>
 		      <para>
 		        We'll discuss authentication of REST APIs in <xref linkend="authentication"/>.
@@ -176,6 +226,10 @@
 	          as <firstterm>access control</firstterm>.
 	        </para>
 	        <para>
+	          An important principle in authorization is that of <firstterm>Least Privilege</firstterm>, which means that
+	          you should give people just enough permissions to do their job, but no more.
+	        </para>
+	        <para>
 	          In order to assign permissions to users, you need to know their identity. In other words, authorization
 	          requires authentication.
 	        </para>
@@ -188,36 +242,53 @@
 	      <term>Auditing</term>
 	      <listitem>
 	        <para>
-	          The act of keeping a record of who did what when. The audit records are collectively known as the 
-	          <firstterm>audit trail</firstterm>. Auditing also requires authentication.
-	        </para>
+	          The systematic and independent examination of data for a stated purpose. For instance, if you 
+	          collect, store, and process medical data in the US, you must comply with the Health Insurance Portability 
+	          and Accountability Act (HIPAA). The US Department of Health &amp; Human Services may perform an 
+	          <firstterm>audit</firstterm> to verify you have controls in place to ensure compliance with HIPAA.
+          </para>
+          <para>
+            The audit can only be as good as the data on which it is based, so it's crucial to be able to prove that 
+            the data is correct. There are two aspects to this:
+          </para>
+          <itemizedlist>
+            <listitem>
+              <para>
+                <firstterm>Origin</firstterm> refers to who created the data and how sure we are of that. For this we
+                require authentication.
+              </para>
+              <para>
+                <firstterm>Integrity</firstterm> refers to the contents of the data and how sure we are that it hasn't 
+                been tampered with.
+              </para>
+            </listitem>
+          </itemizedlist>
+          <para>
+            Audits in the brick and mortar world rely heavily on signed documents. <firstterm>Signatures</firstterm> 
+            identify a person, so they address the origin aspect. Signing a document also implies consent with the 
+            document's content, which touches on the integrity part. Since paper documents are physical objects, they 
+            can be stored in a safe location to maintain that integrity.
+          </para>
+          <para>
+            Digital documents are different, since they can easily be copied and modified. To prove their origin and 
+            integrity, we use <firstterm>digital signatures</firstterm>. Digital signatures rely on cryptography, in 
+            particular on public-key cryptography.
+          </para>
+          <para>
+            Here's how public-key crypto is applied to the digital signature problem. One party (Alice) signs a 
+            document by encrypting it with her private key and sends the result to the other party (Bob). Bob tries to 
+            decrypt the cypher text with Alice's public key. If that produces anything meaningful, then he knows that 
+            Alice must have encrypted the document (origin) and that what he received was in fact exactly the document 
+            that was signed by Alice (integrity). If either of those statements were not true, the decryption could 
+            not have worked.
+          </para>
+          <para>
+            Actually, all that Bob knows for sure is that the document was signed by the private key that belongs to 
+            the public key that he has. But how does he know that that public key is actually Alice's? That's where 
+            public key certificates come in.
+          </para>
 	        <para>
 	          We'll discuss auditing of REST APIs in <xref linkend="auditing"/>.
-	        </para>
-	      </listitem>
-	    </varlistentry>
-	    <varlistentry>
-	      <term>Encryption</term>
-	      <listitem>
-	        <para>
-	          The act of transforming a <firstterm>plain text</firstterm> into a <firstterm>cypher text</firstterm> using
-	          a special mathematical function known as a <firstterm>cypher algorithm</firstterm>.
-	          TODO: elaborate
-	        </para>
-	        <para>
-	          There are two kinds of encryption algorithms. <firstterm>Symmetric encryption</firstterm> allows 
-	          <firstterm>decryption</firstterm> of the cypher text back into the plain text, whereas 
-	          <firstterm>asymmetric encryption</firstterm> is a one-way function. Asymmetric encryption is more secure,
-	          but also more expensive.
-	        </para>
-	        <para>
-	          Encryption can be applied at different stages. When data that flows from one actor or process to another
-	          is encrypted, we speak of encryption of data in transit. We discuss that in <xref linkend="tls"/>. When
-	          encryption is applied to data that is stored, then we speak of encryption of data at rest. This is vital to
-	          protect your customer's data, but it is not specific to REST APIs and therefore out of scope for this book.
-	        </para>
-	        <para>
-	          Without encryption their can be no security. Authentication requires encryption. TODO: why?
 	        </para>
 	      </listitem>
 	    </varlistentry>
@@ -488,9 +559,18 @@
       into practice, we should employ alerting to notify a broad group of administrators when something fishy is going
       on (see <xref linkend="alerting"/>).
     </para>
+    <para>
+      TODO: Make audit trail available to client.
+    </para>
+    <para>
+      TODO: What to audit.
+    </para>
   </section>
   
   <section>
     <title>Summary</title>
+    <para>
+      TODO:
+    </para>
   </section>
 </chapter>
