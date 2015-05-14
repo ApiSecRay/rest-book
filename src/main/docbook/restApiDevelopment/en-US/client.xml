@@ -1,6 +1,8 @@
 <chapter id="client">
   <title>Developing REST Clients</title>
-  
+
+  <!-- TODO: Store certificate of trusted server -->
+    
   <section>
     <title>Human-Driven vs Autonomous Clients</title>
   </section>

@@ -638,7 +638,7 @@
       </listitem>
       <listitem>
 		    <para>
-		      If the request is secured using HTTPS (see <xref linkend="tls"/>), it won't be cached either.
+		      If the request is secured using HTTPS (see <xref linkend="encryption"/>), it won't be cached either.
 		      This is a major problem for REST APIs, that often must use HTTPS to protect sensitive content.
 		      You can solve this problem by terminating the HTTPS connection at the load balancer, and then have the load 
 		      balancer route the traffic to a cluster of caching proxies rather than the origin servers. We discuss
@@ -821,7 +821,7 @@
       Load balancers are usually placed in a demilitarized zone (DMZ) a physical or logical subnetwork that contains 
       and exposes an organization's external-facing services to a larger and untrusted network like the Internet. DMZs
       improve security by shielding the server cluster from the outside world.
-      Load balancers are often the terminating point of an TLS connection, as we'll see in <xref linkend="tls"/>.
+      Load balancers are often the terminating point of an TLS connection, as we'll see in <xref linkend="encryption"/>.
     </para>
     <para>
       Load balancers should themselves be clustered to avoid any single point of failure. Since load balancers have 

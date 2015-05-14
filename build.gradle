@@ -23,7 +23,7 @@ apply plugin: "jdocbook"
 
 jdocbook {
   restApiDevelopment {
-    masterSourceDocumentName = 'index.xml'
+    masterSourceDocumentName = 'book.xml'
     transformerParameters([
       'section.autolabel': '1',
       'section.label.includes.component.label': '1',
