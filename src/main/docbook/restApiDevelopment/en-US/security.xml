@@ -7,172 +7,67 @@
     read-only data, you must secure it.
   </para>
   <para>
-    This chapter discusses the tools we have available to protect security, and explains when and how to apply those 
-    tools. But first, let's cover the basics.
+    Security consists of three factors, collectively known as the CIA-triad:
   </para>
-
-  <section>
-    <title>Security 101</title>
-    <para>
-      Security consists of three factors, collectively known as the CIA-triad:
-    </para>
-    <variablelist>
-      <varlistentry>
-        <term>Confidentiality</term>
-        <listitem>
-          <para>
-            The extent to which information is shared only with those who are eligible to see it. If confidentiality is
-            compromised, we speak of <firstterm>Information Disclosure</firstterm>.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Integrity</term>
-        <listitem>
-          <para>
-            The extent to which information can only be added, changed, and removed by authorized agents. If integrity
-            is compromised, we speak of <firstterm>Tampering</firstterm>.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Availability</term>
-        <listitem>
-          <para>
-            The extent to which information is accessible to those who need it, when they need it. If availability is
-            compromised, we speak of <firstterm>Denial of Service</firstterm> (DoS).
-          </para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-    <para>
-      In the context of an HTTP-based API, Information Disclosure is a concern for <literal>GET</literal> methods and
-      any other methods that return information (see <xref linkend="return-representation" />). Tampering is applicable
-      for <literal>PUT</literal>, <literal>POST</literal>, and <literal>DELETE</literal>. Denial of Service is a 
-      concern with all HTTP methods.
-    </para>
-    <para>
-      Security may be compromised by accident or on purpose. In the latter case, we speak of an 
-      <firstterm>attack</firstterm>. If security is compromised, we say that a <firstterm>vulnerability</firstterm>
-      is <firstterm>exploited</firstterm>, but vulnerabilities may exist even if they are not exploited (yet).
-    </para>
-    <para>
-      Vulnerabilities exist for a variety of reasons, which fall broadly into two classes. We may have overlooked
-      something during our design, in which case we speak of a <firstterm>design flaw</firstterm>, or we may have
-      implemented a sound design in an inappropriate way, in which case we speak of a <firstterm>bug</firstterm>.
-      Vulnerabilities are split about evenly between flaws and bugs <citation>McGraw06</citation>, so you really can't
-      build a secure system unless you take measures to prevent both categories of vulnerabilities.
-    </para>
-    <para>
-      Not all vulnerabilities are equally severe. The US National Institute of Standards and Technology (NIST) has
-      developed a scoring system named <firstterm>Common Vulnerability Scoring System</firstterm>
-      <citation>CVSS</citation> to compare the relative severity of vulnerabilities.
-      There is an online risk rating tool that calculates the CVSS score based on a number of different aspects.
-      These scores range from 0 (no problem at all) to 10 (critical and easy to exploit).
-      You can use CVSS scores to guide your risk management strategy.
-    </para>
-    <para>
-      Security vulnerabilities are yet another form of risk for your project, so you can use your regular risk 
-      management strategy to handle them. In general, risks can be handled in the following ways:
-    </para>
-    <variablelist>
-      <varlistentry>
-        <term>Eliminate</term>
-        <listitem>
-          <para>
-            You change the design or implementation such that the risk goes away completely. This is the best option, 
-            but unfortunately often impossible.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Mitigate</term>
-        <listitem>
-          <para>
-            You introduce a <firstterm>compensating control</firstterm> to counteract the undesired effects that would
-            occur if the risk materializes. For instance, you can use Transport Layer Security (TLS, see
-            <xref linkend="encryption" />) to protect information traveling across the Internet from being disclosed or
-            tampered with.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Transfer</term>
-        <listitem>
-          <para>
-            You make the risk someone else's problem. For instance, you could see information disclosure of your
-            customer's data as their problem. A customer that doesn't want to live with this risk could then encrypt
-            their data before they upload it to your system. In other words, the customer mitigates the risk
-            that you transferred onto them using encryption as the compensating control.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Accept</term>
-        <listitem>
-          <para>
-            You simply accept the risk. Life isn't risk free and in many cases we can live with minor risks. Many
-            organizations accept the risk of insider threats, for instance, thinking that their employees wouldn't do 
-            bad things. The massive Sony breach of 2014 is testament to the fact that this is a very naive world view.
-          </para>
-          <para>
-            You can use CVSS scores to unambiguously define what you consider a minor risk. The cut-off score will
-            depend on your specific situation and your appetite for risk, your <firstterm>risk tolerance</firstterm>.
-          </para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-    <para>
-      In most cases, risk elimination is impossible, and risk mitigation is the preferred option.
-      We can use a number of compensating controls for this, which fall into the following classes:
-    </para>
-    <variablelist>
-      <varlistentry>
-        <term>Encryption</term>
-        <listitem>
-          <para>
-            <firstterm>Encryption</firstterm> is the process of encoding messages or information in such a way that
-            only authorized parties can read it. We discuss encryption in <xref linkend="encryption" />.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Authentication</term>
-        <listitem>
-          <para>
-            <firstterm>Authentication</firstterm> is the act of verifying the credentials of an entity. In other words, 
-            authentication is about establishing someone’s identity. We discuss authentication in 
-            <xref linkend="authentication" />.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Authorization</term>
-        <listitem>
-          <para>
-            <firstterm>Authorization</firstterm> is the act of granting access to a specific resource. This can be an 
-            entire application, or a much smaller piece of functionality. Authorization is also referred to as 
-            <firstterm>access control</firstterm>. We discuss authorization in <xref linkend="authorization" />.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Auditing</term>
-        <listitem>
-          <para>
-            <firstterm>Auditing</firstterm> is the act of storing information about who did what when. Auditing is 
-            important for proving that somebody did or didnt do something.
-            We discuss auditing in <xref linkend="auditing" />.
-          </para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-    <para>
-      This should give you a bit of an idea of what tools are in our security toolbox. Before we go into more detail on
-      what they are and how to apply them to REST APIs, we need to better understand why and when you should use them.
-      For this, we'll use a technique called threat modelling.
-    </para>
-  </section>
+  <variablelist>
+    <varlistentry>
+      <term>Confidentiality</term>
+      <listitem>
+        <para>
+          The extent to which information is shared only with those who are eligible to see it. If confidentiality is
+          compromised, we speak of <firstterm>Information Disclosure</firstterm>.
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>Integrity</term>
+      <listitem>
+        <para>
+          The extent to which information can only be added, changed, and removed by authorized agents. If integrity
+          is compromised, we speak of <firstterm>Tampering</firstterm>.
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>Availability</term>
+      <listitem>
+        <para>
+          The extent to which information is accessible to those who need it, when they need it. If availability is
+          compromised, we speak of <firstterm>Denial of Service</firstterm> (DoS).
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+  <para>
+    In the context of an HTTP-based API, Information Disclosure is a concern for <literal>GET</literal> methods and
+    any other methods that return information (see <xref linkend="return-representation"/>). Tampering is applicable
+    for <literal>PUT</literal>, <literal>POST</literal>, and <literal>DELETE</literal>. Denial of Service is a 
+    concern with all HTTP methods.
+  </para>
+  <para>
+    Security may be compromised by accident or on purpose. In the latter case, we speak of an 
+    <firstterm>attack</firstterm>. If security is compromised, we say that a <firstterm>vulnerability</firstterm>
+    is <firstterm>exploited</firstterm>, but vulnerabilities may exist even if they are not exploited (yet).
+  </para>
+  <para>
+    Vulnerabilities exist for a variety of reasons, which fall broadly into two classes. We may have overlooked
+    something during our design, in which case we speak of a <firstterm>design flaw</firstterm>, or we may have
+    implemented a sound design in an inappropriate way, in which case we speak of a <firstterm>bug</firstterm>.
+    Vulnerabilities are split about evenly between flaws and bugs <citation>McGraw06</citation>, so you really can't
+    build a secure system unless you take measures to prevent both categories of vulnerabilities.
+  </para>
+  <para>
+    Not all vulnerabilities are equally severe. The US National Institute of Standards and Technology (NIST) has
+    developed a scoring system named <firstterm>Common Vulnerability Scoring System</firstterm>
+    <citation>CVSS</citation> to compare the relative severity of vulnerabilities.
+    There is an online risk rating tool that calculates the CVSS score based on a number of different aspects.
+    These scores range from 0 (no problem at all) to 10 (critical and easy to exploit).
+  </para>
+  <para>
+    You can use CVSS scores to decide which risks are worth taking on and this chapter will provide you with the tools
+    to do just that. But first we need to figure out what our risks are. For this we'll use a technique called threat 
+    modeling.
+  </para>
 
   <section id="threat-modeling">
     <title>Threat Modeling</title>
@@ -180,7 +75,7 @@
       As with many other non-functional requirements, security is best built in rather than bolted on after the fact
       <citation>McGraw06</citation>.
       Preventing design flaws is the subject of this chapter, while we look at bugs with security implications in
-      <xref linkend="implementation" />. Both activities should be part of a development approach that considers 
+      <xref linkend="implementation"/>. Both activities should be part of a development approach that considers 
       security at every step, what Microsoft calls a <firstterm>Security Development Lifecycle</firstterm> 
       <citation>SDL</citation>.
     </para>
@@ -217,13 +112,13 @@
           There are many good security resources available <citation>McGraw06</citation>, <citation>SDL</citation>.
         </para>
         <para>
-          The state diagrams we developed in <xref linkend="state-diagrams" /> are useful diagrams to build your
+          The state diagrams we developed in <xref linkend="state-diagrams"/> are useful diagrams to build your
           threat model. Each state diagram is developed for one persona and it is important from a security perspective
           to know the various personas and what they should and shouldn't be able to do.
         </para>
         <para>
-          More importantly, a state diagram contains transitions, which imply the flow of data from client to server
-          and/or back. We inventoried the data that flows across the transitions in <xref linkend="design-messages" />.
+          More importantly, a state diagram contains transitions, which show the flow of data from client to server
+          and/or back. We inventoried the data that flows across the transitions in <xref linkend="design-messages"/>.
         </para>
         <para>
           With the actors, transitions, and messages, we have the basic building blocks for the model of the API.
@@ -264,9 +159,104 @@
         <para>Address threats.</para>
         <para>
           In this step you treat the identified threats as risks, and you apply your risk management process to
-          eliminate, mitigate, transfer, or accept the security risks they pose. We'll see some common ways of doing
-          that in the following sections.
+          eliminate, mitigate, transfer, or accept the security risks they pose.
+          In general, risks can be handled in the following ways:
         </para>
+        <variablelist>
+          <varlistentry>
+            <term>Eliminate</term>
+            <listitem>
+              <para>
+                You change the design or implementation such that the risk goes away completely. This is the best 
+                option, but unfortunately often impossible.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Mitigate</term>
+            <listitem>
+              <para>
+                You introduce a <firstterm>compensating control</firstterm> to counteract the undesired effects that 
+                would occur if the risk materializes. For instance, you can use Transport Layer Security (TLS, see
+                <xref linkend="cryptography"/>) to protect information traveling across the Internet from being 
+                disclosed or tampered with.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Transfer</term>
+            <listitem>
+              <para>
+                You make the risk someone else's problem. For instance, you could see information disclosure of your
+                customer's data as their problem. A customer that doesn't want to live with this risk could then encrypt
+                their data before they upload it to your system. In other words, the customer mitigates the risk
+                that you transferred onto them using encryption as the compensating control.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Accept</term>
+            <listitem>
+              <para>
+                You simply accept the risk. Life isn't risk free and in many cases we can live with minor risks. Many
+                organizations accept the risk of insider threats, for instance, thinking that their employees wouldn't 
+                do bad things. The massive Sony breach of 2014 is testament to the fact that this is a very naive world 
+                view.
+              </para>
+              <para>
+                You can use CVSS scores to unambiguously define what you consider a minor risk. The cut-off score will
+                depend on your specific situation and your appetite for risk, your <firstterm>risk 
+                tolerance</firstterm>.
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+        <para>
+          In most cases, risk elimination is impossible, and risk mitigation is the preferred option.
+          We can use a number of compensating controls for this, most of which fall into the following classes:
+        </para>
+        <variablelist>
+          <varlistentry>
+            <term>Encryption</term>
+            <listitem>
+              <para>
+                <firstterm>Encryption</firstterm> is the cryptographic process of encoding messages or information in 
+                such a way that only authorized parties can read it. We discuss encryption in 
+                <xref linkend="cryptography"/>.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Authentication</term>
+            <listitem>
+              <para>
+                <firstterm>Authentication</firstterm> is the act of verifying the credentials of an entity. In other words, 
+                authentication is about establishing someone’s identity. We discuss authentication in 
+                <xref linkend="authentication"/>.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Authorization</term>
+            <listitem>
+              <para>
+                <firstterm>Authorization</firstterm> is the act of granting access to a specific resource. This can be an 
+                entire application, or a much smaller piece of functionality. Authorization is also referred to as 
+                <firstterm>access control</firstterm>. We discuss authorization in <xref linkend="authorization"/>.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Auditing</term>
+            <listitem>
+              <para>
+                <firstterm>Auditing</firstterm> is the act of storing information about who did what when. Auditing is 
+                important for proving that somebody did or didnt do something.
+                We discuss auditing in <xref linkend="auditing"/>.
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
       </step>
       <step>
         <para>Validate.</para>
@@ -277,28 +267,20 @@
         </para>
       </step>
     </procedure>
-    <para>
-      Let's apply this procedure to RESTBucks. We've already done most of the work for building the model in
-      <xref linkend="analysis" />. Our actors are the customer, the cashier, and the barista. The state diagrams are in
-      <xref linkend="sd-customer" />, <xref linkend="sd-cashier" />, and <xref linkend="sd-barista" />.
-    </para>
-    <para>
-      TODO: identify threats &amp; mitigations
-    </para>
   </section>
 
-  <section id="encryption">
+  <section id="cryptography">
     <title>Cryptography</title>
     <para>
       <firstterm>Cryptography</firstterm> is the practice and study of techniques for secure communication in the 
-      presence of third parties (called adversaries). A major cryptographic technique is encryption.
+      presence of third parties (called adversaries). One of these techniques is encryption.
     </para>
     <para>
-      Encryption is the act of transforming a <firstterm>plain text</firstterm> into a <firstterm>cypher 
-      text </firstterm> using a special mathematical function known as a <firstterm>cryptographic 
-      algorithm </firstterm>. This algorithm takes a special number called a <firstterm>cryptographic key</firstterm>
+      <firstterm>Encryption</firstterm> is the act of transforming a <firstterm>plain text</firstterm> into a 
+      <firstterm>cypher text </firstterm> using a special mathematical function known as a <firstterm>cryptographic
+      algorithm</firstterm>. This algorithm takes a special number called a <firstterm>cryptographic key</firstterm>
       and some data (the plain text) as input and transforms (encrypts) it into some output (the cypher text), which
-      can be converted back (decrypted) to the original input using the same algorithm and the same or another key.
+      can be converted back (decrypted) to the original input using the same algorithm and the same or a different key.
     </para>
     <para>
       <firstterm>Symmetric encryption</firstterm> uses a single key to encrypt and decrypt data. Since this key
@@ -306,18 +288,17 @@
       Since symmetric keys must be kept secret, they are also referred to as <firstterm>secret keys</firstterm>.
     </para>
     <para>
-      Asymmetric encryption uses two keys. The first is called the <firstterm>public key</firstterm>, and can be
-      freely shared with anybody. The second one is the <firstterm>private key</firstterm> and must be kept
-      secret at all cost, just like an symmetric key. Asymmetric encryption is also referred to as
+      <firstterm>Asymmetric encryption</firstterm> uses two keys. The first is called the <firstterm>public 
+      key</firstterm>, and can be freely shared with anybody. The second one is the <firstterm>private key</firstterm> 
+      and must be kept secret, just like an symmetric key. Asymmetric encryption is also referred to as
       <firstterm>public-key cryptography</firstterm>.
     </para>
     <para>
-      A <firstterm>public key certificate</firstterm> (also known as a digital certificate or identity
-      certificate) is an electronic document used to prove ownership of a public key. The certificate includes
-      information about the key, information about its owner's identity, and the digital signature of an entity
-      that has verified that the certificate's contents are correct. If the signature is valid, and the person
-      examining the certificate trusts the signer, then they know they can use the key to communicate with its
-      owner.
+      A <firstterm>public key certificate</firstterm> (also known as a digital certificate) is an electronic document 
+      used to prove ownership of a public key. The certificate includes information about the key, information about 
+      its owner's identity, and the digital signature (see below) of an entity that has verified that the certificate's 
+      contents are correct. If the signature is valid, and the person examining the certificate trusts the signer, then 
+      they know they can use the key to communicate with its owner.
     </para>
     <para>
       The signer of a public key certificate is usually a <firstterm>certificate authority</firstterm> (CA), a
@@ -333,27 +314,82 @@
       therefore out of scope for this book.
     </para>
     <para>
-      When data that flows from one actor/process to another is encrypted, we speak of encryption of <firstterm>data in
-      transit</firstterm>. The main protocol in this space is <firstterm>Transport Layer Security</firstterm> (TLS),
-      the successor to Secure Sockets Layer (SSL). When combined with HTTP, we speak of HTTPS.
+      When encryption is applied to data that is transmitted to another actor/process, then we speak of encryption of 
+      <firstterm>data in transit</firstterm>. The main protocol in this space is <firstterm>Transport Layer 
+      Security</firstterm> (TLS), the successor of Secure Sockets Layer (SSL). When combined with HTTP, we speak of 
+      HTTPS.
     </para>
     <para>
-      TODO: Elaborate
+      TLS uses public key certificates for authentication, so that a client knows for sure that it is talking to the
+      right server. This is a mitigation against the the server being spoofed. It's unusal in REST APIs to also
+      authentication the client, as that would require the server to have the certificates for all the clients, 
+      creating a tight coupling them.
     </para>
     <para>
-      As we saw in <xref linkend="caching" />, messages sent over HTTPS cannot be cached by intermediaries like
+      The TLS protocol starts with a handshake, during which client and server negotiate the encryption algorithm and
+      a new symmetric key, which is used to encrypt all traffic from that point forward. This has two advantages. First,
+      symmetric encryption is much faster than asymmetric. Second, an attacker that has possession of the private key
+      of the server can't read the data if they didn't also intercept the handshake. 
+    </para>
+    <para>
+      There are different versions of TLS and its predecessor SSL. All versions of SSL and version 1.0 of TLS are now
+      considered insecure, because there are published ways to break these protocols. You should preferrably use 
+      version 1.2 (RFC 5246) or else 1.1 (RFC 4346).
+    </para>
+    <para>
+      As we saw in <xref linkend="caching"/>, messages sent over HTTPS cannot be cached by intermediaries like
       caching proxies. That leaves two places where we can still employ caching: at the beginning and end of the
       encrypted channel. The beginning is the REST client, while the server is the end. Since caches at a single client
       will often suffer from a low cache hit ratio, it is advisable to employ caching proxies at the server after
       termination of the TLS connection. To this end, it is common to terminate the TLS connection at the load balancer
-      (see <xref linkend="load-balancing" />) and use plain HTTP connections within the data center.
+      (see <xref linkend="load-balancing"/>) and use plain HTTP connections within the data center.
     </para>
     <para>
       This approach leaves us vulnerable to information disclosure within the data center. To mitigate this risk of
-      insider threats, we should at the minimum employ auditing (see <xref linkend="auditing" />), so that we can
-      detect such abuse and hope that the threat of taking corrective action after the fact is enough of a deterrent
-      for insiders to behave themselves.
+      insider threats, we should at the minimum employ auditing (see <xref linkend="auditing"/>), so that we can
+      detect such abuse and hope that the threat of taking corrective action after the fact is enough to deter abuse.
     </para>
+    <para>
+      <firstterm>Digital signatures</firstterm> are another application of cryptography. A <firstterm>hash 
+      function</firstterm> is any function that maps arbitrary length data to data of a fixed length (called a 
+      <firstterm>hash</firstterm> or <firstterm>digest</firstterm>).
+    </para>
+    <para>
+      A <firstterm>cryptographic hash function</firstterm> is a hash function which is considered practically 
+      impossible to invert. In other words, given the output, it's virtually impossible to get back to the input.
+    </para>
+    <para>
+      One example of a cryptographic hash function is <firstterm>Secure Hash Algorithm</firstterm>, or SHA. There are 
+      two versions of this, SHA-1 and SHA-2. The former is no longer considered secure. SHA-2 is actually a family of 
+      six functions, which includes the popular SHA-256 algorithm.
+    </para>
+    <para>
+      To digitally sign a message, you run a cryptographic hash function over the document and then encrypt the
+      result with a private key. The result is known as a <firstterm>hash-based message authentication 
+      code</firstterm> (HMAC), because it can be used to authenticate the message.
+    </para>
+    <para>
+      To validate the signature, the receiver decrypts the HMAC with the public key, and compares the result with the 
+      hash of the message. If the two match, then it's clear that the message was not tampered with, because a 
+      different message would have yielded a different hash.
+    </para>
+    <para>
+      Furthermore, the receiver knows for sure that the message was sent by the holder of the private key.
+      If the receiver also has a public key certificate that is signed by a party they trust, then the receiver can
+      be certain that the message came from the person or organization listed in the certificate.
+    </para>
+    <para>
+      The signing and validation processes are shown in <xref linkend="sign"/>.
+      We'll see applications of digital signatures in <xref linkend="http-signatures"/> and <xref linkend="auditing"/>.
+    </para>
+    <figure id="sign">
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/sign.png" scale="40" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <title>Signing a message and validating the signature</title>
+    </figure>
   </section>
 
 
@@ -421,7 +457,7 @@
       </para>
     </section>
 
-    <section>
+    <section id="http-signatures">
       <title>HTTP Signatures</title>
       <para>
         TODO:
@@ -462,7 +498,7 @@
       Control</firstterm> (RBAC).
     </para>
     <para>
-      Roles are usually not so hard to determine. The personas we identified in <xref linkend="bdd" /> are often a good
+      Roles are usually not so hard to determine. The personas we identified in <xref linkend="bdd"/> are often a good
       start. Our goal is to group users based on the level of access that we want to give them. We should segment
       our users into groups in such a way that no one person can do something disastrous on their own. This is known as
       <firstterm>Separation of Duties</firstterm> or <firstterm>Segregation of Duties</firstterm>. It is an important 
@@ -501,7 +537,7 @@
     </para>
     <para>
       In this chapter we only look at security from the design perspective. We will return to the implementation aspect
-      of authorization in <xref linkend="impl-authz" />.
+      of authorization in <xref linkend="impl-authz"/>.
     </para>
 
     <section>
@@ -544,24 +580,7 @@
     </para>
     <para>
       Digital documents are different, since they can easily be copied and modified. To prove their origin and
-      integrity, we use <firstterm>digital signatures</firstterm>. Digital signatures rely on cryptography, in
-      particular on public-key cryptography.
-    </para>
-    <para>
-      Here's how public-key crypto is applied to the digital signature problem. One party (Alice) signs a
-      document (the plain text) by encrypting it with her private key and sends the result (the cypher text) to
-      the other party (Bob).
-      Bob tries to decrypt the cypher text with Alice's public key. If that produces anything meaningful, then he
-      knows that Alice must have encrypted the document (origin) and that what he received was in fact exactly
-      the document that was signed by Alice (integrity).
-      If either of those statements were not true, the decryption could not have worked.
-    </para>
-    <para>
-      Actually, all that Bob knows for sure at this moment is that the document was signed by the private key
-      that belongs to the public key that he has. A public key certificate is needed to prove that that private
-      key actually belongs to Alice.
-    </para>
-    <para>
+      integrity, we use digital signatures (see <xref linkend="cryptograhpy"/>).
       By digitally signing an audit record we ensure it origin and integrity, so we can prove that the audited
       event actually happened as recorded.
     </para>
@@ -584,12 +603,12 @@
       malicious input that could change the meaning. For instance, if each audit record is stored as a single line in a
       text file, then a message containing a newline may cause multiple audit records to be written. This attack is
       known as <firstterm>log forging</firstterm>. The mitigating control against this vulnerability is to do proper
-      output encoding, as we'll discuss in <xref linkend="output-encoding" />.
+      output encoding, as we'll discuss in <xref linkend="output-encoding"/>.
     </para>
     <para>
       With a tamper-proof audit trail in place we can in theory detect malicious activity by insiders. To turn theory
       into practice, we should employ alerting to notify a broad group of administrators when something fishy is going
-      on (see <xref linkend="alerting" />).
+      on (see <xref linkend="alerting"/>).
     </para>
     <para>
       TODO: Make audit trail available to client.
@@ -602,7 +621,7 @@
   <section id="dos">
     <title>Protecting Against Denial of Service Attacks</title>
     <para>
-      As we saw in <xref linkend="caching" />, CDNs serve a large fraction of Internet content today. They provide
+      As we saw in <xref linkend="caching"/>, CDNs serve a large fraction of Internet content today. They provide
       the content provider a degree of protection from DoS attacks by using their large distributed server
       infrastructure to absorb the attack traffic.
     </para>
@@ -611,6 +630,18 @@
     </para>
   </section>
 
+  <section>
+    <title>Securing RESTBucks</title>
+    <para>
+      Let's applybuild a threat model for RESTBucks. We've already done most of the work for building the model in
+      <xref linkend="analysis"/>. Our actors are the customer, the cashier, and the barista. The state diagrams are in
+      <xref linkend="sd-customer"/>, <xref linkend="sd-cashier"/>, and <xref linkend="sd-barista"/>.
+    </para>
+    <para>
+      TODO: identify threats &amp; mitigations
+    </para>
+  </section>
+  
   <section>
     <title>Summary</title>
     <para>
