@@ -112,6 +112,11 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>Digest authentication</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/draft-ietf-httpauth-digest-19</biblioid>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>DublinCore</abbrev>
     <biblioid class="uri">http://dublincore.org/specifications/</biblioid>
   </biblioentry>
@@ -283,6 +288,11 @@
     </bibliomset>
   </bibliomixed>
  
+  <biblioentry>
+    <abbrev>JSON API</abbrev>
+    <biblioid class="uri">http://jsonapi.org/format/</biblioid>
+  </biblioentry>
+  
   <biblioentry>
     <abbrev>JSON-LD</abbrev>
     <biblioid class="uri">http://www.w3.org/TR/json-ld/</biblioid>

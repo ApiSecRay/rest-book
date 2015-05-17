@@ -327,15 +327,23 @@
     </para>
     <para>
       The TLS protocol starts with a handshake, during which client and server negotiate the encryption algorithm and
-      a new symmetric key, which is used to encrypt all traffic from that point forward. This has two advantages. First,
-      symmetric encryption is much faster than asymmetric. Second, an attacker that has possession of the private key
-      of the server can't read the data if they didn't also intercept the handshake. 
+      a new symmetric key, which is used to encrypt all traffic from that point forward. See <xref linkend="tls"/> .
+      This has two advantages. First, symmetric encryption is much faster than asymmetric. Second, an attacker that has 
+      possession of the private key of the server can't read the data if they didn't also intercept the handshake.
     </para>
     <para>
       There are different versions of TLS and its predecessor SSL. All versions of SSL and version 1.0 of TLS are now
       considered insecure, because there are published ways to break these protocols. You should preferrably use 
       version 1.2 (RFC 5246) or else 1.1 (RFC 4346).
     </para>
+    <figure id="tls">
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/tls.png" scale="40" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <title>The TLS protocol</title>
+    </figure>
     <para>
       As we saw in <xref linkend="caching"/>, messages sent over HTTPS cannot be cached by intermediaries like
       caching proxies. That leaves two places where we can still employ caching: at the beginning and end of the
@@ -351,17 +359,16 @@
     </para>
     <para>
       <firstterm>Digital signatures</firstterm> are another application of cryptography. A <firstterm>hash 
-      function</firstterm> is any function that maps arbitrary length data to data of a fixed length (called a 
-      <firstterm>hash</firstterm> or <firstterm>digest</firstterm>).
-    </para>
-    <para>
+      function</firstterm> is any function that maps arbitrary length data to data of a fixed length. The output is
+      known as a <firstterm>hash</firstterm> or <firstterm>digest</firstterm>.
       A <firstterm>cryptographic hash function</firstterm> is a hash function which is considered practically 
       impossible to invert. In other words, given the output, it's virtually impossible to get back to the input.
     </para>
     <para>
-      One example of a cryptographic hash function is <firstterm>Secure Hash Algorithm</firstterm>, or SHA. There are 
-      two versions of this, SHA-1 and SHA-2. The former is no longer considered secure. SHA-2 is actually a family of 
-      six functions, which includes the popular SHA-256 algorithm.
+      A well-known example of a cryptographic hash function is MD5, but it is no longer considered secure. A better
+      candidate is <firstterm>Secure Hash Algorithm</firstterm>, or SHA. There are two versions of this, SHA-1 and 
+      SHA-2. The former is no longer considered secure. SHA-2 is actually a family of six functions, which includes the 
+      popular SHA-256 algorithm.
     </para>
     <para>
       To digitally sign a message, you run a cryptographic hash function over the document and then encrypt the
@@ -396,18 +403,18 @@
   <section id="authentication">
     <title>Authentication</title>
     <para>
-      During authentication we verify an identity using one or more of the <firstterm>authentication 
-      factors</firstterm>:
+      During authentication we verify someone's or something's identity using one or more of the 
+      <firstterm>authentication factors</firstterm>:
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          Something that you know, like a password or secret key
+          Something that you know, like a password, PIN, or secret key
         </para>
       </listitem>
       <listitem>
         <para>
-          Something that you have, like mobile phone, a debit or credit card, or a One Time Password generating
+          Something that you have, like a mobile phone, a debit or credit card, or a One Time Password generating
           device such as RSA SecureID
         </para>
       </listitem>
@@ -431,29 +438,106 @@
       <firstterm>multi-factor authentication</firstterm> or <firstterm>two-step authentication</firstterm>.
     </para>
     <para>
-      Authentication usually uses some form of cryptography. If passwords are used, you shouldn't store them in
-      the clear, but rather the result of a <firstterm>cryptographic hash function</firstterm>. This is a one-way
-      function, meaning you can turn the password into a digest, but you can't turn the digest back into the
-      password. You don't want to implement this yourself, because chances are you'll get it wrong. Use something
-      proven that's already out there.
+      Authentication usually relies on some form of cryptography. Machines can be authenticated using public key 
+      certificates, as we've seen. Humans are usually authenticated using passwords, which aren't stored in the clear
+      but as a digest.
+      <footnote>
+        <para>
+          As a salted digest, to be precise. A salt is random data that is used as an additional input to a hash 
+          function, so that even equal passwords result in different digests.
+        </para>
+      </footnote>
     </para>
     <para>
-      Public key cryptography can also be used for authentication, especially of computer programs rather than
-      human users. Public key certificates are very usesul to prove the identity of machines or programs, which
-      obviously can't enter passwords in login forms.
+      There are many different authentication methods. Let's look at some that are especially relevant for REST APIs.
     </para>
 
     <section>
       <title>Basic &amp; Digest Authentication</title>
       <para>
-        TODO:
+        The simplest forms of authentication for REST APIs are probably Basic and Digest Authentication. Both are 
+        so-called <firstterm>schemes</firstterm> of the HTTP Authentication framework defined by RFC 7235
+        <citation>HTTP</citation>. The basic flow in this framework is shown in <xref linkend="http-auth"/>.
       </para>
-    </section>
-
-    <section>
-      <title>Open ID Connect</title>
+      <figure id="http-auth">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/http-auth.png" scale="68" align="center"/>
+          </imageobject>
+        </mediaobject>
+        <title>HTTP Authentication</title>
+      </figure>
       <para>
-        TODO:
+        The process starts when the client requests a protected resource. The server will not grant access until the
+        client is authenticated and indicates that with the <literal>401 Unauthorized</literal> status. (Note that this 
+        is a misnomer and should have been <literal>401 Unauthenticated</literal>).
+      </para>
+      <para>
+        Along with the <literal>401</literal> response, the server presents one or more 
+        <firstterm>challenges</firstterm> in <literal>WWW-Authenticate</literal> headers. A challenge consist of a
+        scheme followed by zero or more authentication parameters separated by commas (<literal>,</literal>). 
+        Each parameter is a name/value pair separated by an equal sign (<literal>=</literal>).
+      </para>
+      <para>
+        If the server supports multiple schemes, it can return multiple <literal>WWW-Authenticate</literal> headers,
+        or it can return just one such header with multiple values separated by commas. We advise to use a single 
+        header per scheme, because that's easier for clients to parse and also easier to debug.
+      </para>
+      <para>
+        Authentication parameters are specific to a scheme. The exception is <literal>realm</literal>, which is
+        supported by most schemes. Its value indicates the scope of protection. Use this if your server is divided
+        into multiple independent security contexts.
+      </para>
+      <para>
+        The next step is for the client to select a challenge and formulate a response to it. For this it uses the
+        <literal>Authorization</literal> header. (Another misnomer.)
+      </para>
+      <para>
+        RFC 7235 defines an extension registry for authentication schemes. Its predecessor, RFC 2617, defined two
+        schemes: Basic and Digest. These authentication schemes will now each get their own RFC, which at the time of
+        writing are still in draft. 
+      </para>
+      <para>
+        <firstterm>Basic authentication</firstterm> transmits credentials as user ID/password pairs, encoded as Base64. 
+        You'll need to protect this sensitive information using at least TLS. The user ID is separated from the 
+        password by a colon (<literal>:</literal>), so the user ID cannot contain a colon. Basic authentication 
+        requires the <literal>realm</literal> parameter.
+      </para>
+      <para>
+        We do not advise the use of Basic authentication for production systems because it isn't secure enough. But 
+        since all browsers support it, it can be useful for development environments.
+      </para>
+      <para>
+        <firstterm>Digest authentication</firstterm> is more secure than Basic, but also more complex. The 
+        <literal>WWW-Authenticate</literal> header contains several parameters used for cryptographic operations that 
+        enhance security over Basic.
+      </para>
+      <para>
+        The <literal>nonce</literal> parameter contains a unique value that the server generated and that the client
+        must echo back along with a count of how often it has used the nonce. This helps to prevent <firstterm>replay 
+        attacks</firstterm>, where an attacker intercepts a request from the client and later sends it to the server
+        itself.
+      </para>
+      <para>
+        The <literal>algorithm</literal> parameter contains the name of a cryptographic hash function that the client 
+        must use to calculate a digest of the request. The default algorithm is MD5, which shouldn't be used anymore. 
+        Pick something more secure, like SHA-256.
+      </para>
+      <para>
+        The client authenticates itself with the server by sending the <literal>Authorization</literal> header with a 
+        couple of parameters, including a signature of the nonce, the nonce count, the username, the password, the 
+        HTTP method, and the URI <citation>Digest authentication</citation>.
+        The server validates the signature as described in <xref linkend="cryptography"/>.
+      </para>
+      <para>
+        Digest authentication is more secure than Basic authentication, but it is more complex and it requires the 
+        server to maintain state about the client (the nonce and how often it has been used). This is not good for 
+        scalability, as we saw in <xref linkend="performance"/>.
+      </para>
+      <para>
+        Another downside of both Basic and Digest authentication is that they rely on passwords, which means that the 
+        server must store them securely. This is not an easy task, as many breaches have shown. Now let's look at an 
+        authentication scheme that doesn't suffer from this problem and also doesn't require keeping state.
       </para>
     </section>
 
@@ -467,11 +551,9 @@
     <section>
       <title>Tickets</title>
       <para>
-        Remember that authentication, the act of verifying someone's identity, is the basis for both authorization and
-        auditing. This means we must have access to the user's identity for each request. In traditional web 
-        applications, the user logs on once, after which a <firstterm>session</firstterm> is established. The session 
-        is identified by some session identifier that is usually stored in a cookie. The server associates the session 
-        identifier with the user's attributes.
+        In traditional web applications, the user logs on once, after which a <firstterm>session</firstterm> is 
+        established. The session is identified by some session identifier that is usually stored in a cookie. The 
+        server associates the session identifier with the user's attributes.
       </para>
       <para>
         The problem with this approach is that the session that the server stores is state that we rather wouldn't 
@@ -479,6 +561,13 @@
       </para>
       <para>
         TODO: A <firstterm>ticket</firstterm> is ...
+      </para>
+    </section>
+
+    <section>
+      <title>Open ID Connect</title>
+      <para>
+        TODO:
       </para>
     </section>
   </section>
@@ -511,24 +600,36 @@
       difference is eliminated.
     </para>
     <para>
-      RBAC often works quite well, but there are situations in which it breaks down. Imagine that users can be members 
-      of multiple projects, and play different roles depending on the project. RBAC can only model this by creating
-      different roles for different projects, e.g. <literal>LEAD_A</literal> and <literal>LEAD_B</literal> for projects 
-      A and B, respectively. This becomes unwieldly when the number of projects and the number of roles per project 
-      increases, a phenomenon known as <firstterm>role explosion</firstterm>.
+      RBAC often works quite well, but there are situations in which it breaks down. For example, in the healthcare 
+      space there is the concept of a primary care physician (PCP). My PCP can see all of my medical data, so that they
+      have a holistic view of my health. Other physicians that treat me may only see parts of my medical history. For
+      instance, a urologist wouldn't need to see any data on my allergies.
+    </para>
+    <para>
+      The problem is that my PCP may not be the PCP for my neighbor, so PCP is not really a role.
+      To force this into an RBAC system would require the introduction of many, many roles, a phenomenon known as 
+      <firstterm>role explosion</firstterm>. In some cases, the number of roles may even be greater than the number
+      of users in the system! This isn't how roles were supposed to work, they were supposed to be groupings of users
+      that are easier to manage because there are fewer of them.
     </para>
     <para>
       If you find yourself in a situation where RBAC breaks down, you can make your life easier by transitioning to
       <firstterm>Attribute-Based Access Control</firstterm> (ABAC). In this system, the access control decision is tied 
       not just to the role and protected resource, but to any number of <firstterm>attributes</firstterm>.
-      For example, the role would be one attribute, and the project another. ABAC allows you to make your access
-      control policies very fine-grained by including as many attributes as you need.
+      For example, the role would be one attribute, and the patient another. ABAC allows you to make your access
+      control policies very fine-grained by combining as many attributes as you need.
     </para>
     <para>
       You can also make your access control policies <firstterm>context-aware</firstterm> by capturing the
-      context in attributes. For instance, the time of day could be an attribute and there could be a policy to
-      allow access only during business hours. Other examples of context are the device used to access the
-      service or the strength of authentication (e.g. was two-factor authentication used).
+      context in attributes. For instance, when I'm bleeding to death on the street after being hit by a car, I would
+      want any doctor to see all of my medical data so he can save my life. We could capture that with an emergency
+      attribute and have policies around that (maybe with the obligation to perform extra logging).
+    </para>
+    <para>
+      Other examples include the time of day in a policy that only allows access during business hours, the device 
+      used to access the service, or the strength of authentication (e.g. was two-factor authentication used). Maybe we
+      want to give only read access to a sensitve document when you're abroad, or no access at all if your IP address
+      indicates you're abroad, while your agenda shows you're in the country.
     </para>
     <para>
       Whether you use ACLs, RBAC, or ABAC, you should always make sure to give people just enough permissions to
