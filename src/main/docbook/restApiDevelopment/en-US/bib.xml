@@ -283,6 +283,11 @@
     <biblioid class="uri">http://goessner.net/articles/JsonPath/</biblioid>
   </biblioentry>
   
+  <biblioentry>
+    <abbrev>JWT</abbrev>
+    <biblioid class="uri">http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html</biblioid>
+  </biblioentry>
+  
   <bibliomixed>
     <abbrev>Knuth74</abbrev>
     <bibliomset relation='article'>
