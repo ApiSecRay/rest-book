@@ -161,7 +161,7 @@
 
   <biblioentry>
     <abbrev>Fielding00</abbrev>
-    <biblioid class="uri">http://aws.amazon.com/appstream/</biblioid>
+    <biblioid class="uri">http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm/</biblioid>
     <citetitle>Architectural Styles and the Design of Network-based Software Architectures</citetitle>
     <authorgroup>
       <author>
@@ -250,6 +250,12 @@
     <abbrev>HTTP</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/rfc7230</biblioid>
     <citetitle>RFC 7230-7235</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>HTTP Signatures</abbrev>
+    <biblioid class="uri">https://tools.ietf.org/html/draft-cavage-http-signatures-04</biblioid>
+    <citetitle>Signing HTTP Messages (Internet-Draft)</citetitle>
   </biblioentry>
   
   <biblioentry>

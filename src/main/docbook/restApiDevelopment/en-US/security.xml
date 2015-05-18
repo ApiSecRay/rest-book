@@ -149,10 +149,31 @@
           to identify which are applicable.
         </para>
         <para>
-          TODO: attack trees
+          Another way to do threat modeling is by constructing attack trees. An <firstterm>attack tree</firstterm> is
+          a tree structure in which the root node represents the attacker's goal, and its children are ways to achieve
+          that goal. Each child node can have ever more specific children.
         </para>
         <para>
-          TODO: attack libraries
+          The nodes in an attack tree can be combined either by AND or by OR. You'll likely need both, so you need some
+          way to visualize the relationship. There currently is no standard way of doing that, unfortunately, which 
+          means you need to take your time to explain your approach if you're building an attack tree.
+        </para>
+        <para>
+          Attack trees can be visualized as graphic trees, as textual outlines, as mind maps, or even as data 
+          structures that computer programs can analyze.
+        </para>
+        <para>
+          Attack trees are an attractive way to visualize threats, but they have some problems as well. The principal
+          issue is that it's very hard to determine when your done, since there is no structure like STRIDE to guide 
+          you. Of course, nothing is stopping you from using STRIDE to build your attack tree. 
+        </para>
+        <para>
+          Another way to find threats is through an attack library. An <firstterm>attack library</firstterm> is a
+          pre-existing list of threats that somebody else has already made for you. They can be abstract or more 
+          concrete and may or may not be applicable to your domain.
+        </para>
+        <para>
+          TODO: Continue.
         </para>
       </step>
       <step>
@@ -544,7 +565,66 @@
     <section id="http-signatures">
       <title>HTTP Signatures</title>
       <para>
-        TODO:
+        As we saw in <xref linkend="cryptography"/>, signing a message proves both the origin and the integrity of the
+        message. Since proof of origin is just a different way of saying proof of identity of the sender of the message,
+        we can use digital signatures as a means of authentication.
+      </para>
+      <para>
+        This is what many API provides do. Examples are Amazon Web Services and EMC Atmos. The problem is that each of
+        those providers uses their own unique implementation of the same idea.   
+        The Signing HTTP Messages draft specification standardizes this approach <citation>HTTP Signatures</citation>.
+      </para>
+      <para>
+        The draft defines a new HTTP Authentication scheme called <literal>Signature</literal> that supports multiple 
+        parameters. The <literal>keyId</literal> parameter is required. It indicates the sender, someone or sombody 
+        that is associated with a key that the server has stored. The <literal>keyId</literal> is used to look up that 
+        key.
+      </para>
+      <para>
+        Another required parameter is <literal>algorithm</literal>. It specifies the digital signature algorithm used
+        to sign the message. The draft specification calls for the introduction of a new registry, maintained by IANA, 
+        of approved algorithms such as RSA-SHA256. This registry doesn't exist at the time of writing, because the
+        specification is still in draft.
+      </para>
+      <para>
+        The optional <literal>headers</literal> parameter specifies which HTTP headers are to be signed (when used in
+        <literal>WWW-Authenticate</literal>) or were signed (when used in <literal>Authorization</literal>). The 
+        default value is <literal>Date</literal>, which protects against replay attacks. The value of 
+        <literal>headers</literal> is a list of quoted header names, separated by a single space.
+      </para>
+      <para>
+        A server may require all clients to sign certain headers, or it may leave out the <literal>headers</literal>
+        field. A client must always at least sign the required headers, but may sign more. If the server doesn't
+        require any headers, then the specification demands that the client at least sign the <literal>Date</literal>
+        header.
+      </para>
+      <para>
+        It's also good practice to include the request target. The latter is the HTTP method followed by a space 
+        followed by the request path <citation>HTTP</citation>. Use <literal>(request-target)</literal> as the name of 
+        the "header" for the request target in the <literal>headers</literal> parameter.
+      </para>
+      <para>
+        The <literal>signature</literal> parameter in <literal>Authorization</literal> contains the base64 encoded 
+        signature. The client uses the <literal>headers</literal> parameter to form a canonicalized <firstterm>signing 
+        string</firstterm>. This signing string is then signed with the key associated with <literal>keyId</literal> 
+        and the algorithm corresponding to <literal>algorithm</literal>. The <literal>signature</literal> parameter is 
+        then set to the base64 encoding of the signature.
+      </para>
+      <para>
+        The headers in the signing string are normalized to make sure client and server calculate the digest over the
+        same string. The lowercased header name is followed by a colon, a space, and the header's value. Headers in the
+        signing string are separated by newlines.        
+      </para>
+      <para>
+        The encryption part of the signing process may be performed using either a symmetric key or the private key of
+        a public/private key pair. We advise to use asymmetric keys, so that in the event your database of keys gets
+        compromised, you haven't given away any information that attackers can use. The key you store is the public key 
+        rather than a secret key, after all.
+      </para>
+      <para>
+        A digital signature not only proves the integrity of the message, but also the integrity. So even if your TLS 
+        connection is compromised, as we've seen with the recent BEAST and POODLE attacks, you can still be confident 
+        that the message wasn't tampered with. Of course, signing doesn't protect against information disclosure.
       </para>
     </section>
 
@@ -734,9 +814,12 @@
   <section>
     <title>Securing RESTBucks</title>
     <para>
-      Let's applybuild a threat model for RESTBucks. We've already done most of the work for building the model in
-      <xref linkend="analysis"/>. Our actors are the customer, the cashier, and the barista. The state diagrams are in
-      <xref linkend="sd-customer"/>, <xref linkend="sd-cashier"/>, and <xref linkend="sd-barista"/>.
+      Let's apply the theory of the preceding sections to RESTBucks.
+    </para>
+    <para>
+      We'll start by building a threat model. The first step is to model our system. We've already done most of this 
+      work in <xref linkend="analysis"/>. Our actors are the customer, the cashier, and the barista. The state diagrams 
+      are in <xref linkend="sd-customer"/>, <xref linkend="sd-cashier"/>, and <xref linkend="sd-barista"/>.
     </para>
     <para>
       TODO: identify threats &amp; mitigations
