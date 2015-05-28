@@ -1569,7 +1569,14 @@ Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
       </para>
     </simplesect>
   </section>
-  
+
+  <section>
+    <title>Facade</title>
+    <para>
+      TODO: API Facade to existing system. 
+    </para>
+  </section>
+    
   <section>
     <title>Summary</title>
     <para>

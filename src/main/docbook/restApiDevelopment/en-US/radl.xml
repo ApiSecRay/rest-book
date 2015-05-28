@@ -2,15 +2,89 @@
   <title>REST API Description Language (RADL)</title>
 
   <section>
-    <title>Purpose</title>
+    <title>API Description Languages</title>
+    <para>
+      The ever increasing number of APIs requires tooling to manage. Such tools need to understand the APIs they're 
+      managing, which leads to a need to describe APIs in a machine-processable way. A language for doing so is an
+      <firstterm>API description language</firstterm>.
+    </para>
+    <para>
+      There have been several attempts at API description languages. WSDL is the language of choice for SOAP-based APIs
+      <citation>WSDL</citation>. For HTTP APIs, we've seen WADL, RAML, and Swagger <citation>WADL</citation>
+      <citation>RAML</citation> <citation>Swagger</citation>.
+    </para>
+    <para>
+      While these description languages work and have tooling ecosystems of varying maturity around them, they don't 
+      have special provisions for the hypermedia aspect of truly RESTful APIs. In terms of the maturity model (see
+      <xref linkend="maturity"/>), they can only describe APIs up to level 2.
+    </para>
+    <para>
+      API Blueprint supports link relations, and as such can be used to describe level 3 APIs 
+      <citation>API Blueprint</citation>. It is based on Markdown syntax, which makes it relatively easy to read and 
+      write by a human. However, there is no schema language that can be used to describe and validate Markdown and 
+      there are several different flavors. The API Blueprint specification is therefore a lot less readable
+      than it could have been and it places a greater burden on tooling to validate API descriptions than necessary.
+    </para>
+    <para>
+      An API description language's primary function is to enable tooling. Optimizing for human readers and writers 
+      should come second. XML meets those requirements much better than Markdown.
+    </para>
+    <para>
+      Many developers struggle with REST concepts, which is why we wrote this book. It would therefore be advantageous 
+      if the description language could guide them when making their choices. The structure of the description language 
+      should take the developer by the hand and make it easy to do the right thing. In particular, it would be great if
+      the description language would guide developers and API designers through the API design process of 
+      <xref linkend="design"/> or a similarly detailed process.
+      API Blueprint has no such facilities. It merely records the end product and provides no help along the way.
+    </para>
+    <para>
+      Another problem that API Blueprint shares with RAML and Swagger is that encourages certain anti-patterns. For 
+      instance, each HTTP method must include a response which must include a status code. This encourages client to 
+      expect only the documented status codes. It's much better for clients to have general status code handling 
+      capabilities, so that they don't break whenever the server changes. The same holds true for HTTP headers.
+    </para>
   </section>
 
   <section>
-    <title>Structure</title>
-  </section>
-
-  <section>
-    <title>Designing With RADL</title>
+    <title>RESTful API Description Language</title>
+    <para>
+      Since none of the existing API description languages seem to live up to our expectations, we've invented our own.
+      <firstterm>RESTful API Description Language</firstterm> (RADL) is an XML-based API description language that can 
+      describe semantic, hypermedia-driven APIs (level 4).
+      It's unfortunate that we had to introduce yet another language into an already fragmented landscape, but we 
+      believe the benefits are worth it.
+    </para>
+    <para>
+      The RADL language and tooling around it are open source <citation>RADL</citation>. At the time of writing, the 
+      tools are far from complete, but functional enough for use in real world APIs. The RADL community encourages
+      feedback and contributions.
+    </para>
+    <para>
+      The structure of RADL should come as no surprise; the language has a place for all the concepts described in 
+      this book. The XML namespace for RADL is <literal>urn:radl:service</literal> and its top-level element is 
+      <literal>&lt;service&gt;</literal>. Let's walk through the steps of 
+      <xref linkend="tate-diagram-to-resource-model"/> to give you a taste of the elements under
+      <literal>&lt;service&gt;</literal>.
+    </para>
+   <orderedlist>
+     <listitem>
+       <para>
+         Document requirements with state diagrams. The <literal>&lt;states&gt;</literal> element captures a state
+         diagram. It contains a <literal>&lt;start-state&gt;</literal> and multiple <literal>&lt;state&gt;</literal>
+         elements. Each of those contains <literal>&lt;transitions&gt;</literal> that point to other states.
+       </para>
+       <para>
+         Things in RADL are identified by name. This is true for states and transitions and many other elements that we
+         will see shortly. The name is captured in the <literal>name</literal> attribute of the element. The value of
+         this attribute is a plain string.
+       </para>
+       <para>
+         Many elements in RADL support the <literal>&lt;documentation&gt;</literal> element that contains information 
+         that is intended to be read by a human. Documentation is mostly meant for client developers that program 
+         against the REST API, but it can also be used to give information to server developers.
+       </para>
+     </listitem>
+   </orderedlist>
   </section>
 
   <section id="tools">

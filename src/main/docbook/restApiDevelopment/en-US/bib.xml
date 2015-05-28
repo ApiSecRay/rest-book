@@ -78,6 +78,11 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>API Blueprint</abbrev>
+    <biblioid class="uri">https://github.com/apiaryio/api-blueprint/blob/master/API%20Blueprint%20Specification.md</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>AppStream</abbrev>
     <biblioid class="uri">http://aws.amazon.com/appstream/</biblioid>
     <citetitle>AppStream API</citetitle>
@@ -363,6 +368,17 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>RADL</abbrev>
+    <biblioid class="uri">https://github.com/restful-api-description-language/RADL</biblioid>
+    <citetitle>RESTful API Description Language</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>RAML</abbrev>
+    <biblioid class="uri">http://raml.org/spec.html</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>RDF</abbrev>
     <biblioid class="uri">http://www.w3.org/RDF/</biblioid>
     <citetitle>Resource Description Framework</citetitle>
@@ -525,6 +541,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Swagger</abbrev>
+    <biblioid class="uri">https://github.com/swagger-api/swagger-spec</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>UBER</abbrev>
     <biblioid class="uri">https://github.com/mamund/media-types/blob/master/uber-hypermedia.asciidoc</biblioid>
   </biblioentry>
@@ -533,6 +554,11 @@
     <abbrev>vCard</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/rfc2426</biblioid>
     <citetitle>vCard MIME Directory Profile</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>WADL</abbrev>
+    <biblioid class="uri">http://www.w3.org/Submission/wadl/</biblioid>
   </biblioentry>
   
   <biblioentry>
@@ -578,13 +604,13 @@
   </biblioentry>
   
   <biblioentry>
-    <abbrev>XML-RPC</abbrev>
-    <biblioid class="uri">http://xmlrpc.scripting.com/default.html</biblioid>
+    <abbrev>WSDL</abbrev>
+    <biblioid class="uri">http://www.w3.org/TR/wsdl</biblioid>
   </biblioentry>
   
   <biblioentry>
-    <abbrev>XPath</abbrev>
-    <biblioid class="uri">http://www.w3.org/TR/xpath-31/</biblioid>
+    <abbrev>XML-RPC</abbrev>
+    <biblioid class="uri">http://xmlrpc.scripting.com/default.html</biblioid>
   </biblioentry>
   
 </bibliography>
