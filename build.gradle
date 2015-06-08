@@ -83,3 +83,8 @@ def exportToPng(source, target) {
   }
 }
 */
+
+task wrapper(type: Wrapper) {
+  gradleVersion = 2.4
+}
+
