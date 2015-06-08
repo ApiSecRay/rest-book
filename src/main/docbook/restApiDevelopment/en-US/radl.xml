@@ -5,25 +5,27 @@
     <title>API Description Languages</title>
     <para>
       The ever increasing number of APIs requires tooling to manage. Such tools need to understand the APIs they're 
-      managing, which leads to a need to describe APIs in a machine-processable way. A language for doing so is an
-      <firstterm>API description language</firstterm>.
+      managing, which leads to a need to describe APIs in a machine-processable way. A language for doing so is 
+      known as an <firstterm>API description language</firstterm>.
     </para>
     <para>
       There have been several attempts at API description languages. WSDL is the language of choice for SOAP-based APIs
-      <citation>WSDL</citation>. For HTTP APIs, we've seen WADL, RAML, and Swagger <citation>WADL</citation>
+      <citation>WSDL</citation>. For HTTP-based APIs, we've seen a bunch of languages pop up <citation>WADL</citation>
       <citation>RAML</citation> <citation>Swagger</citation>.
     </para>
     <para>
       While these description languages work and have tooling ecosystems of varying maturity around them, they don't 
       have special provisions for the hypermedia aspect of truly RESTful APIs. In terms of the maturity model (see
-      <xref linkend="maturity"/>), they can only describe APIs up to level 2.
+      <xref linkend="maturity"/>), they can only describe APIs up to level 2. The documentation they generate is filled
+      with URLs that will tightly couple the client to the server.
     </para>
     <para>
       API Blueprint supports link relations, and as such can be used to describe level 3 APIs 
       <citation>API Blueprint</citation>. It is based on Markdown syntax, which makes it relatively easy to read and 
       write by a human. However, there is no schema language that can be used to describe and validate Markdown and 
-      there are several different flavors. The API Blueprint specification is therefore a lot less readable
-      than it could have been and it places a greater burden on tooling to validate API descriptions than necessary.
+      there are several different flavors. Also, Markdown is a format for human-readable documentation, not necessarily
+      machine-processable description. The API Blueprint specification is therefore a lot less readable
+      than it could have been and it places a greater burden on tooling to validate API descriptions than desirable.
     </para>
     <para>
       An API description language's primary function is to enable tooling. Optimizing for human readers and writers 
@@ -38,17 +40,18 @@
       API Blueprint has no such facilities. It merely records the end product and provides no help along the way.
     </para>
     <para>
-      Another problem that API Blueprint shares with RAML and Swagger is that encourages certain anti-patterns. For 
-      instance, each HTTP method must include a response which must include a status code. This encourages client to 
-      expect only the documented status codes. It's much better for clients to have general status code handling 
-      capabilities, so that they don't break whenever the server changes. The same holds true for HTTP headers.
+      Another problem that API Blueprint shares with RAML and Swagger is that it encourages certain anti-patterns. For 
+      instance, each HTTP method must include a response which must include a status code. This encourages clients to 
+      expect only the documented status codes for a given method on a given URI, introducing tight coupling. It would 
+      be better for clients to have general status code handling capabilities, so that they don't break whenever the 
+      server changes. The same holds true for HTTP headers.
     </para>
   </section>
 
   <section>
     <title>RESTful API Description Language</title>
     <para>
-      Since none of the existing API description languages seem to live up to our expectations, we've invented our own.
+      Since none of the existing API description languages seem to meet our requirements, we've invented our own.
       <firstterm>RESTful API Description Language</firstterm> (RADL) is an XML-based API description language that can 
       describe semantic, hypermedia-driven APIs (level 4).
       It's unfortunate that we had to introduce yet another language into an already fragmented landscape, but we 
@@ -60,35 +63,216 @@
       feedback and contributions.
     </para>
     <para>
-      The structure of RADL should come as no surprise; the language has a place for all the concepts described in 
-      this book. The XML namespace for RADL is <literal>urn:radl:service</literal> and its top-level element is 
-      <literal>&lt;service&gt;</literal>. Let's walk through the steps of 
-      <xref linkend="tate-diagram-to-resource-model"/> to give you a taste of the elements under
-      <literal>&lt;service&gt;</literal>.
+      The RADL language has a place for all the concepts described in this book. Here's the basic structure: 
     </para>
-   <orderedlist>
-     <listitem>
+    <programlisting><![CDATA[<service name="..." xmlns="urn:radl:service">
+  <states>
+    <!-- The state diagram -->
+  </states>
+
+  <link-relations>
+    <!-- All link relations used -->
+  </link-relations>
+
+  <data-models>
+    <!-- The data in the messages -->
+  </data-models>
+
+  <problems>
+    <!-- The error conditions -->
+  </problems>
+
+  <media-types>
+    <!-- All media types used -->
+  </media-types>
+
+  <resources>
+    <!-- The resource model -->
+  </resources>
+</service>]]></programlisting>
+    <para>
+      The <literal>&lt;states&gt;</literal> element captures the state diagram. It contains a 
+      <literal>&lt;start-state&gt;</literal> element that holds the transition to the initial state. This transition 
+      will usually correspond to a <literal>GET</literal> on the billboard URI.
+      Transitions point to other <literal>&lt;state&gt;</literal> elements as required to implement the state diagram.
+    </para>
+    <para>
+      Things in RADL are identified by name. This is true for states and transitions and many other elements that we
+      will see shortly. The name is captured in the <literal>name</literal> attribute of the element. The value of
+      this attribute is a human-readable string.
+    </para>
+    <para>
+      Many elements in RADL support the <literal>&lt;documentation&gt;</literal> element that contains information 
+      that is intended to be read by a human. Documentation is mostly meant for client developers that program 
+      against the REST API, but it can also be used to give information to server developers. Documentation may
+      contain HTML markup. Remember to declare the XML namespace, <literal>http://www.w3.org/1999/xhtml</literal>, if 
+      you want to use HTML.
+    </para>
+    <para>
+      The next section contains the link relations used by the API. For standard link relations you can use the
+      <literal>&lt;specification&gt;</literal> element to point to where the link relation is defined. For extension
+      link relations, you may add <literal>&lt;documentation&gt;</literal> as desired. The 
+      <literal>&lt;link-relation&gt;</literal> element also contains the transitions implemented by the link relation.
+    </para>
+    <para>
+      The structure of the messages is captured in the <literal>&lt;data-models&gt;</literal> section. Each data model
+      if a list of properties, which can be nested. Each <literal>&lt;property&gt;</literal> element may contain a
+      <literal>uri</literal> parameter that points to the vocabulary definition.
+    </para>
+    <para>
+      You can capture the problem types of an API using the <literal>&lt;problems&gt;</literal> element. It contains
+      multiple <literal>&lt;problem&gt;</literal> elements that can hold documentation. You can also assign URIs to the
+      problems using the <literal>uri</literal> attribute.
+    </para>
+    <para>
+      Next up is a list of media types used. Most APIs will have a primary media type that they use for most messages.
+      An API may also occasionally use other media types, for instance for uploading documents. Like link relations,
+      <literal>&lt;media-type&gt;</literal> elements may contain a <literal>&lt;specification&gt;</literal>.
+    </para>
+    <para>
+      The final section of a RADL document is the resource model. The information in this part is comparable to an
+      entire RAML or Swagger definition. Each <literal>&lt;resource&gt;</literal> contains a 
+      <literal>&lt;location</literal> element that captures the URI or URI template. It also contains the methods.
+      A <literal>&lt;method&gt;</literal> links to the transitions it implements and contains the request and response,
+      if applicable.
+    </para>
+  </section>
+  
+  <section>
+    <title>RESTBucks in RADL</title>
+    <para>
+      To see RADL in action, we're going to walk through the steps of procedure 
+      "<xref linkend="design-rest-api"/>" we saw in <xref linkend="error"/>:
+    </para>
+    <orderedlist>
+      <listitem>
        <para>
-         Document requirements with state diagrams. The <literal>&lt;states&gt;</literal> element captures a state
-         diagram. It contains a <literal>&lt;start-state&gt;</literal> and multiple <literal>&lt;state&gt;</literal>
+         Document requirements with state diagrams.
+       </para>
+       <para>
+         The <literal>&lt;states&gt;</literal> element under <literal>&lt;service&gt;</literal>captures a state 
+         diagram. It contains a <literal>&lt;start-state&gt;</literal> and multiple <literal>&lt;state&gt;</literal> 
          elements. Each of those contains <literal>&lt;transitions&gt;</literal> that point to other states.
        </para>
+      </listitem>
+      <listitem>
        <para>
-         Things in RADL are identified by name. This is true for states and transitions and many other elements that we
-         will see shortly. The name is captured in the <literal>name</literal> attribute of the element. The value of
-         this attribute is a plain string.
+         Discover resources and methods from state transitions.
        </para>
        <para>
-         Many elements in RADL support the <literal>&lt;documentation&gt;</literal> element that contains information 
-         that is intended to be read by a human. Documentation is mostly meant for client developers that program 
-         against the REST API, but it can also be used to give information to server developers.
+         The <literal>&lt;resources&gt;</literal> element under <literal>&lt;service&gt;</literal> captures the 
+         resource model that implements the state diagram. It contains multiple <literal>&lt;resource&gt;</literal> 
+         elements that hold the <literal>&lt;methods&gt;</literal>. Each <literal>&lt;method&gt;</literal> element 
+         contains the <literal>&lt;transitions&gt;</literal> it implements.
        </para>
-     </listitem>
-   </orderedlist>
+      </listitem>
+      <listitem>
+       <para>
+         Name resources with URIs.
+       </para>
+       <para>
+         A <literal>&lt;resource&gt;</literal> element contains a <literal>&lt;location&gt;</literal> element that has 
+         either a <literal>uri</literal> or a <literal>uri-template</literal> attribute. In case of a URI template 
+         <citation>RFC 6570</citation>, the <literal>&lt;location&gt;</literal> may document the template variables 
+         using <literal>&lt;var&gt;</literal> elements.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+         Name state transitions with link relations.
+       </para>
+       <para>
+         The <literal>&lt;link-relations&gt;</literal> element under <literal>&lt;service&gt;</literal> contains 
+         multiple <literal>&lt;link-relation&gt;</literal> elements. Each of those contains the 
+         <literal>&lt;transitions&gt;</literal> it implements.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+         Design messages.
+       </para>
+       <para>
+         The <literal>&lt;data-models&gt;</literal> element under <literal>&lt;service&gt;</literal> contains multiple 
+         <literal>&lt;data-model&gt;</literal> elements. Each of those describes the
+         <literal>&lt;properties&gt;</literal> it contains and can be referred to from <literal>&lt;state&gt;</literal> 
+         and <literal>&lt;transition&gt;</literal> elements.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+         Document application semantics.
+       </para>
+       <para>
+         Each <literal>&lt;property&gt;</literal> has a <literal>uri</literal> attribute that can point to the 
+         vocabulary definition.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+         Select a media type to serialize messages.
+       </para>
+       <para>
+         The <literal>&lt;media-types&gt;</literal> element under <literal>&lt;service&gt;</literal> contains multiple 
+         <literal>&lt;media-type&gt;</literal> elements. Each of those may contain a 
+         <literal>&lt;specification&gt;</literal> element that points to an external specification that defines the 
+         syntax and semantics of the media type.
+       </para>
+       <para>
+         A <literal>&lt;method&gt;</literal> may contain <literal>&lt;request&gt;</literal> and/or 
+         <literal>&lt;response&gt;</literal> elements. Each of those may contain one or more 
+         <literal>&lt;representation&gt;</literal> elements that link to a <literal>&lt;media-type&gt;</literal>.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+         Document the error conditions.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+         Validate the design.
+       </para>
+       <para>
+         There is no markup for validating the design, but the tooling around RADL can validate the API description up 
+         to a certain point. It will catch things like transitions that are not implemented using a method, or 
+         unreachable states. We can envision more elaborate validation, like comparison with the design patterns 
+         listed in <xref linkend="patterns"/>, but this task will fundamentally remain one for humans to complete.
+       </para>
+      </listitem>
+    </orderedlist>
   </section>
 
   <section id="tools">
     <title>Tooling</title>
+    <para>
+      One thing that all API description languages are used for, is to generate documentation for developers of client
+      applications. The output is usually HTML, but sometimes other formats are supported as well. API description
+      formats based on Markdown can use existing tools to generate PDF, for instance. 
+    </para>
+    <para>
+      Since RADL is based on XML, we can use the rich suite of XML tools to process it. For generating HTML
+      documentation, an XSLT stylesheet is provided. It wouldn't be hard to use XSL:FO to produce PDF output as well.
+      The HTML documentation for RESTBucks is shown in <xref linkend="restbucks-api-doc"/>.  
+    </para>
+    <figure id="restbucks-api-doc">
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/restbucks-api-doc.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <title>HTML documentation generated from RADL describing the RESTBucks API.</title>
+    </figure>
+    <para>
+      While documentation is essential for any API, there are many more things one can use RADL for. At the time of
+      writing, there is a modest collection of tools around RADL that make working with it easy and efficient.
+    </para>
+    <para>
+      This book assumes a greenfield project, where you have the luxury of designing your API before you start coding
+      it. Your situation may very well be different. Many existing products are in the process of adding APIs on top
+      of existing code. RADL tries very hard to be useful in both API-first and code-first approaches to API design.
+    </para>
+    <para>
+    </para>
   </section>
   
   <section>

@@ -307,7 +307,8 @@
       Another common pitfall is to display technical information in error responses, like stack traces for server
       errors. Although these can be very helpful for debugging purposes, they can also be used by attackers. For
       instance, a stack trace may reveal that a particular open source component is used and an attacker may then 
-      exploit known vulnerabilities against that component to break into your system.
+      exploit known vulnerabilities against that component to break into your system. This is called information
+      disclosure and we'll come back to it in <xref linkend="security"/>.
     </para>
     <para>
       The right way to handle this is to log the technical information (see <xref linkend="logging"/>), along with
@@ -320,10 +321,43 @@
   <section>
     <title>Discovering Error Conditions</title>
     <para>
-      Now that we know about error conditions and how to serialize them as messages, the one remaining unanswered
-      question is: How do you find all the things that could potentially go wrong in your API?
-      This is where state diagrams (see <xref linkend="state-diagrams"/>) come to the rescue again. With that 
-      information, the procedure is very simple.
+      Now that we know about error conditions and how to serialize them as messages, we can extend procedure 
+      "<xref linkend="state-diagram-to-resource-model"/>" of <xref linkend="design"/> to the following:
+    </para>
+    <procedure id="design-rest-api">
+      <title>Design a REST API</title>
+      <step>
+        <para>Document requirements with state diagrams.</para>
+      </step>
+      <step>
+        <para>Discover resources and methods from state transitions.</para>
+      </step>
+      <step>
+        <para>Name resources with URIs.</para>
+      </step>
+      <step>
+        <para>Name state transitions with link relations.</para>
+      </step>
+      <step>
+        <para>Design messages.</para>
+      </step>
+      <step>
+        <para>Document application semantics.</para>
+      </step>
+      <step>
+        <para>Select a media type to serialize messages.</para>
+      </step>
+      <step>
+        <para>Document the error conditions.</para>
+      </step>
+      <step>
+        <para>Validate the design.</para>
+      </step>
+    </procedure>
+    <para>
+      The one remaining unanswered question is: How do you find all the things that could potentially go wrong in your 
+      API? This is where state diagrams (see <xref linkend="state-diagrams"/>) come to the rescue again. With that
+      information, the procedure is simple:
     </para>
     <procedure id="find-errors">
       <title>Discover Error Conditions</title>
@@ -424,7 +458,7 @@
 		            <entry>405</entry>
 		            <entry>http://errors.restbucks.com/method-not-allowed</entry>
 		            <entry>The method you used is not supported on this URI</entry>
-		            <entry>N/A</entry>
+		            <entry>List the supported methods</entry>
 		          </row>
 		          <row>
 		            <entry>406</entry>
@@ -455,8 +489,8 @@
         <para>
           For instance, our description of <literal>http://errors.restbucks.com/not-found</literal> explicitly states
           that a <literal>404 Not Found</literal> status code may be returned when the client doesn't have permission
-          to access the resource. A client developer may not guess that and may waste considerable time troubleshooting 
-          the issue if we don't provide that clarification.
+          to access the resource (see <xref linkend="authorization"/>). A client developer might not have guessed that 
+          and thus may waste considerable time troubleshooting the issue if we don't provide that clarification.
         </para>
         <para>
           Some error conditions really shouldn't occur in a RESTful system, like a client requesting an unknown URI
@@ -524,10 +558,13 @@
         <para>
           To fulfill the request for the menu, the server has to collect the menu items from somewhere. Chances are
           that these items are stored in a database of some sort. The server will have to establish a connection with
-          this database, and that could go wrong (unless maybe the database is an in-memory database). This is a
-          specific case of a more general pattern: the server may depend on external services that may be unavailable
-          for some reason (see <xref linkend="external"/>). Since this is hopefully a temporary condition, you should
-          return <literal>503 Service Unavailable</literal> rather than <literal>500 Internal Server Error</literal>.
+          this database, and that could go wrong (unless maybe the database is an in-memory database).
+        </para>
+        <para>
+          This is a specific case of a more general pattern: the server may depend on external services that may be 
+          unavailable for some reason (see <xref linkend="external"/>). Since this is hopefully a temporary condition, 
+          you should return <literal>503 Service Unavailable</literal> rather than <literal>500 Internal Server 
+          Error</literal>.
         </para>
         <para>
           If the server knows from experience how long these outages usually last, it can provide the 

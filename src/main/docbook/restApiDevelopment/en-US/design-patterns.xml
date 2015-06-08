@@ -542,8 +542,13 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         The client must still initiate the interaction. It sends the server a request to receive a notification. This
         request must contain the address of the client, so that the server can send the client the notification request
-        later. The server must keep this state information until it has notified the client, which violates the 
-        stateless constraint (see <xref linkend="rest"/>).
+        later. This user-defined HTTP callback is known as a <firstterm>webhook</firstterm>.
+        The server stores the webhook and uses it to notify the client.
+      </para>
+      <para>
+        If you use a webhook for a single request, then you're basically making the server store client state, which 
+        violates the stateless constraint (see <xref linkend="rest"/>). But there are other uses where the webhook can
+        be seen as resource state.
       </para>
       <para>
         There are alternatives to using HTTP for implementing notifications. For instance, communication could involve
@@ -1574,6 +1579,58 @@ Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
     <title>Facade</title>
     <para>
       TODO: API Facade to existing system. 
+    </para>
+  </section>
+  
+  <section>
+    <title>Gateway</title>
+    <para>
+      TODO: Clean up this description from http://microservices.io/patterns/apigateway.html 
+    </para>
+    <para>
+      API Gateway Pattern
+  
+      Problem
+  
+        How do the clients of a Microservices-based application access
+        the individual services?
+  
+      Forces
+  
+        The granularity of APIs provided by microservices is often
+        different than what a client needs. Microservices typically
+        provide fine-grained APIs, which means that clients need to
+        interact with multiple services. For example, as described
+        above, a client needing the details for a product needs to fetch
+        data from numerous services.
+  
+        Different clients need different data. For example, the desktop
+        browser version of a product details page is typically
+        more elaborate then the mobile version.
+  
+        Network performance is different for different types of
+        clients. For example, a mobile network is typically much slower
+        and has much higher latency than a non-mobile network. And, of
+        course, any WAN is much slower than a LAN. This means that a
+        native mobile client uses a network that has very difference
+        performance characteristics than a LAN used by a server-side web
+        application. The server-side web application can make multiple
+        requests to backend services without impacting the user
+        experience where as a mobile client can only make a few.
+  
+        The number of service instances and their locations (host+port)
+        changes dynamically
+  
+        Partitioning into services can change over time and should be
+        hidden from clients
+  
+      Solution
+  
+        Implement an API gateway that is the single entry point for all
+        clients. The API gateway handles requests in one of two
+        ways. Some requests are simply proxied/routed to the appropriate
+        service. It handles other requests by fanning out to multiple
+        services.
     </para>
   </section>
     
