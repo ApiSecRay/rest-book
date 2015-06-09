@@ -1888,7 +1888,8 @@
     <para>
       From the table we can see that the JSON-LD / Hydra combination beats every other media type on most if not all 
       criteria. Specifically for REST APIs, market penetration by HAL is better, but since HAL has no support for forms 
-      we don't think it can be a real contender in the long run.
+      we don't think it can be a real contender in the long run. We'll see more clearly why in
+      <xref linkend="authorization"/>.
     </para>
     <para>
       All in all, we think that JSON-LD with Hydra is the winner. However, since the market hasn't settled on any one 

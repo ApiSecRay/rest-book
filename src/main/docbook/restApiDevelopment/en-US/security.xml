@@ -702,7 +702,7 @@
     </section>
 
     <section>
-      <title>Open ID Connect</title>
+      <title>OAuth and related protocols</title>
       <para>
         TODO:
       </para>
@@ -774,19 +774,62 @@
       When used judiciously along with separation of duties, you can create very secure systems.
     </para>
     <para>
-      In this chapter we only look at security from the design perspective. We will return to the implementation aspect
-      of authorization in <xref linkend="impl-authz"/>.
+      You should use the identity of the caller to determine how to respond to a request. Note that this
+      could either be the client program, or the user on behalf of which the client performs the request.
+      Either way, you need a way to assign permissions to identities. In the following, we'll use the term
+      <emphasis>user</emphasis>.
     </para>
     <para>
-      TODO: Show or hide links based on permissions. Implications for media type: HAL needs multiple link relations.
+      The server's first job is to see if the user may perform the request. Is the object identified by 
+      the URI even visible? If not you should return <literal>404 Not Found</literal> rather than
+      <literal>403 Forbidden</literal>, or else the user will know that the object exists.
     </para>
-
-    <section>
-      <title>OAuth</title>
-      <para>
-        TODO:
-      </para>
-    </section>
+    <para>
+      Once you've determined that the object is visible, and the action permitted, then the server performs
+      the request as usual. The response message requires some attention, though.
+    </para>
+    <para>
+      Sometimes a response may consist of different parts that require different permissions. Be careful
+      with the granularity of the authorization, so that you don't inadvertantly disclose information
+      that you shouldn't.
+    </para>
+    <para>
+      The response contains more than data, however. There are also links and forms to consider. Links
+      are easy, since they are just information. You treat them the same as the data and either include
+      them or not, based on the user's permissions.
+    </para>
+    <para>
+      If the media type you selected for serializing your messages has a way of serializing forms, then 
+      you can treat forms just as links and data. If not, as is the case with HAL, then things become a 
+      little trickier.
+    </para>
+    <para>
+      HAL doesn't have any mechanism for serializing forms. Consequently, they must be serialized as
+      links. The client must either hard-code what methods are applicable for the given link relation,
+      or it must be able to interpret alternative forms of this information, like link hints
+      <citation>Link Hints</citation>.
+    </para>
+    <para>
+      Hard-coded methods pose a problem, however. Some method may be applicable for a given link
+      relation for some user, but not others. You can't hard-code that information in a client,
+      since that would be an <firstterm>authorization bypass</firstterm> vulnerability. The server
+      must be responsible for enforcing security.
+    </para>
+    <para>
+      So HAL leaves you little option but to encode the forms into link relations. For instance,
+      instead of using the standard <literal>edit</literal> link relation for both updates and deletes,
+      you could use <literal>edit</literal> only for updates and introduce an extension link relation
+      for deletes.
+    </para>
+    <para>
+      This practice may be okay for your situation, but for systems that require fine-grained permissions,
+      it breaks down due to an explosion of link relations. You're much better of with a media type
+      that can natively serialize forms.
+    </para>
+    <para>
+      This section tells you <emphasis>what</emphasis> to do with regard to authorizatin. We cover  
+      <emphasis>how</emphasis> to do that in <xref linkend="impl-authz"/>.
+    </para>
   </section>
 
   <section id="auditing">

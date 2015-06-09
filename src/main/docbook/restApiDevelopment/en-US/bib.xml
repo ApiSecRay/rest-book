@@ -315,6 +315,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Link Hints</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/draft-nottingham-link-hint-00</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>LOV</abbrev>
     <biblioid class="uri">http://lov.okfn.org/dataset/lov</biblioid>
   </biblioentry>

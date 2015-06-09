@@ -142,7 +142,7 @@
     <title>RESTBucks in RADL</title>
     <para>
       To see RADL in action, we're going to walk through the steps of procedure 
-      "<xref linkend="design-rest-api"/>" we saw in <xref linkend="error"/>:
+      "<xref linkend="design-rest-api"/>" of <xref linkend="error"/>:
     </para>
     <orderedlist>
       <listitem>
