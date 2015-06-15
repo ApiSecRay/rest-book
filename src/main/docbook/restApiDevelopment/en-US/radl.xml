@@ -126,13 +126,13 @@
     </para>
     <para>
       Next up is a list of media types used. Most APIs will have a primary media type that they use for most messages.
-      An API may also occasionally use other media types, for instance for uploading documents. Like link relations,
-      <literal>&lt;media-type&gt;</literal> elements may contain a <literal>&lt;specification&gt;</literal>.
+      An API may also occasionally use other media types, for instance for uploading documents. Like a link relation,
+      a <literal>&lt;media-type&gt;</literal> element may contain a <literal>&lt;specification&gt;</literal>.
     </para>
     <para>
       The final section of a RADL document is the resource model. The information in this part is comparable to an
       entire RAML or Swagger definition. Each <literal>&lt;resource&gt;</literal> contains a 
-      <literal>&lt;location</literal> element that captures the URI or URI template. It also contains the methods.
+      <literal>&lt;location&gt;</literal> element that captures the URI or URI template. It also contains the methods.
       A <literal>&lt;method&gt;</literal> links to the transitions it implements and contains the request and response,
       if applicable.
     </para>
@@ -142,7 +142,7 @@
     <title>RESTBucks in RADL</title>
     <para>
       To see RADL in action, we're going to walk through the steps of procedure 
-      "<xref linkend="design-rest-api"/>" of <xref linkend="error"/>:
+      "<xref linkend="design-rest-api"/>" for RESTBucks:
     </para>
     <orderedlist>
       <listitem>
@@ -150,31 +150,134 @@
          Document requirements with state diagrams.
        </para>
        <para>
-         The <literal>&lt;states&gt;</literal> element under <literal>&lt;service&gt;</literal>captures a state 
-         diagram. It contains a <literal>&lt;start-state&gt;</literal> and multiple <literal>&lt;state&gt;</literal> 
-         elements. Each of those contains <literal>&lt;transitions&gt;</literal> that point to other states.
+         We saw the state diagram for the RESTBuck customer in <xref linkend="sd-customer"/>.
+         Here's what that looks like in RADL:
        </para>
+       <programlisting><![CDATA[<service xmlns="urn:radl:service" name="restbucks">
+  <start-state>
+    <transitions>
+      <transition name="Arrive" to="Arrived">
+        <documentation>
+          The process starts when the customer walks into the store.
+        </documentation>
+      </transition>
+    </transitions>
+  </start-state>
+
+  <state name="Arrived">
+    <transitions>
+      <transition name="Read menu" to="Deciding">
+        <documentation>
+          Once the customer has arrived in the store, she reads the 
+          menu to see what the store offers.
+        </documentation>
+      </transition>
+    </transitions>
+  </state>
+
+  <state name="Deciding">
+    <properties name="menu"/>
+    <transitions>
+      <transition name="Place order" to="Ordered">
+        <documentation>
+          The customer composes an order from the items on the menu
+          and places the order with the cashier.
+        </documentation>
+        <input>
+          <properties name="order"/>
+        </input>
+      </transition>
+    </transitions>
+  </state>
+
+  <state name="Ordered">
+    <properties name="order"/>
+    <transitions>
+      <transition name="Change" to="Ordered">
+        <documentation>
+          As long as the customer hasn't paid, she can change her 
+          order.
+        </documentation>
+        <input>
+          <properties name="order"/>
+        </input>
+      </transition>
+      <transition name="Cancel" to="Canceled">
+        <documentation>
+          The customer may decide she doesn't want anything after
+          all and cancel the whole order.
+        </documentation>
+      </transition>
+      <transition name="Pay" to="Paid">
+        <documentation>
+          The customer pays for the order.
+        </documentation>
+        <input>
+          <properties name="payment"/>
+        </input>
+      </transition>
+    </transitions>
+  </state>
+
+  <state name="Canceled"/>
+
+  <state name="Paid">
+    <properties name="receipt"/>
+    <transitions>
+      <transition name="Take receipt" to="Waiting">
+        <documentation>
+          The customer accepts the confirmation of her payment.
+        </documentation>
+      </transition>
+    </transitions>
+  </state>
+
+  <state name="Waiting">
+    <transitions>
+      <transition name="Wait" to="Waiting">
+        <documentation>
+          The customer has to wait a while.
+        </documentation>
+      </transition>
+      <transition name="Receive notification" to="Served">
+        <documentation>
+          The barista notifies the customer once he has prepared
+          her serving.
+        </documentation>
+      </transition>
+    </transitions>
+  </state>
+
+  <state name="Served">
+    <properties name="serving"/>
+    <transitions>
+      <transition name="Take serving" to="Happy">
+        <documentation>
+          The customer picks up her serving.
+        </documentation>
+      </transition>
+    </transitions>
+  </state>
+
+  <state name="Happy"/>
+</service>]]></programlisting>
       </listitem>
       <listitem>
        <para>
          Discover resources and methods from state transitions.
        </para>
        <para>
-         The <literal>&lt;resources&gt;</literal> element under <literal>&lt;service&gt;</literal> captures the 
-         resource model that implements the state diagram. It contains multiple <literal>&lt;resource&gt;</literal> 
-         elements that hold the <literal>&lt;methods&gt;</literal>. Each <literal>&lt;method&gt;</literal> element 
-         contains the <literal>&lt;transitions&gt;</literal> it implements.
+         The resources and methods for RESTbucks are listed in <xref linkend="restbucks-customer-resources"/>.
+         Here's what that looks like in RADL:
        </para>
+       <programlisting><![CDATA[<resources>
+</resource>]]></programlisting>
       </listitem>
       <listitem>
        <para>
          Name resources with URIs.
        </para>
        <para>
-         A <literal>&lt;resource&gt;</literal> element contains a <literal>&lt;location&gt;</literal> element that has 
-         either a <literal>uri</literal> or a <literal>uri-template</literal> attribute. In case of a URI template 
-         <citation>RFC 6570</citation>, the <literal>&lt;location&gt;</literal> may document the template variables 
-         using <literal>&lt;var&gt;</literal> elements.
        </para>
       </listitem>
       <listitem>
@@ -182,9 +285,6 @@
          Name state transitions with link relations.
        </para>
        <para>
-         The <literal>&lt;link-relations&gt;</literal> element under <literal>&lt;service&gt;</literal> contains 
-         multiple <literal>&lt;link-relation&gt;</literal> elements. Each of those contains the 
-         <literal>&lt;transitions&gt;</literal> it implements.
        </para>
       </listitem>
       <listitem>
@@ -192,10 +292,6 @@
          Design messages.
        </para>
        <para>
-         The <literal>&lt;data-models&gt;</literal> element under <literal>&lt;service&gt;</literal> contains multiple 
-         <literal>&lt;data-model&gt;</literal> elements. Each of those describes the
-         <literal>&lt;properties&gt;</literal> it contains and can be referred to from <literal>&lt;state&gt;</literal> 
-         and <literal>&lt;transition&gt;</literal> elements.
        </para>
       </listitem>
       <listitem>
@@ -203,8 +299,6 @@
          Document application semantics.
        </para>
        <para>
-         Each <literal>&lt;property&gt;</literal> has a <literal>uri</literal> attribute that can point to the 
-         vocabulary definition.
        </para>
       </listitem>
       <listitem>
@@ -212,15 +306,6 @@
          Select a media type to serialize messages.
        </para>
        <para>
-         The <literal>&lt;media-types&gt;</literal> element under <literal>&lt;service&gt;</literal> contains multiple 
-         <literal>&lt;media-type&gt;</literal> elements. Each of those may contain a 
-         <literal>&lt;specification&gt;</literal> element that points to an external specification that defines the 
-         syntax and semantics of the media type.
-       </para>
-       <para>
-         A <literal>&lt;method&gt;</literal> may contain <literal>&lt;request&gt;</literal> and/or 
-         <literal>&lt;response&gt;</literal> elements. Each of those may contain one or more 
-         <literal>&lt;representation&gt;</literal> elements that link to a <literal>&lt;media-type&gt;</literal>.
        </para>
       </listitem>
       <listitem>
@@ -233,17 +318,18 @@
          Validate the design.
        </para>
        <para>
-         There is no markup for validating the design, but the tooling around RADL can validate the API description up 
-         to a certain point. It will catch things like transitions that are not implemented using a method, or 
-         unreachable states. We can envision more elaborate validation, like comparison with the design patterns 
-         listed in <xref linkend="patterns"/>, but this task will fundamentally remain one for humans to complete.
+         There is no markup for validating the design, but the tooling around RADL can validate the API
+         description up to a certain point. It will catch things like transitions that are not 
+         implemented using a method, or unreachable states. We can envision more elaborate validation, 
+         like comparison with the design patterns listed in <xref linkend="patterns"/>, but this task 
+         will fundamentally remain one for humans to complete.
        </para>
       </listitem>
     </orderedlist>
   </section>
 
   <section id="tools">
-    <title>Tooling</title>
+    <title>RADL Tooling</title>
     <para>
       One thing that all API description languages are used for, is to generate documentation for developers of client
       applications. The output is usually HTML, but sometimes other formats are supported as well. API description

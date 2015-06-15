@@ -526,7 +526,7 @@
         </para>
       </listitem>
     </orderedlist>
-    <table rowsep="0" colsep="0" pgwide="1" frame="topbot">
+    <table rowsep="0" colsep="0" pgwide="1" frame="topbot" id="restbucks-customer-resources">
       <title>Partial Resource Model To Support RESTBucks Customer</title>
       <tgroup cols="3">
         <thead>
