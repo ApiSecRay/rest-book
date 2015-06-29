@@ -236,6 +236,12 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>HIPAA</abbrev>
+    <biblioid class="uri">http://www.legalarchiver.org/hipaa.htm</biblioid>
+    <citetitle>Health Insurance Portability and Accountability Act of 1996</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>Hohpe04</abbrev>
     <biblioid class="uri">http://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html</biblioid>
   </biblioentry>
@@ -357,8 +363,20 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>OAuth2</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc6749</biblioid>
+    <citetitle>The OAuth 2.0 Authorization Framework</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>OCL</abbrev>
     <biblioid class="uri">http://www.omg.org/spec/OCL/2.4/PDF/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>OpenID</abbrev>
+    <biblioid class="uri">http://openid.net/specs/openid-connect-core-1_0.html</biblioid>
+    <citetitle>OpenID Connect Core 1.0</citetitle>
   </biblioentry>
   
   <biblioentry>
@@ -623,6 +641,12 @@
   <biblioentry>
     <abbrev>WSDL</abbrev>
     <biblioid class="uri">http://www.w3.org/TR/wsdl</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>XACML</abbrev>
+    <biblioid class="uri">http://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html</biblioid>
+    <citetitle>eXtensible Access Control Markup Language (XACML) Version 3.0</citetitle>
   </biblioentry>
   
   <biblioentry>

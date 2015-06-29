@@ -50,6 +50,12 @@
     is <firstterm>exploited</firstterm>, but vulnerabilities may exist even if they are not exploited (yet).
   </para>
   <para>
+    There are many different types of vulnerabilities. MITRE is a not-for-profit organization that operates research
+    and development centers sponsored by the US federal government. They maintain a list of vulnerability types known
+    as the <firstterm>Common Weakness Enumeration</firstterm> (CWE) system. Each vulnerability type gets an identifier
+    
+  </para>
+  <para>
     Vulnerabilities exist for a variety of reasons, which fall broadly into two classes. We may have overlooked
     something during our design, in which case we speak of a <firstterm>design flaw</firstterm>, or we may have
     implemented a sound design in an inappropriate way, in which case we speak of a <firstterm>bug</firstterm>.
@@ -92,7 +98,7 @@
       <firstterm>Threat modeling</firstterm> is a design activity where the designer explicitly considers the security
       aspect of the system in four steps <citation>Shostack14</citation>:
     </para>
-    <procedure>
+    <procedure id="tm">
       <title>Threat Modeling</title>
       <step>
         <para>Model the system.</para>
@@ -634,7 +640,7 @@
     </section>
 
     <section id="http-signatures">
-      <title>HTTP Signatures</title>
+      <title>Signing HTTP Messages</title>
       <para>
         As we saw in <xref linkend="cryptography"/>, signing a message proves both the origin and the integrity of the
         message. Since proof of origin is just a different way of saying proof of identity of the sender of the message,
@@ -756,8 +762,8 @@
       <para>
         A token is issued by the server <emphasis>after</emphasis> the actual authentication has occurred. This
         de-couples the authentication sequence from the remainder of the communication, unlike with Basic, Digest, or
-        HTTP Signatures authentication. That can come in handy if you need to support multiple authentication
-        mechanisms. Perhaps you're using HTTP Signatures for M2M authentication, and something else for humans.
+        Signing HTTP Messages authentication. That can come in handy if you need to support multiple authentication
+        mechanisms. Perhaps you're using Signing HTTP Message for M2M authentication, and something else for humans.
         After either has occurred, you can continue with a token to harmonize the two. 
       </para>
       <para>
@@ -769,9 +775,13 @@
     <section id="oauth">
       <title>OAuth2 and related protocols</title>
       <para>
-        OAuth2 is a framework for authentication and authorization protocols. It's a <emphasis>framework</emphasis> 
-        rather than a single protocol. OAuth2 defines different types of flows that require different capabilities in 
-        the participants. Here are the actors that participate in an OAuth2 flow:
+        OAuth2 is a framework for authentication and authorization protocols <citation>OAuth2</citation>. It's a
+        <emphasis>framework</emphasis> rather than a single protocol and several protocols have been built on top
+        of it.
+      </para>
+      <para>
+        OAuth2 defines different types of flows that require different capabilities in the participants. Here are the
+        actors that participate in an OAuth2 flow:
       </para>
       <variablelist>
         <varlistentry>
@@ -796,8 +806,11 @@
           <term>Client</term>
           <listitem>
             <para>
-              An application making requests to protected resources on behalf of the Resource Owner and with its 
-              authorization.  Note that this use of the term "client" is different from that in client/server; an OAuth
+              An application making requests to protected resources on behalf of the Resource Owner and using their 
+              authorization.
+            </para>
+            <para>
+              Note that this use of the term "client" is different from that in client/server; an OAuth
               Client could be a server.
             </para>
           </listitem>
@@ -822,7 +835,50 @@
         </varlistentry>
       </variablelist>
       <para>
-        TODO
+        Here's how these actors collaborate:
+      </para>
+      <figure id="oauth-flow">
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/oauth2-flow.png" scale="50" align="center"/>
+          </imageobject>
+        </mediaobject>
+        <title>The OAuth2 Authorization Code Flow</title>
+      </figure>
+      <para>
+        This is a complicated authentication sequence, sometimes referred to as the OAuth2 dance, but that complexity
+        buys us a lot too.
+      </para>
+      <para>
+        The Resource Owner authenticates with the Authorization Server, so the Client never gets to see their
+        credentials. This means the Client doesn't have to store those credentials, which is quite tricky to get right.
+        It also means that the Resource Owner doesn't have to trust a lot of Clients with their credentials, but a 
+        (hopefully much) smaller number of Authorization Servers. Some people refer to this phenomenon as 
+        <firstterm>social login</firstterm>. One example is a website that allows logging in using Facebook's
+        Authorization Server.
+      </para>
+      <para>
+        Another advantage is that the Authorization Server asks the Resource Owner whether it should grant the Client
+        permission to access the protected resources. The Client can asks for different sets of coarse-grained
+        permissions using so-called <firstterm>scopes</firstterm>. A user may grant write access to one Client, for
+        example, but only read to another.
+      </para>
+      <para>
+        Note that in practice the Client will not work at all if the Resource Owner doesn't grant all requested
+        scopes. That leaves the Resource Owner with two bad options to choose from: either don't make use of the
+        services the Client provides, or grant all the requested permissions. This is often not much of a choice, but
+        at least it's <emphasis>some</emphasis> choice.
+        We see a similar pattern with mobile applications.
+      </para>
+      <para>
+        OAuth2 defines different types of flows. For mobile apps, for instance, the whole redirect dance is very 
+        inconvenient. The Resource Owner Password Credentials flow is a simplified flow that is more appropriate for
+        this situation. 
+      </para>
+      <para>
+        One of the protocols built on top of OAuth2 is OpenID Connect <citation>OpenID</citation>. This is a pure
+        authentication protocol, without any authorization aspect. It adds so-called <firstterm>claims</firstterm> to
+        the mix, which contain additional information about the authenticated user, like their email address.
       </para>
     </section>
   </section>
@@ -839,14 +895,14 @@
       ACLs work fine for a small number of users. As the number of users grows, you may want to group them into buckets
       of users with the same access control characteristics. You do this by assigning <firstterm>roles</firstterm>
       to them and then assigning permissions to the roles. This approach is known as <firstterm>Role-Based Access 
-      Control</firstterm> (RBAC).
+      Control</firstterm> (RBAC). Roles are usually not so hard to determine. The personas we identified in
+      <xref linkend="bdd"/> can be a good start.
     </para>
     <para>
-      Roles are usually not so hard to determine. The personas we identified in <xref linkend="bdd"/> are often a good
-      start. Our goal is to group users based on the level of access that we want to give them. We should segment
+      Our goal with RBAC is to group users based on the level of access that we want to give them. We should segment
       our users into groups in such a way that no one person can do something disastrous on their own. This is known as
       <firstterm>Separation of Duties</firstterm> or <firstterm>Segregation of Duties</firstterm>. It is an important 
-      tool in the fight against fraud and errors.
+      tool in the fight against fraud and accidental errors.
     </para>
     <para>
       In a coffee shop, for example, the cashier enters the order from the customer using a Point-of-Sale (POS)
@@ -858,13 +914,13 @@
       RBAC often works quite well, but there are situations in which it breaks down. For example, in the healthcare 
       space there is the concept of a primary care physician (PCP). My PCP can see all of my medical data, so that they
       have a holistic view of my health. Other physicians that treat me may only see parts of my medical history. For
-      instance, a urologist wouldn't need to see any data on my allergies.
+      instance, a urologist probably wouldn't need to see any data on allergies.
     </para>
     <para>
       The problem is that my PCP may not be the PCP for my neighbor, so PCP is not really a role.
       To force this into an RBAC system would require the introduction of many, many roles, a phenomenon known as 
-      <firstterm>role explosion</firstterm>. In some cases, the number of roles may even be greater than the number
-      of users in the system! This isn't how roles were supposed to work, they were supposed to be groupings of users
+      <firstterm>role explosion</firstterm>. In some systems, the number of roles even exceeds the number of users in 
+      the system! This isn't how roles were supposed to work, they were supposed to be groupings of users
       that are easier to manage because there are fewer of them.
     </para>
     <para>
@@ -872,29 +928,34 @@
       <firstterm>Attribute-Based Access Control</firstterm> (ABAC). In this system, the access control decision is tied 
       not just to the role and protected resource, but to any number of <firstterm>attributes</firstterm>.
       For example, the role would be one attribute, and the patient another. ABAC allows you to make your access
-      control policies very fine-grained by combining as many attributes as you need.
+      control policies very fine-grained by combining as many attributes as you need in exactly the way you need them.
     </para>
     <para>
       You can also make your access control policies <firstterm>context-aware</firstterm> by capturing the
       context in attributes. For instance, when I'm bleeding to death on the street after being hit by a car, I would
       want any doctor to see all of my medical data so he can save my life. We could capture that with an emergency
-      attribute and have policies around that (maybe with the obligation to perform extra logging).
+      attribute ("break the glass") and have policies around that that include the obligation to log the access.
     </para>
     <para>
       Other examples include the time of day in a policy that only allows access during business hours, the device 
       used to access the service, or the strength of authentication (e.g. was two-factor authentication used). Maybe we
-      want to give only read access to a sensitve document when you're abroad, or no access at all if your IP address
-      indicates you're abroad, while your agenda shows you're in the country.
+      want to give only read access to a sensitive document when you're abroad, or no access at all if your IP address
+      indicates you're abroad, while your agenda shows you should be in the country.
     </para>
     <para>
       Whether you use ACLs, RBAC, or ABAC, you should always make sure to give people just enough permissions to
       do their job, but no more. This important principle is known as <firstterm>Least Privilege</firstterm>.
-      When used judiciously along with separation of duties, you can create very secure systems.
+      When used judiciously along with Separation of Duties, you can create very secure systems.
     </para>
     <para>
-      You should use the identity of the caller to determine how to respond to a request. Note that this
-      could either be the client program, or the user on behalf of which the client performs the request.
-      Either way, you need a way to assign permissions to identities. In the following, we'll use the term
+      The <firstterm>eXtensible Access Control Markup Language</firstterm> specification offers an access control
+      architecture, policy language, and request/response protocol <citation>XACML</citation>. XACML can be used
+      to implement any access control model, whether it be ACL, RBAC, or ABAC.
+    </para>
+    <para>
+      Whatever your access control model, you should use the identity of the caller to determine how to respond to a
+      request. Note that this could either be the client program, or the user on behalf of which the client performs 
+      the request. Either way, you need a way to assign permissions to identities. In the following, we'll use the term
       <emphasis>user</emphasis>.
     </para>
     <para>
@@ -930,12 +991,12 @@
     <para>
       Hard-coded methods pose a problem, however. Some method may be applicable for a given link
       relation for some user, but not others. You can't hard-code that information in a client,
-      since that would be an <firstterm>authorization bypass</firstterm> vulnerability. The server
+      since that would be an <firstterm>authorization bypass</firstterm> vulnerability (CWE-639). The server
       must be responsible for enforcing security.
     </para>
     <para>
-      So HAL leaves you little option but to encode the forms into link relations. For instance,
-      instead of using the standard <literal>edit</literal> link relation for both updates and deletes,
+      Plain HAL, i.e. without link hints, leaves you little option but to encode the forms into link relations.
+      For instance, instead of using the standard <literal>edit</literal> link relation for both updates and deletes,
       you could use <literal>edit</literal> only for updates and introduce an extension link relation
       for deletes.
     </para>
@@ -944,18 +1005,14 @@
       it breaks down due to an explosion of link relations. You're much better of with a media type
       that can natively serialize forms.
     </para>
-    <para>
-      This section tells you <emphasis>what</emphasis> to do with regard to authorizatin. We cover  
-      <emphasis>how</emphasis> to do that in <xref linkend="impl-authz"/>.
-    </para>
   </section>
 
   <section id="auditing">
     <title>Auditing</title>
     <para>
-      The systematic and independent examination of data for a stated purpose. For instance, if you collect, store, and 
-      process medical data in the US, you must comply with the Health Insurance Portability and Accountability Act 
-      (HIPAA). The US Department of Health &amp; Human Services may perform an <firstterm>audit</firstterm>
+      Auditing is the systematic and independent examination of data for a stated purpose. For instance, if you collect, 
+      store, and process medical data in the US, you must comply with the Health Insurance Portability and 
+      Accountability Act <citation>HIPAA</citation>. The US Department of Health &amp; Human Services may perform an <firstterm>audit</firstterm>
       to verify you have controls in place to ensure compliance with HIPAA.
     </para>
     <para>
@@ -968,6 +1025,8 @@
           <firstterm>Origin</firstterm> refers to who created the data and how sure we are of that. This requires
           proper authentication.
         </para>
+      </listitem>
+      <listitem>
         <para>
           <firstterm>Integrity</firstterm> refers to the contents of the data and how sure we are that it hasn't
           been tampered with. This requires proper authorization.
@@ -982,23 +1041,20 @@
     </para>
     <para>
       Digital documents are different, since they can easily be copied and modified. To prove their origin and
-      integrity, we use digital signatures (see <xref linkend="cryptograhpy"/>).
-      By digitally signing an audit record we ensure it origin and integrity, so we can prove that the audited
+      integrity, we use digital signatures (see <xref linkend="cryptography"/>).
+      By digitally signing an audit record we ensure both its origin and integrity, so we can prove that the audited
       event actually happened as recorded.
     </para>
     <para>
       Auditing is the act of keeping a record of who did what when. This is our primary tool for dealing with
-      non-repudiation attacks. A client can no longer claim it didn't do something, because we have records to prove
-      that it did.
+      non-repudiation attacks. A client can no longer claim they didn't do something, because we have audit records to
+      prove that they did.
     </para>
     <para>
       Auditing requires a couple of things to be in place. We need proper authentication to ensure we know who is
       performing the actions that we're keeping records of. We also need to make sure that nobody can tamper with the
       audit trail. This is especially important as a mitigation against insider threats, as administrators may have
       access to the audit trail.
-    </para>
-    <para>
-      We can protect our audit trail against tampering by signing it, as discussed in <xref linkend="cryptography"/>.
     </para>
     <para>
       Even with signed audit records we may still not be out of the woods. We must also protect audit records against
@@ -1019,15 +1075,16 @@
       then it is imperative that you only show audit records for the customer requesting the audit trail.
     </para>
     <para>
-      What to audit depends on your API, but there are also some general guidelines. Any activity with security 
+      What events to audit depends on your API, but there are some general guidelines. Any activity with security 
       implications should be audited. Examples are assigning roles to a user and failed login attempts. Think about
       what you would do with the information, for example, what monitoring you could put in place. Don't collect 
       information that nobody will ever look at, as that has a negative impact on performance and storage costs.
     </para>
     <para>
-      Speaking of storage, audit records can easily add up. You will probably want to keep them around for some time
+      Speaking of storage, audit records can easily add up. You will probably want to keep them around for some 
       limited time and then dispose of them. You may be subject to laws and regulations that govern how long you need
-      to keep information, so do your homework.
+      to retain information, so do your homework. Conversely, some laws and regulations may also set an upper bound on
+      how long you retain information, effectively forcing you to dispose of it after a certain period.
     </para>
   </section>
 
@@ -1035,15 +1092,15 @@
     <title>Protecting Against Denial of Service (DoS) Attacks</title>
     <para>
       DoS attacks are a major annoyance, because they are difficult to protect against. The good news is that it takes
-      some muscle to perform such an attack, so only highly motivated people will perform them. Your API may not be
-      deemed important enough to warrant such attention. But as your service becomes more popular, you will find that
-      you will be forced to protect yourself.
+      some muscle to perform such an attack and there are no direct rewards. This means only highly motivated people 
+      are likely to perform them. Your API may not be deemed important enough to warrant such attention. But as your 
+      service becomes more popular, you will find that you will be forced to protect yourself.
     </para>
     <para>
       One solution is to do <firstterm>throttling</firstterm>, also known as <firstterm>rate limiting</firstterm>.
       With this approach you put a limit on the amount of traffic per time unit that you accept from a single source.
       Twitter does this, for example. When the limit is exceeded, you return an error instead of processing the 
-      request.
+      request. You will probably want to use the <literal>403 Forbidden</literal> status.
     </para>
     <para>
       For this scheme to work, you have to be able to correlate requests to the same source. For Twitter's API, that is
@@ -1052,31 +1109,35 @@
     <para>
       For public websites, there is often nothing better than using IP addresses. There are serious problems with this
       approach. First, IP addresses can be spoofed. Second, and more importantly, any serious DoS attack will be a
-      <emphasis>distributed</emphasis> DoS attack, where the attacker employs an army of computers, often ones that are 
-      compromised with malware (a <firstterm>botnet</firstterm>), against your system. Each of the members of the 
+      <emphasis>distributed</emphasis> DoS attack, where the attacker employs an army of computers against your system,
+      often ones that are compromised with malware (a <firstterm>botnet</firstterm>). Each of the members of the
       botnet has its own IP address.
     </para>
     <para>
       So while rate limiting can take some of the pressure off of your servers, it is very much a partial solution 
-      against DoS attacks. The only real protection is to literally suck it up, to absorp all the traffic.
+      against DoS attacks. The only real protection is to literally suck it up, to absorb all the traffic.
+    </para>
+    <para>
       As we saw in <xref linkend="caching"/>, CDNs serve a large fraction of Internet content today. As such, they are 
-      uniquely equipped to absorp large volumes of traffic, and you can use them as mitigation against DoS attacks. 
+      uniquely equipped to absorb large volumes of traffic, and you can use them as mitigation against DoS attacks.
+      There are also specialized cloud security services that offer protection against DoS attacks (and more).
     </para>
     <para>
       You don't have to pay for that protection all the time, however. You could simply run your own servers, and only
-      switch to route traffic through a cloud security service when you detect a DoS attack. Make sure you're
-      capable of automatically detecting such an attach and acting on that information.
+      switch to route traffic through a cloud security service when you detect an attack. Make sure you're
+      capable of automatically detecting an attack and acting when you do so.
     </para> 
   </section>
 
   <section>
     <title>Securing RESTBucks</title>
     <para>
-      Let's apply the theory of the preceding sections to RESTBucks.
+      We covered a lot of ground in this chapter. Let's put all this theory into practice by applying it to RESTBucks.
+      We'll start by building a threat model, following procedure "<xref linkend="tm"/>.
     </para>
     <para>
-      We'll start by building a threat model. The first step is to model our system. We've already done most of this 
-      work in <xref linkend="analysis"/>. Our actors are the customer, the cashier, and the barista. The state diagrams 
+      The first step is to model our system. We've already done most of this work in <xref linkend="analysis"/>.
+      Our actors/personas/roles are the customer, the cashier, and the barista. The state diagrams
       are in <xref linkend="sd-customer"/>, <xref linkend="sd-cashier"/>, and <xref linkend="sd-barista"/>.
     </para>
     <para>
