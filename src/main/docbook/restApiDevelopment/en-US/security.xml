@@ -11,7 +11,7 @@
   </para>
   <variablelist>
     <varlistentry>
-      <term>Confidentiality</term>
+      <term><firstterm>Confidentiality</firstterm></term>
       <listitem>
         <para>
           The extent to which information is shared only with those who are eligible to see it. If confidentiality is
@@ -20,7 +20,7 @@
       </listitem>
     </varlistentry>
     <varlistentry>
-      <term>Integrity</term>
+      <term><firstterm>Integrity</firstterm></term>
       <listitem>
         <para>
           The extent to which information can only be added, changed, and removed by authorized agents. If integrity
@@ -29,7 +29,7 @@
       </listitem>
     </varlistentry>
     <varlistentry>
-      <term>Availability</term>
+      <term><firstterm>Availability</firstterm></term>
       <listitem>
         <para>
           The extent to which information is accessible to those who need it, when they need it. If availability is
@@ -64,9 +64,9 @@
     These scores range from 0 (no problem at all) to 10 (critical and easy to exploit).
   </para>
   <para>
-    You can use CVSS scores to decide which risks are worth taking on and this chapter will provide you with the tools
-    to do just that. But first we need to figure out what our risks are. For this we'll use a technique called threat 
-    modeling.
+    You can use CVSS scores to decide which risks are worth protecting against and this chapter will provide you with 
+    the tools to do just that. But first we need to figure out what our risks are. For this we'll use a technique 
+    called threat modeling.
   </para>
 
   <section id="threat-modeling">
@@ -90,7 +90,7 @@
     </para>
     <para>
       <firstterm>Threat modeling</firstterm> is a design activity where the designer explicitly considers the security
-      aspect of the system in four steps <citation>Shostack14</citation>. Here's how it works:
+      aspect of the system in four steps <citation>Shostack14</citation>:
     </para>
     <procedure>
       <title>Threat Modeling</title>
@@ -109,7 +109,8 @@
         <para>
           In this book, we're only going to look at security from the API's perspective, but you really should look at
           securing your implementation as well. Security is only as strong as its weakest link, after all.
-          There are many good security resources available <citation>McGraw06</citation>, <citation>SDL</citation>.
+          There are many good security resources available that you can draw from <citation>McGraw06</citation>, 
+          <citation>SDL</citation>.
         </para>
         <para>
           The state diagrams we developed in <xref linkend="state-diagrams"/> are useful diagrams to build your
@@ -121,24 +122,26 @@
           and/or back. We inventoried the data that flows across the transitions in <xref linkend="design-messages"/>.
         </para>
         <para>
-          With the actors, transitions, and messages, we have the basic building blocks for the model of the API.
+          With the actors, transitions, and messages, we have the basic building blocks for the model of the API, 
+          without having to wait for implementation details like we would with a DFD.
         </para>
       </step>
       <step>
         <para>Find threats.</para>
         <para>
           In this step you think about what can go wrong once the system is built. This is where you try to think
-          like an attacker. This is often very difficult for developers that haven't had proper training, so you may 
-          want to bring in specific expertise.
+          like an attacker. This is often very difficult for designers and developers that haven't had proper training, 
+          so you may want to think about bringing in specific expertise.
         </para>
         <para>
-          There are also a couple of structured approaches to help you discover threats, like STRIDE, attack trees,
-          and attack libraries, that will give you much better results than simply brainstorming the possible threats.
+          There are a couple of structured approaches to help you discover threats, like STRIDE, attack trees,
+          and attack libraries. These approaches will generally give you much better results than simply brainstorming 
+          the possible threats.
         </para>
         <para>
-          STRIDE is an acronym for the various classes of security threats: Spoofing, Tampering, Repudiation,
-          Information disclosure, Denial of service, and Elevation of privileges. We've already discussed tampering,
-          information disclosure and denial of service.
+          <firstterm>STRIDE</firstterm> is an acronym for the various classes of security threats: Spoofing, Tampering, 
+          Repudiation, Information disclosure, Denial of service, and Elevation of privileges. We've already discussed 
+          tampering, information disclosure and denial of service.
         </para>
         <para>
           <firstterm>Spoofing</firstterm> occurs when one actor impersonates another. 
@@ -155,8 +158,8 @@
         </para>
         <para>
           The nodes in an attack tree can be combined either by AND or by OR. You'll likely need both, so you need some
-          way to visualize the relationship. There currently is no standard way of doing that, unfortunately, which 
-          means you need to take your time to explain your approach if you're building an attack tree.
+          way to visualize the relationship. There currently is no standard way of doing that, unfortunately, so you 
+          should document your approach.
         </para>
         <para>
           Attack trees can be visualized as graphic trees, as textual outlines, as mind maps, or even as data 
@@ -165,7 +168,12 @@
         <para>
           Attack trees are an attractive way to visualize threats, but they have some problems as well. The principal
           issue is that it's very hard to determine when your done, since there is no structure like STRIDE to guide 
-          you. Of course, nothing is stopping you from using STRIDE to build your attack tree. 
+          you.
+        </para>
+        <para>
+          Of course, nothing is stopping you from using STRIDE to build your attack tree. You could build one attack
+          tree per STRIDE category, for instance, and visualize how an attacker could spoof some actor in the system, 
+          tamper with some part of the system, etc. 
         </para>
         <para>
           Another way to find threats is through an attack library. An <firstterm>attack library</firstterm> is a
@@ -173,15 +181,25 @@
           concrete and may or may not be applicable to your domain.
         </para>
         <para>
-          TODO: Continue.
+          An attack library is a sort of checklist and it inheritts their pros and cons. On the one hand, the library 
+          makes sure you won't forget to consider certain threats. On the other, it may give you a false sense of 
+          security by suggesting that it's complete. It may or may not be for your situation.
+        </para>
+        <para>
+          Attack libraries will often list remediations (see the next step) for the threats that they list, which can 
+          be a good help, especially if you're new to threat modeling.
+        </para>
+        <para>
+          Examples of broadly applicable attack libraries are the OWASP Top 10 and the SANS Top 25 
+          <citation>Owasp</citation>, <citation>Sans</citation>. Mature security organizations may have developed their 
+          own attack libraries that are more tailored to their situation.
         </para>
       </step>
       <step>
         <para>Address threats.</para>
         <para>
-          In this step you treat the identified threats as risks, and you apply your risk management process to
-          eliminate, mitigate, transfer, or accept the security risks they pose.
-          In general, risks can be handled in the following ways:
+          In this step you treat the identified threats as risks, and you apply your risk management process to handle 
+          them. In general, there are foud different ways to handle risks:
         </para>
         <variablelist>
           <varlistentry>
@@ -210,8 +228,9 @@
               <para>
                 You make the risk someone else's problem. For instance, you could see information disclosure of your
                 customer's data as their problem. A customer that doesn't want to live with this risk could then encrypt
-                their data before they upload it to your system. In other words, the customer mitigates the risk
-                that you transferred onto them using encryption as the compensating control.
+                their data (see <xref linkend="cryptography"/>) before they upload it to your system. In other words, 
+                the customer mitigates the risk that you transferred onto them using encryption as the compensating 
+                control.
               </para>
             </listitem>
           </varlistentry>
@@ -221,13 +240,12 @@
               <para>
                 You simply accept the risk. Life isn't risk free and in many cases we can live with minor risks. Many
                 organizations accept the risk of insider threats, for instance, thinking that their employees wouldn't 
-                do bad things. The massive Sony breach of 2014 is testament to the fact that this is a very naive world 
-                view.
+                do bad things. The Snowden incident and the massive Sony breach of 2014 are examples that show that 
+                insider threats should be taken seriously in today's world.
               </para>
               <para>
                 You can use CVSS scores to unambiguously define what you consider a minor risk. The cut-off score will
-                depend on your specific situation and your appetite for risk, your <firstterm>risk 
-                tolerance</firstterm>.
+                depend on your specific situation and your appetite for risk, or <firstterm>risk tolerance</firstterm>.
               </para>
             </listitem>
           </varlistentry>
@@ -251,9 +269,12 @@
             <term>Authentication</term>
             <listitem>
               <para>
-                <firstterm>Authentication</firstterm> is the act of verifying the credentials of an entity. In other words, 
-                authentication is about establishing someone’s identity. We discuss authentication in 
-                <xref linkend="authentication"/>.
+                <firstterm>Authentication</firstterm> is the act of verifying the credentials of an entity. In other 
+                words, authentication is about establishing someone’s or something's identity, thus protecting against
+                spoofing.
+              </para>
+              <para>
+                We discuss authentication in <xref linkend="authentication"/>.
               </para>
             </listitem>
           </varlistentry>
@@ -261,9 +282,12 @@
             <term>Authorization</term>
             <listitem>
               <para>
-                <firstterm>Authorization</firstterm> is the act of granting access to a specific resource. This can be an 
-                entire application, or a much smaller piece of functionality. Authorization is also referred to as 
-                <firstterm>access control</firstterm>. We discuss authorization in <xref linkend="authorization"/>.
+                <firstterm>Authorization</firstterm> is the act of granting access to a specific resource. This can be 
+                an entire application, or a much smaller piece of functionality. Authorization is also referred to as
+                <firstterm>access control</firstterm>. It protects against elevation of privilege.
+              </para>
+              <para>
+                We discuss authorization in <xref linkend="authorization"/>.
               </para>
             </listitem>
           </varlistentry>
@@ -272,19 +296,40 @@
             <listitem>
               <para>
                 <firstterm>Auditing</firstterm> is the act of storing information about who did what when. Auditing is 
-                important for proving that somebody did or didnt do something.
+                important for proving that somebody did or didnt do something. In other words, it protects against
+                non-repudiation.
+              </para>
+              <para>
                 We discuss auditing in <xref linkend="auditing"/>.
               </para>
             </listitem>
           </varlistentry>
         </variablelist>
+        <para>
+          It's important to realize that these compensating controls can themselves be attacked, leading to second
+          and higher order threats. You should thus not put all your security eggs in one basket, but rather employ a 
+          strategy of <firstterm>defense in depth</firstterm>.
+        </para>
+        <para>
+          How far to take this is another trade-off that you need to decide on. On the one hand, you want to protect
+          your system as best as you can. On the other hand, you don't want to spend all your resources on securing 
+          your system, or else it wouldn't ever get delivered and make you money or accomplish whatever goal you have 
+          for it.
+        </para>
       </step>
       <step>
         <para>Validate.</para>
         <para>
-          In this step you verify that you did a decent job of analysis. One way of doing that is to compare your
-          threat model against that of a similar system. Another is to walk someone who wasn't involved in the
-          threat modeling effort through the model and see if they can spot errors and/or omissions.
+          In this step you verify that you did a decent job of threat analysis. This is arguably the most difficult 
+          step. How can you ever be sure that you captured and mitigated all threats?
+        </para>
+        <para>
+          One way of doing that is to compare your threat model against that of a similar system. Another is to walk 
+          someone who wasn't involved in the threat modeling effort through the model and see if they can spot errors 
+          and/or omissions. If you're using STRIDE, then another check is to see that you have at least one threat per 
+          category.
+        </para>
+        <para>
         </para>
       </step>
     </procedure>
@@ -702,9 +747,62 @@
     </section>
 
     <section>
-      <title>OAuth and related protocols</title>
+      <title>OAuth2 and related protocols</title>
       <para>
-        TODO:
+        OAuth2 is a framework for authentication and authorization protocols. It's a <emphasis>framework</emphasis> 
+        rather than a single protocol. OAuth2 defines different types of flows that require different capabilities in 
+        the participants. Here are the actors that participate in an OAuth2 flow:
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term>Resource Owner</term>
+          <listitem>
+            <para>
+              An entity capable of granting access to a protected resource. When the resource owner is a person, it is 
+              referred to as an end-user.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>User Agent</term>
+          <listitem>
+            <para>
+              The piece of software that acts on behalf of the Resource Owner. This could be a web browser or a mobile 
+              app, for instance.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Client</term>
+          <listitem>
+            <para>
+              An application making requests to protected resources on behalf of the Resource Owner and with its 
+              authorization.  Note that this use of the term "client" is different from that in client/server; an OAuth
+              Client could be a server.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Resource Server</term>
+          <listitem>
+            <para>
+              The server hosting the protected resources, capable of accepting and responding to protected resource 
+              requests using access tokens.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Authorization Server</term>
+          <listitem>
+            <para>
+              The server issuing access tokens to the client after successfully authenticating the Resource Owner and 
+              obtaining authorization.
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+      <para>
+        TODO
       </para>
     </section>
   </section>
@@ -892,26 +990,63 @@
     <para>
       With a tamper-proof audit trail in place we can in theory detect malicious activity by insiders. To turn theory
       into practice, we should employ alerting to notify a broad group of administrators when something fishy is going
-      on (see <xref linkend="alerting"/>).
+      on (see <xref linkend="alerting"/>). If you only notify one person, then you put that person in a position of
+      power, which could be abused.
     </para>
     <para>
-      TODO: Make audit trail available to client.
+      In some cases, it may make sense to make the audit trail available to clients. That allows them to monitor the
+      activities of people on their end and alert on suspicious behavior. If your API serves more than one customer,
+      then it is imperative that you only show audit records for the customer requesting the audit trail.
     </para>
     <para>
-      TODO: What to audit.
+      What to audit depends on your API, but there are also some general guidelines. Any activity with security 
+      implications should be audited. Examples are assigning roles to a user and failed login attempts. Think about
+      what you would do with the information, for example, what monitoring you could put in place. Don't collect 
+      information that nobody will ever look at, as that has a negative impact on performance and storage costs.
+    </para>
+    <para>
+      Speaking of storage, audit records can easily add up. You will probably want to keep them around for some time
+      limited time and then dispose of them. You may be subject to laws and regulations that govern how long you need
+      to keep information, so do your homework.
     </para>
   </section>
 
   <section id="dos">
-    <title>Protecting Against Denial of Service Attacks</title>
+    <title>Protecting Against Denial of Service (DoS) Attacks</title>
     <para>
-      As we saw in <xref linkend="caching"/>, CDNs serve a large fraction of Internet content today. They provide
-      the content provider a degree of protection from DoS attacks by using their large distributed server
-      infrastructure to absorb the attack traffic.
+      DoS attacks are a major annoyance, because they are difficult to protect against. The good news is that it takes
+      some muscle to perform such an attack, so only highly motivated people will perform them. Your API may not be
+      deemed important enough to warrant such attention. But as your service becomes more popular, you will find that
+      you will be forced to protect yourself.
     </para>
     <para>
-      TODO: Throttling, temporarily route traffic through cloud security service
+      One solution is to do <firstterm>throttling</firstterm>, also known as <firstterm>rate limiting</firstterm>.
+      With this approach you put a limit on the amount of traffic per time unit that you accept from a single source.
+      Twitter does this, for example. When the limit is exceeded, you return an error instead of processing the 
+      request.
     </para>
+    <para>
+      For this scheme to work, you have to be able to correlate requests to the same source. For Twitter's API, that is
+      quite easy, as each API request is tied to a registered client through a client API key.
+    </para>
+    <para>
+      For public websites, there is often nothing better than using IP addresses. There are serious problems with this
+      approach. First, IP addresses can be spoofed. Second, and more importantly, any serious DoS attack will be a
+      <emphasis>distributed</emphasis> DoS attack, where the attacker employs an army of computers, often ones that are 
+      compromised with malware (a <firstterm>botnet</firstterm>), against your system. Each of the members of the 
+      botnet has its own IP address.
+    </para>
+    <para>
+      So while rate limiting can take some of the pressure off of your servers, it is very much a partial solution 
+      against DoS attacks. The only real protection is to literally suck it up, to absorp all the traffic.
+      As we saw in <xref linkend="caching"/>, CDNs serve a large fraction of Internet content today. As such, they are 
+      uniquely equipped to absorp large volumes of traffic, and you can use them as mitigation against DoS attacks. 
+    </para>
+    <para>
+      You don't have to pay for that protection all the time, however. You could simply run your own servers, and only
+      switch to route traffic through a cloud security service when you detect a DoS attack. Make sure you're
+      capable of automatically detecting such an attach and acting on that information.
+    </para> 
   </section>
 
   <section>

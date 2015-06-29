@@ -660,7 +660,7 @@
       Armed with this knowledge, let's take a swing at identifying our RESTBucks resources with URIs:
     </para>
     <table rowsep="0" colsep="0" pgwide="1" frame="topbot" tocentry="1" id="restbucks-resources">
-      <title>Partial resource model to support RESTBucks customer</title>
+      <title>Resource model to support RESTBucks customer</title>
       <tgroup cols="4">
         <thead>
           <row>

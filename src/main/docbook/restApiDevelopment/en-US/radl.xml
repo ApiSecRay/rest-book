@@ -4,9 +4,9 @@
   <section>
     <title>API Description Languages</title>
     <para>
-      The ever increasing number of APIs requires tooling to manage. Such tools need to understand the APIs they're 
-      managing, which leads to a need to describe APIs in a machine-processable way. A language for doing so is 
-      known as an <firstterm>API description language</firstterm>.
+      The ever increasing number of APIs requires tooling to manage an to build efficiently. Such tools need to 
+      understand the APIs they're managing, which leads to a need to describe APIs in a machine-processable way. 
+      A language for doing so is known as an <firstterm>API description language</firstterm>.
     </para>
     <para>
       There have been several attempts at API description languages. WSDL is the language of choice for SOAP-based APIs
@@ -34,17 +34,19 @@
     <para>
       Many developers struggle with REST concepts, which is why we wrote this book. It would therefore be advantageous 
       if the description language could guide them when making their choices. The structure of the description language 
-      should take the developer by the hand and make it easy to do the right thing. In particular, it would be great if
-      the description language would guide developers and API designers through the API design process of 
-      <xref linkend="design"/> or a similarly detailed process.
+      should take the developer by the hand and make it easy to do the right thing.
+    </para>
+    <para>
+      In particular, it would be great if the description language would guide developers and API designers through the 
+      API design process of <xref linkend="design"/> or a similarly detailed process.
       API Blueprint has no such facilities. It merely records the end product and provides no help along the way.
     </para>
     <para>
-      Another problem that API Blueprint shares with RAML and Swagger is that it encourages certain anti-patterns. For 
-      instance, each HTTP method must include a response which must include a status code. This encourages clients to 
-      expect only the documented status codes for a given method on a given URI, introducing tight coupling. It would 
-      be better for clients to have general status code handling capabilities, so that they don't break whenever the 
-      server changes. The same holds true for HTTP headers.
+      Another problem that API Blueprint shares with RAML and Swagger is that it encourages certain anti-patterns, like
+      forcing each HTTP method response to include a status code. This encourages clients to expect only the documented 
+      status codes for a given method on a given URI, introducing tight coupling. It would be better for clients to 
+      have general status code handling capabilities, so that they don't break whenever the server changes.
+      The same holds true for HTTP headers.
     </para>
   </section>
 
@@ -59,8 +61,8 @@
     </para>
     <para>
       The RADL language and tooling around it are open source <citation>RADL</citation>. At the time of writing, the 
-      tools are far from complete, but functional enough for use in real world APIs. The RADL community encourages
-      feedback and contributions.
+      tools are far from complete, but functional enough for some real world use cases. The RADL community keeps adding
+      more capabilities and encourages feedback and contributions.
     </para>
     <para>
       The RADL language has a place for all the concepts described in this book. Here's the basic structure: 
@@ -91,50 +93,66 @@
   </resources>
 </service>]]></programlisting>
     <para>
-      The <literal>&lt;states&gt;</literal> element captures the state diagram. It contains a 
-      <literal>&lt;start-state&gt;</literal> element that holds the transition to the initial state. This transition 
-      will usually correspond to a <literal>GET</literal> on the billboard URI.
-      Transitions point to other <literal>&lt;state&gt;</literal> elements as required to implement the state diagram.
+      The <literal>&lt;states&gt;</literal> element captures the state diagram we discussed in
+      <xref linkend="state-diagrams"/>. It contains a <literal>&lt;start-state&gt;</literal> element that holds the 
+      transition to the initial state. This transition will usually correspond to a <literal>GET</literal> on the 
+      billboard URI. Transitions point to other <literal>&lt;state&gt;</literal> elements as required to implement the 
+      state diagram.
     </para>
     <para>
-      Things in RADL are identified by name. This is true for states and transitions and many other elements that we
+      Items in RADL are identified by name. This is true for states and transitions and many other elements that we
       will see shortly. The name is captured in the <literal>name</literal> attribute of the element. The value of
       this attribute is a human-readable string.
     </para>
     <para>
-      Many elements in RADL support the <literal>&lt;documentation&gt;</literal> element that contains information 
-      that is intended to be read by a human. Documentation is mostly meant for client developers that program 
-      against the REST API, but it can also be used to give information to server developers. Documentation may
-      contain HTML markup. Remember to declare the XML namespace, <literal>http://www.w3.org/1999/xhtml</literal>, if 
-      you want to use HTML.
+      Many items in RADL, like states and transitions, support the <literal>&lt;documentation&gt;</literal> element that 
+      contains information that is intended to be read by a human. Documentation is mostly meant for client developers 
+      that program against the REST API, but it can also be used to give information to server developers. 
+      Documentation may contain HTML markup by using the <literal>http://www.w3.org/1999/xhtml</literal> namespace.
     </para>
     <para>
-      The next section contains the link relations used by the API. For standard link relations you can use the
-      <literal>&lt;specification&gt;</literal> element to point to where the link relation is defined. For extension
-      link relations, you may add <literal>&lt;documentation&gt;</literal> as desired. The 
-      <literal>&lt;link-relation&gt;</literal> element also contains the transitions implemented by the link relation.
+      The next section contains the link relations used by the API. Remember from <xref linkend="uniform-interface"/> 
+      that link relations are the primary tool that enable clients to pick choices from the menu that a hypermedia
+      server offers.  
     </para>
     <para>
-      The structure of the messages is captured in the <literal>&lt;data-models&gt;</literal> section. Each data model
-      if a list of properties, which can be nested. Each <literal>&lt;property&gt;</literal> element may contain a
-      <literal>uri</literal> parameter that points to the vocabulary definition.
+      For standard link relations you can use the <literal>&lt;specification&gt;</literal> element to point to where 
+      the link relation is defined. For extension link relations, you may add <literal>&lt;documentation&gt;</literal> 
+      as desired. The <literal>&lt;link-relation&gt;</literal> element also contains the transitions implemented by the 
+      link relation. A client developer can use the state diagram to determine how to accomplish its goal, and then
+      discover the link relations the client must follow to transition to the subsequent states. 
+    </para>
+    <para>
+      The structure of the messages exchanged between client and server is captured in the 
+      <literal>&lt;data-models&gt;</literal> section. Each data model if a list of properties, which can be nested.
+      Each <literal>&lt;property&gt;</literal> element may contain a <literal>uri</literal> parameter that points to 
+      the vocabulary definition.
+    </para>
+    <para>
+      States and transitions may be linked to data models. In the former case, the data model describes what information
+      is available in the given state. In the latter case, the data model describes what information the client must
+      present to the server to transition to the next state. Data models are separate from the state model, so that
+      they can be re-used, as we saw in <xref linkend="design-messages"/>.
     </para>
     <para>
       You can capture the problem types of an API using the <literal>&lt;problems&gt;</literal> element. It contains
       multiple <literal>&lt;problem&gt;</literal> elements that can hold documentation. You can also assign URIs to the
       problems using the <literal>uri</literal> attribute.
+      Problems are not linked to states, transitions, or even resources, because RADL tries to encourage clients to 
+      build centralized error handling capabilities, as we'll see in <xref linkend="dry"/>.
     </para>
     <para>
       Next up is a list of media types used. Most APIs will have a primary media type that they use for most messages.
-      An API may also occasionally use other media types, for instance for uploading documents. Like a link relation,
-      a <literal>&lt;media-type&gt;</literal> element may contain a <literal>&lt;specification&gt;</literal>.
+      An API may also occasionally use other media types, for instance for uploading documents. Like a 
+      <literal>&lt;link-relation&gt;</literal>, a <literal>&lt;media-type&gt;</literal> element may contain a 
+      <literal>&lt;specification&gt;</literal>.
     </para>
     <para>
       The final section of a RADL document is the resource model. The information in this part is comparable to an
-      entire RAML or Swagger definition. Each <literal>&lt;resource&gt;</literal> contains a 
+      entire RAML or Swagger API description. Each <literal>&lt;resource&gt;</literal> contains a 
       <literal>&lt;location&gt;</literal> element that captures the URI or URI template. It also contains the methods.
-      A <literal>&lt;method&gt;</literal> links to the transitions it implements and contains the request and response,
-      if applicable.
+      A <literal>&lt;method&gt;</literal> captures which transitions it implements and also contains the request and/or 
+      response.
     </para>
   </section>
   

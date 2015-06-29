@@ -367,6 +367,12 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Owasp</abbrev>
+    <biblioid class="uri">TODO</biblioid>
+    <citetitle>OWASP Top 10</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>ProblemDetail</abbrev>
     <biblioid class="uri">https://tools.ietf.org/html/draft-ietf-appsawg-http-problem-00</biblioid>
     <citetitle>Problem Details for HTTP APIs</citetitle>
@@ -481,6 +487,12 @@
   <biblioentry>
     <abbrev>Royce75</abbrev>
     <biblioid class="uri">http://www.cs.umd.edu/class/spring2003/cmsc838p/Process/waterfall.pdf</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Sans</abbrev>
+    <biblioid class="uri">TODO</biblioid>
+    <citetitle>SANS Top 25</citetitle>
   </biblioentry>
   
   <biblioentry>
