@@ -260,8 +260,10 @@
             <listitem>
               <para>
                 <firstterm>Encryption</firstterm> is the cryptographic process of encoding messages or information in 
-                such a way that only authorized parties can read it. We discuss encryption in 
-                <xref linkend="cryptography"/>.
+                such a way that only authorized parties can read it.
+              </para>
+              <para>
+                We discuss encryption in <xref linkend="cryptography"/>.
               </para>
             </listitem>
           </varlistentry>
@@ -321,7 +323,7 @@
         <para>Validate.</para>
         <para>
           In this step you verify that you did a decent job of threat analysis. This is arguably the most difficult 
-          step. How can you ever be sure that you captured and mitigated all threats?
+          step. How can you ever be sure that you captured and mitigated all relevant threats?
         </para>
         <para>
           One way of doing that is to compare your threat model against that of a similar system. Another is to walk 
@@ -350,7 +352,7 @@
     </para>
     <para>
       <firstterm>Symmetric encryption</firstterm> uses a single key to encrypt and decrypt data. Since this key
-      unlocks sensitive data, it must be protected itself using a process called <firstterm>key management </firstterm>.
+      unlocks sensitive data, it must be protected itself using a process called <firstterm>key management</firstterm>.
       Since symmetric keys must be kept secret, they are also referred to as <firstterm>secret keys</firstterm>.
     </para>
     <para>
@@ -382,14 +384,14 @@
     <para>
       When encryption is applied to data that is transmitted to another actor/process, then we speak of encryption of 
       <firstterm>data in transit</firstterm>. The main protocol in this space is <firstterm>Transport Layer 
-      Security</firstterm> (TLS), the successor of Secure Sockets Layer (SSL). When combined with HTTP, we speak of 
-      HTTPS.
+      Security</firstterm> (TLS), the successor of Secure Sockets Layer (SSL). Combined with HTTP it is known as HTTPS.
     </para>
     <para>
       TLS uses public key certificates for authentication, so that a client knows for sure that it is talking to the
-      right server. This is a mitigation against the the server being spoofed. It's unusal in REST APIs to also
-      authentication the client, as that would require the server to have the certificates for all the clients, 
-      creating a tight coupling them.
+      right server. This is a mitigation against spoofing the server. It's unusal in REST APIs to also
+      authentication the client, as that would require the server to have the certificates for all the clients, which 
+      creates a tight coupling between them and is something we're trying to avoid by applying the REST architectural
+      style.
     </para>
     <para>
       The TLS protocol starts with a handshake, during which client and server negotiate the encryption algorithm and
@@ -400,7 +402,7 @@
     <para>
       There are different versions of TLS and its predecessor SSL. All versions of SSL and version 1.0 of TLS are now
       considered insecure, because there are published ways to break these protocols. You should preferrably use 
-      version 1.2 (RFC 5246) or else 1.1 (RFC 4346).
+      version 1.2 (RFC 5246), but version 1.1 (RFC 4346) may be okay too.
     </para>
     <figure id="tls">
       <mediaobject>
@@ -419,9 +421,16 @@
       (see <xref linkend="load-balancing"/>) and use plain HTTP connections within the data center.
     </para>
     <para>
-      This approach leaves us vulnerable to information disclosure within the data center. To mitigate this risk of
-      insider threats, we should at the minimum employ auditing (see <xref linkend="auditing"/>), so that we can
-      detect such abuse and hope that the threat of taking corrective action after the fact is enough to deter abuse.
+      This approach leaves us vulnerable to information disclosure and tampering within the data center. To mitigate 
+      the risk of tampering by malicious insiders, we should at the minimum employ auditing (see 
+      <xref linkend="auditing"/>), so that we can detect such abuse and hope that the threat of taking corrective 
+      action after the fact is enough to deter abuse. This does not protect against information disclosure, however.
+      This is one of those situations where you have to choose between performance and security.
+    </para>
+    <para>
+      In the not too distant past, security was thought adequate if TLS (or SSL) was enabled. This is no longer the 
+      case. Attacks like HeartBleed, POODLE, and BEAST have shown that, although the TLS protocol itself is secure, many
+      implementations of it are not. It's therefore prudent to consider defense in depth and not rely on TLS alone. 
     </para>
     <para>
       <firstterm>Digital signatures</firstterm> are another application of cryptography. A <firstterm>hash 
@@ -619,7 +628,7 @@
       </para>
       <para>
         Another downside of both Basic and Digest authentication is that they rely on passwords, which means that the 
-        server must store them securely. This is not an easy task, as many breaches have shown. Now let's look at an 
+        server must store them securely. This is not an easy task, as many breaches have shown. Let's look at an 
         authentication scheme that doesn't suffer from this problem and also doesn't require keeping state.
       </para>
     </section>
@@ -632,7 +641,7 @@
         we can use digital signatures as a means of authentication.
       </para>
       <para>
-        This is what many API provides do. Examples are Amazon Web Services and EMC Atmos. The problem is that each of
+        This is what many API providers do. Examples are Amazon Web Services and EMC Atmos. The problem is that each of
         those providers uses their own unique implementation of the same idea.   
         The Signing HTTP Messages draft specification standardizes this approach <citation>HTTP Signatures</citation>.
       </para>
@@ -661,21 +670,21 @@
         header.
       </para>
       <para>
-        It's also good practice to include the request target. The latter is the HTTP method followed by a space 
-        followed by the request path <citation>HTTP</citation>. Use <literal>(request-target)</literal> as the name of 
-        the "header" for the request target in the <literal>headers</literal> parameter.
+        It's good practice to also include the request target in the signature. This is the HTTP method followed by a 
+        space followed by the request path <citation>HTTP</citation>. Use <literal>(request-target)</literal> as the 
+        name of the "header" for the request target in the <literal>headers</literal> parameter.
       </para>
       <para>
         The <literal>signature</literal> parameter in <literal>Authorization</literal> contains the base64 encoded 
-        signature. The client uses the <literal>headers</literal> parameter to form a canonicalized <firstterm>signing 
-        string</firstterm>. This signing string is then signed with the key associated with <literal>keyId</literal> 
-        and the algorithm corresponding to <literal>algorithm</literal>. The <literal>signature</literal> parameter is 
-        then set to the base64 encoding of the signature.
+        signature, which is determined as follows. The client uses the <literal>headers</literal> parameter to form a 
+        canonicalized <firstterm>signing string</firstterm>. This signing string is then signed with the key associated 
+        with <literal>keyId</literal> and the algorithm corresponding to <literal>algorithm</literal>. The 
+        <literal>signature</literal> parameter is then set to the base64 encoding of the signature.
       </para>
       <para>
         The headers in the signing string are normalized to make sure client and server calculate the digest over the
-        same string. The lowercased header name is followed by a colon, a space, and the header's value. Headers in the
-        signing string are separated by newlines.        
+        same string. The lowercased header name is followed by a colon, a space, and the header's value. Multiple 
+        header name/value pairs in the signing string are separated by newlines.
       </para>
       <para>
         The encryption part of the signing process may be performed using either a symmetric key or the private key of
@@ -684,9 +693,9 @@
         rather than a secret key, after all.
       </para>
       <para>
-        A digital signature not only proves the integrity of the message, but also the integrity. So even if your TLS 
-        connection is compromised, as we've seen with the recent BEAST and POODLE attacks, you can still be confident 
-        that the message wasn't tampered with. Of course, signing doesn't protect against information disclosure.
+        A digital signature not only proves the identity of the sender of a message, but also the integrity of the
+        message itself. So even if your TLS connection is compromised, you can still be confident that the message 
+        wasn't tampered with. Of course, signing doesn't protect against information disclosure.
       </para>
     </section>
 
@@ -702,9 +711,11 @@
         store. An alternative that is much better suited for stateless servers is to use tokens.
       </para>
       <para>
-        A <firstterm>token</firstterm> (or ticket) is a number generated by a server for a client that can be delivered 
-        to itself, or a different server as a means of authentication, and cannot easily be forged because it is
-        encrypted. A token can store session information, so that the server doesn't have to (if it's not too much).
+        A <firstterm>token</firstterm> (or ticket) is a number that a server generates for a client so that the client
+        can deliver it back to itself, or to a different server as a means of authentication. A token cannot easily be 
+        forged because it is encrypted. The main difference with a session identifier is that a token can store 
+        additional information, so that the server doesn't have to. Since the token is sent back and forth between
+        client, you shouldn't store too much information in it.
       </para>
       <para>
         A token can take any form that is suitable for the server, since it's opaque to the client. One form is a
@@ -712,24 +723,33 @@
         <literal>Authorization</literal> header to gain access to protected resources.
       </para>
       <para>
-        There is no standard for a header in which the server issues the token, however. The old HTTP Authentication 
-        specification, RFC 2617, defined the <literal>Authentication-Info</literal> header for "the server to 
-        communicate some information regarding the successful authentication in the response", and there is another 
-        draft in the works that reintroduces that same header. Some other protocols seem to be using it as well, so 
-        this is perhaps your best bet.
+        Unfortunately, there currently is no standard for a header in which the server can deliver the token to the
+        client. The old HTTP Authentication specification, RFC 2617, defined the <literal>Authentication-Info</literal> 
+        header for "the server to communicate some information regarding the successful authentication in the response", 
+        and there is another draft in the works that reintroduces that same header. Some other protocols seem to be 
+        using it as well, so this is perhaps your best bet.
       </para>
       <para>
         Just as websites make you log in again after a certain period of time, it's also wise to limit the lifetime of
-        a token. You can easily do that by including information about when the token expires inside the token. 
+        a token to reduce the impact of a compromised token. 
+        You can easily do that by including information about when the token expires inside the token. 
         For maximum security, you would want to make this period as small as possible, but for human clients it's
-        annoying if they have to log in every, say, 15 minutes. One solution to this problem is to refresh the token
-        with each call. 
+        annoying if they have to log in every, say, 15 minutes.
+        One solution to this problem is to refresh the token with each call.
+      </para>
+      <para>
+        Another solution is to issue an additional 
+        <firstterm>refresh token</firstterm> that can be exchanged for a new token. The token used to access the
+        protected resource is referred to as the <firstterm>access token</firstterm> to distinguish it from the
+        refresh token. The refresh token suffers the same security risk as the access token, so this arrangement only
+        makes sense if you can protect the refresh token better than the access token. We'll see one situation where
+        this is the case in <xref linkend="oauth"/>.
       </para>
       <para>
         If you want to be very secure, you would want to allow the client to tell the server that it will not use the
         token anymore. This is the equivalent of a human user logging out of a web site. This is a bit problematic
         when using a token-based system, since any token issued gains anyone access. To implement "log out" 
-        functionality, the server would have to maintain a blacklist of invalid token. This brings back some of the 
+        functionality, the server would have to maintain a blacklist of invalid tokens. This brings back some of the 
         state that we we're trying to avoid. Whether that is worth the added security really depends on your specific 
         situation.
       </para>
@@ -741,12 +761,12 @@
         After either has occurred, you can continue with a token to harmonize the two. 
       </para>
       <para>
-        Another possibility that the token system introduces, is to move the authentication sequence completely away 
+        Another possibility that the token approach introduces, is to move the authentication sequence completely away 
         from the server. Let's look at one method of doing that.
       </para>
     </section>
 
-    <section>
+    <section id="oauth">
       <title>OAuth2 and related protocols</title>
       <para>
         OAuth2 is a framework for authentication and authorization protocols. It's a <emphasis>framework</emphasis> 
