@@ -12,7 +12,7 @@
     <title>Generating Stubs From RADL</title>
   </section>
 
-  <section>
+  <section id="test-security">
     <title>Security</title>
     <para>static and dynamic analysis, fuzzing</para>
   </section>

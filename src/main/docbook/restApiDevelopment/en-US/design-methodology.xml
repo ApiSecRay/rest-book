@@ -769,7 +769,8 @@
     <para>
       Here are the link relations for our example:
     </para>
-    <informaltable>
+    <table id="restbucks-link-relations">
+      <title>Link Relations for RESTBucks</title>
       <thead>
         <tr>
           <th>Transition</th>
@@ -810,7 +811,7 @@
           <td><literal>edit</literal></td>
         </tr>
       </tbody>
-    </informaltable>
+    </table>
     <para>
       We can re-use a couple of standard link relations. 
       The <literal>self</literal> link relation refers to the object itself, so we can use it to refresh a serving and 
@@ -973,7 +974,8 @@
     <para>
       Here's a summary:
     </para>
-    <informaltable>
+    <table id="restbucks-messages">
+      <title>RESTBucks Messages</title>
       <thead>
         <tr>
           <th>Message</th>
@@ -1023,7 +1025,7 @@
           <td></td>
         </tr>
       </tbody>
-    </informaltable>
+    </table>
   </section>
   
   <section id="semantics">
@@ -1047,7 +1049,8 @@
       Since we're in the e-commerce and coffee domains, we can find most of what we need at schema.org, but we need a
       bit of web payments as well:
     </para>
-    <informaltable>
+    <table id="restbuck-semantics">
+      <title>Semantics for RESTBucks messages</title>
       <thead>
         <tr>
           <th>Data item</th>
@@ -1137,7 +1140,7 @@
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>price</literal>, <literal>amount</literal></td>
+          <td><literal>price</literal></td>
           <td>http://schema.org/price</td>
           <td>schema.org</td>
         </tr>
@@ -1162,12 +1165,12 @@
           <td>schema.org</td>
         </tr>
         <tr>
-          <td><literal>total</literal></td>
+          <td><literal>total</literal>, <literal>amount</literal></td>
           <td>http://schema.org/totalPrice</td>
           <td>schema.org</td>
         </tr>
       </tbody>
-    </informaltable>
+    </table>
     <para>
       As you can see, all concepts in our service are defined elsewhere.
       Although it took us a bit of time to find all of these, it was well worth it. Existing clients that already 

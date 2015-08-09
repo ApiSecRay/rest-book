@@ -104,6 +104,34 @@
     <abbrev>CoAP</abbrev>
     <biblioid class="uri">https://tools.ietf.org/html/rfc7252</biblioid>
   </biblioentry>
+  
+  <biblioentry>
+    <abbrev>HumbleFarley10</abbrev>
+    <citetitle>Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Jezz</firstname>
+          <surname>Humble</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>David</firstname>
+          <surname>Farley</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <publisher>
+      <publishername>Addison-Wesley Professional</publishername>
+      <address>
+        <city>New York</city>
+      </address>
+    </publisher>
+    <copyright>
+      <year>2010</year>
+    </copyright>
+  </biblioentry>
 
   <biblioentry>
     <abbrev>CoolUris</abbrev>
@@ -414,9 +442,9 @@
   </biblioentry>
   
   <biblioentry>
-    <abbrev>RFC 2048</abbrev>
-    <biblioid class="uri">http://tools.ietf.org/html/rfc2048</biblioid>
-    <citetitle>Multipurpose Internet Mail Extensions (MIME) Part Four: Registration Procedures</citetitle>
+    <abbrev>RFC 6838</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc6838</biblioid>
+    <citetitle>Media Type Specifications and Registration Procedures</citetitle>
   </biblioentry>
   
   <biblioentry>

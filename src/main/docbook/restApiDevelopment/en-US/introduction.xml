@@ -162,7 +162,7 @@
               </blockquote>
               A representation of a resource is an encoding of the information contained in the resource. It allows us
               to transmit the information from client to server and vice versa. The data format of a representation is 
-              known as its <firstterm>media type</firstterm> <citation>RFC 2048</citation>.
+              known as its <firstterm>media type</firstterm> <citation>RFC 6838</citation>.
             </para>
             <para>
               Next to the data of the resource itself, a representation may also contain

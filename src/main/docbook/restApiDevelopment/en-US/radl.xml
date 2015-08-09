@@ -1,66 +1,160 @@
 <chapter id="radl">
-  <title>REST API Description Language (RADL)</title>
+  <title>API Description</title>
 
   <section>
     <title>API Description Languages</title>
     <para>
-      The ever increasing number of APIs requires tooling to manage an to build efficiently. Such tools need to 
-      understand the APIs they're managing, which leads to a need to describe APIs in a machine-processable way. 
-      A language for doing so is known as an <firstterm>API description language</firstterm>.
+      The ever increasing number of APIs makes it worth while to develop an ecosystem of tools that aid humans in
+      working with APIs.
     </para>
     <para>
-      There have been several attempts at API description languages. WSDL is the language of choice for SOAP-based APIs
-      <citation>WSDL</citation>. For HTTP-based APIs, we've seen a bunch of languages pop up <citation>WADL</citation>
-      <citation>RAML</citation> <citation>Swagger</citation>.
+      One tool could produce human-readable documentation, usually in HTML or PDF form, that supports client developers.
+      Another tool could produce skeleton code for a server implementing the API, or a client or SDK consuming it.
+      Yet another tool could test whether a server implements the documented API correctly. Another one could fuzz requests
+      to test input validation (see <xref linkend="input-validation"/> and <xref linkend="test-security"/>).
+      There are many possibilities.
     </para>
     <para>
-      While these description languages work and have tooling ecosystems of varying maturity around them, they don't 
-      have special provisions for the hypermedia aspect of truly RESTful APIs. In terms of the maturity model (see
-      <xref linkend="maturity"/>), they can only describe APIs up to level 2. The documentation they generate is filled
-      with URLs that will tightly couple the client to the server.
+      These tools can significantly increase the speed of the development process. Some shorten or reduce manual
+      activities, while others run completely autonomously and thus can be included in a continuous integration or
+      deployment pipeline <citation>HumbleFarley10</citation>.
     </para>
     <para>
-      API Blueprint supports link relations, and as such can be used to describe level 3 APIs 
-      <citation>API Blueprint</citation>. It is based on Markdown syntax, which makes it relatively easy to read and 
-      write by a human. However, there is no schema language that can be used to describe and validate Markdown and 
-      there are several different flavors. Also, Markdown is a format for human-readable documentation, not necessarily
-      machine-processable description. The API Blueprint specification is therefore a lot less readable
-      than it could have been and it places a greater burden on tooling to validate API descriptions than desirable.
+      All these tools need to understand the APIs they're managing, which means we need to be able to describe APIs in a
+      machine-processable way. A language for doing so is known as an <firstterm>API description language</firstterm>.
     </para>
     <para>
-      An API description language's primary function is to enable tooling. Optimizing for human readers and writers 
-      should come second. XML meets those requirements much better than Markdown.
+      There have been several attempts at API description languages. Web Service Description Language is the standard 
+      description language for SOAP-based APIs <citation>WSDL</citation>. We've recently seen a bunch of new description 
+      languages pop up that vie for the same status in the REST space <citation>API Blueprint</citation>
+      <citation>RADL</citation> <citation>RAML</citation> <citation>Swagger</citation> <citation>WADL</citation>.
     </para>
     <para>
-      Many developers struggle with REST concepts, which is why we wrote this book. It would therefore be advantageous 
-      if the description language could guide them when making their choices. The structure of the description language 
-      should take the developer by the hand and make it easy to do the right thing.
+      The sheer number of them makes it difficult to choose. We propose the following criteria that
+      API description languages must meet, in order of importance:
+    </para>
+    <orderedlist>
+      <listitem>
+        <para>
+          The API description language must be able to describe APIs on the highest levels (3 and 4) of the maturity 
+          model (see <xref linkend="maturity"/>). It would be nice if it can also describe lower levels, but that
+          doesn't have much priority, since we want to encourage higher-level APIs.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The description language must be machine-processable, so that it can support tools. It would be nice if the
+          language is also somewhat human-readable, but that is not a priority, since the tools (editors) can hide most
+          if not all of the syntax.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The language must allow for capturing both structured and unstructured data. Ideally most of the data is
+          stored in a structured way, so that tools can more easily process it, but there will always be a need to
+          store free-form documentation to capture more subtle points about the API.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The language should support both the design-first and the code-first style of API development. In this book, 
+          we're focusing on design-first, because that's a more convenient approach to teach. It is not the only way, 
+          however, or even the best way in all situations. For existing projects, it can be much more convenient to work 
+          your way back from the already existing code to arrive at a design and then improve or expand the design.
+          This is especially true when there is no design documentation, or when that documentation is out-of-date.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The language should take the API designer by the hand and guide them into making the right choices. It should
+          be easy to do the right thing, even if the designer isn't 100% up to speed with what the right thing actually
+          is.
+          In particular, it would be great if the description language would guide people through the API design process
+          of <xref linkend="design"/>, or a similarly detailed process. This guidance must not, however, restrict more
+          experienced API designers. Nor must it get in the way of a code-first approach.
+        </para>
+      </listitem>
+    </orderedlist>
+    <para>
+      It is also important that the API description language is an open standard and that the tooling around it is open
+      source. Since this is the case for all contenders, we won't discuss this criterion any further. 
     </para>
     <para>
-      In particular, it would be great if the description language would guide developers and API designers through the 
-      API design process of <xref linkend="design"/> or a similarly detailed process.
-      API Blueprint has no such facilities. It merely records the end product and provides no help along the way.
+      <xref linkend="api-description-languages"/> shows how the existing API description languages score on these
+      requirements. Only RADL supports semantic profiles and only RADL guides the API designer. It scores about
+      the same as other API description languages on the other criteria. In our view that makes it the winner. In the
+      interest of full disclosure we should mention that the author is a RADL contributor.
     </para>
     <para>
-      Another problem that API Blueprint shares with RAML and Swagger is that it encourages certain anti-patterns, like
-      forcing each HTTP method response to include a status code. This encourages clients to expect only the documented 
-      status codes for a given method on a given URI, introducing tight coupling. It would be better for clients to 
-      have general status code handling capabilities, so that they don't break whenever the server changes.
-      The same holds true for HTTP headers.
+      One potential downside of RADL is that its community is much smaller than that of some of the others, in
+      particular RAML and Swagger. You'll have to weigh the pros and cons to make the best choice for your situation.
+      In the remainder of this book we'll use RADL.
     </para>
+    <table pgwide="1" id="api-description-languages">
+      <title>Comparison Of API Description Languages</title>
+      <thead>
+        <tr>
+          <th>Criterion</th>
+          <th>API Blueprint</th>
+          <th>RADL</th>
+          <th>RAML</th>
+          <th>Swagger</th>
+          <th>WADL</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Supported maturity levels</td>
+          <td>0-3</td>
+          <td>0-4</td>
+          <td>0-2</td>
+          <td>0-2</td>
+          <td>0-2</td>
+        </tr>
+        <tr>
+          <td>Machine-processable</td>
+          <td>Markdown has limited support, but API Blueprint AST has JSON and YAML serializations</td>
+          <td>XML is widely supported</td>
+          <td>YAML has decent support</td>
+          <td>JSON is widely supported; YAML has decent support</td>
+          <td>XML is widely supported</td>
+        </tr>
+        <tr>
+          <td>Structured vs unstructured</td>
+          <td>GitHub Flavored Markdown for structured and unstructured data</td>
+          <td>Mostly structured, can add free-form text and HTML in <literal>&lt;documentation&gt;</literal> elements</td>
+          <td>YAML for structured data; Markdown for documentation</td>
+          <td>JSON or YAML for structured data; GitHub-flavored Markdown for documentation</td>
+          <td>Mostly structured, can add free-form text in <literal>&lt;doc&gt;</literal> elements</td>
+        </tr>
+        <tr>
+          <td>Supports code-first</td>
+          <td>Grape (GrapeApiary)</td>
+          <td>JAX-RS and Spring (radl-java)</td>
+          <td>JAX-RS (RAML for JAX-RS)</td>
+          <td>JAX-RS (JAX-RS analyzer)</td>
+          <td>JAX-RS (Jersey)</td>
+        </tr>
+        <tr>
+          <td>Guides designer</td>
+          <td>No</td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+      </tbody>
+    </table>
   </section>
 
   <section>
-    <title>RESTful API Description Language</title>
+    <title>RADL</title>
     <para>
-      Since none of the existing API description languages seem to meet our requirements, we've invented our own.
       <firstterm>RESTful API Description Language</firstterm> (RADL) is an XML-based API description language that can 
       describe semantic, hypermedia-driven APIs (level 4).
-      It's unfortunate that we had to introduce yet another language into an already fragmented landscape, but we 
-      believe the benefits are worth it.
     </para>
     <para>
-      The RADL language and tooling around it are open source <citation>RADL</citation>. At the time of writing, the 
+      The RADL language and tooling around it are open source. At the time of writing, the 
       tools are far from complete, but functional enough for some real world use cases. The RADL community keeps adding
       more capabilities and encourages feedback and contributions.
     </para>
@@ -76,17 +170,17 @@
     <!-- All link relations used -->
   </link-relations>
 
-  <data-models>
+  <messages>
     <!-- The data in the messages -->
-  </data-models>
-
-  <problems>
-    <!-- The error conditions -->
-  </problems>
+  </messages>
 
   <media-types>
     <!-- All media types used -->
   </media-types>
+
+  <errors>
+    <!-- The error conditions -->
+  </errors>
 
   <resources>
     <!-- The resource model -->
@@ -102,44 +196,39 @@
     <para>
       Items in RADL are identified by name. This is true for states and transitions and many other elements that we
       will see shortly. The name is captured in the <literal>name</literal> attribute of the element. The value of
-      this attribute is a human-readable string.
+      this attribute is a human-readable string. Some elements can refer to other elements using their name.
     </para>
     <para>
       Many items in RADL, like states and transitions, support the <literal>&lt;documentation&gt;</literal> element that 
       contains information that is intended to be read by a human. Documentation is mostly meant for client developers 
-      that program against the REST API, but it can also be used to give information to server developers. 
+      that program against the REST API, but it can also be used for other purposes, like giving information to server
+      developers. 
       Documentation may contain HTML markup by using the <literal>http://www.w3.org/1999/xhtml</literal> namespace.
     </para>
     <para>
-      The next section contains the link relations used by the API. Remember from <xref linkend="uniform-interface"/> 
-      that link relations are the primary tool that enable clients to pick choices from the menu that a hypermedia
-      server offers.  
-    </para>
-    <para>
+      The next section contains the link relations used by the API. 
       For standard link relations you can use the <literal>&lt;specification&gt;</literal> element to point to where 
       the link relation is defined. For extension link relations, you may add <literal>&lt;documentation&gt;</literal> 
-      as desired. The <literal>&lt;link-relation&gt;</literal> element also contains the transitions implemented by the 
+      as desired.
+    </para>
+    <para>
+      The <literal>&lt;link-relation&gt;</literal> element contains the transitions implemented by the 
       link relation. A client developer can use the state diagram to determine how to accomplish its goal, and then
-      discover the link relations the client must follow to transition to the subsequent states. 
+      discover the link relations the client must follow to transition to the subsequent states. (Don't worry, the
+      tooling around RADL takes care of that for you and presents you with easy to consume information without you 
+      having to manually hunt down references.)
     </para>
     <para>
       The structure of the messages exchanged between client and server is captured in the 
-      <literal>&lt;data-models&gt;</literal> section. Each data model if a list of properties, which can be nested.
-      Each <literal>&lt;property&gt;</literal> element may contain a <literal>uri</literal> parameter that points to 
-      the vocabulary definition.
+      <literal>&lt;messages&gt;</literal> section. Each message is a list of properties, which can be nested.
+      Each <literal>&lt;property&gt;</literal> element may contain a <literal>uri</literal> attribute that points to 
+      the semantic definition of the property. You can also add examples to a <literal>&lt;message&gt;</literal>.
     </para>
     <para>
-      States and transitions may be linked to data models. In the former case, the data model describes what information
-      is available in the given state. In the latter case, the data model describes what information the client must
-      present to the server to transition to the next state. Data models are separate from the state model, so that
+      States and transitions may be linked to messages. In the former case, the message describes what information
+      is available in the given state. In the latter case, the message describes what information the client must
+      present to the server to transition to the next state. Messages are separate from the state model so that
       they can be re-used, as we saw in <xref linkend="design-messages"/>.
-    </para>
-    <para>
-      You can capture the problem types of an API using the <literal>&lt;problems&gt;</literal> element. It contains
-      multiple <literal>&lt;problem&gt;</literal> elements that can hold documentation. You can also assign URIs to the
-      problems using the <literal>uri</literal> attribute.
-      Problems are not linked to states, transitions, or even resources, because RADL tries to encourage clients to 
-      build centralized error handling capabilities, as we'll see in <xref linkend="dry"/>.
     </para>
     <para>
       Next up is a list of media types used. Most APIs will have a primary media type that they use for most messages.
@@ -148,19 +237,35 @@
       <literal>&lt;specification&gt;</literal>.
     </para>
     <para>
+      You can capture the error conditions of an API using the <literal>&lt;errors&gt;</literal> element. It contains
+      multiple <literal>&lt;error&gt;</literal> elements that can hold documentation. As always in RADL, you can use the
+      <literal>name</literal> attribute to name the error. This can be a simple human-readable name, but it can also be
+      a URI that defines the semantics of the error.
+    </para>
+    <para>
+      Errors are not linked to states, transitions, or even resources, because RADL tries to encourage clients to 
+      follow the best practice of building centralized error handling capabilities, as we'll see in <xref linkend="dry"/>.
+    </para>
+    <para>
       The final section of a RADL document is the resource model. The information in this part is comparable to an
       entire RAML or Swagger API description. Each <literal>&lt;resource&gt;</literal> contains a 
       <literal>&lt;location&gt;</literal> element that captures the URI or URI template. It also contains the methods.
       A <literal>&lt;method&gt;</literal> captures which transitions it implements and also contains the request and/or 
       response.
     </para>
+    <para>
+      This is just a high-level overview of RADL. There are more elements, for instance for capturing headers and URI
+      query string parameters. Please refer to the RADL specification and examples for more information
+      <citation>RADL</citation>.
+    </para>
   </section>
   
   <section>
     <title>RESTBucks in RADL</title>
     <para>
-      To see RADL in action, we're going to walk through the steps of procedure 
-      "<xref linkend="design-rest-api"/>" for RESTBucks:
+      The structure of RADL guides the API designer through the process of designing an API, from requirements captured
+      by the state model to the resources and error conditions. We'll show you how that works by going through the steps
+      of procedure "<xref linkend="design-rest-api"/>" for RESTBucks:
     </para>
     <orderedlist>
       <listitem>
@@ -193,32 +298,24 @@
     </transitions>
   </state>
 
-  <state name="Deciding">
-    <properties name="menu"/>
+  <state name="Deciding" message-ref="menu"/>
     <transitions>
       <transition name="Place order" to="Ordered">
         <documentation>
           The customer composes an order from the items on the menu
           and places the order with the cashier.
         </documentation>
-        <input>
-          <properties name="order"/>
-        </input>
       </transition>
     </transitions>
   </state>
 
-  <state name="Ordered">
-    <properties name="order"/>
+  <state name="Ordered"/>
     <transitions>
       <transition name="Change" to="Ordered">
         <documentation>
           As long as the customer hasn't paid, she can change her 
           order.
         </documentation>
-        <input>
-          <properties name="order"/>
-        </input>
       </transition>
       <transition name="Cancel" to="Canceled">
         <documentation>
@@ -230,9 +327,6 @@
         <documentation>
           The customer pays for the order.
         </documentation>
-        <input>
-          <properties name="payment"/>
-        </input>
       </transition>
     </transitions>
   </state>
@@ -240,7 +334,6 @@
   <state name="Canceled"/>
 
   <state name="Paid">
-    <properties name="receipt"/>
     <transitions>
       <transition name="Take receipt" to="Waiting">
         <documentation>
@@ -267,7 +360,6 @@
   </state>
 
   <state name="Served">
-    <properties name="serving"/>
     <transitions>
       <transition name="Take serving" to="Happy">
         <documentation>
@@ -285,10 +377,95 @@
          Discover resources and methods from state transitions.
        </para>
        <para>
+         Each transition in the state diagram needs to be implemented by some method on some resource. The
+         RADL validation tool will issue warnings if there are unimplemented transitions. By adding an implementing
+         method for the transition you can make that warning go away. In this sense, the RADL structure and tooling
+         guide you in your design.
+       </para>
+       <para>
          The resources and methods for RESTbucks are listed in <xref linkend="restbucks-customer-resources"/>.
          Here's what that looks like in RADL:
        </para>
        <programlisting><![CDATA[<resources>
+  <resource name="Home">
+    <methods>
+      <method name="GET">
+        <transitions>
+          <transition name="Arrive"/>
+        </transitions>
+      </method>
+    </method>
+  </resource>
+  
+  <resource name="Menu">
+    <methods>
+      <method name="GET">
+        <transitions>
+          <transition name="Read menu"/>
+        </transitions>
+      </method>
+    </methods>
+  </resource>
+  
+  <resource name="Orders"
+    <methods>
+      <method name="POST">
+        <transitions>
+          <transition name="Place order"/>
+        </transitions>
+      </method>
+    </methods>
+  </resource>
+  
+  <resource name="Order">
+    <methods>
+      <method name="PUT">
+        <transitions>
+          <transition name="Change order"/>
+        </transitions>
+      </method>
+      <method name="DELETE">
+        <transitions>
+          <transition name="Cancel"/>
+        </transitions>
+      </methods>
+    </methods>
+  </resource>
+  
+  <resource name="Payments"
+    <methods>
+      <method name="POST">
+        <transitions>
+          <transition name="Pay"/>
+        </transitions>
+      </method>
+    </methods>
+  </resource>
+  
+  <resource name="Receipt">
+    <methods>
+      <method name="GET">
+        <transitions>
+          <transition name="Take receipt"/>
+        </transitions>
+      </method>
+    </methods>
+  </resource>
+  
+  <resource name="Serving">
+    <methods>
+      <method name="GET">
+        <transitions>
+          <transition name="Receive notification"/>
+        </transitions>
+      </method>
+      <method name="DELETE">
+        <transitions>
+          <transition name="Take serving"/>
+        </transitions>
+      </method>
+    </methods>
+  </resource>
 </resource>]]></programlisting>
       </listitem>
       <listitem>
@@ -296,67 +473,501 @@
          Name resources with URIs.
        </para>
        <para>
+        The <literal>&lt;location&gt;</literal> element is mandatory under a <literal>&lt;resource&gt;</literal>. So as
+        soon as you add a resource in the previous step, the validation tool will issue a warning about a missing
+        <literal>&lt;location&gt;</literal>. Again, the structure and tooling around RADL guide you in your next step.
        </para>
+       <para>
+         The URIs for the RESTBucks resources are in <xref linkend="restbucks-resources"/>. Here's how that looks in
+         RADL:
+       </para>
+       <programlisting><![CDATA[<resources>
+  <resource name="Home">
+    <location uri="/"/>
+    <!-- Methods omitted for brevity -->
+  </resource>
+  
+  <resource name="Menu">
+    <location uri="/menu/"/>
+    <!-- Methods omitted for brevity -->
+  </resource>
+  
+  <resource name="Orders"
+    <location uri="/orders/"/>
+    <!-- Methods omitted for brevity -->
+  </resource>
+  
+  <resource name="Order">
+    <location uri-template="/orders/{id}/"/>
+    <!-- Methods omitted for brevity -->
+  </resource>
+  
+  <resource name="Payments"
+    <location uri-template="/orders/{id}/payments/"/>
+    <!-- Methods omitted for brevity -->
+  </resource>
+  
+  <resource name="Receipt">
+    <location uri-template="/orders/{id}/receipt/"/>
+    <!-- Methods omitted for brevity -->
+  </resource>
+  
+  <resource name="Serving">
+    <location uri-template="/orders/{id}/serving/"/>
+    <!-- Methods omitted for brevity -->
+  </resource>
+</resource>]]></programlisting>
+      </listitem>
+      <listitem>
+        <para>
+          Name state transitions with link relations.
+        </para>
+        <para>
+          The RADL validation tool also issues a warning for every transition that isn't discoverable through a link
+          relation.
+          The link relations for RESTBucks are in <xref linkend="restbucks-link-relations"/>. Here's what that looks
+          like in RADL:
+        </para>
+        <programlisting><![CDATA[<link-relations>
+  <link-relation name="self">
+    <specification href="http://tools.ietf.org/html/rfc4287"/>
+    <transitions>
+      <transition name="Receive notification"/>
+    </transition>
+  </link-relation>
+  
+  <link-relation name="edit">
+    <specification href="http://tools.ietf.org/html/rfc5023"/>
+    <transitions>
+      <transition name="Change order"/>
+      <transition name="Cancel"/>
+      <transition name="Take serving"/>
+    </transitions>
+  </link-relation>
+  
+  <link-relation name="payment">
+    <specification href="http://tools.ietf.org/html/rfc5988"/>
+    <transitions>
+      <transition name="Pay"/>
+    </transitions>
+  </link-relation>
+  
+  <link-relation name="http://schema.org/menu">
+    <specification href="http://schema.org/menu"/>
+    <transitions>
+      <transition name="Read menu"/>
+    </transitions>
+  </link-relation>
+  
+  <link-relation name="http://schema.org/OrderAction">
+    <specification href="http://schema.org/OrderAction"/>
+    <transitions>
+      <transition name="Place order"/>
+    </transitions>
+  </link-relation>
+  
+  <link-relation name="http://schema.org/Order">
+    <specification href="http://schema.org/Order"/>
+    <transitions>
+      <transition name="Take receipt"/>
+    </transitions>
+  </link-relation>
+  
+</link-relations>]]></programlisting>
       </listitem>
       <listitem>
        <para>
-         Name state transitions with link relations.
+        Design messages.
        </para>
        <para>
-       </para>
-      </listitem>
-      <listitem>
-       <para>
-         Design messages.
-       </para>
-       <para>
-       </para>
-      </listitem>
-      <listitem>
-       <para>
-         Document application semantics.
+         The RADL validation tool knows which HTTP methods require requests and/or responses. In RADL, a 
+         <literal>&lt;method&gt;</literal>'s <literal>&lt;request&gt;</literal> is linked to a
+         <literal>&lt;transition&gt;</literal> and its <literal>&lt;response&gt;</literal> to a 
+         <literal>&lt;state&gt;</literal>, so the validation tool can issue a warning whenever the
+         corresponding <literal>&lt;transition&gt;</literal> or <literal>&lt;state&gt;</literal> doesn't refer to a
+         <literal>&lt;message&gt;</literal>.
        </para>
        <para>
+         The messages for RESTBucks are in <xref linkend="restbucks-messages"/>. Here are the messages in RADL:
        </para>
+       <programlisting><![CDATA[<messages>
+  <message name="home"/>
+  
+  <message name="items">
+    <properties>
+      <property name="item">
+        <properties>
+          <property name="name"/>
+          <property name="size"/>
+          <property name="milk"/>
+          <property name="price"/>
+          <property name="currency"/>
+        </properties>
+      </property>
+    </properties>
+  </message>       
+
+  <message name="menu">
+    <properties>
+      <property name="items">
+        <properties ref="items"/>
+      </property>
+    </properties>
+  </message>       
+
+  <message name="order">
+    <properties>
+      <property name="items">
+        <properties ref="items"/>
+      </property>
+      <property name="customer"/>
+      <property name="total"/>
+      <property name="currency"/>
+    </properties>
+  </message>       
+
+  <message name="payment">
+    <properties>
+      <property name="amount"/>
+      <property name="currency"/>
+      <property name="paymentMethod"/>
+      <property name="cardholderName"/>
+      <property name="cardNumber"/>
+      <property name="expiryMotnh"/>
+      <property name="expiryYear"/>
+      <property name="cardSecurityCode"/>
+    </properties>
+  </message>       
+
+  <message name="receipt">
+    <properties>
+      <property name="dateTime"/>
+      <property name="shop"/>
+      <property name="items">
+        <properties ref="items"/>
+      </property>
+      <property name="total"/>
+      <property name="currency"/>
+      <property name="paymentMethod"/>
+    </properties>
+  </message>       
+  
+  <message name="serving"/>
+</messages>]]></programlisting>
+      <para>
+        Note that the <literal>&lt;message&gt;</literal> named <literal>items</literal> is not something that will
+        ever be sent over the wire on its own. It is part of several other messages, and is extracted to avoid
+        duplication.
+      </para>
+      <para>
+        The next step is to refer to those messages from the states and transitions:
+      </para>
+      <programlisting><![CDATA[<states>
+  <state name="Arrived" message-ref="home">
+    <!-- Rest omitted for brevity -->
+  </state>
+  
+  <state name="Deciding" message-ref="menu">
+    <transitions>
+      <transition name="Place order" to="Ordered" message-ref="order">
+        <!-- Rest omitted for brevity -->
+      </transition>
+    </transitions>
+    <!-- Rest omitted for brevity -->
+  </state>
+  
+  <state name="Ordered" message-ref="order">
+    <transitions>
+      <transition name="Change" to="Ordered" message-ref="order">
+        <!-- Rest omitted for brevity -->
+      </transition>
+      <transition name="Pay" to="Paid" message-ref="payment">
+        <!-- Rest omitted for brevity -->
+      </transition>
+    </transitions>
+    <!-- Rest omitted for brevity -->
+  </state>
+  
+  <state name="Canceled" message-ref="order"/>
+
+  <state name="Paid" message-ref="receipt">
+    <!-- Rest omitted for brevity -->
+  </state>
+  
+  <state name="Waiting" message-ref="serving">
+    <!-- Rest omitted for brevity -->
+  </state>
+
+  <state name="Served" message-ref="serving">
+    <!-- Rest omitted for brevity -->
+  </state>
+</states>]]></programlisting>
+    </listitem>
+    <listitem>
+      <para>
+        Document application semantics.
+      </para>
+      <para>
+        At the time of writing, APIs at maturity level 4 (see <xref linkend="maturity"/>) unfortunately make up only a
+        small minority of all APIs. So the RADL validation tool doesn't issue any warnings for missing semantics and
+        you'll have to remember yourself to assign meaning to your messages. (As an aside, any warnings can be
+        suppressed; this is true for both individual instances and whole classes of warnings.)
+      </para>
+      <para>
+        The semantics for RESTBucks are defined in <xref linkend="restbuck-semantics"/>. Here's what that looks like 
+        in RADL:
+      </para>
+      <programlisting><![CDATA[<messages>
+  <message name="home" uri="http://schema.org/CafeOrCoffeeShop"/>
+  
+  <message name="items">
+    <properties>
+      <property name="item" uri="http://schema.org/Product">
+        <properties>
+          <property name="name" uri="http://schema.org/name"/>
+          <property name="size" uri="http://schema.org/height"/>
+          <property name="milk" uri="http://www.productontology.org/doc/Milk"/>
+          <property name="price" uri="http://schema.org/price"/>
+          <property name="currency" uri="http://schema.org/priceCurrency"/>
+        </properties>
+      </property>
+    </properties>
+  </message>       
+
+  <message name="menu" uri="http://schema.org/menu">
+    <properties>
+      <property name="items">
+        <properties ref="items"/>
+      </property>
+    </properties>
+  </message>       
+
+  <message name="order" uri="http://schema.org/Order">
+    <properties>
+      <property name="items">
+        <properties ref="items"/>
+      </property>
+      <property name="customer" uri="http://schema.org/customer"/>
+      <property name="total" uri="http://schema.org/totalPrice"/>
+      <property name="currency" uri="http://schema.org/priceCurrency"/>
+    </properties>
+  </message>       
+
+  <message name="payment"
+      uri="http://reference.data.gov.uk/def/payment#payment">
+    <properties>
+      <property name="amount" uri="http://schema.org/totalPrice"/>
+      <property name="currency" uri="http://schema.org/priceCurrency"/>
+      <property name="paymentMethod"
+          uri="http://schema.org/acceptedPaymentMethod"/>
+      <property name="cardholderName"
+          uri="https://w3id.org/creditcard/v1/name"/>
+      <property name="cardNumber"
+          uri="https://w3id.org/creditcard/v1/number"/>
+      <property name="expiryMotnh"
+          uri="https://w3id.org/creditcard/v1/expiryMonth"/>
+      <property name="expiryYear"
+          uri="https://w3id.org/creditcard/v1/expiryYear"/>
+      <property name="cardSecurityCode"
+          uri="https://w3id.org/creditcard/v1/verificationCode"/>
+    </properties>
+  </message>       
+
+  <message name="receipt" uri="http://schema.org/Order">
+    <properties>
+      <property name="dateTime" uri="http://schema.org/orderDate"/>
+      <property name="shop" uri="http://schema.org/seller"/>
+      <property name="items">
+        <properties ref="items"/>
+      </property>
+      <property name="total" uri="http://schema.org/totalPrice"/>
+      <property name="currency" uri="http://schema.org/priceCurrency"/>
+      <property name="paymentMethod"
+          uri="http://schema.org/acceptedPaymentMethod"/>
+    </properties>
+  </message>       
+  
+  <message name="serving" uri="http://schema.org/Order"/>
+</messages>]]></programlisting>
       </listitem>
       <listitem>
        <para>
          Select a media type to serialize messages.
        </para>
        <para>
+         Each <literal>&lt;request&gt;</literal> and <literal>&lt;response&gt;</literal> must be
+         serialized using some media type. The RADL validation tool issues a warning when they are not.
        </para>
+       <para>
+         For RESTBucks we selected JSON-LD. Here's how that looks in RADL:
+       </para>
+       <programlisting><![CDATA[<media-types>
+  <media-type name="application/ld+json">
+    <specification href="http://www.w3.org/TR/json-ld/"/>
+  </media-type>
+</media-types>
+
+<resources>
+  <resource name="home">
+    <methods>
+      <method name="GET">
+        <!-- Rest omitted for brevity -->
+        <response/>
+      </method>
+    </method>
+    <!-- Rest omitted for brevity -->
+  </resource>
+  
+  <resource name="Orders"
+    <methods>
+      <method name="POST">
+        <!-- Rest omitted for brevity -->
+        <request/>
+        <response/>
+      </method>
+    </methods>
+  </resource>
+  
+  <resource name="Order">
+    <methods>
+      <method name="PUT">
+        <!-- Rest omitted for brevity -->
+        <request/>
+        <response/>
+      </method>
+      <!-- Rest omitted for brevity -->
+    </methods>
+    <!-- Rest omitted for brevity -->
+  </resource>
+  
+  <!-- Other resources -->
+</resources>]]></programlisting>
+        <para>
+          The <literal>&lt;response&gt;</literal> element in this example is empty. Leaving out a media type that the
+          response produces is a shorthand notation that avoids duplication. It means that the default media type is
+          consumed (for a request) or produced (for a response). The default media type is the one with the
+          <literal>default</literal> attribute set to <literal>true</literal>. (If no media type sets this attribute,
+          then the first one listed is considered to be the default.)
+          So <literal>&lt;response/&gt;</literal> in the above example is equivalent to:
+        </para>
+        <programlisting><![CDATA[<response>
+  <representations>
+    <representation media-type="application/ld+json"/>
+  </representations>        
+</response>]]></programlisting>
       </listitem>
       <listitem>
        <para>
          Document the error conditions.
        </para>
+       <para>
+         Since <literal>&lt;error&gt;</literal> elements are optional and not connected to any other RADL element, the
+         RADL validation tool can't help out and you are on your own here.
+       </para>
+       <para>
+         The error conditions for RESTBucks are in <xref linkend="restbucks-errors"/>. Here's what that looks like in
+         RADL:
+       </para>
+       <programlisting><![CDATA[<errors>
+  <error name="http://errors.restbucks.com/missing-item">
+    <documentation>
+      The order you provided doesn't contain any menu item.
+    </documentation>
+  </error>
+
+  <error name="http://errors.restbucks.com/unknown-item">
+    <documentation>
+      The menu item you requested is unknown to the server.
+    </documentation>
+  </error>
+
+  <error name="http://errors.restbucks.com/invalid-item">
+    <documentation>
+      The attributes you provided are invalid for the requested menu item.
+    </documentation>
+  </error>
+  
+  <error name="http://errors.restbucks.com/item-out-of-stock">
+    <documentation>
+      The menu item you requested is temporarily out of stock.
+    </documentation>
+  </error>
+  
+  <error name="http://errors.restbucks.com/missing-customer">
+    <documentation>
+      The order you provided doesn't contain a customer name.
+    </documentation>
+  </error>
+  
+  <error name="http://errors.restbucks.com/invalid-payment">
+    <documentation>
+      The payment details you provided contain invalid values.
+    </documentation>
+  </error>
+  
+  <error name="http://errors.restbucks.com/overpaid">
+    <documentation>
+      The amount of money you paid is more than what the order costs.
+    </documentation>
+  </error>
+  
+  <error name="http://errors.restbucks.com/payment-not-processed">
+    <documentation>
+      The payment you provided could not be processed.
+    </documentation>
+  </error>
+  
+  <error name="http://errors.restbucks.com/not-found">
+    <documentation>
+      The URI you requested doesn't exists or is not accessible by you.
+    </documentation>
+  </error>
+  
+  <error name="http://errors.restbucks.com/method-not-allowed">
+    <documentation>
+      The method you used is not supported on this URI.
+    </documentation>
+  </error>
+  
+  <error name="http://errors.restbucks.com/not-acceptible">
+    <documentation>
+      The media type you requested in the <literal>Accept</literal> header
+      is not supported for this method on this URI.
+    </documentation>
+  </error>
+  
+  <error name="http://errors.restbucks.com/server-error">
+    <documentation>
+      
+      Something went wrong on our side. We have logged the problem so our
+      staff can look into it. We're sorry for the inconvenience.
+    
+    </documentation>
+  </error>
+  
+  <error name="http://errors.restbucks.com/service-unavailable">
+    <documentation>
+      The server is temporarily not able to handle the request.
+    </documentation>
+  </error>
+</errors>]]></programlisting>
       </listitem>
       <listitem>
        <para>
          Validate the design.
        </para>
        <para>
-         There is no markup for validating the design, but the tooling around RADL can validate the API
-         description up to a certain point. It will catch things like transitions that are not 
-         implemented using a method, or unreachable states. We can envision more elaborate validation, 
-         like comparison with the design patterns listed in <xref linkend="patterns"/>, but this task 
-         will fundamentally remain one for humans to complete.
+         We've seen how the RADL validation tool helps (up to a certain point) with validating the design.
+         We can envision more elaborate validation, like comparison with the design patterns listed in
+         <xref linkend="patterns"/>, but we also believe that the task of design validation will fundamentally remain
+         one for humans to complete.
        </para>
       </listitem>
     </orderedlist>
-  </section>
-
-  <section id="tools">
-    <title>RADL Tooling</title>
     <para>
-      One thing that all API description languages are used for, is to generate documentation for developers of client
-      applications. The output is usually HTML, but sometimes other formats are supported as well. API description
-      formats based on Markdown can use existing tools to generate PDF, for instance. 
-    </para>
-    <para>
-      Since RADL is based on XML, we can use the rich suite of XML tools to process it. For generating HTML
-      documentation, an XSLT stylesheet is provided. It wouldn't be hard to use XSL:FO to produce PDF output as well.
-      The HTML documentation for RESTBucks is shown in <xref linkend="restbucks-api-doc"/>.  
+      The complete RADL description for RESTBucks can be found in the examples section of the RADL website
+      <citation>RADL</citation>.
+      Here's an impression of what the HTML documentation generated from that API description would look like:
     </para>
     <figure id="restbucks-api-doc">
       <mediaobject>
@@ -366,20 +977,18 @@
       </mediaobject>
       <title>HTML documentation generated from RADL describing the RESTBucks API.</title>
     </figure>
-    <para>
-      While documentation is essential for any API, there are many more things one can use RADL for. At the time of
-      writing, there is a modest collection of tools around RADL that make working with it easy and efficient.
-    </para>
-    <para>
-      This book assumes a greenfield project, where you have the luxury of designing your API before you start coding
-      it. Your situation may very well be different. Many existing products are in the process of adding APIs on top
-      of existing code. RADL tries very hard to be useful in both API-first and code-first approaches to API design.
-    </para>
-    <para>
-    </para>
   </section>
-  
+
   <section>
     <title>Summary</title>
+    <para>
+      This chapter introduced the concept of an API description language, a machine-processable representation of an
+      API around which tooling can be built. We also saw what what an API description in RADL looks like. We'll see
+      more of RADL later on in the book.
+    </para>
+    <para>
+      This chapter concludes our advice about API design. In the next part of the book, we will turn our focus to the
+      API's implementation.
+    </para>
   </section>
 </chapter>
