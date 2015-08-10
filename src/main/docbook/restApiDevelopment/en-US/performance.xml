@@ -173,7 +173,8 @@
     </para>
     <para>
       If you start with the functionality rather than the data, as we discussed in <xref linkend="state-diagrams"/>, 
-      you're much less likely to walk into the domain-objects-as-messages trap.
+      you're much less likely to walk into the domain-objects-as-messages trap. (We'll revisit this topic in
+      <xref linkend="architecture"/>.)
     </para>
     <para>
       So how do you make your messages more coarse-grained? 

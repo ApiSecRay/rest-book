@@ -1,8 +1,57 @@
 <chapter id="implementation">
   <title>Implementation</title>
+  <para>
+    TODO: This chapter...
+  </para>
   
-  <section>
-    <title>Model-View-Controller (MVC)</title>
+  <section id="architecture">
+    <title>Architecture</title>
+    <para>
+      The last couple of decades saw the rise of architectures that separate different concerns into different
+      components. These architectures go by names like Model-View-Controller, hexagonal architecture, clean
+      architecture, ports and adapters, etc. What they all share is an emphasis on keeping the code that captures the
+      domain separate from other code. The domain code is the core of any application, and not likely to change for
+      technology reasons. Other parts of the application, deal with things like data persistence and user interfaces
+      that are more likely to be affected by technology hype cycles.
+    </para>
+    <para>
+      It's important to understand that the REST architectural style doesn't concern itself with the domain.  
+      Remember from <xref linkend="granularity"/> that the HTTP messages that client and server exchange in a RESTful 
+      system are data transfer objects (DTOs). DTOs transfer data in a technology neutral way between layers or
+      components of the system. In this case, they isolate other code from the media type that was used to serialize
+      the messages.
+    </para>
+    <para>
+      DTOs are optimized for data transfer. We saw how performance and scalability concerns may force us to structure
+      our messages a certain way. That doesn't mean that the domain has changed, it's simply a design trade-off. It
+      then follows that we need to map the DTOs onto domain objects. This mapping can be 1:1, and that's the best way
+      to start. But when the need arises to change the message structure for performance or other reasons, resist the
+      temptation to modify your domain objects. Instead you should have a mapping layer in place that handles the
+      translation.
+    </para>
+    <para>
+      Some frameworks are very easy to work with when the mapping is 1:1, but they get in the way when the mapping 
+      becomes more complicated. Again, resist the temptation to go with the tool and change your domain objects.
+      Code that matches the domain objects is too valuable to give up. It keeps developers and users on the same page
+      and prevents subtle bugs based on misunderstandings <citation>Evans04</citation>.
+    </para>
+    <para>
+      Other frameworks actually help with separating domain code from UI code like REST message DTOs. Those based on
+      the <firstterm>Model-View-Controller</firstterm> (MVC) architecture, for instance, clearly distinguish between
+      the domain (model), DTO (view), and mapping between them (controller). But even with MVC frameworks there is a
+      temptation to put domain logic into controllers. Extracting that out may seem like more work, but that's only
+      true in the short term. You can help yourself resist temptation by practicing Domain-Driven Design
+      <citation>Evans04</citation>, where you start out with the domain logic and then add other concerns, like
+      persistence and a REST API, around it.
+    </para>
+    <para>
+      One example of a Java MVC framework for REST APIs is <citation>Spring WebMVC</citation>. It lets you build REST 
+      controllers easily by adding annotations. You can then use Spring's dependency injection to autowire the
+      controllers to domain services. Spring WebMVC comes with predefined translations from HTTP messages to Java
+      objects (DTOs). The Spring community also supports link relations via the <citation>Spring HATEOAOS</citation>
+      project. There is even a contribution for assigning semantics <citation>Spring Hydra</citation> to DTOs and their
+      fields.
+    </para>
   </section>
 
   <section id="dry">
@@ -11,10 +60,8 @@
       TODO: Define URL structure, media type, namespace, error handling, etc. in a single place.
     </para>
     <para>
-      Remember from <xref linkend="granularity"/> that the HTTP messages that client and server exchange in a RESTful 
-      system are data transfer objects (DTOs).
       You should have exactly one place in your code where you convert your internal DTO to a message that is sent over 
-      the wire.
+      the wire and one place where you do the reverse.
       In JAX-RS, for example, that one place should be an Entity Provider. In Spring, the same mechanism is called a 
       Message Converter. Note that both frameworks have support for several often-used serialization formats.
     </para>
@@ -136,5 +183,8 @@
 
   <section>
     <title>Summary</title>
+    <para>
+      TODO:
+    </para>
   </section>
 </chapter>
