@@ -515,8 +515,9 @@
     <para>
       Combining several types of authentication factors makes the authentication process more secure. We speak of
       <firstterm>two-factor authentication</firstterm> if two different factors are used. In practice this is usually 
-      something that you know and something that you have. You'll sometimes also see this referred to as
-      <firstterm>multi-factor authentication</firstterm> or <firstterm>two-step authentication</firstterm>.
+      something that you know (e.g. a password) and something that you have (e.g. a mobile phone). You'll also see
+      this referred to as <firstterm>two-step authentication</firstterm> or more generally as <firstterm>multi-factor
+      authentication</firstterm>.
     </para>
     <para>
       Authentication usually relies on some form of cryptography. Machines can be authenticated using public key 
@@ -530,11 +531,12 @@
       </footnote>
     </para>
     <para>
-      There are many different authentication methods. Let's look at some that are especially relevant for REST APIs.
+      There are many different authentication methods. We're going to take a detailed look at three broad classes of
+      authentication methods that are especially relevant to REST APIs.
     </para>
 
     <section>
-      <title>Basic &amp; Digest Authentication</title>
+      <title>Password-Based Authentication</title>
       <para>
         The simplest forms of authentication for REST APIs are probably Basic and Digest Authentication. Both are 
         so-called <firstterm>schemes</firstterm> of the HTTP Authentication framework defined by RFC 7235
@@ -550,16 +552,16 @@
       </figure>
       <para>
         The process starts when the client requests a protected resource. The server will not grant access until the
-        client is authenticated and indicates that with the <literal>401 Unauthorized</literal> status. (Note that this 
-        is a misnomer and should have been <literal>401 Unauthenticated</literal>).
+        client is authenticated and indicates that with the <literal>401 Unauthorized</literal> status. This is a bit of
+        a misnomer and would have been better called <literal>401 Unauthenticated</literal>.
       </para>
       <para>
-        (Note that the <literal>401</literal> response brings its own set of issues. If you're writing a web application,
+        Note that the <literal>401</literal> response brings its own set of issues. If you're writing a web application,
         the browser will hijack that response and try to do something with it. If you're using an authentication scheme
         that the browser understands, like Basic authentication, then there is no problem. But if you happen to pick 
         something that the browser doesn't understand, then the browser will do something undesirable like display a 
         blank page. For this reason, some REST APIs return a <literal>303</literal> or <literal>307</literal>
-        status code to redirect the client to a login page.)
+        status code to redirect the client to a login page, rather than the more appropriate <literal>401</literal>.
       </para>
       <para>
         Along with the <literal>401</literal> response, the server presents one or more 
@@ -599,7 +601,7 @@
       <para>
         <firstterm>Digest authentication</firstterm> is more secure than Basic, but also more complex. The 
         <literal>WWW-Authenticate</literal> header contains several parameters used for cryptographic operations that 
-        enhance security over Basic.
+        enhance security over Basic authentication.
       </para>
       <para>
         The <literal>nonce</literal> parameter contains a unique value that the server generated and that the client
@@ -634,13 +636,13 @@
       </para>
       <para>
         Another downside of both Basic and Digest authentication is that they rely on passwords, which means that the 
-        server must store them securely. This is not an easy task, as many breaches have shown. Let's look at an 
-        authentication scheme that doesn't suffer from this problem and also doesn't require keeping state.
+        server must store them securely. This is not an easy task, as many breaches have demonstrated. Fortunately,
+        there is a better way.
       </para>
     </section>
 
     <section id="http-signatures">
-      <title>Signing HTTP Messages</title>
+      <title>Signature-Based Authentication</title>
       <para>
         As we saw in <xref linkend="cryptography"/>, signing a message proves both the origin and the integrity of the
         message. Since proof of origin is just a different way of saying proof of identity of the sender of the message,
@@ -653,7 +655,7 @@
       </para>
       <para>
         The draft defines a new HTTP Authentication scheme called <literal>Signature</literal> that supports multiple 
-        parameters. The <literal>keyId</literal> parameter is required. It indicates the sender, someone or sombody 
+        parameters. The <literal>keyId</literal> parameter is required. It indicates the sender, someone or somebody 
         that is associated with a key that the server has stored. The <literal>keyId</literal> is used to look up that 
         key.
       </para>
@@ -703,10 +705,22 @@
         message itself. So even if your TLS connection is compromised, you can still be confident that the message 
         wasn't tampered with. Of course, signing doesn't protect against information disclosure.
       </para>
+      <para>
+        The major benefits of signature-based authentication is that is doesn't require passwords and that it is
+        stateless. In place of the password you have cryptographic keys to protect, but at least people don't reuse them
+        and you can't pick insecure ones.
+      </para>
+      <para>
+        Signature-based authentication suffers from one problem that password-based authentication doesn't, however: it
+        is less granular. One normally doesn't issue a new key and key ID for each user, so that means that
+        signature-based authentication is more suited to machine-machine interaction where the client operates with the
+        same permissions irrespective of the user it operates on behalf of. Unfortunately, there are many situations
+        where that is not acceptable.
+      </para>
     </section>
 
-    <section>
-      <title>Tokens</title>
+    <section id="oauth">
+      <title>Token-Based Authentication</title>
       <para>
         In traditional web applications, the user logs on once, after which a <firstterm>session</firstterm> is 
         established. The session is identified by some session identifier that is usually stored in a cookie and/or
@@ -717,66 +731,21 @@
         store. An alternative that is much better suited for stateless servers is to use tokens.
       </para>
       <para>
-        A <firstterm>token</firstterm> (or ticket) is a number that a server generates for a client so that the client
-        can deliver it back to itself, or to a different server as a means of authentication. A token cannot easily be 
-        forged because it is encrypted. The main difference with a session identifier is that a token can store 
-        additional information, so that the server doesn't have to. Since the token is sent back and forth between
-        client, you shouldn't store too much information in it.
+        A <firstterm>token</firstterm>, (also known as <firstterm>ticket</firstterm>) is a number that a server
+        generates for a client so that the client can deliver it back to the server as a means of
+        authentication. A token cannot easily be forged because it is encrypted. The main difference with a session
+        identifier is that a token can store additional information, so that the server doesn't have to. Since the token
+        is sent back and forth between client, you shouldn't store too much information in it.
       </para>
       <para>
-        A token can take any form that is suitable for the server, since it's opaque to the client. One form is a
-        <firstterm>JSON Web Token</firstterm> <citation>JWT</citation>. The client can put the token in the  
-        <literal>Authorization</literal> header to gain access to protected resources.
+        The server generates a token after the client or user has authenticated itself. This separation allows the
+        authentication itself to happen outside the server, as long as the server trusts the system that performs the
+        authentication. This means we can place the authenticating system near the user, typically in the user's
+        company's network, and prevent the user's credentials from traveling over the public Internet.
       </para>
       <para>
-        Unfortunately, there currently is no standard for a header in which the server can deliver the token to the
-        client. The old HTTP Authentication specification, RFC 2617, defined the <literal>Authentication-Info</literal> 
-        header for "the server to communicate some information regarding the successful authentication in the response", 
-        and there is another draft in the works that reintroduces that same header. Some other protocols seem to be 
-        using it as well, so this is perhaps your best bet.
-      </para>
-      <para>
-        Just as websites make you log in again after a certain period of time, it's also wise to limit the lifetime of
-        a token to reduce the impact of a compromised token. 
-        You can easily do that by including information about when the token expires inside the token. 
-        For maximum security, you would want to make this period as small as possible, but for human clients it's
-        annoying if they have to log in every, say, 15 minutes.
-        One solution to this problem is to refresh the token with each call.
-      </para>
-      <para>
-        Another solution is to issue an additional 
-        <firstterm>refresh token</firstterm> that can be exchanged for a new token. The token used to access the
-        protected resource is referred to as the <firstterm>access token</firstterm> to distinguish it from the
-        refresh token. The refresh token suffers the same security risk as the access token, so this arrangement only
-        makes sense if you can protect the refresh token better than the access token. We'll see one situation where
-        this is the case in <xref linkend="oauth"/>.
-      </para>
-      <para>
-        If you want to be very secure, you would want to allow the client to tell the server that it will not use the
-        token anymore. This is the equivalent of a human user logging out of a web site. This is a bit problematic
-        when using a token-based system, since any token issued gains anyone access. To implement "log out" 
-        functionality, the server would have to maintain a blacklist of invalid tokens. This brings back some of the 
-        state that we we're trying to avoid. Whether that is worth the added security really depends on your specific 
-        situation.
-      </para>
-      <para>
-        A token is issued by the server <emphasis>after</emphasis> the actual authentication has occurred. This
-        de-couples the authentication sequence from the remainder of the communication, unlike with Basic, Digest, or
-        Signing HTTP Messages authentication. That can come in handy if you need to support multiple authentication
-        mechanisms. Perhaps you're using Signing HTTP Message for M2M authentication, and something else for humans.
-        After either has occurred, you can continue with a token to harmonize the two. 
-      </para>
-      <para>
-        Another possibility that the token approach introduces, is to move the authentication sequence completely away 
-        from the server. Let's look at one method of doing that.
-      </para>
-    </section>
-
-    <section id="oauth">
-      <title>OAuth2 and related protocols</title>
-      <para>
-        OAuth2 is a framework for authentication and authorization protocols <citation>OAuth2</citation>. It's a
-        <emphasis>framework</emphasis> rather than a single protocol and several protocols have been built on top
+        OAuth2 is a framework for authentication and authorization protocols built on that idea <citation>OAuth2</citation>.
+        It's a <emphasis>framework</emphasis> rather than a single protocol and several protocols have been built on top
         of it.
       </para>
       <para>
@@ -854,12 +823,12 @@
         credentials. This means the Client doesn't have to store those credentials, which is quite tricky to get right.
         It also means that the Resource Owner doesn't have to trust a lot of Clients with their credentials, but a 
         (hopefully much) smaller number of Authorization Servers. Some people refer to this phenomenon as 
-        <firstterm>social login</firstterm>. One example is a website that allows logging in using Facebook's
-        Authorization Server.
+        <firstterm>social login</firstterm>, for example a website that allows logging in using Google's or GitHUb's
+        Authorization Servers.
       </para>
       <para>
         Another advantage is that the Authorization Server asks the Resource Owner whether it should grant the Client
-        permission to access the protected resources. The Client can asks for different sets of coarse-grained
+        permission to access the protected resources. The Client can ask for different sets of coarse-grained
         permissions using so-called <firstterm>scopes</firstterm>. A user may grant write access to one Client, for
         example, but only read to another.
       </para>
@@ -879,6 +848,56 @@
         One of the protocols built on top of OAuth2 is OpenID Connect <citation>OpenID</citation>. This is a pure
         authentication protocol, without any authorization aspect. It adds so-called <firstterm>claims</firstterm> to
         the mix, which contain additional information about the authenticated user, like their email address.
+      </para>
+      <para>
+        A token can take any form that is suitable for the server, since it's opaque to the client. One form is a
+        <firstterm>JSON Web Token</firstterm> <citation>JWT</citation>. The client can put the token in the  
+        <literal>Authorization</literal> header to gain access to protected resources.
+      </para>
+      <para>
+        Unfortunately, there currently is no standard for a header in which the server can deliver the token to the
+        client. The old HTTP Authentication specification, RFC 2617, defined the <literal>Authentication-Info</literal> 
+        header for "the server to communicate some information regarding the successful authentication in the response", 
+        and there is another draft in the works that reintroduces that same header. Some other protocols seem to be 
+        using it as well, so this is perhaps your best bet.
+      </para>
+      <para>
+        Just as websites make you log in again after a certain period of time, it's also wise to limit the lifetime of
+        a token to reduce the impact of a compromised token. 
+        You can easily do that by including information about when the token expires inside the token. 
+        For maximum security, you would want to make this period as small as possible, but for human clients it's
+        annoying if they have to log in every, say, 15 minutes.
+        One solution to this problem is to refresh the token with each call.
+      </para>
+      <para>
+        Another solution is to issue an additional <firstterm>refresh token</firstterm> that can be exchanged for a new 
+        token. The token used to access the protected resource is referred to as the <firstterm>access token</firstterm>
+        to distinguish it from the refresh token. The refresh token suffers the same security risk as the access token, 
+        so this arrangement only makes sense if you can protect the refresh token better than the access token. 
+      </para>
+      <para>
+        If you want to be very secure, you would want to allow the client to tell the server that it will not use the
+        token anymore. This is the equivalent of a human user logging out of a web site. This is a bit problematic
+        when using a token-based system, since any token issued gains anyone access. There are at least two solutions to
+        this problem.
+      </para>
+      <para>
+        The first way to implement "log out" functionality is to have the server maintain a blacklist of invalid tokens.
+        This brings back some of the state that we we're trying to avoid. Whether that is worth the added security
+        really depends on your specific situation.
+      </para>
+      <para>
+        Another solution for logging out is to issue yet another token. Let's call this the session token, since it
+        indicates the user's session. The session token is stored in a cookie. When the user logs out, the session token
+        cookie is removed. Any client that doesn't see the session token will initiate the authentication sequence, even
+        if there is a valid access token. This approach depends on all the clients playing nice, so it really only works
+        when you control all the clients.
+      </para>
+      <para>
+        OAuth2 defines a number of different authentication flows. Some of these are more secure than others. Some are
+        more suitable for clients driven by humans, while others work nicely with autonomous clients. Because of it
+        versatility and wide-spread adoption, we think OAuth2 should be the default choice for APIs. Only pick something
+        else if you really know what you're doing and have good reasons.
       </para>
     </section>
   </section>
