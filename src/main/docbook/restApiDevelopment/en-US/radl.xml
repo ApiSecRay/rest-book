@@ -9,8 +9,9 @@
     </para>
     <para>
       One tool could produce human-readable documentation, usually in HTML or PDF form, that supports client developers.
-      Another tool could produce skeleton code for a server implementing the API, or a client or SDK consuming it.
-      Yet another tool could test whether a server implements the documented API correctly. Another one could fuzz requests
+      Another tool could produce skeleton code for a server implementing the API, a client consuming it, or an SDK 
+      for developing a client for it (see <xref linkend="sdk"/>). Yet another tool could test whether a server 
+      implements the documented API correctly. Another one could fuzz requests
       to test input validation (see <xref linkend="input-validation"/> and <xref linkend="test-security"/>).
       There are many possibilities.
     </para>

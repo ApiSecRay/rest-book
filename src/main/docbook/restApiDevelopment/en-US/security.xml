@@ -50,10 +50,8 @@
     is <firstterm>exploited</firstterm>, but vulnerabilities may exist even if they are not exploited (yet).
   </para>
   <para>
-    There are many different types of vulnerabilities. MITRE is a not-for-profit organization that operates research
-    and development centers sponsored by the US federal government. They maintain a list of vulnerability types known
-    as the <firstterm>Common Weakness Enumeration</firstterm> (CWE) system. Each vulnerability type gets an identifier
-    
+    There are many different types of vulnerabilities. The <firstterm>Common Weakness Enumeration</firstterm> (CWE) 
+    system is a list of vulnerabilities types with identifiers that you can refer to.
   </para>
   <para>
     Vulnerabilities exist for a variety of reasons, which fall broadly into two classes. We may have overlooked

@@ -599,6 +599,17 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Spring Hydra</abbrev>
+    <biblioid class="uri">https://github.com/dschulten/hydra-java</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Spring WebMVC</abbrev>
+    <!-- TODO: Check URI -->
+    <biblioid class="uri">http://projects.spring.io/spring-webmvc/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>SVG</abbrev>
     <biblioid class="uri">http://www.w3.org/TR/SVG11/</biblioid>
   </biblioentry>
