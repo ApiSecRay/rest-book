@@ -1144,17 +1144,216 @@
   <section>
     <title>Securing RESTBucks</title>
     <para>
-      We covered a lot of ground in this chapter. Let's put all this theory into practice by applying it to RESTBucks.
-      We'll start by building a threat model, following procedure "<xref linkend="tm"/>".
+      We covered a lot of ground in this chapter. Let's put all this theory into practice by applying it to RESTBucks,
+      following procedure "<xref linkend="tm"/>":
     </para>
-    <para>
-      The first step is to model our system. We've already done most of this work in <xref linkend="analysis"/>.
-      Our actors/personas/roles are the customer, the cashier, and the barista. The state diagrams
-      are in <xref linkend="sd-customer"/>, <xref linkend="sd-cashier"/>, and <xref linkend="sd-barista"/>.
-    </para>
-    <para>
-      TODO: identify threats &amp; mitigations
-    </para>
+    <orderedlist>
+      <listitem>
+        <para>Model the system.</para>
+        <para>
+          We've already done most of this work in <xref linkend="analysis"/>. Our actors/personas/roles are the
+          customer, the cashier, and the barista. Their respective state diagrams are in <xref linkend="sd-customer"/>,
+          <xref linkend="sd-cashier"/>, and <xref linkend="sd-barista"/>.
+        </para>
+      </listitem>
+      <listitem>
+        <para>Find threats.</para>
+        <para>
+          At this point we're just listing things that could go wrong, without thinking about the likelyhood
+          or what we can do to prevent it from happening. We'll let STRIDE guide us:
+        </para>
+        <variablelist>
+          <varlistentry>
+            <term>Spoofing</term>
+            <listitem>
+              <orderedlist numeration="arabic">
+                <listitem>
+                  <para>
+                    The server could be spoofed, with a malicious server taking payments in RESTBuck's name but not
+                    giving out drinks.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    The customer could be spoofed, so that one customer can pretend to be another and pick up their
+                    drinks.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    The customer's payment could be spoofed, so that the customer doesn't really give us money for
+                    their drinks.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    The drinks could be spoofed, so that the customer doesn't get what she paid for.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    The cashier could be spoofed, giving someone access to the money who shouldn't have this access.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    The barista could be spoofed, giving someone access to drinks who shouldn't have this access.
+                  </para>
+                </listitem>
+              </orderedlist>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Tampering</term>
+            <listitem>
+              <orderedlist numeration="arabic" continuation="continues">
+                <listitem>
+                  <para>
+                    An already paid for order or prepared serving could be modified to change the customer, so that the
+                    new customer can pick up the drinks.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    An already paid for order could be modified to include additional food or drinks.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    A partial payment could be modified to cover the entire amount.
+                  </para>
+                </listitem>
+              </orderedlist>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Repudiation</term>
+            <listitem>
+              <orderedlist numeration="arabic" continuation="continues">
+                <listitem>
+                  <para>
+                    A customer could deny having made a payment.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    A customer could deny having taken a serving.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    A cashier could deny having accepted a payment.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    A barista could withhold a serving and then claim to have delivered it to the customer.
+                  </para>
+                </listitem>
+              </orderedlist>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Information Disclosure</term>
+            <listitem>
+              <orderedlist numeration="arabic" continuation="continues">
+                <listitem>
+                  <para>
+                    A customer could see another customer's order.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    A customer could see another customer's payment.
+                  </para>
+                </listitem>
+              </orderedlist>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Denial of Service</term>
+            <listitem>
+              <orderedlist numeration="arabic" continuation="continues">
+                <listitem>
+                  <para>
+                    Customers may order faster than the cashier can handle them, which may result in some orders not
+                    being accepted.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    The cashier may add orders to the barista's queue faster than the barista can process them, which
+                    may result in some servings not being prepared.
+                  </para>
+                </listitem>
+              </orderedlist>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>Elevation of Privilege</term>
+            <listitem>
+              <orderedlist numeration="arabic" continuation="continues">
+                <listitem>
+                  <para>
+                    A customer may pick up another customer's serving.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    A customer may accept another customer's payment.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    A customer may place an order on the barista's queue.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    A customer may pop an order off the barista's queue.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    A cashier may pop an order off the barista's queue.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    A barista may accept a customer's payment.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    A barista may place an order on his queue.
+                  </para>
+                </listitem>
+              </orderedlist>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </listitem>
+      <listitem>
+        <para>Address threats</para>
+        <para>
+          We now need to decide what to do with the above threats. Remember that we eliminate, mitigate, transfer, or
+          accept the security risk that each threat poses, in order of preference.
+        </para>
+        <para>
+          We can eliminate threat 4, spoofing of servings, because we don't actually serve any coffee in our virtual
+          coffee shop. Threat 9, tampering with partial payments, is also out of scope for now, since we don't support
+          partial payments in the first version of RESTBucks. We'll keep this one in mind for the future. 
+        </para>
+        <para>
+          We could consider transferring the risk of threat 13, repudiation of serving, to the customer. We assume a
+          customer who doesn't get his serving will complain, and too many complaints for a given barista means that
+          we'll fire him. That should be enough of a deterrent to keep the barista in check.
+        </para>
+      </listitem>
+      <listitem>
+        <para>Validate</para>
+      </listitem>
+    </orderedlist>
   </section>
   
   <section>
