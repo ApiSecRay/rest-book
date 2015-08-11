@@ -117,7 +117,7 @@
           <citation>SDL</citation>.
         </para>
         <para>
-          The state diagrams we developed in <xref linkend="state-diagrams"/> are useful diagrams to build your
+          The state diagrams we developed in <xref linkend="state-diagrams"/> are also useful diagrams to build your
           threat model. Each state diagram is developed for one persona and it is important from a security perspective
           to know the various personas and what they should and shouldn't be able to do.
         </para>
@@ -185,7 +185,7 @@
           concrete and may or may not be applicable to your domain.
         </para>
         <para>
-          An attack library is a sort of checklist and it inheritts their pros and cons. On the one hand, the library 
+          An attack library is a sort of checklist and it inherits their pros and cons. On the one hand, the library 
           makes sure you won't forget to consider certain threats. On the other, it may give you a false sense of 
           security by suggesting that it's complete. It may or may not be for your situation.
         </para>
@@ -203,7 +203,7 @@
         <para>Address threats.</para>
         <para>
           In this step you treat the identified threats as risks, and you apply your risk management process to handle 
-          them. In general, there are foud different ways to handle risks:
+          them. In general, there are four different ways to handle risks:
         </para>
         <variablelist>
           <varlistentry>
@@ -244,8 +244,8 @@
               <para>
                 You simply accept the risk. Life isn't risk free and in many cases we can live with minor risks. Many
                 organizations accept the risk of insider threats, for instance, thinking that their employees wouldn't 
-                do bad things. The Snowden incident and the massive Sony breach of 2014 are examples that show that 
-                insider threats should be taken seriously in today's world.
+                do bad things. The Snowden incident and the massive Sony breach of 2014 are examples that show that such 
+                a view is naive in today's world.
               </para>
               <para>
                 You can use CVSS scores to unambiguously define what you consider a minor risk. The cut-off score will
@@ -381,9 +381,9 @@
     </para>
     <para>
       Encryption can be applied at different stages.
-      When encryption is applied to data that is stored, then we speak of encryption of <firstterm>data at 
-      rest</firstterm>. This is vital to protect your customer's data, but it is not specific to REST APIs and
-      therefore out of scope for this book.
+      When encryption is applied to data that is stored, we speak of encryption of <firstterm>data at rest</firstterm>
+      (DARE). This is vital to protect your customer's data, but it is not specific to REST APIs and therefore out of
+      scope for this book.
     </para>
     <para>
       When encryption is applied to data that is transmitted to another actor/process, then we speak of encryption of 
@@ -392,10 +392,9 @@
     </para>
     <para>
       TLS uses public key certificates for authentication, so that a client knows for sure that it is talking to the
-      right server. This is a mitigation against spoofing the server. It's unusal in REST APIs to also
-      authentication the client, as that would require the server to have the certificates for all the clients, which 
-      creates a tight coupling between them and is something we're trying to avoid by applying the REST architectural
-      style.
+      right server. This is a mitigation against spoofing the server. It's unusual in REST APIs to also authenticate the
+      client, since that would require the server to have the certificates for all the clients, creating exactly the
+      tight coupling between them that we're trying to avoid by applying the REST architectural style.
     </para>
     <para>
       The TLS protocol starts with a handshake, during which client and server negotiate the encryption algorithm and
@@ -421,8 +420,8 @@
       caching proxies. That leaves two places where we can still employ caching: at the beginning and end of the
       encrypted channel. The beginning is the REST client, while the server is the end. Since caches at a single client
       will often suffer from a low cache hit ratio, it is advisable to employ caching proxies at the server after
-      termination of the TLS connection. To this end, it is common to terminate the TLS connection at the load balancer
-      (see <xref linkend="load-balancing"/>) and use plain HTTP connections within the data center.
+      termination of the TLS connection. To this end, it is common practice to terminate the TLS connection at the load
+      balancer (see <xref linkend="load-balancing"/>) and use plain HTTP connections within the data center.
     </para>
     <para>
       This approach leaves us vulnerable to information disclosure and tampering within the data center. To mitigate 
@@ -508,7 +507,8 @@
       otherwise, many people pick weak passwords like <literal>password1</literal>, which is the most commonly
       used password at the time of writing (it replaced the previous favorite of <literal>password</literal>, so
       that's progress of some sort). Even when people pick strong passwords, they tend to reuse them across
-      services, which means that a breach of another service poses a threat to yours.
+      services, which means that the security of your service can be impacted by the (lack of) security of someone
+      else's service!
     </para>
     <para>
       Combining several types of authentication factors makes the authentication process more secure. We speak of
@@ -523,14 +523,14 @@
       but as a digest.
       <footnote>
         <para>
-          As a salted digest, to be precise. A salt is random data that is used as an additional input to a hash 
-          function, so that even equal passwords result in different digests.
+          As a salted digest, to be precise. A salt is random data that is used as an additional input to a hash
+          function, so that hashing the same password twice results in two different digests.
         </para>
       </footnote>
     </para>
     <para>
-      There are many different authentication methods. We're going to take a detailed look at three broad classes of
-      authentication methods that are especially relevant to REST APIs.
+      There are many different authentication methods. We're going to take a detailed look at three broad classes that
+      are especially relevant to REST APIs: password-based, signature-based, and token-based authentication.
     </para>
 
     <section>
@@ -550,16 +550,16 @@
       </figure>
       <para>
         The process starts when the client requests a protected resource. The server will not grant access until the
-        client is authenticated and indicates that with the <literal>401 Unauthorized</literal> status. This is a bit of
+        client is authenticated and thus returns the <literal>401 Unauthorized</literal> status. This is a bit of
         a misnomer and would have been better called <literal>401 Unauthenticated</literal>.
       </para>
       <para>
-        Note that the <literal>401</literal> response brings its own set of issues. If you're writing a web application,
-        the browser will hijack that response and try to do something with it. If you're using an authentication scheme
-        that the browser understands, like Basic authentication, then there is no problem. But if you happen to pick 
-        something that the browser doesn't understand, then the browser will do something undesirable like display a 
-        blank page. For this reason, some REST APIs return a <literal>303</literal> or <literal>307</literal>
-        status code to redirect the client to a login page, rather than the more appropriate <literal>401</literal>.
+        The <literal>401</literal> response has one downside: browsers will hijack it and try to do something with it.
+        If you're using an authentication scheme that the browser understands, like Basic authentication, then there is
+        no problem. But if you happen to pick something that the browser doesn't understand, then the browser will do
+        something undesirable like display a blank page. For this reason, some REST APIs return a <literal>303</literal>
+        or <literal>307</literal> status code to redirect the client to a login page, rather than the theoretically more
+        appropriate <literal>401</literal>.
       </para>
       <para>
         Along with the <literal>401</literal> response, the server presents one or more 
@@ -594,7 +594,7 @@
       </para>
       <para>
         We do not advise the use of Basic authentication for production systems because it isn't secure enough. But 
-        since all browsers support it, it can be useful for development environments.
+        since its so simple, and all browsers support it, it can be very useful during development.
       </para>
       <para>
         <firstterm>Digest authentication</firstterm> is more secure than Basic, but also more complex. The 
@@ -635,7 +635,7 @@
       <para>
         Another downside of both Basic and Digest authentication is that they rely on passwords, which means that the 
         server must store them securely. This is not an easy task, as many breaches have demonstrated. Fortunately,
-        there is a better way.
+        there are better ways.
       </para>
     </section>
 
@@ -647,7 +647,7 @@
         we can use digital signatures as a means of authentication.
       </para>
       <para>
-        This is what many API providers do. Examples are Amazon Web Services and EMC Atmos. The problem is that each of
+        This is what many API providers do, like Amazon Web Services and EMC Atmos. The problem is that each of
         those providers uses their own unique implementation of the same idea.   
         The Signing HTTP Messages draft specification standardizes this approach <citation>HTTP Signatures</citation>.
       </para>
@@ -694,9 +694,10 @@
       </para>
       <para>
         The encryption part of the signing process may be performed using either a symmetric key or the private key of
-        a public/private key pair. We advise to use asymmetric keys, so that in the event your database of keys gets
-        compromised, you haven't given away any information that attackers can use. The key you store is the public key 
-        rather than a secret key, after all.
+        a public/private key pair. We advise to use asymmetric keys, so that in the event the server's database of keys
+        gets compromised, you haven't given away any information that attackers can use. The key you store is the public
+        key rather than a secret key, after all. (Of course, you must still protect the private keys of the clients, but
+        those are not all stored in a single location.)
       </para>
       <para>
         A digital signature not only proves the identity of the sender of a message, but also the integrity of the
@@ -704,16 +705,16 @@
         wasn't tampered with. Of course, signing doesn't protect against information disclosure.
       </para>
       <para>
-        The major benefits of signature-based authentication is that is doesn't require passwords and that it is
-        stateless. In place of the password you have cryptographic keys to protect, but at least people don't reuse them
-        and you can't pick insecure ones.
+        The major benefits of signature-based authentication are that is doesn't require passwords and that it is
+        stateless. In place of the password you have cryptographic keys to protect, but at least people are much less
+        likely to reuse them and it's as easy to pick a strong key as it is to pick a weak one.
       </para>
       <para>
         Signature-based authentication suffers from one problem that password-based authentication doesn't, however: it
-        is less granular. One normally doesn't issue a new key and key ID for each user, so that means that
-        signature-based authentication is more suited to machine-machine interaction where the client operates with the
-        same permissions irrespective of the user it operates on behalf of. Unfortunately, there are many situations
-        where that is not acceptable.
+        is less granular. One normally doesn't issue a new key and key ID for each user that drives the client, so that
+        means that signature-based authentication is more suited to machine-machine interaction where the client
+        operates with the same permissions irrespective of the user it operates on behalf of. Unfortunately, there are
+        many situations where that is not acceptable.
       </para>
     </section>
 
@@ -729,11 +730,11 @@
         store. An alternative that is much better suited for stateless servers is to use tokens.
       </para>
       <para>
-        A <firstterm>token</firstterm>, (also known as <firstterm>ticket</firstterm>) is a number that a server
-        generates for a client so that the client can deliver it back to the server as a means of
-        authentication. A token cannot easily be forged because it is encrypted. The main difference with a session
-        identifier is that a token can store additional information, so that the server doesn't have to. Since the token
-        is sent back and forth between client, you shouldn't store too much information in it.
+        A <firstterm>token</firstterm>, (also known as <firstterm>ticket</firstterm>) is a piece of data that a server
+        generates for a client so that the client can deliver it back to the server as a means of authentication.
+        A token cannot easily be guessed or forged because it is cryptographically random. The main difference with a
+        session identifier is that a token can store additional information, so that the server doesn't have to. Since 
+        the token is sent back and forth between client, you shouldn't store too much information in it.
       </para>
       <para>
         The server generates a token after the client or user has authenticated itself. This separation allows the
@@ -777,8 +778,8 @@
               authorization.
             </para>
             <para>
-              Note that this use of the term "client" is different from that in client/server; an OAuth
-              Client could be a server.
+              Note that it depends on perspective what is a client and what a server: an OAuth Client is often a 
+              server from the perspective of the User Agent.
             </para>
           </listitem>
         </varlistentry>
@@ -821,7 +822,7 @@
         credentials. This means the Client doesn't have to store those credentials, which is quite tricky to get right.
         It also means that the Resource Owner doesn't have to trust a lot of Clients with their credentials, but a 
         (hopefully much) smaller number of Authorization Servers. Some people refer to this phenomenon as 
-        <firstterm>social login</firstterm>, for example a website that allows logging in using Google's or GitHUb's
+        <firstterm>social login</firstterm>, as with a website that allows logging in using Google's or GitHub's
         Authorization Servers.
       </para>
       <para>
@@ -849,35 +850,29 @@
       </para>
       <para>
         A token can take any form that is suitable for the server, since it's opaque to the client. One form is a
-        <firstterm>JSON Web Token</firstterm> <citation>JWT</citation>. The client can put the token in the  
+        <firstterm>JSON Web Token</firstterm> <citation>JWT</citation>. The client puts the token in the  
         <literal>Authorization</literal> header to gain access to protected resources.
       </para>
       <para>
-        Unfortunately, there currently is no standard for a header in which the server can deliver the token to the
-        client. The old HTTP Authentication specification, RFC 2617, defined the <literal>Authentication-Info</literal> 
-        header for "the server to communicate some information regarding the successful authentication in the response", 
-        and there is another draft in the works that reintroduces that same header. Some other protocols seem to be 
-        using it as well, so this is perhaps your best bet.
-      </para>
-      <para>
         Just as websites make you log in again after a certain period of time, it's also wise to limit the lifetime of
-        a token to reduce the impact of a compromised token. 
+        a token to reduce the impact of it being compromised (defense in depth). 
         You can easily do that by including information about when the token expires inside the token. 
         For maximum security, you would want to make this period as small as possible, but for human clients it's
         annoying if they have to log in every, say, 15 minutes.
-        One solution to this problem is to refresh the token with each call.
       </para>
       <para>
-        Another solution is to issue an additional <firstterm>refresh token</firstterm> that can be exchanged for a new 
-        token. The token used to access the protected resource is referred to as the <firstterm>access token</firstterm>
-        to distinguish it from the refresh token. The refresh token suffers the same security risk as the access token, 
-        so this arrangement only makes sense if you can protect the refresh token better than the access token. 
+        To solve this problem, an OAuth2 server issues an additional <firstterm>refresh token</firstterm> that can be
+        exchanged for a new token. The token used to access the protected resource is referred to as the
+        <firstterm>access token</firstterm> to distinguish it from the refresh token. The refresh token suffers the
+        same security risk as the access token, so this arrangement only makes sense if you can protect the refresh
+        token better than the access token. For instance, you may send the access token in a cookie to the User Agent,
+        but keep the refresh token at the Client as state.
       </para>
       <para>
         If you want to be very secure, you would want to allow the client to tell the server that it will not use the
         token anymore. This is the equivalent of a human user logging out of a web site. This is a bit problematic
-        when using a token-based system, since any token issued gains anyone access. There are at least two solutions to
-        this problem.
+        when using a token-based system, since any issued token gains anyone access. There are at least two solutions to
+        this problem, but neither is part of the OAuth2 standard.
       </para>
       <para>
         The first way to implement "log out" functionality is to have the server maintain a blacklist of invalid tokens.
@@ -895,7 +890,7 @@
         OAuth2 defines a number of different authentication flows. Some of these are more secure than others. Some are
         more suitable for clients driven by humans, while others work nicely with autonomous clients. Because of it
         versatility and wide-spread adoption, we think OAuth2 should be the default choice for APIs. Only pick something
-        else if you really know what you're doing and have good reasons.
+        else if you really know what you're doing and have good reasons for doing it.
       </para>
     </section>
   </section>
@@ -931,7 +926,7 @@
       RBAC often works quite well, but there are situations in which it breaks down. For example, in the healthcare 
       space there is the concept of a primary care physician (PCP). My PCP can see all of my medical data, so that they
       have a holistic view of my health. Other physicians that treat me may only see parts of my medical history. For
-      instance, a urologist probably wouldn't need to see any data on allergies.
+      instance, a urologist probably wouldn't need to know about mental health issues.
     </para>
     <para>
       The problem is that my PCP may not be the PCP for my neighbor, so PCP is not really a role.
@@ -954,10 +949,10 @@
       attribute ("break the glass") and have policies around that that include the obligation to log the access.
     </para>
     <para>
-      Other examples include the time of day in a policy that only allows access during business hours, the device 
-      used to access the service, or the strength of authentication (e.g. was two-factor authentication used). Maybe we
-      want to give only read access to a sensitive document when you're abroad, or no access at all if your IP address
-      indicates you're abroad, while your agenda shows you should be in the country.
+      Other examples of context include the time of day in a policy that only allows access during business hours, the
+      device used to access the service, or the strength of authentication (e.g. was two-factor authentication used).
+      Maybe we want to give only read access to a sensitive document when you're abroad, or no access at all if your IP
+      address indicates you're abroad, while your agenda shows you should be in the country.
     </para>
     <para>
       Whether you use ACLs, RBAC, or ABAC, you should always make sure to give people just enough permissions to
@@ -971,20 +966,20 @@
     </para>
     <para>
       Whatever your access control model, you should use the identity of the caller to determine how to respond to a
-      request. Note that this could either be the client program, or the user on behalf of which the client performs 
-      the request. Either way, you need a way to assign permissions to identities. In the following, we'll use the term
-      <emphasis>user</emphasis>.
+      request. Note that this identity could either be the client program, or the user on behalf of which the client
+      performs the request. Either way, you need a way to assign permissions to identities. In the following, we'll use 
+      the term <emphasis>user</emphasis>.
     </para>
     <para>
-      The server's first job is to see if the user may perform the request. Is the object identified by 
+      The server's first job is to see if the user is allowed to perform the request. Is the object identified by 
       the URI even visible? If not you should return <literal>404 Not Found</literal> rather than
-      <literal>403 Forbidden</literal>, or else the user will know that the object exists.
-    </para>
-    <para>
+      <literal>403 Forbidden</literal>, or else the user will know that the object exists. Consider URIs like
+      <literal>/layoffs/2015/remon.sinnema/</literal> to see why that could be an issue.
       Once you've determined that the object is visible, and the action permitted, then the server performs
-      the request as usual. The response message requires some attention, though.
+      the request as usual.
     </para>
     <para>
+      The response message requires some attention as well.
       Sometimes a response may consist of different parts that require different permissions. Be careful
       with the granularity of the authorization, so that you don't inadvertantly disclose information
       that you shouldn't.
@@ -1076,9 +1071,9 @@
     <para>
       Even with signed audit records we may still not be out of the woods. We must also protect audit records against
       malicious input that could change the meaning. For instance, if each audit record is stored as a single line in a
-      text file, then a message containing a newline may cause multiple audit records to be written. This attack is
-      known as <firstterm>log forging</firstterm>. The mitigating control against this vulnerability is to do proper
-      output encoding, as we'll discuss in <xref linkend="output-encoding"/>.
+      text file, then a message containing a newline may make it look like multiple audit records were written.
+      This attack is known as <firstterm>log forging</firstterm>. The mitigating control against this vulnerability is
+      to do proper output encoding, as we'll discuss in <xref linkend="output-encoding"/>.
     </para>
     <para>
       With a tamper-proof audit trail in place we can in theory detect malicious activity by insiders. To turn theory
@@ -1127,8 +1122,8 @@
       For public websites, there is often nothing better than using IP addresses. There are serious problems with this
       approach. First, IP addresses can be spoofed. Second, and more importantly, any serious DoS attack will be a
       <emphasis>distributed</emphasis> DoS attack, where the attacker employs an army of computers against your system,
-      often ones that are compromised with malware (a <firstterm>botnet</firstterm>). Each of the members of the
-      botnet has its own IP address.
+      often ones that are compromised with malware: a <firstterm>botnet</firstterm>. Each member machine of the botnet
+      has its own IP address.
     </para>
     <para>
       So while rate limiting can take some of the pressure off of your servers, it is very much a partial solution 
@@ -1142,7 +1137,7 @@
     <para>
       You don't have to pay for that protection all the time, however. You could simply run your own servers, and only
       switch to route traffic through a cloud security service when you detect an attack. Make sure you're
-      capable of automatically detecting an attack and acting when you do so.
+      capable of automatically detecting an attack and of automatically acting on the detection.
     </para> 
   </section>
 
@@ -1150,7 +1145,7 @@
     <title>Securing RESTBucks</title>
     <para>
       We covered a lot of ground in this chapter. Let's put all this theory into practice by applying it to RESTBucks.
-      We'll start by building a threat model, following procedure "<xref linkend="tm"/>.
+      We'll start by building a threat model, following procedure "<xref linkend="tm"/>".
     </para>
     <para>
       The first step is to model our system. We've already done most of this work in <xref linkend="analysis"/>.
