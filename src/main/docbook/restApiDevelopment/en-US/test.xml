@@ -1,22 +1,56 @@
 <chapter id="test">
   <title>Test</title>
+  <para>
+    Now that you've implemented your API, you'll want to make sure that it works as expected. The most efficient way
+    know today of doing that, is by testing. We define <firstterm>testing</firstterm> as checking against expectations.
+  </para>
+  <para>
+    In <xref linkend="non-functional-requirements"/>), we discussed the many qualities of software that matter in 
+    addition to functionality. For each of those important qualities, you will want to check that your API
+    implementation matches the expectations. So you'll have functional testing, performance testing, scalability
+    testing, security testing, etc.
+  </para>
+  <para>
+    TODO: classification of tests
+  </para>
+  <para>
+    Testing is a vast subject that can easily fill multiple books, so here we will focus only on those aspects of
+    testing that are specific to testing APIs.
+  </para>
   
   <section>
-    <title>Automated Regression Testing</title>
+    <title>Functional Testing</title>
     <para>
-      Also: Chaos Monkey
+      You will want to make sure your API implementation works as expected. You will also want to make sure that
+      no change you introduce later will break existing functionality. And you most likely will want to start small
+      and iterate quickly based on feedback from your API's users. To meet all those requirements, you need to
+      automate your tests.
+    </para>
+    <para>
+      We hope you already have unit tests in place to white-box test your implementation. We also hope you have a
+      Continuous Integration (CI) server in place, which runs the unit tests on every commit. The next step is to
+      create a suite of automated black-box tests against your API.
+    </para>
+    <para>
+      If you started your analysis using Behavior-Driven Development (BDD), as we suggested in <xref linkend="bdd"/>,
+      then you're already halfway there. All you need to do is write some glue code that translates the BDD scenarios
+      into HTTP calls against your server and that verifies the assertions in the <literal>Then</literal> parts of 
+      the scenarios.
+    </para>
+    <para>
     </para>
   </section>
 
-  <section>
-    <title>Generating Stubs From RADL</title>
-  </section>
-
   <section id="test-security">
-    <title>Security</title>
+    <title>Security Testing</title>
+    <para>test for each identified threat</para>
     <para>static and dynamic analysis, fuzzing</para>
   </section>
   
+  <section>
+    <title>RADL Test Tooling</title>
+  </section>
+
   <section>
     <title>Summary</title>
   </section>

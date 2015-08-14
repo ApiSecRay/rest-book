@@ -1336,24 +1336,282 @@
       <listitem>
         <para>Address threats</para>
         <para>
-          We now need to decide what to do with the above threats. Remember that we eliminate, mitigate, transfer, or
-          accept the security risk that each threat poses, in order of preference.
+          We now need to decide what to do with the above threats. Remember that we can either eliminate, mitigate, 
+          transfer, or accept the security risk that each threat poses, in order of preference. Let's go over the 
+          threats one by one.
+        </para>
+        <orderedlist numeration="arabic">
+          <listitem>
+            <para>
+              We'll use TLS, which means the server will be identified by a public key certificate and the client can
+              be reasonably sure the server isn't spoofed.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              We don't want to limit our customers to a handfull that we know, so TLS with mutual authentication isn't
+              a good idea to mitigate spoofing the customer. We could authenticate them with a password, but that means
+              they would have to sign up for our service and sign in every time they want to order something. While
+              that's a perfectly fine solution for many online shops, we don't like it for RESTBucks. We think
+              that's too much of a hassle for them and, more importantly, too much of a hassle for us to securely
+              maintain their passwords.
+            </para>
+            <para>
+              That leaves at least two options that make more sense: social login and a low-tech custom scheme. The
+              first would require our customers to sign in with a service like Facebook. There probably isn't
+              one that would be acceptible to all customers, so we would have to support a couple of them. Facebook,
+              Google, Twitter, and LinkedIn would probably suffice.
+            </para>
+            <para>
+              The other option is a custom scheme like issuing a cookie with a unique customer ID. Actually, it would
+              be more of a transaction ID, since a recurring customer would get a new one each time. We could easily
+              generate a cryptographically random number and place it in a cookie. The HTTP machinery
+              will automatically handle transferring it back and forth. The advantage of this solution is that it
+              doesn't require the customer to log in, so it has a lower barrier of entry. The disadvantage is that
+              we can't recognize a customer between orders.
+            </para>
+            <para>
+              Both options are valid. Social login is more secure and more future-proof: if at some point we wanted to
+              introduce a loyalty program, we'd have to be able to recognize customers between orders. But it's also
+              more work to implement and it creates a higher barrier of entry for customers. For this first version of
+              our service, we'll pick time to market and go for the customer ID solution.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              For this first version of our service, we're only going to accept payment by credit card. We'll use all
+              the security features of credit cards (number, expiration, and security code) and rely on an external
+              credit card processor to protect against spoofing the payment.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              We can transfer the risk of spoofing the serving to the customer. We assume a customer who doesn't get her
+              serving will complain, and too many complaints for a given barista means that we'll fire him. That should
+              be enough of a deterrent to keep the barista in check.
+            </para> 
+          </listitem>
+          <listitem>
+            <para>
+              There will only be a small number of known cashiers that we employ, so we have more options to prevent
+              spoofing than for customers. First, we can use TLS with mutual authentication to make sure the cashier
+              can only do their work from a client with a known public key certificate. That limits access to only
+              those people that operate from machines that we control, because we tie the certificate to an IP address.
+            </para>
+            <para>
+              That still means that anybody who walks into our office can act as a cashier. It also means we can't
+              distinguish between cashiers. These risks need mitigating as well. So we'll use OAuth2 and have cashiers
+              log in to our corporate Active Directory.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              We prevent spoofing of baristas in exactly the same way as for cashiers. Our Active Directory will
+              assign cashiers and baristas to different groups, and we'll release those groups as values for an OAuth2
+              scope called <literal>role</literal>. That will allow us to distinguish baristas from cashiers for
+              authorization purposes, without having to specify permissions for each individual.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              For orders that have been paid, we won't return a link to update the order. That will not stop malicious
+              clients who have cashed that link, however. To prevent tampering with the customer field of a paid order, 
+              we'll have to check the payment status before accepting a modification request. If the order is already
+              paid for, we'll return <literal>403 Forbidden</literal>. This is another error condition that we need
+              to add to <xref linkend="restbucks-errors"/>.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              We use the same mechanism as above to prevent tampering with the items in a paid for order.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Tampering with partial payments is out of scope for now, since we won't support partial payments in the 
+              first version of RESTBucks. We'll keep this one in mind for the future, though.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              To protect against repudiation of payment, we give the customer a receipt and store the information in 
+              that receipt in an audit record.              
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              To protect against repudiation of being served, we create an audit record when the customer takes her
+              serving. 
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              The receipt that we give to the customer proves that the cashier received her payment. 
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              The audit record for order delivery proves that a barista has delivered the serving to the customer.
+              The absence of such a record proves that the barista has <emphasis>not</emphasis> delivered the serving. 
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              We use the customer ID issued for an order to prevent disclosure of other customer's orders. Note that 
+              since we issue a new customer ID for every order, a customer can't see her previous orders.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              We use the customer ID to prevent disclosue of other customer's payments as well.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              We limit the number of orders that we accept based on how many orders are currently being processed, to
+              make sure the expected wait time falls within the tolerances we've set. That means that we'll return
+              <literal>503 Service Unavailable</literal> with a <literal>Retry-After</literal> header for orders that
+              we reject. This measure keeps the service as a whole running, at the expense of a denial of service for
+              the affected customers. We accept that residual risk. Customers are welcome to try again later.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              We also set a maximum on the number of orders in the barista's queue. If that maximum is met, we stop
+              accepting customers. This gives the baristas a chance to catch up.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              We protect against elevation of privilege for customers using the customer ID. This prevents them from
+              picking up another customer's serving.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Our system will only let cashiers accept payments. This requires the client to be authenticated using
+              our certificate. It also requires the presence of the OAuth2 <literal>role</literal> scope with value
+              <literal>cashier</literal>. Customers can't access our machines, and if they could, they wouldn't know
+              the credentials of our cashiers.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              The same measures also protect against a customer placing orders on the barista's queue.          
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              And the same measures also protect against a customer popping orders off the barista's queue.          
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              And against a cashier popping orders off the barista's queue.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              And against a barista accepting a customer's payment.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              And against a barista placing orders on his queue.
+            </para>
+          </listitem>
+        </orderedlist>
+        <para>
+          The security features are summarized in <xref linkend="security-features"/>.
         </para>
         <para>
-          We can eliminate threat 4, spoofing of servings, because we don't actually serve any coffee in our virtual
-          coffee shop. Threat 9, tampering with partial payments, is also out of scope for now, since we don't support
-          partial payments in the first version of RESTBucks. We'll keep this one in mind for the future. 
+          For defense in depth, we should take a look at threats against these security measures. (This is a game of
+          diminishing returns, so at some point we should simply be happy with what we have and declare ourselves done.)
         </para>
         <para>
-          We could consider transferring the risk of threat 13, repudiation of serving, to the customer. We assume a
-          customer who doesn't get his serving will complain, and too many complaints for a given barista means that
-          we'll fire him. That should be enough of a deterrent to keep the barista in check.
+          TLS is pretty well established; we just need to make sure we use a recent version and strong enough keys.
+          OAuth2 is also well established. We have to be careful with the implementation, but we should be safe with
+          something off the shelves, like Spring Security OAuth <citation></citation>.
+          Credit card verification is also a well understood business. We'll outsource that part, because we don't want
+          the hassle of PCI-DSS.
+        </para>
+        <para>
+          For the customer ID we have to make sure we pick something that can't be easily guessed. Any cryptographically
+          secure random number generator will do and there are established crypto libraries out there that we can use.
+          Since we're storing the customer ID in a cookie, we need to protect that cookie appropriately, with the
+          <literal>Secure</literal> and <literal>HttpOnly</literal> options.
+        </para>
+        <para>
+          We use audit records for non-repudiation. Some situations have to do with cashiers and baristas, and those
+          are our employees, with potential access to the systems that we store the audit trail onto. So we'd do well
+          to protect our audit trail against these insider threats. For now, we think it suffices to put those systems
+          in a separate network segment and install firewall rules that forbid access to them from machines that
+          cashiers and baristas can access.
         </para>
       </listitem>
       <listitem>
         <para>Validate</para>
+        <para>
+          We have at least one threat per STRIDE threat category, so that's at least a good start. We also compared our
+          threat model with Microsoft's Retail Threat Model <citation>Msft14</citation>.
+        </para>
       </listitem>
     </orderedlist>
+    <table id="security-features">
+      <title>RESTBucks Security Features</title>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Feature</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cryptography</td>
+          <td>TLS</td>
+        </tr>
+        <tr>
+          <td>Authentication</td>
+          <td>TLS with mutual authentication for cashiers and baristas</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>OAuth2 for cashiers and baristas</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>Random customer ID</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>Credit card verification</td>
+        </tr>
+        <tr>
+          <td>Authorization</td>
+          <td>Customer ID</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>Order status</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><literal>role</literal> OAuth2 scope</td>
+        </tr>
+        <tr>
+          <td>Auditing</td>
+          <td>Receipt</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>Delivery</td>
+        </tr>
+        <tr>
+          <td>Denial of Service</td>
+          <td>Queue size limitation</td>
+        </tr>
+      </tbody>
+    </table>
   </section>
   
   <section>

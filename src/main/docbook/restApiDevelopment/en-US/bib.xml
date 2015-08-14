@@ -472,6 +472,12 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Msft14</abbrev>
+    <biblioid class="uri">http://enterprise.blob.core.windows.net/whitepapers/Retail-Threat-Modeling.pdf</biblioid>
+    <citetitle>A Systematic Method to Understand Security Risks in a Retail Environment</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>RichAmun13</abbrev>
     <citetitle>RESTful Web APIs</citetitle>
     <authorgroup>
@@ -604,9 +610,14 @@
   </biblioentry>
   
   <biblioentry>
-    <abbrev>Spring WebMVC</abbrev>
-    <!-- TODO: Check URI -->
-    <biblioid class="uri">http://projects.spring.io/spring-webmvc/</biblioid>
+    <abbrev>Spring Security OAuth</abbrev>
+    <biblioid class="uri">http://projects.spring.io/spring-security-oauth/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Spring Web MVC</abbrev>
+    <biblioid class="uri">https://spring.io/guides/gs/serving-web-content/</biblioid>
+    <citetitle>Serving Web Content with Spring MVC</citetitle>
   </biblioentry>
   
   <biblioentry>
