@@ -743,9 +743,13 @@
         company's network, and prevent the user's credentials from traveling over the public Internet.
       </para>
       <para>
-        OAuth2 is a framework for authentication and authorization protocols built on that idea <citation>OAuth2</citation>.
-        It's a <emphasis>framework</emphasis> rather than a single protocol and several protocols have been built on top
-        of it.
+        OAuth2 is a framework for authorization protocols built on that idea <citation>OAuth2</citation>.
+        It's a <emphasis>framework</emphasis> rather than a single protocol and several protocols have been built on
+        top of it. Note that this is a framework for <emphasis>authorization</emphasis> rather than for
+        <emphasis>authentication</emphasis>; authentication itself is out of scope of OAuth2. However, since you can't
+        do authorization without authentication, using OAuth2 tokens will imply that the user was authenticated. The
+        OpenID Connect protocol builds on the OAuth2 framework to handle authentication explicitly, as we will see
+        shortly. 
       </para>
       <para>
         OAuth2 defines different types of flows that require different capabilities in the participants. Here are the
@@ -797,7 +801,8 @@
           <listitem>
             <para>
               The server issuing access tokens to the client after successfully authenticating the Resource Owner and 
-              obtaining authorization.
+              obtaining authorization. Note that the Authorization Server may leave the actual authentication to an
+              external <firstterm>Identity Provider</firstterm> (IdP).
             </para>
           </listitem>
         </varlistentry>
@@ -814,29 +819,28 @@
         <title>The OAuth2 Authorization Code Flow</title>
       </figure>
       <para>
-        This is a complicated authentication sequence, sometimes referred to as the OAuth2 dance, but that complexity
-        buys us a lot too.
+        This is a complicated flow, sometimes referred to as the OAuth2 dance, but that complexity buys us a lot too.
       </para>
       <para>
         The Resource Owner authenticates with the Authorization Server, so the Client never gets to see their
         credentials. This means the Client doesn't have to store those credentials, which is quite tricky to get right.
         It also means that the Resource Owner doesn't have to trust a lot of Clients with their credentials, but a 
         (hopefully much) smaller number of Authorization Servers. Some people refer to this phenomenon as 
-        <firstterm>social login</firstterm>, as with a website that allows logging in using Google's or GitHub's
+        <firstterm>social login</firstterm>. One example is a website that allows logging in using Google's or GitHub's
         Authorization Servers.
       </para>
       <para>
         Another advantage is that the Authorization Server asks the Resource Owner whether it should grant the Client
         permission to access the protected resources. The Client can ask for different sets of coarse-grained
         permissions using so-called <firstterm>scopes</firstterm>. A user may grant write access to one Client, for
-        example, but only read to another.
+        example, but only read to another. Or they may grant read access to their email address, but not to their phone
+        number.
       </para>
       <para>
         Note that in practice the Client will not work at all if the Resource Owner doesn't grant all requested
         scopes. That leaves the Resource Owner with two bad options to choose from: either don't make use of the
         services the Client provides, or grant all the requested permissions. This is often not much of a choice, but
-        at least it's <emphasis>some</emphasis> choice.
-        We see a similar pattern with mobile applications.
+        at least it's <emphasis>some</emphasis> choice. We see a similar pattern with mobile applications.
       </para>
       <para>
         OAuth2 defines different types of flows. For mobile apps, for instance, the whole redirect dance is very 
@@ -844,14 +848,9 @@
         this situation. 
       </para>
       <para>
-        One of the protocols built on top of OAuth2 is OpenID Connect <citation>OpenID</citation>. This is a pure
-        authentication protocol, without any authorization aspect. It adds so-called <firstterm>claims</firstterm> to
-        the mix, which contain additional information about the authenticated user, like their email address.
-      </para>
-      <para>
-        A token can take any form that is suitable for the server, since it's opaque to the client. One form is a
-        <firstterm>JSON Web Token</firstterm> <citation>JWT</citation>. The client puts the token in the  
-        <literal>Authorization</literal> header to gain access to protected resources.
+        The end result of all OAuth2 flows is an access token. The Client puts this access token in the
+        <literal>Authorization</literal> header to gain access to protected resources. Most implementations follow the
+        <firstterm>Bearer Token</firstterm> authentication scheme <citation>RFC 6750</citation>.
       </para>
       <para>
         Just as websites make you log in again after a certain period of time, it's also wise to limit the lifetime of
@@ -887,10 +886,31 @@
         when you control all the clients.
       </para>
       <para>
-        OAuth2 defines a number of different authentication flows. Some of these are more secure than others. Some are
-        more suitable for clients driven by humans, while others work nicely with autonomous clients. Because of it
-        versatility and wide-spread adoption, we think OAuth2 should be the default choice for APIs. Only pick something
-        else if you really know what you're doing and have good reasons for doing it.
+        One of the protocols built on top of OAuth2 is OpenID Connect <citation>OpenID</citation>. This protocol adds
+        authentication to the basic OAuth2 authorization flow through so-called <firstterm>claims</firstterm>, which 
+        contain additional information about the authenticated user, like their email address.
+      </para>
+      <para>
+        OpenID Connect can return claims in one of two ways. The Authorization Server can issue an additional token
+        called an <firstterm>ID token</firstterm> when it releases the access token. The ID token takes the form of a
+        <firstterm>JSON Web Token</firstterm>, which is a compact, URL-safe means of representing claims encoded in a
+        JSON object <citation>JWT</citation>.
+        Alternatively, the Client can use the access token with the Authorization Server's <literal>UserInfo</literal>
+        endpoint to retrieve the ID token.
+      </para>
+      <para>
+        The OpenID Connect specification standardizes a small number of claims, all of which are in the personal user 
+        information category. You can add custom claims as well, but not every OpenID compliant Authorization Server
+        is required to implement them, so you would be coupling yourself to a particular implementation. That's less of
+        a concern for authentication, since you already need to establish a trust relationship: you wouldn't trust just
+        anyone to authenticate your users, because that would defeat the whole point of authentication. 
+      </para>
+      <para>
+        As said, OAuth2 defines a number of different authentication flows. Some of these are more secure than others.
+        Some are more suitable for clients driven by humans, while others work nicely with autonomous clients.
+        Because of this versatility and its wide-spread adoption, we feel that OAuth2 should be the default choice for
+        APIs. If you need detailed information about the authenticated user, use OpenID Connect in additional to OAuth2.
+        Only pick something else if you really know what you're doing and have good reasons for doing it.
       </para>
     </section>
   </section>
@@ -1374,7 +1394,7 @@
               Both options are valid. Social login is more secure and more future-proof: if at some point we wanted to
               introduce a loyalty program, we'd have to be able to recognize customers between orders. But it's also
               more work to implement and it creates a higher barrier of entry for customers. For this first version of
-              our service, we'll pick time to market and go for the customer ID solution.
+              our service, we'll go for time to market and thus for the transaction ID solution.
             </para>
           </listitem>
           <listitem>
@@ -1386,9 +1406,9 @@
           </listitem>
           <listitem>
             <para>
-              We can transfer the risk of spoofing the serving to the customer. We assume a customer who doesn't get her
-              serving will complain, and too many complaints for a given barista means that we'll fire him. That should
-              be enough of a deterrent to keep the barista in check.
+              We can transfer the risk of spoofing the serving to the customer. We assume a customer who doesn't get the
+              right serving will complain, and too many complaints for a given barista means that we'll fire him. That 
+              should be enough of a deterrent to keep the barista in check.
             </para> 
           </listitem>
           <listitem>
@@ -1401,24 +1421,27 @@
             <para>
               That still means that anybody who walks into our office can act as a cashier. It also means we can't
               distinguish between cashiers. These risks need mitigating as well. So we'll use OAuth2 and have cashiers
-              log in to our corporate Active Directory.
+              log in to our corporate IdP.
             </para>
           </listitem>
           <listitem>
             <para>
-              We prevent spoofing of baristas in exactly the same way as for cashiers. Our Active Directory will
-              assign cashiers and baristas to different groups, and we'll release those groups as values for an OAuth2
-              scope called <literal>role</literal>. That will allow us to distinguish baristas from cashiers for
-              authorization purposes, without having to specify permissions for each individual.
+              We prevent spoofing of baristas in exactly the same way as for cashiers.
+            </para>
+            <para>
+              Additionally, our IdP will assign cashiers and baristas to different groups, and we'll release those
+              groups as values for a custom OpenID Connect claim called <literal>role</literal>. That will allow us to
+              distinguish baristas from cashiers for authorization purposes, without having to specify permissions for
+              each individual.
             </para>
           </listitem>
           <listitem>
             <para>
               For orders that have been paid, we won't return a link to update the order. That will not stop malicious
-              clients who have cashed that link, however. To prevent tampering with the customer field of a paid order, 
-              we'll have to check the payment status before accepting a modification request. If the order is already
-              paid for, we'll return <literal>403 Forbidden</literal>. This is another error condition that we need
-              to add to <xref linkend="restbucks-errors"/>.
+              clients who have cached that link (or guess it), however. To prevent tampering with the customer field of
+              a paid order, we'll have to check the payment status before accepting a modification request. If the
+              order is already paid for, we'll return <literal>403 Forbidden</literal>. This is another error condition
+              that we need to add to <xref linkend="restbucks-errors"/>.
             </para>
           </listitem>
           <listitem>
@@ -1457,13 +1480,13 @@
           </listitem>
           <listitem>
             <para>
-              We use the customer ID issued for an order to prevent disclosure of other customer's orders. Note that 
-              since we issue a new customer ID for every order, a customer can't see her previous orders.
+              We use the transaction ID issued for an order to prevent disclosure of other customer's orders. Note that 
+              since we issue a new transaction ID for every order, a customer can't see her previous orders.
             </para>
           </listitem>
           <listitem>
             <para>
-              We use the customer ID to prevent disclosue of other customer's payments as well.
+              We use the transaction ID to prevent disclosue of other customer's payments as well.
             </para>
           </listitem>
           <listitem>
@@ -1472,7 +1495,8 @@
               make sure the expected wait time falls within the tolerances we've set. That means that we'll return
               <literal>503 Service Unavailable</literal> with a <literal>Retry-After</literal> header for orders that
               we reject. This measure keeps the service as a whole running, at the expense of a denial of service for
-              the affected customers. We accept that residual risk. Customers are welcome to try again later.
+              the (hopefully few) affected customers. We accept that residual risk; customers are welcome to try again
+              later.
             </para>
           </listitem>
           <listitem>
@@ -1483,16 +1507,16 @@
           </listitem>
           <listitem>
             <para>
-              We protect against elevation of privilege for customers using the customer ID. This prevents them from
+              We protect against elevation of privilege for customers using the transaction ID. This prevents them from
               picking up another customer's serving.
             </para>
           </listitem>
           <listitem>
             <para>
               Our system will only let cashiers accept payments. This requires the client to be authenticated using
-              our certificate. It also requires the presence of the OAuth2 <literal>role</literal> scope with value
-              <literal>cashier</literal>. Customers can't access our machines, and if they could, they wouldn't know
-              the credentials of our cashiers.
+              our certificate. It also requires the presence of the OpenID Connect <literal>role</literal> claim with
+              value <literal>cashier</literal>. Customers can't access our machines, and if they could, they wouldn't
+              know the credentials of our cashiers.
             </para>
           </listitem>
           <listitem>
@@ -1530,15 +1554,16 @@
         </para>
         <para>
           TLS is pretty well established; we just need to make sure we use a recent version and strong enough keys.
-          OAuth2 is also well established. We have to be careful with the implementation, but we should be safe with
-          something off the shelves, like Spring Security OAuth <citation></citation>.
+          OAuth2 is also well established <citation>OAuth2 Security</citation>. We have to be careful with the
+          implementation, but we should be safe with something off the shelves, like <citation>Spring Security 
+          OAuth</citation>.
           Credit card verification is also a well understood business. We'll outsource that part, because we don't want
           the hassle of PCI-DSS.
         </para>
         <para>
-          For the customer ID we have to make sure we pick something that can't be easily guessed. Any cryptographically
+          For the transaction ID we have to make sure we pick something that can't be easily guessed. Any cryptographically
           secure random number generator will do and there are established crypto libraries out there that we can use.
-          Since we're storing the customer ID in a cookie, we need to protect that cookie appropriately, with the
+          Since we're storing the transaction ID in a cookie, we need to protect that cookie appropriately, with the
           <literal>Secure</literal> and <literal>HttpOnly</literal> options.
         </para>
         <para>
@@ -1552,8 +1577,9 @@
       <listitem>
         <para>Validate</para>
         <para>
-          We have at least one threat per STRIDE threat category, so that's at least a good start. We also compared our
-          threat model with Microsoft's Retail Threat Model <citation>Msft14</citation>.
+          We have at least one threat per STRIDE threat category, so that's a minimum guarantee. We also compared our
+          threat model with Microsoft's Retail Threat Model <citation>Msft14</citation> and consulted with a security
+          expert.
         </para>
       </listitem>
     </orderedlist>
@@ -1576,11 +1602,11 @@
         </tr>
         <tr>
           <td></td>
-          <td>OAuth2 for cashiers and baristas</td>
+          <td>OAuth2 &amp; OpenID Connect for cashiers and baristas</td>
         </tr>
         <tr>
           <td></td>
-          <td>Random customer ID</td>
+          <td>Transaction ID</td>
         </tr>
         <tr>
           <td></td>
@@ -1588,15 +1614,15 @@
         </tr>
         <tr>
           <td>Authorization</td>
-          <td>Customer ID</td>
+          <td>Transaction ID</td>
         </tr>
         <tr>
           <td></td>
-          <td>Order status</td>
+          <td>Order/payment status</td>
         </tr>
         <tr>
           <td></td>
-          <td><literal>role</literal> OAuth2 scope</td>
+          <td><literal>role</literal> custom OpenID Connect claim</td>
         </tr>
         <tr>
           <td>Auditing</td>
@@ -1617,7 +1643,14 @@
   <section>
     <title>Summary</title>
     <para>
-      TODO:
+      This chapter deals with an often-overlooked but increasingly important aspect of APIs: their security. An API is
+      the entry point to a system and we should lock it down as much as we do the doors and windows of our house. This
+      is especially important for APIs that unlock systems over the public Internet.
+    </para>
+    <para>
+      We've now seen how to design APIs that meet the functionality and most important non-functional requirements of
+      a system. Before we move our focus to implementing APIs, we want to take a look at some tools that can make the
+      life of an API designer easier.
     </para>
   </section>
 </chapter>

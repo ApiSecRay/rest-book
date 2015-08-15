@@ -324,7 +324,8 @@
   
   <biblioentry>
     <abbrev>JWT</abbrev>
-    <biblioid class="uri">http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html</biblioid>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc7519</biblioid>
+    <citetitle>JSON Web Token (JWT)</citetitle>
   </biblioentry>
   
   <bibliomixed>
@@ -397,6 +398,12 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>OAuth2 Security</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc6819</biblioid>
+    <citetitle>OAuth 2.0 Threat Model and Security Considerations</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>OCL</abbrev>
     <biblioid class="uri">http://www.omg.org/spec/OCL/2.4/PDF/</biblioid>
   </biblioentry>
@@ -442,12 +449,6 @@
   </biblioentry>
   
   <biblioentry>
-    <abbrev>RFC 6838</abbrev>
-    <biblioid class="uri">http://tools.ietf.org/html/rfc6838</biblioid>
-    <citetitle>Media Type Specifications and Registration Procedures</citetitle>
-  </biblioentry>
-  
-  <biblioentry>
     <abbrev>RFC 3986</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/rfc3986</biblioid>
     <citetitle>Uniform Resource Identifier (URI): Generic Syntax</citetitle>
@@ -461,8 +462,20 @@
   
   <biblioentry>
     <abbrev>RFC 6570</abbrev>
-    <biblioid class="uri">https://tools.ietf.org/html/rfc6570</biblioid>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc6570</biblioid>
     <citetitle>URI Templates</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>RFC 6750</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc6750</biblioid>
+    <citetitle>The OAuth 2.0 Authorization Framework: Bearer Token Usage</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>RFC 6838</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc6838</biblioid>
+    <citetitle>Media Type Specifications and Registration Procedures</citetitle>
   </biblioentry>
   
   <biblioentry>
