@@ -1,21 +1,103 @@
 <chapter id="test">
-  <title>Test</title>
+  <title>Testing</title>
   <para>
     Now that you've implemented your API, you'll want to make sure that it works as expected. The most efficient way
-    know today of doing that, is by testing. We define <firstterm>testing</firstterm> as checking against expectations.
+    known today of doing that (when done right) is by testing. We define <firstterm>testing</firstterm> as checking
+    against expectations.
   </para>
   <para>
-    In <xref linkend="non-functional-requirements"/>), we discussed the many qualities of software that matter in 
-    addition to functionality. For each of those important qualities, you will want to check that your API
-    implementation matches the expectations. So you'll have functional testing, performance testing, scalability
-    testing, security testing, etc.
+    There are many different ways to test. Don’t exclusively rely on only one type of test, but reduce your overall
+    risks by combining several types of tests. A classification of tests using the Ws may help with determining what
+    types of tests are useful for your situation: 
   </para>
+  <variablelist>
+    <varlistentry>
+      <term>Who</term>
+      <listitem>
+        <para>
+          The first question to ask is whose expectations we are checking. There are at least two answers to that
+          question: customers and developers, and so the Agile community talks about <firstterm>programmer 
+          tests</firstterm> and <firstterm>customer tests</firstterm>.
+        </para>
+        <para>
+          As every writer knows, the audience shapes the form his message must take. So we'll write programmer tests
+          in a programming language and customer tests in a form that is accessible for non-developers, like Gherkin
+          (see <xref linkend="bdd"/>).
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>What</term>
+      <listitem>
+        <para>
+          In <xref linkend="non-functional-requirements"/>), we discussed the many qualities of software that matter in 
+          addition to functionality. For each of those important qualities, you will want to check that your API
+          implementation matches the expectations. So you'll have functional testing, performance testing, scalability
+          testing, security testing, etc.
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>When</term>
+      <listitem>
+        <para>
+          Tests can be written after the code is finished to <emphasis>verify</emphasis> that it works, or 
+          they can be written first to <emphasis>specify</emphasis> how the code should work. 
+          Writing the test first may seem counter-intuitive or unnatural, but there are some advantages to this
+          approach: it guarantees that the code will be testable, it's more efficient to prevent bugs than to introduce
+          and then fix them, and tests can be used to drive the design and implementation.
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>Where</term>
+      <listitem>
+        <para>
+          Tests can be written at different levels of abstraction. Unit tests test a single unit (e.g. class) in
+          isolation. Integration tests focus on how the units work together. System tests look at the application as a
+          whole. As you move up the abstraction level from unit to system, you require fewer tests
+          <citation>Test Pyramid</citation>. You may want to go even further and test a collection of applications that
+          work together, for instance in a microservices architecture.
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>Why</term>
+      <listitem>
+        <para>
+          There can be different reasons for writing tests. All tests verify that the code works as expected, but we've
+          also seen that tests can serve as specifications of how yet-to-be-written code should work. In the latter
+          situation, the tests exists not only for verification, but also to facilitate communication about how the
+          application should behave, as we've seen.
+          Tests can also be written to drive the code and its design. This is called <firstterm>Test-Driven
+          Design</firstterm> (TDD).
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>How</term>
+      <listitem>
+        <para>
+          Tests can be performed by a human or by a computer program. Manual testing is most useful in the form of
+          <firstterm>exploratory testing</firstterm>, where a skilled tester uses his domain knowledge to explore all
+          corners of the system. Most other forms of testing should be automated as much as possible.
+        </para>
+        <para>
+          The amount of software you ship will usually grow over time as you add features, and your testing effort will
+          do so as well. If you don’t automate your tests, you testing effort will grow until it starts getting in the
+          way of making progress. Automation can keep the costs of testing down.
+        </para>
+        <para>
+          Another aspect of <emphasis>how</emphasis> is whether the tests look into the system under test or whether
+          they only use the public API. The former is called <firstterm>white-box</firstterm> testing; the latter is
+          <firstterm>black-box</firstterm> testing.
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
   <para>
-    TODO: classification of tests
-  </para>
-  <para>
-    Testing is a vast subject that can easily fill multiple books, so here we will focus only on those aspects of
-    testing that are specific to testing APIs.
+    As even this short treatment shows, testing is a vast topic. We can only scratch the surface in this book, so we
+    will focus only on those aspects of testing that are specific to testing APIs.
   </para>
   
   <section>
@@ -23,8 +105,8 @@
     <para>
       You will want to make sure your API implementation works as expected. You will also want to make sure that
       no change you introduce later will break existing functionality. And you most likely will want to start small
-      and iterate quickly based on feedback from your API's users. To meet all those requirements, you need to
-      automate your tests.
+      and grow your system over time. Maybe you even want to iterate quickly based on feedback from your API's users.
+      To meet all those requirements, you need to automate your tests.
     </para>
     <para>
       We hope you already have unit tests in place to white-box test your implementation. We also hope you have a
@@ -32,12 +114,50 @@
       create a suite of automated black-box tests against your API.
     </para>
     <para>
-      If you started your analysis using Behavior-Driven Development (BDD), as we suggested in <xref linkend="bdd"/>,
+      While you certainly <emphasis>can</emphasis> write white-box tests at the API level, we suggest you write
+      black-box tests instead (or in addition to). The ultimate test of your system is that your clients can use the
+      API, and they won't be able see your system's internals. If your API isn't sufficient to make black-box testing
+      possible, chances are that it isn't complete enough for some clients to do their work.
+    </para>
+    <para>
+      If you started your analysis using Behavior-Driven Development (BDD), as we suggested in <xref linkend="analysis"/>,
       then you're already halfway there. All you need to do is write some glue code that translates the BDD scenarios
-      into HTTP calls against your server and that verifies the assertions in the <literal>Then</literal> parts of 
+      into HTTP calls against your server and that verifies the assertions made in the <literal>Then</literal> parts of 
       the scenarios.
     </para>
     <para>
+      There are many BDD frameworks that can help you with this, depending on your programming environment. We can't
+      show them all here, so we'll stick with Java and JBehave framework <citation>JBehave</citation>. Other frameworks 
+      offer comparable features, so even if your not using JBehave, or even Java, the following should still give you a
+      good idea of how to proceed.
+    </para>
+    <para>
+      JBehave makes it relatively easy to translate Gherkin scenarios into Java calls. For each line of the scenario,
+      you must create a Java method that gets executed when the scenario parser processes it. Let's see how that works
+      using <xref linkend="bdd-customer-happy-path"/>.
+    </para>
+    <para>
+      The first line is <literal>Given a customer Chrissy</literal>. Remember that each line starts with a keyword,
+      in this case <literal>Given</literal>. JBehave has an annotation for each keyword, which helps the scenario
+      parser map the lines of the scenario onto code:
+    </para>
+    <programlisting>public class RestbuckSteps {
+    
+  @Given("a customer $name")
+  public void forCustomer(String name) {
+    // TODO: Implement
+  }
+  
+}</programlisting>
+    <para>
+      You can name the method anything you want; JBehave doesn't care. It uses the <literal>@Given</literal> annotation
+      and the text inside it to map the line of the scenario onto the method. It does so using regular expression
+      pattern matching, which allows for introducing variable parts that map onto method parameters, like
+      <literal>name</literal> in the example above.
+    </para>
+    <para>
+      Once you have defined all the methods to run the scenario, your next task is to use an HTTP library, like Apache 
+      HTTP Commons, in your Java code to make HTTP calls against your API.
     </para>
   </section>
 
