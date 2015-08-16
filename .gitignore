@@ -1,7 +1,11 @@
 .gradle
 .project
+.classpath
 build/
+classes/
+.settings/
 src/main/docbook/restApiDevelopment/en-US/images/*.png
 
 # Ignore Gradle GUI config
 gradle-app.setting
+/bin/

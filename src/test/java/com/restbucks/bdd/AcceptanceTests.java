@@ -1,0 +1,64 @@
+package com.restbucks.bdd;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.jbehave.core.configuration.Configuration;
+import org.jbehave.core.configuration.MostUsefulConfiguration;
+import org.jbehave.core.embedder.Embedder;
+import org.jbehave.core.failures.FailingUponPendingStep;
+import org.jbehave.core.failures.SilentlyAbsorbingFailure;
+import org.jbehave.core.io.LoadFromClasspath;
+import org.jbehave.core.io.StoryFinder;
+import org.jbehave.core.junit.JUnitStories;
+import org.jbehave.core.reporters.Format;
+import org.jbehave.core.reporters.StoryReporterBuilder;
+import org.jbehave.core.steps.InjectableStepsFactory;
+import org.jbehave.core.steps.InstanceStepsFactory;
+
+
+public class AcceptanceTests extends JUnitStories {
+
+  public AcceptanceTests() {
+    Embedder embedder = configuredEmbedder();
+    embedder.embedderControls()
+            .doGenerateViewAfterStories(true)
+            .doIgnoreFailureInStories(true)
+            .doIgnoreFailureInView(true)
+            .doVerboseFailures(true)
+            .doVerboseFiltering(true);
+  }
+  
+  @Override
+  protected List<String> storyPaths() {
+    List<String> result = new StoryFinder().findPaths("src/test/resources", "**/*.story", "");
+    System.out.println("Running stories in: " + result);
+    return result;
+  }
+
+  @Override
+  public Configuration configuration() {
+    return new MostUsefulConfiguration()
+        .useStoryReporterBuilder(newStoryBuilder())
+        .usePendingStepStrategy(new FailingUponPendingStep())
+        .useFailureStrategy(new SilentlyAbsorbingFailure())
+        .useStoryLoader(new LoadFromClasspath());
+  }
+
+  private StoryReporterBuilder newStoryBuilder() {
+    return new StoryReporterBuilder()
+            .withFailureTrace(true)
+            .withFailureTraceCompression(true)
+            .withFormats(Format.HTML);
+  }
+
+  @Override
+  public InjectableStepsFactory stepsFactory() {
+    return new InstanceStepsFactory(configuration(), getStepsObjects());
+  }
+
+  private List<Object> getStepsObjects() {
+    return Arrays.asList(new RestbuckSteps());
+  }
+
+}

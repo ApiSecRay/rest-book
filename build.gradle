@@ -19,7 +19,42 @@ buildscript {
   }
 }
 
-apply plugin: "jdocbook"
+apply plugin: 'java'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  testCompile 'junit:junit:4.12','org.jbehave:jbehave-core:4.0.3'
+}
+
+test {
+  doFirst {
+    file('target').mkdirs()
+  }
+  doLast {
+    ant.move(todir: file("$buildDir/reports/jbehave").path) {
+      fileset(dir: file('target/jbehave/view').path)
+    }
+    ant.delete(dir: file('target').path, failonerror: false)
+  }
+  outputs.upToDateWhen { false }
+}
+
+defaultTasks 'build'
+
+
+apply plugin: 'eclipse'
+
+eclipse {
+  classpath {
+    defaultOutputDir = file('classes')
+  }
+}
+
+
+apply plugin: 'jdocbook'
 
 jdocbook {
   restApiDevelopment {
@@ -40,11 +75,7 @@ jdocbook {
   }
 }
 
-defaultTasks 'buildDocs'
-
-task clean << {
-  ant.delete(dir: buildDir.path, failonerror: false)
-}
+build.dependsOn 'buildDocs'
 
 /*
 gradle.taskGraph.whenReady { graph ->
@@ -85,6 +116,5 @@ def exportToPng(source, target) {
 */
 
 task wrapper(type: Wrapper) {
-  gradleVersion = 2.4
+  gradleVersion = 2.5
 }
-
