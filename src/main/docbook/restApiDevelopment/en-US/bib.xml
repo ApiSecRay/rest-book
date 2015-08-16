@@ -644,6 +644,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Test Pyramid</abbrev>
+    <biblioid class="uri">http://martinfowler.com/bliki/TestPyramid.html</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>UBER</abbrev>
     <biblioid class="uri">https://github.com/mamund/media-types/blob/master/uber-hypermedia.asciidoc</biblioid>
   </biblioentry>

@@ -4,8 +4,8 @@
     TODO: This chapter...
   </para>
   
-  <section id="architecture">
-    <title>Architecture</title>
+  <section id="dto">
+    <title>Data Transfer Objects</title>
     <para>
       The last couple of decades saw the rise of architectures that separate different concerns into different
       components. These architectures go by names like Model-View-Controller, hexagonal architecture, clean
@@ -49,15 +49,8 @@
       controllers easily by adding annotations. You can then use Spring's dependency injection to autowire the
       controllers to domain services. Spring WebMVC comes with predefined translations from HTTP messages to Java
       objects (DTOs). The Spring community also supports link relations via the <citation>Spring HATEOAOS</citation>
-      project. There is even a contribution for assigning semantics <citation>Spring Hydra</citation> to DTOs and their
-      fields.
-    </para>
-  </section>
-
-  <section id="dry">
-    <title>Keeping it DRY</title>
-    <para>
-      TODO: Define URL structure, media type, namespace, error handling, etc. in a single place.
+      project. There is even a contribution for assigning semantics to DTOs and their fields <citation>Spring
+      Hydra</citation>.
     </para>
     <para>
       You should have exactly one place in your code where you convert your internal DTO to a message that is sent over 
@@ -89,6 +82,13 @@
     </para>
   </section>
   
+  <section id="dry">
+    <title>Keeping it DRY</title>
+    <para>
+      TODO: Define URL structure, media type, namespace, error handling, etc. in a single place.
+    </para>
+  </section>
+
   <section id="reactive">
     <title>Reactive programming</title>
     <para>
@@ -152,13 +152,9 @@
 	      TODO: Think this through. When implementing a controller, we no longer have access to the link relation that
 	      led to the method being invoked on the URI...
 	    </para>
-
-	    <section>
-	      <title>eXtensible Access Control Markup Language</title>
-	      <para>
-	        TODO:
-	      </para>
-	    </section>
+      <para>
+        TODO: eXtensible Access Control Markup Language?
+      </para>
     </section>
     
     <section id="input-validation">
