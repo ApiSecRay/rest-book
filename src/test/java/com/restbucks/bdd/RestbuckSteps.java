@@ -34,6 +34,7 @@ public class RestbuckSteps {
   public void getMenu() throws ClientProtocolException, IOException {
     HttpUriRequest request = new HttpGet(BILLBOARD_URI);
     response = client.execute(request);
+
   }
 
   @When("she orders a tall whole milk caffe latte")

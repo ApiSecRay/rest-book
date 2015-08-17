@@ -116,25 +116,27 @@
     <para>
       While you certainly <emphasis>can</emphasis> write white-box tests at the API level, we suggest you write
       black-box tests instead (or in addition to). The ultimate test of your system is that your clients can use the
-      API, and they won't be able see your system's internals. If your API isn't sufficient to make black-box testing
+      API, and they won't be able to see your system's internals. If your API isn't sufficient to make black-box testing
       possible, chances are that it isn't complete enough for some clients to do their work.
     </para>
     <para>
       If you started your analysis using Behavior-Driven Development (BDD), as we suggested in <xref linkend="analysis"/>,
-      then you're already halfway there. All you need to do is write some glue code that translates the BDD scenarios
-      into HTTP calls against your server and that verifies the assertions made in the <literal>Then</literal> parts of 
-      the scenarios.
+      then you're already halfway to an automated black-box test suite. All you need to do is write some glue code that
+      translates the BDD scenarios into HTTP calls against your server and that verifies the assertions made in the
+      <literal>Then</literal> parts of the scenarios.
     </para>
     <para>
-      There are many BDD frameworks that can help you with this, depending on your programming environment. We can't
-      show them all here, so we'll stick with Java and JBehave framework <citation>JBehave</citation>. Other frameworks 
-      offer comparable features, so even if your not using JBehave, or even Java, the following should still give you a
-      good idea of how to proceed.
+      There are many BDD frameworks, depending on your programming environment. We only have room to show one here, and 
+      we'll use Java and the JBehave framework <citation>JBehave</citation>. Other frameworks offer comparable features, 
+      so even if your not using JBehave, or even Java, the following should still give you a good idea of how to proceed.
+      If you don't have BDD scenarios at all, then you'll need some other method of creating test specifications. The 
+      details of what follows will be different, but the idea remains the same: make calls into your API to verify that
+      the implementation matches expectations. 
     </para>
     <para>
       JBehave makes it relatively easy to translate Gherkin scenarios into Java calls. For each line of the scenario,
-      you must create a Java method that gets executed when the scenario parser processes it. Let's see how that works
-      using <xref linkend="bdd-customer-happy-path"/>.
+      you must create a Java method that gets executed when the scenario parser processes the line. Let's see how that
+      works using <xref linkend="bdd-customer-happy-path"/>.
     </para>
     <para>
       The first line is <literal>Given a customer Chrissy</literal>. Remember that each line starts with a keyword,
@@ -152,24 +154,24 @@
   
 }</programlisting>
     <para>
-      The scenario line to Java method mapping uses a sort of regular expression pattern matching, which allows for
-      using variable parts of the matched text that map onto method parameters. In the example above, that is the case
+      The mapping from scenario line to Java method uses a sort of regular expression pattern matching, which enables
+      mapping variable parts of the scenario line onto method parameters. In the example above, that is the case
       for the name of the customer. We either need that information in the method itself, or we save it for later use,
       for instance when we're verifying expectations.
     </para>
     <para>
       Parameterizing methods like this means we can write another scenario with a line like <literal>Given a customer
       Joe</literal>, and we wouldn't need a new method to match it. As you add more scenarios, you'll find that most
-      lines in them can already be matched by existing methods, so your testing effort becomes <emphasis>less</emphasis>
-      over time, rather than more.
+      lines in them can already be matched by existing methods, so your testing effort <emphasis>decreases</emphasis>
+      over time, rather than increase.
     </para>
     <para>
       The next line is <literal>When she reads the menu</literal>, for which we add a method using the
       <literal>When</literal> annotation:
     </para>
     <programlisting>@When("she reads the menu")
-  public void getMenu() {
-  }</programlisting>
+public void getMenu() {
+}</programlisting>
     <para>
       
     </para>
@@ -178,28 +180,47 @@
   <section id="sdk">
     <title>Building an SDK</title>
     <para>
-      The test code you write is just that: code. So the same considerations apply to it as to the code that implements
-      your API. You'll need to evolve your tests over time just like you need to evolve your implementation, and it pays
-      to treat your test code with the same care.
+      The test code you write is just that: code. Therefore the same considerations apply to it as to the code that
+      implements your API. You'll need to evolve your tests over time just like you need to evolve your implementation, 
+      and it pays to treat your test code with the same care.
       In particular, keep your test code as DRY (see <xref linkend="dry"/>) as your implementation code. That will make 
       it much less painful to change your tests later.
     </para>
     <para>
-      DRY test code has another interesting side effect. Since the tests exercise your API, they are in fact a client
-      of it. So with DRY test code you can't help build but build up a <firstterm>Software Development Kit</firstterm>
+      Keeping your test code DRY has an interesting side effect. Since the tests exercise your API, they are in fact a 
+      client of it. So with DRY test code you can't help but build up a <firstterm>Software Development Kit</firstterm>
       (SDK) for your API. Remember from <xref linkend="dx"/> that offering an SDK is a good way to improve the DX.
     </para>
     <para>
-      If you make the BDD tests part of your Continuous Integration pipeline, then you'll face pressure to keep the
-      test times down. This pressure is your friend when it comes to building an SDK, because it will encourage you to
-      introduce things like caching (see <xref linkend="caching"/>) to improve the performance of your tests. Your SDK 
-      users will automatically benefit from this effort.
+      For a good and quick feedback cycle, you will want to keep your Continuous Integration jobs fast. So if you make
+      the API tests part of your Continuous Integration pipeline, then you'll face pressure to keep the test times down.
+      This pressure is your friend when it comes to building an SDK, because it will encourage you to introduce caching 
+      and other performance tricks (see <xref linkend="performance"/>). Your SDK users will automatically benefit from
+      this effort.
     </para>
     <para>
       The SDK you're building up when implementing your tests will be written in whatever language you have chosen for
-      your tests. Maybe some clients will not want to use that same language. In that case, you may have to spend some
-      additional effort to port your SDK to the languages that your API users (i.e. the developers that build clients)
-      want to use. This is additional work, but at least you have an existing SDK that you can start from.
+      your automating your tests. If some clients are not written in that language, you may have to spend some 
+      additional effort to port your SDK to the languages that your API users (i.e. the developers that build clients) 
+      want to use. This is additional work, but you have an existing SDK that you can start from. And while you're
+      porting your SDK, developers can look at the current SDK to see how to call your API.
+    </para>
+    <para>
+      The SDK powers your functional tests, and hopefully delights your users. But it can do more. As discussed earlier,
+      you will have different kinds of tests in addition to functional tests, like performance tests. These tests can
+      obviously benefit from the SDK as well.
+    </para>
+    <para>
+      An SDK can sometimes shield a client from breaking changes (see <xref linkend="breaking-changes"/>). Maybe you
+      changed an extension link relation for a newly standardized one. The SDK can check for either and use the one that
+      the server provides. This code can be hidden in the SDK's implementation, so that clients using the SDK will never
+      see any difference. 
+    </para>
+    <para>
+      At the time of writing, RADL has no tooling to (partly) generate SDKs, but it's not hard to conceive of such help.
+      A big part of the SDK consists of following link relations and to (de)serializing programming language objects 
+      into HTTP messages. The API description contains all the information necessary to perform these tasks, so it's
+      just a matter of putting the work in to build the tooling.
     </para>
   </section>
 
@@ -209,10 +230,6 @@
     <para>static and dynamic analysis, fuzzing</para>
   </section>
   
-  <section>
-    <title>RADL Test Tooling</title>
-  </section>
-
   <section>
     <title>Summary</title>
   </section>
