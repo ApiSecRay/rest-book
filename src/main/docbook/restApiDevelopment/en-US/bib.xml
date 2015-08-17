@@ -485,6 +485,20 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Rotem06</abbrev>
+    <biblioid class="uri">http://www.rgoarchitects.com/Files/fallacies.pdf</biblioid>
+    <citetitle>Fallacies of Distributed Computing Explained</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Arnon</firstname>
+          <surname>Rotem-Gal-Oz</surname>
+        </personname>
+      </author>
+    </authorgroup>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>Msft14</abbrev>
     <biblioid class="uri">http://enterprise.blob.core.windows.net/whitepapers/Retail-Threat-Modeling.pdf</biblioid>
     <citetitle>A Systematic Method to Understand Security Risks in a Retail Environment</citetitle>

@@ -129,6 +129,8 @@
       There are many BDD frameworks, depending on your programming environment. We only have room to show one here, and 
       we'll use Java and the JBehave framework <citation>JBehave</citation>. Other frameworks offer comparable features, 
       so even if your not using JBehave, or even Java, the following should still give you a good idea of how to proceed.
+    </para>
+    <para>
       If you don't have BDD scenarios at all, then you'll need some other method of creating test specifications. The 
       details of what follows will be different, but the idea remains the same: make calls into your API to verify that
       the implementation matches expectations. 
@@ -172,9 +174,6 @@
     <programlisting>@When("she reads the menu")
 public void getMenu() {
 }</programlisting>
-    <para>
-      
-    </para>
   </section>
 
   <section id="sdk">
@@ -190,6 +189,10 @@ public void getMenu() {
       Keeping your test code DRY has an interesting side effect. Since the tests exercise your API, they are in fact a 
       client of it. So with DRY test code you can't help but build up a <firstterm>Software Development Kit</firstterm>
       (SDK) for your API. Remember from <xref linkend="dx"/> that offering an SDK is a good way to improve the DX.
+    </para>
+    <para>
+      Since your tests play the role of client of your API, they should follow the guidelines for clients that we
+      present in <xref linkend="client"/>
     </para>
     <para>
       For a good and quick feedback cycle, you will want to keep your Continuous Integration jobs fast. So if you make
@@ -211,14 +214,28 @@ public void getMenu() {
       obviously benefit from the SDK as well.
     </para>
     <para>
-      An SDK can sometimes shield a client from breaking changes (see <xref linkend="breaking-changes"/>). Maybe you
-      changed an extension link relation for a newly standardized one. The SDK can check for either and use the one that
-      the server provides. This code can be hidden in the SDK's implementation, so that clients using the SDK will never
-      see any difference. 
+      An SDK can make using an API easier by hiding implementation details, like the specifics of a certain HTTP client
+      library. The client developer then doesn't need to learn how to use a HTTP library; he can simply make method
+      calls. You have to be careful with this, however, so that you don't fall for any of the 8 Fallacies of Distributed
+      Computing <citation>Rotem06</citation>. Especially the first two (the network is reliable, latency is zero) will
+      get you into trouble.
     </para>
     <para>
-      At the time of writing, RADL has no tooling to (partly) generate SDKs, but it's not hard to conceive of such help.
-      A big part of the SDK consists of following link relations and to (de)serializing programming language objects 
+      Hiding implementation details can shield a client from breaking changes (see <xref linkend="breaking-changes"/>).
+      Maybe you exchanged an extension link relation for a newly standardized one. The SDK can check for either and use
+      the one that the server provides. This code can be hidden in the SDK's implementation, so that clients using the 
+      SDK will never see any difference and don't need to be changed.
+    </para>
+    <para>
+      SDKs can also lower the barrier to entry for your API. Package your SDK up in the native artifact format for the
+      target programming language, like a .NET assembly or a Java jar. Then upload the package to a place where the
+      standard package managers can find them, like NuGet or Maven Central. This allows client developers to get 
+      started quickly, using idioms they already know. The faster they can get their <literal>Hello, world!</literal>
+      equivalent running, the less likely are they to give up in frustration and abandon your API.
+    </para>
+    <para>
+      At the time of writing, RADL has no tooling to generate SDKs, but it's not hard to conceive of such help.
+      A big part of the SDK consists of following link relations and (de)serializing programming language objects 
       into HTTP messages. The API description contains all the information necessary to perform these tasks, so it's
       just a matter of putting the work in to build the tooling.
     </para>

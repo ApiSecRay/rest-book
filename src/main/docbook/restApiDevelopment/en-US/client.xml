@@ -1,6 +1,22 @@
 <chapter id="client">
   <title>Developing REST Clients</title>
+  <para>
+    A REST client
+  </para>
 
+  <section id="documentation">
+    <title>Documentation</title>
+    <para>
+      As a client developer, you'll need some documentation about the API to get you started. Ideally, the
+      documentation explains what the system is for and how to achieve certain goals as well as how the API works.
+      We saw an example of HTML documentation for the RESTBucks API in <xref linked="restbucks-api-doc"/>.
+    </para>
+    <para>
+      A client SDK for the API can make your life as a client developer a lot easier, as we discussed in
+      <xref linkend="sdk"/>.
+    </para>
+  </section>
+  
   <!-- TODO: Store certificate of trusted server -->
     
   <section>
