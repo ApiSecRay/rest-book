@@ -5,6 +5,9 @@ import org.apache.batik.transcoder.TranscoderOutput;
 
 buildscript {
   repositories {
+    jcenter { 
+      url 'http://dl.bintray.com/radl/RADL'
+    }
     mavenCentral()
     maven { 
       url 'http://repository.jboss.org/nexus/content/groups/public/'
@@ -15,21 +18,28 @@ buildscript {
     classpath 'org.jboss.jdocbook:gradle-jdocbook:1.2.2', 
               'org.jboss:jbossorg-docbook-xslt:1.1.1',
               "org.apache.xmlgraphics:batik-transcoder:$batikVersion",
-              "org.apache.xmlgraphics:batik-codec:$batikVersion"
+              "org.apache.xmlgraphics:batik-codec:$batikVersion",
+              "radl:radl-gradle:$radlGradleVersion"
   }
 }
 
 apply plugin: 'java'
 
+sourceCompatibility = 1.7
+
 repositories {
   mavenCentral()
+  jcenter { 
+    url 'http://dl.bintray.com/radl/RADL'
+  }
 }
 
 dependencies {
-  testCompile 'junit:junit:4.12','org.jbehave:jbehave-core:4.0.3'
+  testCompile 'junit:junit:4.12','org.jbehave:jbehave-core:4.0.3', 'org.apache.httpcomponents:httpclient:4.5'
 }
 
 test {
+  outputs.upToDateWhen { false }
   doFirst {
     file('target').mkdirs()
   }
@@ -39,7 +49,6 @@ test {
     }
     ant.delete(dir: file('target').path, failonerror: false)
   }
-  outputs.upToDateWhen { false }
 }
 
 defaultTasks 'clean', 'buildDocs'
@@ -51,6 +60,17 @@ eclipse {
   classpath {
     defaultOutputDir = file('classes')
   }
+}
+
+
+apply plugin: 'radl-gradle'
+
+radl.radlCoreVersion = radlCoreVersion
+radl.serviceName = 'RESTBucks'
+
+afterEvaluate {
+  validateRadl.enabled = false // Need schema changes
+  generateDocumentationFromRadl.enabled = false
 }
 
 

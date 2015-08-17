@@ -139,25 +139,67 @@
     <para>
       The first line is <literal>Given a customer Chrissy</literal>. Remember that each line starts with a keyword,
       in this case <literal>Given</literal>. JBehave has an annotation for each keyword, which helps the scenario
-      parser map the lines of the scenario onto code:
+      parser map the line to a Java method using the text inside the annotation: 
     </para>
     <programlisting>public class RestbuckSteps {
     
-  @Given("a customer $name")
-  public void forCustomer(String name) {
-    // TODO: Implement
+  private String customer;
+
+  @Given("a customer $customer")
+  public void setCustomer(String customer) {
+    this.customer = customer;
   }
   
 }</programlisting>
     <para>
-      You can name the method anything you want; JBehave doesn't care. It uses the <literal>@Given</literal> annotation
-      and the text inside it to map the line of the scenario onto the method. It does so using regular expression
-      pattern matching, which allows for introducing variable parts that map onto method parameters, like
-      <literal>name</literal> in the example above.
+      The scenario line to Java method mapping uses a sort of regular expression pattern matching, which allows for
+      using variable parts of the matched text that map onto method parameters. In the example above, that is the case
+      for the name of the customer. We either need that information in the method itself, or we save it for later use,
+      for instance when we're verifying expectations.
     </para>
     <para>
-      Once you have defined all the methods to run the scenario, your next task is to use an HTTP library, like Apache 
-      HTTP Commons, in your Java code to make HTTP calls against your API.
+      Parameterizing methods like this means we can write another scenario with a line like <literal>Given a customer
+      Joe</literal>, and we wouldn't need a new method to match it. As you add more scenarios, you'll find that most
+      lines in them can already be matched by existing methods, so your testing effort becomes <emphasis>less</emphasis>
+      over time, rather than more.
+    </para>
+    <para>
+      The next line is <literal>When she reads the menu</literal>, for which we add a method using the
+      <literal>When</literal> annotation:
+    </para>
+    <programlisting>@When("she reads the menu")
+  public void getMenu() {
+  }</programlisting>
+    <para>
+      
+    </para>
+  </section>
+
+  <section id="sdk">
+    <title>Building an SDK</title>
+    <para>
+      The test code you write is just that: code. So the same considerations apply to it as to the code that implements
+      your API. You'll need to evolve your tests over time just like you need to evolve your implementation, and it pays
+      to treat your test code with the same care.
+      In particular, keep your test code as DRY (see <xref linkend="dry"/>) as your implementation code. That will make 
+      it much less painful to change your tests later.
+    </para>
+    <para>
+      DRY test code has another interesting side effect. Since the tests exercise your API, they are in fact a client
+      of it. So with DRY test code you can't help build but build up a <firstterm>Software Development Kit</firstterm>
+      (SDK) for your API. Remember from <xref linkend="dx"/> that offering an SDK is a good way to improve the DX.
+    </para>
+    <para>
+      If you make the BDD tests part of your Continuous Integration pipeline, then you'll face pressure to keep the
+      test times down. This pressure is your friend when it comes to building an SDK, because it will encourage you to
+      introduce things like caching (see <xref linkend="caching"/>) to improve the performance of your tests. Your SDK 
+      users will automatically benefit from this effort.
+    </para>
+    <para>
+      The SDK you're building up when implementing your tests will be written in whatever language you have chosen for
+      your tests. Maybe some clients will not want to use that same language. In that case, you may have to spend some
+      additional effort to port your SDK to the languages that your API users (i.e. the developers that build clients)
+      want to use. This is additional work, but at least you have an existing SDK that you can start from.
     </para>
   </section>
 

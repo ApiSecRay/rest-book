@@ -22,13 +22,13 @@ public class AcceptanceTests extends JUnitStories {
   public AcceptanceTests() {
     Embedder embedder = configuredEmbedder();
     embedder.embedderControls()
-            .doGenerateViewAfterStories(true)
-            .doIgnoreFailureInStories(true)
-            .doIgnoreFailureInView(true)
-            .doVerboseFailures(true)
-            .doVerboseFiltering(true);
+    .doGenerateViewAfterStories(true)
+    .doIgnoreFailureInStories(true)
+    .doIgnoreFailureInView(true)
+    .doVerboseFailures(true)
+    .doVerboseFiltering(true);
   }
-  
+
   @Override
   protected List<String> storyPaths() {
     List<String> result = new StoryFinder().findPaths("src/test/resources", "**/*.story", "");
@@ -39,17 +39,17 @@ public class AcceptanceTests extends JUnitStories {
   @Override
   public Configuration configuration() {
     return new MostUsefulConfiguration()
-        .useStoryReporterBuilder(newStoryBuilder())
-        .usePendingStepStrategy(new FailingUponPendingStep())
-        .useFailureStrategy(new SilentlyAbsorbingFailure())
-        .useStoryLoader(new LoadFromClasspath());
+    .useStoryReporterBuilder(newStoryBuilder())
+    .usePendingStepStrategy(new FailingUponPendingStep())
+    .useFailureStrategy(new SilentlyAbsorbingFailure())
+    .useStoryLoader(new LoadFromClasspath());
   }
 
   private StoryReporterBuilder newStoryBuilder() {
     return new StoryReporterBuilder()
-            .withFailureTrace(true)
-            .withFailureTraceCompression(true)
-            .withFormats(Format.HTML);
+    .withFailureTrace(true)
+    .withFailureTraceCompression(true)
+    .withFormats(Format.HTML);
   }
 
   @Override
@@ -57,7 +57,7 @@ public class AcceptanceTests extends JUnitStories {
     return new InstanceStepsFactory(configuration(), getStepsObjects());
   }
 
-  private List<Object> getStepsObjects() {
+  private List<?> getStepsObjects() {
     return Arrays.asList(new RestbuckSteps());
   }
 
