@@ -680,7 +680,7 @@ Then she is happy</programlisting>
 	      The documentation must be divided into a couple of different modules, with increasing levels of 
 	      completeness. These different modules should address different stages in the developer's learning cycle. The
 	      getting started guide should be as short as possible and contain links to actually get started. The reference 
-	      manual should be complete and thourough. And you probably want something in between that covers common ways of 
+	      manual should be complete and thorough. And you probably want something in between that covers common ways of 
 	      using the API. We cover documentation in <xref linkend="documentation"/>.
 	    </para>
 	    <para>
