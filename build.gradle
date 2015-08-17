@@ -42,7 +42,7 @@ test {
   outputs.upToDateWhen { false }
 }
 
-defaultTasks 'build'
+defaultTasks 'clean', 'buildDocs'
 
 
 apply plugin: 'eclipse'
