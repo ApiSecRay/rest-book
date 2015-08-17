@@ -1,15 +1,25 @@
 <chapter id="client">
   <title>Developing REST Clients</title>
   <para>
-    A REST client
+    A <firstterm>REST client</firstterm> uses a REST API to achieve its goals.
+    TODO: Human-Driven vs Autonomous Clients
+    TODO: follow "client-flow"
   </para>
 
   <section id="documentation">
-    <title>Documentation</title>
+    <title>Getting started</title>
     <para>
       As a client developer, you'll need some documentation about the API to get you started. Ideally, the
       documentation explains what the system is for and how to achieve certain goals as well as how the API works.
       We saw an example of HTML documentation for the RESTBucks API in <xref linked="restbucks-api-doc"/>.
+    </para>
+    <para>
+      TODO: Reword and combine with previous
+      The documentation must be divided into a couple of different modules, with increasing levels of 
+      completeness. These different modules should address different stages in the developer's learning cycle. The
+      getting started guide should be as short as possible and contain links to actually get started. The reference 
+      manual should be complete and thorough. And you probably want something in between that covers common ways of 
+      using the API. We cover documentation in <xref linkend="documentation"/>.
     </para>
     <para>
       A client SDK for the API can make your life as a client developer a lot easier, as we discussed in
@@ -17,20 +27,19 @@
     </para>
   </section>
   
-  <!-- TODO: Store certificate of trusted server -->
-    
-  <section>
-    <title>Human-Driven vs Autonomous Clients</title>
-  </section>
-
-  <section>
-    <title>Resolving URIs</title>
+  <section id="application-state">
+    <title>Implementing Clients</title>
+    <para>
+      TODO: Resolving URIs
+    </para>
+    <para>
+      TODO: Storing Application State
+    </para>
+    <para>
+      TODO: Storing the certificate of a trusted server
+    </para>
   </section>
   
-  <section id="application-state">
-    <title>Storing Application State</title>
-  </section>
-
   <section>
     <title>Summary</title>
   </section>
