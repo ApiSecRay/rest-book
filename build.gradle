@@ -52,8 +52,6 @@ test {
   }
 }
 
-defaultTasks 'clean', 'buildDocs'
-
 
 apply plugin: 'eclipse'
 
@@ -96,7 +94,13 @@ jdocbook {
   }
 }
 
+tasks.findAll { it.name.toLowerCase().contains('docbook') }.each {
+  it.inputs.dir file('src/main/docbook')
+}
+
 build.dependsOn 'buildDocs'
+defaultTasks 'buildDocs'
+
 
 /*
 gradle.taskGraph.whenReady { graph ->
@@ -137,5 +141,5 @@ def exportToPng(source, target) {
 */
 
 task wrapper(type: Wrapper) {
-  gradleVersion = 2.5
+  gradleVersion = 2.6
 }
