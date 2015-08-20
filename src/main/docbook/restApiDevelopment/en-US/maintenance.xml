@@ -10,7 +10,7 @@
     clients use our API. We'll get ...
   </para>
   
-  <section>
+  <section id="consumer-contract">
     <title>Consumer contracts</title>
     <para>
       You may have different types of clients, each with their own goals they're trying to reach through your API.
@@ -40,18 +40,18 @@
     <para>
        In a situation with many different, rapidly evolving clients, it becomes rather unwieldly to update the state 
        diagrams by hand. We should be looking at automation to help us out. Such automation is made possible by 
-       consumer contracts.
+       <firstterm>consumer contracts</firstterm>, the contract between you and one particular client, or consumer.
     </para>
     <para>
-      A <firstterm>consumer contract</firstterm> is the contract between you and one particular client, or consumer.
       To support automation, the consumer contract has to be an exectuable specification, just as BDD scenarios are.
       On top of that, we also need to be able to automatically <emphasis>generate</emphasis> them.
+      Automatically generating consumer contracts can only be done by observing real clients as they interact with
+      your API.
     </para>
     <para>
-      Automatically generating consumer contracts can only be done by observing real clients as they interact with
-      your API. The perfect way to do this is in the Continuous Integration pipeline of the client. The black-box tests 
-      for the client will run against your API, either against a real server or against a stub. At this point we can
-      intercept the client's calls and capture them into a consumer contracts.
+      A good place to capture client interactions is in the Continuous Integration pipeline of the client.
+      The black-box tests for the client will run against your API, either against a real server or against a stub.
+      At this point we can intercept the client's calls and capture them into a consumer contracts.
     </para>
     <para>
       There are a couple of open source tools to support consumer contracts.

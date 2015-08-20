@@ -177,6 +177,9 @@ public void getMenu() {
     <para>
       TODO: Finish
     </para>
+    <para>
+      We'll talk more about testing in the face of changes in <xref linkend="consumer-contract"/>.
+    </para>
   </section>
 
   <section id="sdk">
@@ -246,7 +249,63 @@ public void getMenu() {
   
   <section id="test-security">
     <title>Security Testing</title>
-    <para>test for each identified threat</para>
+    <para>
+      You will also want to verify that your system meets the expectations with regard to security. Remember from
+      <xref linkend="security"/> that security problems split roughtly evenly between design flaws and implementation
+      bugs. The first part of security testing deals with design flaws. This is really just testing the system's
+      security features, using the techniques for functional testing described above. Remember that we derived the
+      system's security features during threat modeling.
+    </para>
+    <para>
+      For example, <xref linkend="security-features"/> indicates that we want to use TLS to protect against spoofing
+      the server. We should write a test that checks whether connecting to our server over HTTPS works. This test should
+      verify the TLS protocol, ciphers, and the server's certificate. We should write another test that verifies that
+      we can't connect to the server using plain HTTP.
+    </para>
+    <para>
+      This is a common pattern for functional security tests. You should write a positive test that verifies that the
+      security feature is in place, but also a negative test that proves you can't get around the protection.
+    </para>
+    <para>
+      Some tests may be difficult to perform, like tests for DoS protection. It may help to configure your server that
+      facilitates testing. For instance, suppose that in production, we allow our order queue size to be at most 100.
+      It may be difficult or expensive to reach those numbers in a test, so we should make the limit configurable and 
+      use a much lower number for our tests.
+    </para>
+    <para>
+      Other security features may even be impossible to verify in a test environment. Maybe you're using a Hardware
+      S Module  (HSM) in production, for example. TODO: What does HSM stand for again?
+      You'll most likely won't have budget for another one for in your test environment. Luckily, the features that are 
+      most expensive to replicate in a test environment are also least likely to change. So you can manually verify that
+      they work once (or periodically). 
+    </para>
+    <para>
+      Some features may be to difficult for you to test. You can opt to outsource this testing to an external company
+      that is specialized in these matters. This is known as a <firstterm>penetration test</firstterm> or pentest.
+      Obviously you can't do this in an automated fashion on every commit, so this shouldn't be your only option.
+    </para>
+    <para>
+      Penetration testers are not cheap, but well worth the money. In some cases, they are virtually a must. For 
+      instance, as a cloud service provider, you probably don't want your customers to go into your data center to
+      perform an audit. You can still satisfy your customer's curiosity for your security posture by handing them a
+      report from a reputable pentesting company.
+    </para>
+    <para>
+      Penetration testers can work with a black-box kind of approach, where they don't have much insight into your
+      defenses, or you can provide them with as much detail as they want. The former gives them a level playing field
+      with real-world attackers, but it may limit what they can find. Therefore, we favor the white-box approach where
+      the pentesters have access to architectural diagrams, the threat model, etc. Some companies even give pentesters
+      access to source code.
+    </para>
+    <para>
+      With access to source code, a pentester can perform <firstterm>Static Analysis Security Testing</firstterm> (SAST).
+      This involves feeding the source code into a special program that understands the programming language and
+      libraries used and can find security problems. These problems are usually implementation bugs rather than
+      design flaws.
+    </para>
+    <para>
+      You don't need a pentester
+    </para>
     <para>static and dynamic analysis, fuzzing</para>
   </section>
   
