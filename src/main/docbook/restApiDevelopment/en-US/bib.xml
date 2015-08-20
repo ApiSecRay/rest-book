@@ -95,6 +95,11 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>BDD Security</abbrev>
+    <biblioid class="uri">http://www.continuumsecurity.net/bdd-intro.html</biblioid>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>Cj</abbrev>
     <biblioid class="uri">https://github.com/collection-json/spec</biblioid>
     <citetitle>Collection+JSON</citetitle>
@@ -734,6 +739,11 @@
   <biblioentry>
     <abbrev>XML-RPC</abbrev>
     <biblioid class="uri">http://xmlrpc.scripting.com/default.html</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>ZAP</abbrev>
+    <biblioid class="uri">https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project</biblioid>
   </biblioentry>
   
 </bibliography>

@@ -250,13 +250,13 @@ public void getMenu() {
   <section id="test-security">
     <title>Security Testing</title>
     <para>
-      You will also want to verify that your system meets the expectations with regard to security. Remember from
-      <xref linkend="security"/> that security problems split roughtly evenly between design flaws and implementation
+      You will want to verify that your system meets the expectations with regard to security. Remember from
+      <xref linkend="security"/> that security problems split roughly evenly between design flaws and implementation
       bugs. The first part of security testing deals with design flaws. This is really just testing the system's
-      security features, using the techniques for functional testing described above. Remember that we derived the
-      system's security features during threat modeling.
+      security features, using the techniques for functional testing described above.
     </para>
     <para>
+      Remember that we derived the system's security features during threat modeling.
       For example, <xref linkend="security-features"/> indicates that we want to use TLS to protect against spoofing
       the server. We should write a test that checks whether connecting to our server over HTTPS works. This test should
       verify the TLS protocol, ciphers, and the server's certificate. We should write another test that verifies that
@@ -267,27 +267,28 @@ public void getMenu() {
       security feature is in place, but also a negative test that proves you can't get around the protection.
     </para>
     <para>
-      Some tests may be difficult to perform, like tests for DoS protection. It may help to configure your server that
-      facilitates testing. For instance, suppose that in production, we allow our order queue size to be at most 100.
+      Some tests may be difficult to perform, like tests for DoS protection. It may help to configure your server to
+      facilitate testing. For instance, suppose that in production, we allow our order queue size to be at most 100.
       It may be difficult or expensive to reach those numbers in a test, so we should make the limit configurable and 
-      use a much lower number for our tests.
+      use a much lower number in our test environment that we would in production.
     </para>
     <para>
       Other security features may even be impossible to verify in a test environment. Maybe you're using a Hardware
-      S Module  (HSM) in production, for example. TODO: What does HSM stand for again?
-      You'll most likely won't have budget for another one for in your test environment. Luckily, the features that are 
-      most expensive to replicate in a test environment are also least likely to change. So you can manually verify that
-      they work once (or periodically). 
+      Security Module (HSM) in production, for example, for managing and safeguarding cryptographic keys. 
+      You may not have budget to purchase another one just for testing purposes. Luckily, the features that are 
+      most expensive to replicate in a test environment are usually also least likely to change. So you can manually 
+      verify that they work once (or periodically).
     </para>
     <para>
-      Some features may be to difficult for you to test. You can opt to outsource this testing to an external company
-      that is specialized in these matters. This is known as a <firstterm>penetration test</firstterm> or pentest.
+      Some features may be to difficult for you to test because you lack the required security skills. You can opt to 
+      outsource this testing to an external company that is specialized in these matters. This is known as a 
+      <firstterm>penetration test</firstterm> or pentest.
       Obviously you can't do this in an automated fashion on every commit, so this shouldn't be your only option.
     </para>
     <para>
       Penetration testers are not cheap, but well worth the money. In some cases, they are virtually a must. For 
-      instance, as a cloud service provider, you probably don't want your customers to go into your data center to
-      perform an audit. You can still satisfy your customer's curiosity for your security posture by handing them a
+      instance, as a cloud service provider, you probably don't want every customers to go into your data center to
+      perform an audit. You can still satisfy the customer's curiosity for your security posture by handing them a
       report from a reputable pentesting company.
     </para>
     <para>
@@ -301,12 +302,49 @@ public void getMenu() {
       With access to source code, a pentester can perform <firstterm>Static Analysis Security Testing</firstterm> (SAST).
       This involves feeding the source code into a special program that understands the programming language and
       libraries used and can find security problems. These problems are usually implementation bugs rather than
-      design flaws.
+      design flaws. There are also SAST tools that can look at compiled binaries rather than source code.
     </para>
     <para>
-      You don't need a pentester
+      Some of the types of bugs that SAST tools are good at finding are very relevant for testing APIs.
+      <firstterm>Injection attacks</firstterm> happen when the client submits data through the API that can be 
+      interpreted as code.
+      The most (in)famous example of this is SQL Injection, where data from the client is appended to an SQL query.
+      This data is intended to be just data, but through the use of special characters like quotes the data can be
+      interpreted as code instead.
     </para>
-    <para>static and dynamic analysis, fuzzing</para>
+    <para>
+      We discussed the tools to withstand these types of attacks in <xref linkend="output-encoding"/> and
+      <xref linkend="input-validation"/>. The trick is to judiciously apply them. SAST tools can help you find the
+      places where you've missed something.
+    </para>
+    <para>
+      You don't need a pentester to operate a SAST tool, of course. While some of these tools may have something of a 
+      learning curve, any good developer can master them. The next step is to integrate the SAST tool into your
+      Continuous Integration pipeline. These tools can take a long time to run, so you may not want to do so on every
+      commit, but rather once per day. 
+    </para>
+    <para>
+      SAST tools do their magic without running the application. In contrast, <firstterm>Dynamic Application Security
+      Testing</firstterm> (DAST) works against a running instance of your software. Like SAST, DAST finds mostly
+      implementation bugs, but the types of bugs found are somewhat different. It therefore pays to perform both
+      kinds of tests.
+    </para>
+    <para>
+      DAST tools can either exercise your API directly, or they can sit as a proxy in between the client and server.
+      The latter setup makes a lot of sense for integrating them into your Continuous Integration pipeline. An example
+      of an open source tool that works well in such a configuration is Zed Attack Proxy <citation>ZAP</citation>.
+    </para>
+    <para>
+      TODO: BDD Security
+    </para>
+    <para>
+      One particular type of DAST tool may be interesting for testing APIs. <firstterm>Fuzz testing</firstterm>
+      or <firstterm>fuzzing</firstterm> involves providing invalid, unexpected, or random data as input. This data is
+      generated from valid input. The program is then monitored for exceptions such as crashes, or other unwanted
+      behavior. This is another way to verify the completeness of your input validation. Fuzz testing often finds odd 
+      oversights and defects which human testers would fail to find, and even careful human test designers would fail 
+      to create tests for.
+    </para>
   </section>
   
   <section>
