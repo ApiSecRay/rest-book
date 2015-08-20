@@ -1,10 +1,79 @@
 <chapter id="maintenance">
   <title>Maintenance</title>
+  <para>
+    So far we've analyzed a problem, designed a solution for it in the form of an API, implemented that API, tested
+    the implementation, and put it into production. That doesn't mean we can now sit back and relax. More often than
+    not, deploying into production is only the first step of a long journey.
+  </para>
+  <para>
+    Along the way, we'll be asked to make changes to our system. We'll gain new insights into the problem by observing
+    clients use our API. We'll get ...
+  </para>
   
+  <section>
+    <title>Consumer contracts</title>
+    <para>
+      You may have different types of clients, each with their own goals they're trying to reach through your API.
+      This is especially likely in a microservices architecture. In that situation it's also likely that both your 
+      API and your clients are changing often.
+    </para>
+    <para>
+      In one way, this changes nothing about how you test your API: you still need to know what parts of your API your
+      clients use and you still need to make sure that their expectations are met, as we saw in <xref linkend="test"/>.
+    </para>
+    <para>
+      In another way, however, this changes everything. As new clients are added to the mix and old clients are updated 
+      or retired, it gets increasingly difficult to keep track of what part of your API is actually being used.
+    </para>
+    <para>
+      It's imperative that you have this overview. If you don't know what your clients are using, that severely
+      limits your options for evolving your API. If you don't know whether some part of your API is being used, and
+      if so, how, then you can't really change it in a backwards-incompatible way. There are some things you can do
+      in that situation to keep your ability to innovate, and will discuss those below, but your options will be
+      fairly limited.
+    </para>
+    <para>
+      If you do know exactly what your clients need, you're in a much better position. If you know for sure that
+      nobody is using feature X, for instance, you can safely delete it. If you know that only client Y is using
+      feature Z, then you may be able to coordinate an incompatible change with the people that build client Y.
+    </para>
+    <para>
+       In a situation with many different, rapidly evolving clients, it becomes rather unwieldly to update the state 
+       diagrams by hand. We should be looking at automation to help us out. Such automation is made possible by 
+       consumer contracts.
+    </para>
+    <para>
+      A <firstterm>consumer contract</firstterm> is the contract between you and one particular client, or consumer.
+      To support automation, the consumer contract has to be an exectuable specification, just as BDD scenarios are.
+      On top of that, we also need to be able to automatically <emphasis>generate</emphasis> them.
+    </para>
+    <para>
+      Automatically generating consumer contracts can only be done by observing real clients as they interact with
+      your API. The perfect way to do this is in the Continuous Integration pipeline of the client. The black-box tests 
+      for the client will run against your API, either against a real server or against a stub. At this point we can
+      intercept the client's calls and capture them into a consumer contracts.
+    </para>
+    <para>
+      There are a couple of open source tools to support consumer contracts.
+      TODO: Describe Pacto and/or Pact with an example.
+    </para>
+    <para>
+      If you don't control your clients, for example when your API is the front of a hosted service, you most likely 
+      can't coordinate changes with your clients. You can still capture their interactions to see what parts of the
+      API they use, and you can still use those interaction patters to create consumer contracts, but any changes to
+      your API must now be limited to those that don't break your clients. We call such changes backwards compatible.
+    </para>
+  </section>
+
   <section>
     <title>Backwards Compatibility</title>
     <para>
+      TODO: What changes are backwards compatible?
+    </para>
+    <para>
       TODO: Add new high-level functionality to the Home resource.
+    </para>
+    <para>
       TODO: evolvability, maintainability
     </para>
   </section>
@@ -15,9 +84,6 @@
       Introducing new media types is one way to evolve your REST API when you must make backwards incompatible changes.
       You can continue to serve old clients with the old media type, while new clients can take advantage of the new 
       media type.
-    </para>
-    <para>
-      TODO: Consumer-Driven contracts
     </para>
   </section>
 
