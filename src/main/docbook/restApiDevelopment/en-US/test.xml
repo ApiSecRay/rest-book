@@ -136,6 +136,12 @@
       the implementation matches expectations. 
     </para>
     <para>
+      It's very useful for debugging purposes to use a correlation ID (see <xref linkend="correlation"/>) so that the
+      different requests and responses for a given test case can be related. This is otherwise non-trivial when you
+      run tests in parallel (as you should to get quicker feedback). The test case name makes a good candidate as the
+      value of the correlation ID.
+    </para>
+    <para>
       JBehave makes it relatively easy to translate Gherkin scenarios into Java calls. For each line of the scenario,
       you must create a Java method that gets executed when the scenario parser processes the line. Let's see how that
       works using <xref linkend="bdd-customer-happy-path"/>.

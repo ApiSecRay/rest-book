@@ -51,17 +51,20 @@
     <para>
       A good place to capture client interactions is in the Continuous Integration pipeline of the client.
       The black-box tests for the client will run against your API, either against a real server or against a stub.
-      At this point we can intercept the client's calls and capture them into a consumer contracts.
+      At this point we can intercept the client's calls and capture them into a consumer contract. Correlation IDs
+      help to link related requests and responses together (see <xref linkend="correlation"/>), especially when you
+      run multiple tests in parallel.
     </para>
     <para>
       There are a couple of open source tools to support consumer contracts.
       TODO: Describe Pacto and/or Pact with an example.
     </para>
     <para>
-      If you don't control your clients, for example when your API is the front of a hosted service, you most likely 
-      can't coordinate changes with your clients. You can still capture their interactions to see what parts of the
-      API they use, and you can still use those interaction patters to create consumer contracts, but any changes to
-      your API must now be limited to those that don't break your clients. We call such changes backwards compatible.
+      If you don't control your clients, for example when your API fronts a hosted service, you most likely are not in
+      a position to coordinate changes with your clients. You can still capture their interactions to see what parts of 
+      the API they use (see <xref linkend="logging"/>) and you can still use those interaction patters to create 
+      consumer contracts, but any changes to your API must now be limited to those that don't break your clients.
+      Let's see how we can do that.
     </para>
   </section>
 

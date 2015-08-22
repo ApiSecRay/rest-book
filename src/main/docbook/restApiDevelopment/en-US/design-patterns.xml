@@ -1191,10 +1191,15 @@ ETag: 2
       <para>
         If you do need to explicitly correlate messages, then remember that the server is stateless (see 
         <xref linkend="rest"/>), so only the client can indicate the relationship between individual requests. There
-        is no standard solution to this problem, so it's best to use a custom header for this purpose. Even if the 
-        server doesn't understand the header, it can still show up in the logs, which may be useful if the client
-        developer can get access to those. At the very least the client can log requests itself, and the correlation 
-        can happen on the client's side.
+        is no standard solution to this problem, so it's best to use a custom header for this purpose. Quite a few
+        people are using <literal>X-Request-Id</literal>, but the <literal>X-</literal> prefix violates current best
+        practices <citation>RFC 6648</citation>. Some people have therefore begun to use the 
+        <literal>Request-Id</literal> header instead.
+      </para> 
+      <para>
+        Even if the server doesn't understand the header, it can still show up in the logs, which may be useful if the 
+        client developer can get access to those. At the very least the client can log requests itself, and the 
+        correlation can happen on the client's side.
       </para>
       <para>
         Another approach is for the service to publish a header for correlation purposes. The value of this header may 
@@ -1220,7 +1225,7 @@ Accept: application/ld+json</programlisting>
 Content-Type: application/ld+json
 Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context"; 
     type="application/ld+json"
-Barista-Id: 1    
+Request-Id: barista-1    
 
 { "@id": "/orders/?status=paid",
   "@type": "hydra:Collection",
