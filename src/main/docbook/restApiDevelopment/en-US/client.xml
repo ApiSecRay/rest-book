@@ -1,29 +1,97 @@
 <chapter id="client">
-  <title>Developing REST Clients</title>
+  <title>REST Clients</title>
   <para>
-    A <firstterm>REST client</firstterm> uses a REST API to achieve its goals.
-    TODO: Human-Driven vs Autonomous Clients
-    TODO: follow "client-flow"
+    A <firstterm>REST client</firstterm> uses a REST API to achieve its goals by following the general flow depicted in
+    <xref linkend="client-flow"/>. This model is a generalization of the Web, where the client is a browser driven by a
+    human. On the web, the human user enters the billboard URI in the brower's address bar and chooses which links to
+    follow.
+  </para>
+  <para>
+    The generalization allows for the use case where the client is an autonomous program that makes decisions
+    without being directly guided by a human. The billboard URI is hardcoded or, better yet, read from some
+    configuration source. The program chooses links based on criteria that are coded in.
+  </para>
+  <para>
+    As long as we're not talking about Artificial Intelligence, the human guidance is still there, of course, but it's
+    now indirect, in the form of a client developer programming in goals and how to achieve them by following links.
+  </para>
+  <para>
+    Unlike browsers, most REST clients today are specifically built to consume a single API. The main reason for that
+    is it's currently extremely difficult to write a client that can handle multiple APIs and do useful work with them.
+    There exist some browser-like clients that can consume any level 3 API (see <xref linkend="maturity"/>), but they
+    usually don't offer the kind of user experience that is expected today <citation>Siren Browser</citation>.
+  </para>
+  <para>
+    REST clients might become more generic in the future, if more REST APIs move to level 4. It's conceivable that a
+    single client could work with multiple APIs in the same domain if it's programmed to understand the semantics of
+    that domain.
+  </para>
+  <para>
+    We think the state of the art will firmly remain with dedicated REST clients for the near future. This chapter
+    explains how to develop such clients.
   </para>
 
   <section id="documentation">
-    <title>Getting started</title>
+    <title>API Documentation</title>
     <para>
-      As a client developer, you'll need some documentation about the API to get you started. Ideally, the
-      documentation explains what the system is for and how to achieve certain goals as well as how the API works.
-      We saw an example of HTML documentation for the RESTBucks API in <xref linked="restbucks-api-doc"/>.
+      As a client developer, you'll need some documentation about the API to get you started. You can improve the
+      Developer eXperience a lot with good documentation (see <xref linkend="dx"/>).
     </para>
     <para>
-      TODO: Reword and combine with previous
-      The documentation must be divided into a couple of different modules, with increasing levels of 
-      completeness. These different modules should address different stages in the developer's learning cycle. The
-      getting started guide should be as short as possible and contain links to actually get started. The reference 
-      manual should be complete and thorough. And you probably want something in between that covers common ways of 
-      using the API. We cover documentation in <xref linkend="documentation"/>.
+      Ideally, the documentation is divided into a couple of different modules, with decreasing levels of abstraction
+      and increasing levels of detail. These different modules should address different stages in the developer's
+      learning cycle.
     </para>
     <para>
-      A client SDK for the API can make your life as a client developer a lot easier, as we discussed in
-      <xref linkend="sdk"/>.
+      The <firstterm>Getting Started Guide</firstterm> should give a high-level overview of what the system is for and
+      why the client developer may want to build a client for it. It should be as short as possible and contain links
+      to more detailed documentation. It should tell the client how to perform one-time actions like acquire an API key
+      if your API requires one.
+    </para>
+    <para>
+      The next level is a <firstterm>Collection of Common Use Cases</firstterm>, with code examples that walk the client
+      developer through the entire process from start to finish. The state diagrams we developed during analysis
+      (see <xref linkend="state-diagrams"/>) form the basis of these descriptions. The particular use cases depend on
+      the specifics of the API, of course, but one topic that all API documentation should have is an explanation of
+      how to authenticate with the service (see <xref linkend="authentication"/>).
+    </para>
+    <para>
+      If there is a client SDK for the API (and there should be, for all the reasons mentioned in
+      <xref linkend="sdk"/>), the Collection of Common Use Cases should show the client developer how to use it.
+      It should also show how to use the API without using the SDK, since there may not be a version of the SDK in the
+      client developer's preferred programming language.
+    </para>
+    <para>
+      If the SDK is available in multiple languages, the documentation should make it easy for the client developer to
+      select one and see all the examples in that language without having to select that language for every example.
+      If the API supports multiple media types, then the documentation should likewise make it easy to select one media
+      type for all the examples. The point of all this is to remove as many distractions as possible and get the client
+      developer to working code as quickly as possible.
+    </para>
+    <para>
+      To further that cause, it helps to make the documentation interactive. For example, Swagger UI includes a
+      <literal>Try it out!</literal> button that makes a request to a sample implementation of the API and includes the
+      response into the documentation <citation>Swagger UI Demo</citation>. The client developer can try out different
+      inputs and compare the responses to get a better feel for how the API is supposed to be used.
+    </para>
+    <para>
+      The <firstterm>Reference Manual</firstterm> should be complete and thorough, listing everything you will
+      ever need to know about the API, like the HTTP methods and link relations to use, what error conditions may be
+      encountered, etc.
+      The Reference Manual should offer a search and/or index facility to zoom in quickly on the right spot in the
+      wealth of information that the Reference Manual contains. 
+    </para>
+    <para>
+      Given the need for completeness and correctness, the reference manual is best generated from the API description.
+      We saw an example of a Reference Manual in HTML for the RESTBucks API in <xref linkend="restbucks-api-doc"/>.
+    </para>
+    <para>
+      If the API is for one hosted service only, then that's all the documentation that is required. If the API is for
+      a system that can be installed in multiple places, however, an <firstterm>Administrator's Guide</firstterm> is
+      also needed. This documentation should explain how to install the system, how to configure it for secure use, 
+      how to scale it, etc.
+      In short, it should contain all the information required for setting up the system and operating it properly
+      (see <xref linkend="operations"/>).
     </para>
   </section>
   

@@ -668,7 +668,8 @@ Then she is happy</programlisting>
 	    <para>
 	      A developer also needs to be up and running with the API as fast as possible. The fewer roadblocks you put
 	      up, the better. Don't ask a lot of questions on your signup form, and don't let developers wait a day for 
-	      sending them their API key. Do provide samples, but keep them short and to the point.
+	      sending them their API key, if your service requires one. Do provide samples, but keep them short and to the
+        point. We cover documentation in <xref linkend="documentation"/>.
 	    </para>
 	    <para>
 	      Don't forget to give developers a convenient way to provide feedback. When they do, let them know what you have 
@@ -677,25 +678,24 @@ Then she is happy</programlisting>
 	      As a bonus, this helps you build a community around your API.
 	    </para>
 	    <para>
-	      The documentation must be divided into a couple of different modules, with increasing levels of 
-	      completeness. These different modules should address different stages in the developer's learning cycle. The
-	      getting started guide should be as short as possible and contain links to actually get started. The reference 
-	      manual should be complete and thorough. And you probably want something in between that covers common ways of 
-	      using the API. We cover documentation in <xref linkend="documentation"/>.
-	    </para>
-	    <para>
-	      Keep in mind that developers rather do than read about doing. So provide an SDK to consume your API from their
+	      Keep in mind that developers rather do than read about doing. Provide an SDK to consume your API from their
 	      favorite programming language, rather than having them select and learn an HTTP library, as we explain in 
-	      <xref linkend="sdk"/>. And if you could give them a sandbox environment that they can play with before they
-	      even sign up for your service, that would be ideal. This could be a separate service that you make available, 
-	      or it could be an integrated part of the documentation.
+	      <xref linkend="sdk"/>. This will decrease the amount of effort to get them started.
+      </para>
+      <para>
         Also, sample programs don't hurt. It's often easier to learn by copying something that works than to build it
-        right from scratch.
+        right from scratch. It makes sense to make the sample programs part of the SDK, so that they can double as
+        documentation for the SDK.
+      </para>
+      <para>
+        If you can provide client developers with a sandbox environment that they can play with before they even sign
+        up for your service, that would be ideal. This could be a separate service that you make available, or it could 
+        be an integrated part of the documentation.
 	    </para>
 	    <para>
 	      Once developers start to use your API, they'll run into stumble blocks. Make sure your error reporting
 	      points them into the right direction to solve their problems. <xref linkend="error"/> talks more about error
-	      handling.
+	      reporting and recovery strategies.
 	    </para>
 	    <para>
 	      The goal of a good DX is to draw the developer in. The process starts when the developer first hears about the

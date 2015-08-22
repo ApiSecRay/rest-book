@@ -622,6 +622,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Siren Browser</abbrev>
+    <biblioid class="uri">https://github.com/wurlinc/siren-browser</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>SOAP</abbrev>
     <biblioid class="uri">http://www.w3.org/TR/soap/</biblioid>
   </biblioentry>
@@ -666,6 +671,11 @@
   <biblioentry>
     <abbrev>Swagger</abbrev>
     <biblioid class="uri">https://github.com/swagger-api/swagger-spec</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Swagger UI Demo</abbrev>
+    <biblioid class="uri">http://petstore.swagger.io/</biblioid>
   </biblioentry>
   
   <biblioentry>

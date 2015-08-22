@@ -251,6 +251,11 @@ public void getMenu() {
       into HTTP messages. The API description contains all the information necessary to perform these tasks, so it's
       just a matter of putting the work in to build the tooling.
     </para>
+    <para>
+      You should put the SDKs on GitHub or an equivalent source code repository so they're easily found by client
+      developers and easy for you to update. As a bonus, this invites client developers to submit bug fixes, or even
+      ports of the SDK into a programming language that you don't currently support.
+    </para>
   </section>
   
   <section id="test-security">
