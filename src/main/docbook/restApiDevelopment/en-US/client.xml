@@ -7,13 +7,17 @@
     follow.
   </para>
   <para>
-    The generalization allows for the use case where the client is an autonomous program that makes decisions
-    without being directly guided by a human. The billboard URI is hardcoded or, better yet, read from some
-    configuration source. The program chooses links based on criteria that are coded in.
+     The same model can work for REST clients. The billboard URI is hardcoded or, better yet, read from some
+    configuration source. But otherwise the process is very much the same. The client renders the server's response and
+    allows the user to pick a link from it. This kind of client is also known as a <firstterm>Faithful Hypermedia
+    Client</firstterm> <citation>FHC</citation>.
   </para>
   <para>
-    As long as we're not talking about Artificial Intelligence, the human guidance is still there, of course, but it's
-    now indirect, in the form of a client developer programming in goals and how to achieve them by following links.
+    The generalized model also allows for the use case of an <firstterm>Autonomous Client</firstterm>, which makes
+    decisions without being directly guided by a human. In other words, the program chooses links based on criteria 
+    that were coded in.
+    As long as we're not talking about true Artificial Intelligence, the human guidance is still there, of course, but
+    it's now indirect, in the form of a client developer programming in goals and how to achieve them by following links.
   </para>
   <para>
     Unlike browsers, most REST clients today are specifically built to consume a single API. The main reason for that
@@ -45,15 +49,16 @@
     <para>
       The <firstterm>Getting Started Guide</firstterm> should give a high-level overview of what the system is for and
       why the client developer may want to build a client for it. It should be as short as possible and contain links
-      to more detailed documentation. It should tell the client how to perform one-time actions like acquire an API key
-      if your API requires one.
+      to more detailed documentation. It should tell the client how to perform one-time actions like acquiring an API
+      key if the API requires one. Finally, it should describe how to build the simplest program that can work with the
+      API, the equivalent of <literal>Hello, world!</literal>.
     </para>
     <para>
       The next level is a <firstterm>Collection of Common Use Cases</firstterm>, with code examples that walk the client
       developer through the entire process from start to finish. The state diagrams we developed during analysis
       (see <xref linkend="state-diagrams"/>) form the basis of these descriptions. The particular use cases depend on
-      the specifics of the API, of course, but one topic that all API documentation should have is an explanation of
-      how to authenticate with the service (see <xref linkend="authentication"/>).
+      the specifics of the API, of course, but all API documentation should explain how to authenticate with the 
+      service (see <xref linkend="authentication"/>).
     </para>
     <para>
       If there is a client SDK for the API (and there should be, for all the reasons mentioned in
@@ -69,7 +74,7 @@
       developer to working code as quickly as possible.
     </para>
     <para>
-      To further that cause, it helps to make the documentation interactive. For example, Swagger UI includes a
+      For the same reason it also helps to make the documentation interactive. For example, Swagger UI includes a
       <literal>Try it out!</literal> button that makes a request to a sample implementation of the API and includes the
       response into the documentation <citation>Swagger UI Demo</citation>. The client developer can try out different
       inputs and compare the responses to get a better feel for how the API is supposed to be used.
@@ -78,8 +83,8 @@
       The <firstterm>Reference Manual</firstterm> should be complete and thorough, listing everything you will
       ever need to know about the API, like the HTTP methods and link relations to use, what error conditions may be
       encountered, etc.
-      The Reference Manual should offer a search and/or index facility to zoom in quickly on the right spot in the
-      wealth of information that the Reference Manual contains. 
+      The Reference Manual should offer a search and/or index facility to quickly find the right location in the
+      wealth of information that it contains. 
     </para>
     <para>
       Given the need for completeness and correctness, the reference manual is best generated from the API description.
@@ -88,7 +93,7 @@
     <para>
       If the API is for one hosted service only, then that's all the documentation that is required. If the API is for
       a system that can be installed in multiple places, however, an <firstterm>Administrator's Guide</firstterm> is
-      also needed. This documentation should explain how to install the system, how to configure it for secure use, 
+      also needed. This document should explain how to install the system, how to configure it for secure use, 
       how to scale it, etc.
       In short, it should contain all the information required for setting up the system and operating it properly
       (see <xref linkend="operations"/>).
@@ -98,17 +103,177 @@
   <section id="application-state">
     <title>Implementing Clients</title>
     <para>
-      TODO: Resolving URIs
+      With all the documentation at hand to help out, the next step in building a REST client is to implement the
+      general flow of <xref linkend="client-flow"/> for the API at hand. This requires using an SDK or a general
+      purpose HTTP client library for your programming language. There are also libraries that support generic REST
+      clients at an abstraction level above HTTP.
     </para>
     <para>
-      TODO: Storing Application State
+      The first step is to retrieve the home resource by issuing a <literal>GET</literal> on the billboard URI. This
+       URI is one of those things that may change over time, so it should be stored in the client's configuration
+       rather than hardcoded.
     </para>
     <para>
-      TODO: Storing the certificate of a trusted server
+      It's likely that the service is accessible over HTTPS rather than plain HTTP. It may even support both, in which
+      case you should pick the safer HTTPS option. Make sure you validate the server's certificate properly (see
+      <xref linkend="cryptography"/>) and report any problems you may find with it (see <xref linkend="support"/>).
+      Your HTTP library should have documentation on how to handle TLS connections.
+    </para>
+    <para>
+      It's also likely that your client needs to authenticate with the server. As we saw in 
+      <xref linkend="authentication"/>, there is an extensible HTTP standard and additional specifications that define
+      extensions like Basic and Digest authentication and OAuth2.
+    </para>
+    <para>
+      Many HTTP client libraries will handle Basic and Digest authentication for you, while OAuth2 is usually
+      implemented by specific libraries or frameworks <citation>Spring Security OAuth</citation>. Use such libraries or 
+      frameworks and only create your own implementation if you absolutely have to. In that case, the Decorator pattern
+      is applicable to wrap an authenticating client around a standard client <citation>GammaEtAl94</citation>.
+    </para>
+    <para>
+      If your client requires credentials for authenticating (other then a human user's credentials), then you must
+      store that securely. Don't store any credentials in source code, because that makes the credentials hard to
+      change. It may also a security risk; there have been documented cases where hackers used credentials they found in
+      source code on GitHub to breach systems. 
+    </para>
+    <para>
+      TODO: be more helpful about how to store credentials securely
+    </para>
+    <para>
+      Once the client has connected to the server's billboard URI, it gets a response. This will usually be a home
+      resource (see <xref linkend="home"/>) containing nothing but links.
+    </para>
+    <para>
+      While developing your client, it is often useful to compare the responses the client gets from the server with
+      those received by another client. This tells you whether you're using the HTTP library or SDK correctly. You can 
+      use any kind of client that can handle the types of requests that you have to make.
+    </para>
+    <para>
+      Browsers are unfortunately not very suitable for this purpose, since they support only the <literal>GET</literal>
+      and <literal>POST</literal> methods, balk at most authentication schemes, and don't allow you to set headers.
+      There are several browser plugins available, however, that let you do all of those things, e.g.
+      <citation>Postman</citation>.
+    </para>
+    <para>
+      Once the client has received a response from the server, it must extract data, links, and forms from it.
+      This requires the client to parse the media type. For lots of media types there are libraries available that
+      unmarshall the response into a programming language object. If there is no such library for the API's media type,
+      you can probably get by with a library for a more generic media type. For instance, if you can't find a library
+      that handles JSON-LD, you can use one that supports plain JSON. You can use the same library for marshalling
+      programming language objects into requests.
+    </para>
+    <para>
+      Faithful Hypermedia Clients will render the response and let the user pick a link. The links in the home
+      resource are usually rendered as a menu of choices that the user can select from. In the generic case, however,
+      a link may also be rendered as a button. For a media type that doesn't support forms, like HAL, a link may
+      also be rendered as a form. How the FHC will render a link depends on its understanding of it, as programmed in
+      by the client developer. 
+    </para>
+    <para>
+      Autonomous Clients pick a link to follow themselves based on some criteria that were coded in by the client
+      developer. They may or may not render responses along the way, but when they do, its usually not in the form of
+      HTML, since they require no human interaction to reach their goals.
+    </para>
+    <para>
+      Following a link means issuing a new HTTP request. This means selecting a new HTTP method, a new URI, and
+      optionally URI query string parameters and a method body. For a level 3b API, all this information will be in the
+      response, and the client can be fairly dumb. For a lower-level API, this information must be programmed in based
+      on the link relation and the current URI.
+    </para>
+    <para>
+      For truly RESTful APIs, i.e. level 3a and above, the new URI will be in the response. Actually, the response will 
+      contain a <firstterm>URI reference</firstterm> rather than a URI <citation>RFC 3986</citation>. When servers make
+      reference to a URI in a response, they do not always use the full or <firstterm>absolute URI</firstterm>. To save
+      space and take advantage of hierarchical locality, many servers return an abbreviation of a URI known as a
+      <firstterm>relative URI</firstterm>.
+    </para>
+    <para>
+      A relative URI doesn't contain the <firstterm>scheme</firstterm> of a URI. For instance, the scheme of the URI
+      <literal>http://www.example.com/foo/</literal> is <literal>http</literal>. An example of a relative URI is
+      <literal>/bar/</literal>. A relative reference takes advantage of the hierarchical syntax of URIs to express a URI
+      reference relative to the name space of another hierarchical URI.
+    </para>
+    <para>
+      A relative URI can only be turned into an absolute URI by <firstterm>resolving</firstterm> it against another
+      absolute URI known as the <firstterm>base URI</firstterm>. The resolution algorithm has some tricky edge cases
+      that are hard to get right. Luckily, most programming languages have libraries that implement this algorithm.
+      In Java, for instance, resolving URIs works like this: 
+    </para>
+    <programlisting>import java.net.URI;
+
+URI baseUri = URI.create("http://www.example.com/foo/bar/");
+URI resolvedUri = baseUri.resolve("baz/");
+assert URI.create("http://www.example.com/foo/bar/baz/").equals(resolvedUri);</programlisting>
+    <para>
+      The client should use those existing facilities rather than attempting its own implementation, because
+      there is a considerable chance that you will get it wrong. Compare the above code with the following, for
+      instance:
+    </para>
+    <programlisting>
+URI baseUri = URI.create("http://www.example.com/foo/bar");
+URI resolvedUri = baseUri.resolve("baz/");
+assert URI.create("http://www.example.com/foo/baz/").equals(resolvedUri);</programlisting>
+    <para>
+      As the client continues getting responses from the server and following link relations, it will usually have to
+      build up some internal state to help it along it path to achieving its goal. This is especially true for
+      Autonomous Clients.
+    </para>
+    <para>
+      This internal state is known as application state to distinguish it from resource state maintained by the server,
+      as we saw in <xref linkend="rest"/>. Application state is built up from the hypermedia responses the client
+      receives from the server, a phenomenon known as Hypermedia As The Engine Of Application State (HATEAOS).
+    </para>
+    <para>
+      There are various ways to store application state, like in RAM, in a database, etc. Which method is appropriate
+      depends on the situation, but quite often the client can simply maintain data structures in RAM. If you don't
+      have any specific requirements about picking up where you left off in a previous session, you should default to
+      simply storing state in memory.
+    </para>
+    <para>
+      During the course of a session, the client may have to visit the same resource repeatedly, like the home resource.
+      In those situations it may pay to use client-side caching, as discussed in <xref linkend="caching"/>. Many HTTP 
+      client libraries implement caching, so if the server follows the standard HTTP caching mechanisms, then you may
+      get all this for free. If you have to implement caching yourself, you should probably look at using the Decorator 
+      pattern to wrap a caching client around a standard client.
+    </para>
+    <para>
+      Most HTTP libraries will be able to recover from certain errors automatically. For instance, if a network error
+      occurs for an idempotent HTTP method (see the sidebar "<xref linkend="http-methods"/>" in
+      <xref linkend="maturity"/>), the library may safely retry the request. But most errors you will need to handle
+      yourself.
+    </para>
+    <para>
+      The API documentation will tell you what errors to expect, and you should be prepared to handle them. Hopefully
+      the documentation will give hints on how to recover from those errors as well. Make sure the client can handle 
+      any error, not just the documented ones. You never know when the server is updated, and when (not if) that 
+      happens, you don't want to have to rush out a new version of the client to replace the old broken one.
+    </para>
+    <para>
+      The best way to handle errors is to have a central location where they are processed, just as we recommended for
+      the server. If your HTTP library has a facility for plugging in a generic error handler for all requests, then
+      that's a good place. If not, catch any errors and route them into a central handler yourself. The Decorator
+      pattern may be helpful here yet again.
+    </para>
+    <para>
+      A client should always log any errors it encounters. The logs can be used to discover design flaws and
+      implementation bugs in the client and aid in correcting them. You may go a step further and log all requests, so
+      that they can also useful in debugging performance and scalability issues.
+    </para>
+    <para>
+      A special case is <literal>400 Bad Request</literal>. For an Autonomous Client, this is a logic error and should
+      definitely be logged. For Faithful Hypermedia Clients, however, the error is likely caused by a human entering
+      invalid data into a form. In that case, logging the error may not be all that helpful.
+    </para>
+    <para>
+      For more information on building REST clients, see <citation>Amundsen15</citation>.
     </para>
   </section>
   
   <section>
     <title>Summary</title>
+    <para>
+      This chapter describes the documentation needed to build a REST client, whether that be a Faithful Hypermedia
+      Client or an Autonomous Client. We also looked at some general guidelines for implementing REST clients.
+    </para>
   </section>
 </chapter>

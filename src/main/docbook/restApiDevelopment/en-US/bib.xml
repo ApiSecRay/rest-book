@@ -78,6 +78,26 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>Amundsen15</abbrev>
+    <citetitle>Learning Client Hypermedia: Enabling Client Applications with the Power of the Web</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Mike</firstname>
+          <surname>Amundsen</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <publisher>
+      <publishername>O'Reilly Media</publishername>
+    </publisher>
+    <copyright>
+      <year>2015</year>
+      <month>December</month>
+    </copyright>
+  </biblioentry>
+      
+  <biblioentry>
     <abbrev>API Blueprint</abbrev>
     <biblioid class="uri">https://github.com/apiaryio/api-blueprint/blob/master/API%20Blueprint%20Specification.md</biblioid>
   </biblioentry>
@@ -110,34 +130,6 @@
     <biblioid class="uri">https://tools.ietf.org/html/rfc7252</biblioid>
   </biblioentry>
   
-  <biblioentry>
-    <abbrev>HumbleFarley10</abbrev>
-    <citetitle>Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation</citetitle>
-    <authorgroup>
-      <author>
-        <personname>
-          <firstname>Jezz</firstname>
-          <surname>Humble</surname>
-        </personname>
-      </author>
-      <author>
-        <personname>
-          <firstname>David</firstname>
-          <surname>Farley</surname>
-        </personname>
-      </author>
-    </authorgroup>
-    <publisher>
-      <publishername>Addison-Wesley Professional</publishername>
-      <address>
-        <city>New York</city>
-      </address>
-    </publisher>
-    <copyright>
-      <year>2010</year>
-    </copyright>
-  </biblioentry>
-
   <biblioentry>
     <abbrev>CoolUris</abbrev>
     <biblioid class="uri">http://www.w3.org/Provider/Style/URI.html</biblioid>
@@ -195,6 +187,11 @@
     <copyright>
       <year>2004</year>
     </copyright>
+  </biblioentry>
+
+  <biblioentry>
+    <abbrev>FHC</abbrev>
+    <biblioid class="uri">http://www.infoq.com/articles/hypermedia-api-tutorial-part-two</biblioid>
   </biblioentry>
 
   <biblioentry>
@@ -259,6 +256,43 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>GammaEtAl94</abbrev>
+    <citetitle>Design Patterns: Elements of Reusable Object-Oriented Software</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Eric</firstname>
+          <surname>Gamma</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Richard</firstname>
+          <surname>Helm</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Ralph</firstname>
+          <surname>Johnson</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>John</firstname>
+          <surname>Vlissides</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <publisher>
+      <publishername>Addison-Wesley Professional</publishername>
+    </publisher>
+    <copyright>
+      <year>1994</year>
+    </copyright>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>GitHub API</abbrev>
     <biblioid class="uri">https://developer.github.com/v3/</biblioid>
   </biblioentry>
@@ -302,6 +336,34 @@
     <citetitle>Signing HTTP Messages (Internet-Draft)</citetitle>
   </biblioentry>
   
+  <biblioentry>
+    <abbrev>HumbleFarley10</abbrev>
+    <citetitle>Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Jezz</firstname>
+          <surname>Humble</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>David</firstname>
+          <surname>Farley</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <publisher>
+      <publishername>Addison-Wesley Professional</publishername>
+      <address>
+        <city>New York</city>
+      </address>
+    </publisher>
+    <copyright>
+      <year>2010</year>
+    </copyright>
+  </biblioentry>
+
   <biblioentry>
     <abbrev>Hydra</abbrev>
     <biblioid class="uri">http://www.hydra-cg.com/spec/latest/core/</biblioid>
@@ -428,6 +490,11 @@
     <abbrev>Owasp</abbrev>
     <biblioid class="uri">TODO</biblioid>
     <citetitle>OWASP Top 10</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Postman</abbrev>
+    <biblioid class="uri">https://www.getpostman.com/</biblioid>
   </biblioentry>
   
   <biblioentry>

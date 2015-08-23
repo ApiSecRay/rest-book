@@ -1140,6 +1140,40 @@
       request. You will probably want to use the <literal>403 Forbidden</literal> status.
     </para>
     <para>
+      There is no standard way of implementing rate limiting, but there does seem to be some industry consensus
+      around using headers to convey rate limiting information. For instance, both Twitter and GitHub use the
+      following:
+    </para>
+    <informaltable>
+      <thead>
+        <tr>
+          <th>Header</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><literal>X-RateLimit-Limit</literal></td>
+          <td>The maximum number of requests the client is permitted to make per hour</td>
+        </tr>
+        <tr>
+          <td><literal>X-RateLimit-Remaining</literal></td>
+          <td>The number of requests remaining in the current rate limit window</td>
+        </tr>
+        <tr>
+          <td><literal>X-RateLimit-Reset</literal></td>
+          <td>The time at which the current rate limit window resets (in UTC epoch seconds, i.e. the number of seconds
+          since 0:00:00 1 January 1970)</td>
+        </tr>
+      </tbody>
+    </informaltable>
+    <para>
+      Note that the <literal>X-</literal> prefix in these header names violate current best practices
+      <citation>RFC 6648</citation>, so if the headers ever get standardized, they will surely loose the prefix.
+      You may want to adopt these headers (preferably without the prefix) to reduce the learning curve for
+      client developers who are already familiar with this pattern. 
+    </para>
+    <para>
       For this scheme to work, you have to be able to correlate requests to the same source. For Twitter's API, that is
       quite easy, as each API request is tied to a registered client through a client API key.
     </para>
