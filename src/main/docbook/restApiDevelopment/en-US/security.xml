@@ -716,6 +716,7 @@
         operates with the same permissions irrespective of the user it operates on behalf of. Unfortunately, there are
         many situations where that is not acceptable.
       </para>
+      <para>TODO: FIDO</para>
     </section>
 
     <section id="oauth">
@@ -912,11 +913,6 @@
         APIs. If you need detailed information about the authenticated user, use OpenID Connect in additional to OAuth2.
         Only pick something else if you really know what you're doing and have good reasons for doing it.
       </para>
-    </section>
-
-    <section id="fido">
-      <title>Biometrics-based Authentication</title>
-      <para>TODO: FIDO</para>
     </section>
   </section>
 

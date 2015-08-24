@@ -163,6 +163,9 @@
       programming language objects into requests.
     </para>
     <para>
+      TODO: must-ignore
+    </para>
+    <para>
       Faithful Hypermedia Clients will render the response and let the user pick a link. The links in the home
       resource are usually rendered as a menu of choices that the user can select from. In the generic case, however,
       a link may also be rendered as a button. For a media type that doesn't support forms, like HAL, a link may

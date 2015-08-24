@@ -7,13 +7,135 @@
   </para>
   <para>
     Along the way, we'll be asked to make changes to our system. We'll gain new insights into the problem by observing
-    clients use our API. We'll get ...
+    clients use our API. We'll get bug reports and feature requests. We'll see our competitors innovate. For all these
+    reasons and more we need to adapt to thrive.
   </para>
+  <para>
+    This chapter discusses how to make changes to a REST API in such a way that well-behaved clients won't break.
+  </para>
+  
+  <section>
+    <title>Making Changes</title>
+    <para>
+      It's always safest to only make changes that are <firstterm>backwards compatible</firstterm>, meaning that every
+      interaction with the old version of the API is valid with the new API. By definition, that won't break any
+      clients. The following changes are always backwards compatible:
+    </para>
+    <variablelist>
+      <varlistentry>
+        <term>Adding a new optional property to a request or response</term>
+        <listitem>
+          <para>
+            The new element won't be used by older clients, but that's okay because it is optional. New clients may
+            start using it, which can lead to older clients seeing it. If they committed to a strict schema, they will
+            break. If, however, they follow the general guideline to ignore unknown elements (see 
+            <xref linkend="application-state"/>), they should be fine.
+          </para>
+          <para>
+            You can add a new property anywhere you like; the order of properties shouldn't impact clients. Not all
+            clients are well-behaved, however, and you may want to minimize breakage by adding properties at the end.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Adding a new link to a response</term>
+        <listitem>
+          <para>
+            A similar story holds for adding new links. These links may point to new resources that the old clients
+            know nothing about. Those clients can still discover the new resources via the new links. Depending on the
+            client's capabilities and the richness of the media type (see <xref linkend="maturity"/>), old clients may 
+            even be able to use the new resources! This is the power of hypermedia at work.
+          </para>
+          <para>
+            You can add new links to any response you deem fit. Add big chunks of new functionality to the home
+            resource (see <xref linkend="home"/>), unless you have a good reason to do otherwise. 
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Making a required property optional</term>
+        <listitem>
+          <para>
+            Old clients will continue to provide the property, which is fine. New clients may not, which is also fine.
+            Old clients may then see responses without the property. Well-behaved clients are able to cope with that,
+            although that may mean that they have to offer a degraded service.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    <para>
+      This is a very short list. You can really only change an API in a backwards compatible way by adding to it and
+      by relaxing constraints. Here's why other changes are not backwards compatible:
+    </para>
+    <variablelist>
+      <varlistentry>
+        <term>Adding a new mandatory property to a request</term>
+        <listitem>
+          <para>
+            An old client will not know how to provide the new property. Since it is mandatory, the requests from
+            the old client will now be rejected and the client is broken.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Changing a property name</term>
+        <listitem>
+          <para>
+            An old client will not know to use the new name of the property. It will provide values under the old name,
+            which the new server won't pick up. If the property is mandatory, the request will be rejected and the
+            client is broken. If the property is optional, it will be ignored, which may be just as disastrous.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Making an optional property required</term>
+        <listitem>
+          <para>
+            Since the property was optional before, there may be clients out there that don't provide a value for the
+            property. Any such request will be rejected by the server and break the client.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Removing a property</term>
+        <listitem>
+          <para>
+            And old client may still set the property. The server should ignore the now-unknown property. This may be
+            fine for the client, or it may not be. Some clients may rely on the provided value being there later and
+            may break if it isn't there.
+          </para>        
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Changing the link relation for a link</term>
+        <listitem>
+          <para>
+            An old client won't be able to find the link anymore, since it uses the link relation to look up the link.
+            Some clients may be able to handle that and gracefully degrade their service, but others may break.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Removing a link</term>
+        <listitem>
+          <para>
+            The effects of this change are similar to changing the link's relation.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    <para>
+      TODO: Add new high-level functionality to the Home resource.
+    </para>
+    <para>
+      TODO: evolvability, maintainability
+    </para>
+  </section>
   
   <section id="consumer-contract">
     <title>Consumer contracts</title>
     <para>
-      You may have different types of clients, each with their own goals they're trying to reach through your API.
+      There may be different types of clients, each with their own goals they're trying to reach through the API.
       This is especially likely in a microservices architecture. In that situation it's also likely that both your 
       API and your clients are changing often.
     </para>
@@ -68,19 +190,6 @@
     </para>
   </section>
 
-  <section>
-    <title>Backwards Compatibility</title>
-    <para>
-      TODO: What changes are backwards compatible?
-    </para>
-    <para>
-      TODO: Add new high-level functionality to the Home resource.
-    </para>
-    <para>
-      TODO: evolvability, maintainability
-    </para>
-  </section>
-  
   <section id="breaking-changes">
     <title>Breaking Changes</title>
     <para>
