@@ -3,19 +3,20 @@
   <para>
     So far we've analyzed a problem, designed a solution for it in the form of an API, implemented that API, tested
     the implementation, and put it into production. That doesn't mean we can now sit back and relax. More often than
-    not, deploying into production is only the first step of a long journey.
+    not, deployment into production is only the first step of a long journey.
   </para>
   <para>
-    Along the way, we'll be asked to make changes to our system. We'll gain new insights into the problem by observing
-    clients use our API. We'll get bug reports and feature requests. We'll see our competitors innovate. For all these
-    reasons and more we need to adapt to thrive.
+    Along the way of that journey, we'll be asked to make changes to our system. We'll gain new insights into the
+    problem by observing clients use our API. We'll get bug reports and feature requests. We'll see our competitors
+    innovate. For all these reasons and more, we need to adapt so we can thrive.
   </para>
   <para>
-    This chapter discusses how to make changes to a REST API in such a way that well-behaved clients won't break.
+    This chapter discusses approaches to making changes to a REST API in such a way that well-behaved clients won't 
+    break.
   </para>
   
   <section>
-    <title>Making Changes</title>
+    <title>Backwards Compatible Changes</title>
     <para>
       It's always safest to only make changes that are <firstterm>backwards compatible</firstterm>, meaning that every
       interaction with the old version of the API is valid with the new API. By definition, that won't break any
@@ -27,13 +28,14 @@
         <listitem>
           <para>
             The new element won't be used by older clients, but that's okay because it is optional. New clients may
-            start using it, which can lead to older clients seeing it. If they committed to a strict schema, they will
+            start using it, which can lead to older clients seeing it. If they validate using a strict schema, they will
             break. If, however, they follow the general guideline to ignore unknown elements (see 
             <xref linkend="application-state"/>), they should be fine.
           </para>
           <para>
-            You can add a new property anywhere you like; the order of properties shouldn't impact clients. Not all
-            clients are well-behaved, however, and you may want to minimize breakage by adding properties at the end.
+            You can add a new property anywhere you like; the order of properties shouldn't impact well-behaved clients.
+            Not all clients are well-behaved, however, and you may want to minimize breakage by adding properties at 
+            the end.
           </para>
         </listitem>
       </varlistentry>
@@ -41,14 +43,16 @@
         <term>Adding a new link to a response</term>
         <listitem>
           <para>
-            A similar story holds for adding new links. These links may point to new resources that the old clients
-            know nothing about. Those clients can still discover the new resources via the new links. Depending on the
-            client's capabilities and the richness of the media type (see <xref linkend="maturity"/>), old clients may 
-            even be able to use the new resources! This is the power of hypermedia at work.
+            Adding new links in similar to adding new optional properties. The new links may point to new resources that
+            the old clients know nothing about. Those clients can still discover the new resources via the new links.
+            Depending on the client's capabilities and the richness of the media type (see
+            <xref linkend="media-types"/>), old clients may even be able to use the new resources! This is the power of
+            hypermedia at work.
           </para>
           <para>
-            You can add new links to any response you deem fit. Add big chunks of new functionality to the home
-            resource (see <xref linkend="home"/>), unless you have a good reason to do otherwise. 
+            You can add new links to any response you deem fit. Big chunks of new functionality should be added 
+            to the home resource (see <xref linkend="home"/>), unless you have a good reason to place them
+            somewhere else.
           </para>
         </listitem>
       </varlistentry>
@@ -83,7 +87,7 @@
           <para>
             An old client will not know to use the new name of the property. It will provide values under the old name,
             which the new server won't pick up. If the property is mandatory, the request will be rejected and the
-            client is broken. If the property is optional, it will be ignored, which may be just as disastrous.
+            client is broken. If the property is optional, it will be ignored, which may be okay, or may be disastrous.
           </para>
         </listitem>
       </varlistentry>
@@ -125,10 +129,9 @@
       </varlistentry>
     </variablelist>
     <para>
-      TODO: Add new high-level functionality to the Home resource.
-    </para>
-    <para>
-      TODO: evolvability, maintainability
+      Backwards compatible changes are always safe. They are very limited in scope, however, as the above shows.
+      In practice, we may get away with a change that is not backwards compatible in theory. The trick is to know your
+      clients. Let's see how we can acquire such knowledge.
     </para>
   </section>
   
@@ -140,29 +143,32 @@
       API and your clients are changing often.
     </para>
     <para>
-      In one way, this changes nothing about how you test your API: you still need to know what parts of your API your
-      clients use and you still need to make sure that their expectations are met, as we saw in <xref linkend="test"/>.
+      In one way, this changes nothing: you still need to know what parts of your API your clients use and you still
+      need to make sure that their expectations are met, as we saw in <xref linkend="test"/>.
     </para>
     <para>
       In another way, however, this changes everything. As new clients are added to the mix and old clients are updated 
       or retired, it gets increasingly difficult to keep track of what part of your API is actually being used.
     </para>
     <para>
-      It's imperative that you have this overview. If you don't know what your clients are using, that severely
-      limits your options for evolving your API. If you don't know whether some part of your API is being used, and
-      if so, how, then you can't really change it in a backwards-incompatible way. There are some things you can do
-      in that situation to keep your ability to innovate, and will discuss those below, but your options will be
-      fairly limited.
+      It's imperative that you have this overview. If you don't know what part of the API your clients are using, you 
+      can't really change it in a backwards-incompatible way. There are some things you can do in that situation to 
+      keep your ability to innovate, and we will discuss those below, but your options will be fairly limited.
     </para>
     <para>
       If you do know exactly what your clients need, you're in a much better position. If you know for sure that
-      nobody is using feature X, for instance, you can safely delete it. If you know that only client Y is using
-      feature Z, then you may be able to coordinate an incompatible change with the people that build client Y.
+      nobody is using property X, for instance, you can safely delete it. If you know that only client Y is using
+      link relation Z, then you may be able to coordinate an incompatible change with the people that build client Y.
     </para>
     <para>
-       In a situation with many different, rapidly evolving clients, it becomes rather unwieldly to update the state 
-       diagrams by hand. We should be looking at automation to help us out. Such automation is made possible by 
-       <firstterm>consumer contracts</firstterm>, the contract between you and one particular client, or consumer.
+      We saw in <xref linkend="state-diagrams"/> that we can capture our client's requirements in state diagrams. And
+      <xref linkend="test"/> showed how to use those same state diagrams to verify that the client's requirements are
+      met.
+    </para>
+    <para>
+      But in a situation with many different, rapidly evolving clients, it becomes rather unwieldly to update the state 
+      diagrams by hand. We should be looking at automation to help us out. Such automation is made possible by 
+      <firstterm>consumer contracts</firstterm>, the contract between you and one particular client, or consumer.
     </para>
     <para>
       To support automation, the consumer contract has to be an exectuable specification, just as BDD scenarios are.
@@ -171,11 +177,14 @@
       your API.
     </para>
     <para>
-      A good place to capture client interactions is in the Continuous Integration pipeline of the client.
-      The black-box tests for the client will run against your API, either against a real server or against a stub.
-      At this point we can intercept the client's calls and capture them into a consumer contract. Correlation IDs
-      help to link related requests and responses together (see <xref linkend="correlation"/>), especially when you
-      run multiple tests in parallel.
+      If you build the clients as well as the API, then a good place to capture client interactions is in the
+      Continuous Integration pipeline of the client. The black-box tests for the client will run against your API, 
+      either against a real server or against a stub. At this point we can intercept the client's calls and capture them
+      into a consumer contract.
+    </para>
+    <para>
+      Correlation IDs help to link related requests and responses together (see <xref linkend="correlation"/>), 
+      especially when you run multiple tests in parallel (as you should to shorten the feedback cycle).
     </para>
     <para>
       There are a couple of open source tools to support consumer contracts.
@@ -184,14 +193,64 @@
     <para>
       If you don't control your clients, for example when your API fronts a hosted service, you most likely are not in
       a position to coordinate changes with your clients. You can still capture their interactions to see what parts of 
-      the API they use (see <xref linkend="logging"/>) and you can still use those interaction patters to create 
-      consumer contracts, but any changes to your API must now be limited to those that don't break your clients.
-      Let's see how we can do that.
+      the API they use (see <xref linkend="logging"/>) and you can still use those interaction pattern to create 
+      consumer contracts, but these contracts are a lot less rigid. Just because you don't see a client use a certain
+      part of the API today doesn't mean that they won't tomorrow.
+    </para>
+    <para>
+      In this situation, you may rely on the consumer contract and hope for the best, or you may play safe and limit
+      yourself to only backwards compatible changes. But at some point you will probably have to introduce a breaking
+      change. Let's see how we can manage those.
     </para>
   </section>
 
   <section id="breaking-changes">
     <title>Breaking Changes</title>
+    <para>
+      If you want to introduce breaking changes without breaking your clients, you must maintain two versions of
+      the API at the same time. Old clients can talk to the old version, while new clients can take advantage of
+      all the cool new features that the new API brings.
+    </para>
+    <para>
+      One particularly widespread approach to implementing this idea is to add a version identifier to the URLs 
+      that clients use. For instance, your billboard URI would change from <literal>http://api.example.com/v1/</literal>
+      t0 <literal>http://api.example.com/v1/</literal>. There are several problems with this approach: 
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          It versions the entire API. If the API consists of a couple of hundred resources and you change one, all URLs
+          must change. In theory you could keep some constant, but at least all paths to the changed resource must
+          change. Little changes thus have big consequences, which makes it less likely that you'll want to bother
+          improving the API.
+        </para>
+        <para>
+          Versioning the entire API as a whole also means that a client must adapt to all the changes of the new version
+          at the same time. This is more work for the client developer, which makes it less likely that the client will
+          move to the new version. With clients hesitant to move to newer versions, you'll end up maintaining more
+          versions in parallel than perhaps needed.
+        </para>
+        <para>
+          In short, this approach rewards precisely the sort of big bang releases (in both servers and clients) that the 
+          industry has spent the last several years trying to get away from. We need an approach that is more agile.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          It violates the best practice that "cool URIs don't change" <citation>CoolUris</citation>. This has very real
+          consequences, for example for performance. With multiple URIs pointing to the same resource, caching proxies
+          (see <xref linkend="caching"/>) will need more memory to store all the links, or store less resources in the
+          same amount of memory. The cache hit ratio may decrease as well, especially when the client is the one of
+          first or last to move to a new version.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          It's more work to implement. REST frameworks map URIs to code, so if the URI changes then that mapping must
+          be updated. And this needs to happen for resources that don't change, as per the first point.
+        </para>
+      </listitem>
+    </itemizedlist>
     <para>
       Introducing new media types is one way to evolve your REST API when you must make backwards incompatible changes.
       You can continue to serve old clients with the old media type, while new clients can take advantage of the new 
