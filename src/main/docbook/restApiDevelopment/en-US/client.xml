@@ -203,16 +203,21 @@
 
 URI baseUri = URI.create("http://www.example.com/foo/bar/");
 URI resolvedUri = baseUri.resolve("baz/");
-assert URI.create("http://www.example.com/foo/bar/baz/").equals(resolvedUri);</programlisting>
+assert URI.create("http://www.example.com/foo/bar/baz/")
+    .equals(resolvedUri);</programlisting>
     <para>
       The client should use those existing facilities rather than attempting its own implementation, because
       there is a considerable chance that you will get it wrong. Compare the above code with the following, for
       instance:
     </para>
-    <programlisting>
-URI baseUri = URI.create("http://www.example.com/foo/bar");
+    <programlisting>URI baseUri = URI.create("http://www.example.com/foo/bar");
 URI resolvedUri = baseUri.resolve("baz/");
-assert URI.create("http://www.example.com/foo/baz/").equals(resolvedUri);</programlisting>
+assert URI.create("http://www.example.com/foo/baz/")
+    .equals(resolvedUri);</programlisting>
+    <para>
+      As an aside, this subtle difference is why we recommended always ending URIs in slashes in side bar
+      "<xref linkend="uris"/>" in <xref linkend="name-resources"/>.
+    </para>
     <para>
       As the client continues getting responses from the server and following link relations, it will usually have to
       build up some internal state to help it along it path to achieving its goal. This is especially true for
