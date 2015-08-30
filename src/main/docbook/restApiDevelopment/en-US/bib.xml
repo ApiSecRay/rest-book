@@ -704,9 +704,19 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Spring Data</abbrev>
+    <biblioid class="uri">http://projects.spring.io/spring-data/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>Spring Data REST</abbrev>
     <!-- TODO: Check URI -->
     <biblioid class="uri">http://projects.spring.io/spring-data-rest/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Spring Platform</abbrev>
+    <biblioid class="uri">http://platform.spring.io/platform/</biblioid>
   </biblioentry>
   
   <biblioentry>
