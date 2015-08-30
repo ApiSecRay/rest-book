@@ -207,14 +207,14 @@
   <section id="breaking-changes">
     <title>Breaking Changes</title>
     <para>
-      If you want to introduce breaking changes without breaking your clients, you must maintain two versions of
-      the API at the same time. Old clients can talk to the old version, while new clients can take advantage of
-      all the cool new features that the new API brings.
+      There actually is a way to introduce breaking changes without breaking existing clients: maintain two separate
+      versions of the API at the same time. Old clients can talk to the old version, while new clients can take
+      advantage of all the cool new features that the new API offers.
     </para>
     <para>
       One particularly widespread approach to implementing this idea is to add a version identifier to the URLs 
       that clients use. For instance, your billboard URI would change from <literal>http://api.example.com/v1/</literal>
-      t0 <literal>http://api.example.com/v1/</literal>. There are several problems with this approach: 
+      to <literal>http://api.example.com/v1/</literal>. There are several problems with this approach: 
     </para>
     <itemizedlist>
       <listitem>

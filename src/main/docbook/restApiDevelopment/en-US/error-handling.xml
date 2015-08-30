@@ -823,13 +823,13 @@
           <row>
             <entry>404</entry>
             <entry>http://errors.restbucks.com/not-found</entry>
-            <entry>The URI you requested doesn't exists or is not accessible by you</entry>
+            <entry>The URI you requested doesn't exists or is not accessible by you.</entry>
             <entry>N/A</entry>
           </row>
           <row>
             <entry>405</entry>
             <entry>http://errors.restbucks.com/method-not-allowed</entry>
-            <entry>The method you used is not supported on this URI</entry>
+            <entry>The method you used is not supported on this URI.</entry>
             <entry>N/A</entry>
           </row>
           <row>
