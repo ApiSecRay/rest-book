@@ -1,49 +1,215 @@
 <chapter id="implementation">
   <title>Implementation</title>
   <para>
-    TODO: This chapter...
+    We now have a design for an API that meets the requirements, causes the least amount of surprise by reusing
+    well-known design patterns, is helpful when things go wrong, gives good performance and scalability, and is secure.
+    But until we've implemented that design, we don't actually have anything. 
+    This chapter discusses some important topics to consider while building a REST server.
   </para>
   
-  <section id="dto">
-    <title>Data Transfer Objects</title>
+  <section>
+    <title>Anatomy of a REST Server</title>
     <para>
-      The last couple of decades saw the rise of architectures that separate different concerns into different
-      components. These architectures go by names like Model-View-Controller, hexagonal architecture, clean
-      architecture, ports and adapters, etc. What they all share is an emphasis on keeping the code that captures the
-      domain separate from other code. The domain code is the core of any application, and not likely to change for
-      technology reasons. Other parts of the application, deal with things like data persistence and user interfaces
-      that are more likely to be affected by technology hype cycles.
+      There are a number of areas each REST API implementation must address. Since it's important to separate things
+      that change for different reasons, these areas should be implemented by different components
+      <citation>SOLID</citation>. Here are the components that make up a REST server:
     </para>
-    <para>
-      It's important to understand that the REST architectural style doesn't concern itself with the domain.  
-      Remember from <xref linkend="granularity"/> that the HTTP messages that client and server exchange in a RESTful 
-      system are data transfer objects (DTOs). DTOs transfer data in a technology neutral way between layers or
-      components of the system. In this case, they isolate other code from the media type that was used to serialize
-      the messages.
-    </para>
-    <para>
-      DTOs are optimized for data transfer. We saw how performance and scalability concerns may force us to structure
-      our messages a certain way. That doesn't mean that the domain has changed, it's simply a design trade-off. It
-      then follows that we need to map the DTOs onto domain objects. This mapping can be 1:1, and that's the best way
-      to start. But when the need arises to change the message structure for performance or other reasons, resist the
-      temptation to modify your domain objects. Instead you should have a mapping layer in place that handles the
-      translation.
-    </para>
-    <para>
-      Some frameworks are very easy to work with when the mapping is 1:1, but they get in the way when the mapping 
-      becomes more complicated. Again, resist the temptation to go with the tool and change your domain objects.
-      Code that matches the domain objects is too valuable to give up. It keeps developers and users on the same page
-      and prevents subtle bugs based on misunderstandings <citation>Evans04</citation>.
-    </para>
-    <para>
-      Other frameworks actually help with separating domain code from UI code like REST message DTOs. Those based on
-      the <firstterm>Model-View-Controller</firstterm> (MVC) architecture, for instance, clearly distinguish between
-      the domain (model), DTO (view), and mapping between them (controller). But even with MVC frameworks there is a
-      temptation to put domain logic into controllers. Extracting that out may seem like more work, but that's only
-      true in the short term. You can help yourself resist temptation by practicing Domain-Driven Design
-      <citation>Evans04</citation>, where you start out with the domain logic and then add other concerns, like
-      persistence and a REST API, around it.
-    </para>
+    <variablelist>
+      <varlistentry>
+        <term>HTTP Server</term>
+        <listitem>
+          <para>
+            The HTTP messages that the client sends must be handled somewhere in the server. A socket must be open on
+            the standard ports 80 (for HTTP) and/or 433 (for HTTPS) or on some custom port. Code must listen on these
+            ports and speak the HTTP protocol.
+          </para>
+          <para>
+            There isn't any good reason to build this yourself. You should deploy your code into a running HTTP server
+            like Tomcat or Apache that handles all this for you. Alternatively, you may embed an HTTP server like Jetty
+            in your code.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>HTTP Framework</term>
+        <listitem>
+          <para>
+            The HTTP server will speak the HTTP protocol, but it will not implement your resources. You need to extend it
+            so that it will call into your code whenever it sees one of the URIs that identify your resources.
+          </para>
+          <para>
+            This is another component that you should not write yourself. There are plenty of excellent frameworks out
+            there that do this for you, like Jersey or Spring Web MVC. Those frameworks make it easy to link URIs to
+            your code in a declarative manner.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Controllers</term>
+        <listitem>
+          <para>
+            The actual code that handles the HTTP methods on the resources you defined is known as a
+            <firstterm>controller</firstterm>. This term comes from the <firstterm>Model-View-Controller</firstterm>
+            (MVC) design pattern <citation>GammaEtAl94</citation>.
+          </para>
+          <para>
+            MVC isn't the only possible architecture for a REST server. Approaches like hexagonal architecture, clean
+            architecture, ports and adapters, etc., work too. In the following discussion we'll assume MVC, but the
+            main ideas work equally well for any of the other approaches.
+          </para>
+          <para>
+            The "controller" part of MVC is the glue that binds the logic from the domain to the presentation in the
+            view and the actions that update the model. We'll discuss the model and view below. For REST APIs, actions
+            are the HTTP methods of the uniform interface. The HTTP framework should allow you to declaratively bind
+            controllers to HTTP methods and URIs.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Message converters</term>
+        <listitem>
+          <para>
+            The HTTP server will handle the HTTP protocol, but that protocol is extensible. Media types define how the
+            content of the HTTP message body is encoded. While HTTP servers handle standard media types used on the Web,
+            like HTML, they most likely won't handle the ones you selected for your REST API (see
+            <xref linkend="media-types"/>).
+          </para>
+          <para>
+            Your HTTP frameworks may be able to handle additional media types, like <literal>application/json</literal>,
+            <literal>application/xml</literal> and maybe even <literal>application/hal+json</literal> through
+            serialization libraries like JAX-B and Jackson. Different frameworks have different names for these media
+            type handlers; we'll borrow the term <firstterm>message converter</firstterm> from Spring in this book.
+          </para>
+          <para>
+            In addition to providing some default message converters, HTTP frameworks also allow you to register new
+            ones to handle additional media types. Rather than limit your choice of media type by the selection that the
+            HTTP framework offers out of the box, you should write your own message converter if needed, say for
+            <literal>application/ld+json</literal>. It's usually not all that hard to implement a new message converter
+            based on existing ones.
+          </para>
+          <para>
+            Separating out message converters from other code makes it easier to change media types (e.g. from plain
+            JSON or HAL to a more mature media type like JSON-LD with Hydra). It also makes it easy to support multiple
+            media types. This in turn enables you to switch media types without breaking clients, as we'll see in
+            <xref linkend="breaking-changes"/>.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Data transfer objects</term>
+        <listitem>
+          <para>
+            In a REST API, the "view" part of MVC is the data content that is serialized in the body of the HTTP message 
+            through a message converter. The message converter translates bytes whose meaning is defined by a media type
+            into a programming language object known as a data transfer object (DTO).
+          </para>
+          <para>
+            There are two basic approaches for dealing with the data in a DTO. The first is to make them immutable
+            objects, where all the input is provided in the constructor and the data can only be read. This doesn’t
+            work well for large objects, however, and it doesn’t play nice with serialization frameworks.
+          </para>
+          <para>
+            The better approach is to make all the properties writable. Since a DTO must not have logic, this is one of 
+            the few occasions where you can safely make the fields public and omit the getters and setters.
+          </para>
+          <para>
+            Of course, that means some other part of the code is responsible for filling the DTO with combinations of 
+            properties that together make sense. Conversely, you should validate DTOs that come in from the client.
+            We'll show you how in <xref linkend="input-validation"/>.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Domain objects</term>
+        <listitem>
+          <para>
+            The "model" in the MVC pattern is the domain model. Domain model objects capture the logic of your domain
+            in an abstract way that is decoupled from technology like databases and UI <citation>Evans04</citation>.
+          </para>
+          <para>
+            The domain model is the core of your application, but we won't discuss it much here, since it is (by 
+            definition) not specific to REST APIs. The REST architectural style only concerns itself with
+            representations of state and the uniform interface to manipulate that state.
+          </para>
+          <para>
+            The domain model should be separated from other parts of the application that deal with things like data
+            persistence and user interfaces that are more likely to be affected by technology hype cycles.
+          </para>
+          <para>
+            We believe the surest way to achieve this separation of concerns is to practice Domain-Driven Design
+            <citation>Evans04</citation>, where you start out with the domain logic and then add other concerns, like
+            persistence and a REST API, around it.
+          </para>
+          <para>
+            Other approaches can work as well. Whatever approach you choose to follow, make sure to separate the domain
+            logic from the controllers and clearly distinguish between data transfer objects and domain objects.
+          </para>
+          <para>
+            Data transfer objects transfer data between processes; in this case between a REST client and server. They
+            don't have any behavior associated with them; they just exposes data. A domain object, in contrast, is all
+            about encapsulating data rather than exposing it. You use domain objects for their behavior rather than
+            their data.
+          </para>
+          <para>
+            Domain objects are <emphasis>discovered</emphasis> during analysis, while data transfer objects are
+            <emphasis>designed</emphasis> and thus are subject to all kinds of design trade-offs. As we saw in
+            <xref linkend="granularity"/>, performance and scalability concerns may force us to structure our messages
+            a certain way. That doesn't mean that the domain has changed.
+          </para>
+          <para>
+            So while there is a certain degree of overlap between the data exposed by a data transfer object and that
+            encapsulated by a domain object, but there isn't necessarily a one-to-one correspondence. It then follows
+            that we need to map the DTOs onto domain objects and back.
+          </para>
+          <para>
+            This mapping can be 1:1, and that's the best way to start. But when the need arises to change the message
+            structure for performance or other reasons, resist the temptation to modify your domain objects. Instead
+            you should have a mapping layer in place that handles the translation.
+          </para>
+          <para>
+            Since this mapping is part of binding the "model" (domain) and "view" (data transfer object) parts of MVC,
+            the right place to implement it is in the controller.
+          </para>
+          <para>
+            Some frameworks are very easy to work with when the mapping is 1:1, but they get in the way when the mapping 
+            becomes more complicated. Again, resist the temptation to go with the tool and change your domain objects.
+            Code that matches the domain objects is too valuable to give up. It keeps developers and users on the same
+            page and prevents subtle bugs based on misunderstandings <citation>Evans04</citation>.
+          </para>
+          <para>
+            <firstterm>Dependency injection</firstterm> is a design pattern where an object doesn't create or look up
+            its dependencies itself, but rather gets told from the outside what they are. One application of this
+            pattern is to inject domain objects as dependencies into controllers, so that the controllers can call into
+            the domain objects for executing domain logic.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Persistency</term>
+        <listitem>
+          <para>
+            Remember from <xref linkend="rest"/> that state in a RESTful system is separated into application state and
+            resource state. The former is maintained on the client and is the topic of <xref linkend="client"/>.
+            Resource state is maintained on the server and you will probably need some sort of database to persist it.
+          </para>
+          <para>
+            There are a lot of options for doing so. Traditionally, persistency meant storing data in a relational
+            database and that may be the right answer for you.
+          </para>
+          <para>
+            But if you're API is publicly accessible by just about anybody, then you may need a solution that is more
+            specifically tailored to that situation, like a NoSql database. There are many options out there, like
+            Cassandra, CouchDB, etc., so you'll have to do some homework to pick the right tool for your job.
+          </para>
+          <para>
+            To keep your domain objects independent from your persistency solution, you may want to introduce an
+            abstraction known as a <firstterm>Data Access Layer</firstterm> (DAL). The DAL should be captured in a
+            technology-independent way, so you can inject it into your domain objects without binding the domain model
+            to a specific database technology.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
     <para>
       One example of a Java MVC framework for REST APIs is <citation>Spring WebMVC</citation>. It lets you build REST 
       controllers easily by adding annotations. You can then use Spring's dependency injection to autowire the
@@ -51,34 +217,6 @@
       objects (DTOs). The Spring community also supports link relations via the <citation>Spring HATEOAOS</citation>
       project. There is even a contribution for assigning semantics to DTOs and their fields <citation>Spring
       Hydra</citation>.
-    </para>
-    <para>
-      You should have exactly one place in your code where you convert your internal DTO to a message that is sent over 
-      the wire and one place where you do the reverse.
-      In JAX-RS, for example, that one place should be an Entity Provider. In Spring, the same mechanism is called a 
-      Message Converter. Note that both frameworks have support for several often-used serialization formats.
-    </para>
-    <para>
-      Following this advice not only makes it easier to change media types (e.g. from plain JSON or HAL to a more 
-      mature media type like JSON-LD with Hydra). It also makes it easy to support multiple media types. This in turn 
-      enables you to switch media types without breaking clients, as we'll see in <xref linkend="breaking-changes"/>.
-    </para>
-    <para>
-      A DTO should not have any behavior; it’s purpose in life is to transfer data between remote systems. This is a
-      major difference from a domain object.
-      There are two basic approaches for dealing with the data in a DTO. 
-    </para>
-    <para>
-      The first is to make them immutable objects, where all the input is provided in the constructor and the data can 
-      only be read. This doesn’t work well for large objects, however, and it doesn’t play nice with serialization 
-      frameworks.
-    </para>
-    <para>
-      The better approach is to make all the properties writable. Since a DTO must not have logic, this is one of the 
-      few occasions where you can safely make the fields public and omit the getters and setters.
-			Of course, that means some other part of the code is responsible for filling the DTO with combinations of 
-			properties that together make sense. Conversely, you should validate DTOs that come in from the client. We'll
-			show you how in <xref linkend="input-validation"/>.
     </para>
   </section>
   
