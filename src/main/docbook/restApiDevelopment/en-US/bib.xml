@@ -581,6 +581,11 @@
     <biblioid class="uri">http://enterprise.blob.core.windows.net/whitepapers/Retail-Threat-Modeling.pdf</biblioid>
     <citetitle>A Systematic Method to Understand Security Risks in a Retail Environment</citetitle>
   </biblioentry>
+
+  <biblioentry>
+    <abbrev>Reactive Manifesto</abbrev>
+    <biblioid class="uri">http://www.reactivemanifesto.org/</biblioid>
+  </biblioentry>  
   
   <biblioentry>
     <abbrev>RichAmun13</abbrev>
