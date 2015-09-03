@@ -406,6 +406,12 @@ public class CentralErrorHandler {
 
   <section id="secure-impl">
     <title>Security</title>
+    <para>
+      We discussed security features in <xref linkend="security"/>. Security features address design flaws, which
+      account for roughly half of all vulnerabilities. The other half are implementation bugs, and we will discuss
+      them here. 
+    </para>
+    
     <section id="impl-authz">
       <title>Authorization</title>
 	    <para>
@@ -458,10 +464,244 @@ public class CentralErrorHandler {
     
     <section id="input-validation">
       <title>Input Validation</title>
+      <para>
+        At some point you need to verify that the input supplied by the client meets the criteria you have set for it.
+        For instance, the <literal>payment</literal> message in RESTBucks contains a <literal>amount</literal> property
+        (see <xref linkend="design-messages"/>). You'd want to check that this property contains a positive value,
+        because allowing a negative value could lead to people stealing money from you <citation>Todo1</citation>.
+      </para>
+      <para>
+        Remember that the input from the client arrives as part of the HTTP message, which the HTTP framework and a
+        message converter translate into a data transfer object. The data transfer object may then be translated into a
+        domain object, or it may contain input for a domain service.
+      </para>
+      <para>
+        Our first opportunity to validate the input is then in our controller, where the data transfer object is passed
+        into a method by the HTTP framework. For the payment example, the controller may look something like this:
+      </para>
+      <programlisting>@RequestMapping(Uris.PAYMENT)
+public class PaymentController() {
+  
+  @RequestMapping(method = Method.POST)
+  @Consumes(Api.DEFAULT_MEDIA_TYPES)
+  public void pay(Payment payment) {
+    double amount = payment.amount;
+    // ...
+  }
+  
+}</programlisting>
+      <para>
+        Note that our <literal>Payment</literal> data transfer object declares the <literal>amount</literal> field to
+        be of type <literal>double</literal>. One could argue that this is the first step in validation, where the type
+        of the property is checked.
+      </para>
+      <para>
+        We like to make the distinction between syntactic and semantic validation. Checking the type is
+        <firstterm>syntactic</firstterm> validation, because you can perform it without understanding what the value
+        means. <firstterm>Semantic validation</firstterm> is the next step where you perform further checks based on
+        knowledge of what the value represents in the problem domain.
+      </para>
+      <para>
+        Syntactic validation is all about the syntax of the message, and should therefore be handled by the message
+        converter. If it encounters the value <literal>foo</literal> for the <literal>amount</literal> property, it can
+        throw an <literal>IllegalArgumentException</literal>, which the central error handling will convert to a
+        <literal>400 Bad Request</literal> response to the client.
+      </para>
+      <para>
+        The next step is semantic checking: the <literal>amount</literal> should be positive. There are several ways
+        to accomplish this. This first is to use an XML or JSON schema to validate the HTTP message body. There are
+        several problems with this approach.
+      </para>
+      <para>
+        Schema validation can only go so far. Validating individual properties will probably work fine, but things get
+        hairy when we want to validate relations between properties. For maximum flexibility, we’d like to use a general
+        purpose programming language like Java to express constraints.
+      </para>
+      <para>
+        More importantly, <emphasis>schema validation is generally not a good idea in a REST service</emphasis>.
+      </para>
+      <para>
+        A major goal of REST is to decouple client and server so that they can evolve separately. If we validate against 
+        a schema, then a new client that sends a new property would break against an old server that doesn’t understand 
+        the new property. (We discuss evolution of REST APIs in <xref linkend="maintenance"/>.)
+      </para>
+      <para>
+        It’s better to silently ignore properties you don’t understand. The JAX-B serialization library is a good 
+        example of this. It also works the other way around: properties that are not sent by an old client end up as 
+        <literal>null</literal> in the data transfer object. Consequently, a server must be careful to handle 
+        <literal>null</literal> values properly.
+      </para>
+      <para>
+        If we shouldn't use schema validation, then we may turn to programming language specific validation frameworks.
+        For instance, the Java world offers <firstterm>Bean Validation</firstterm> <citation>JSR 303</citation>. With
+        Bean Validation, you can add annotations to your data transfer objects to perform semantic checking:
+      </para>
+      <programlisting>public class Payment {
+  @Min(1)
+  public double amount;
+}
+
+@RequestMapping(Uris.PAYMENT)
+public class PaymentController {
+  
+  @RequestMapping(method = Method.POST) // TODO: Is this the right syntax?
+  @Consumes(Api.DEFAULT_MEDIA_TYPES)
+  public void pay(@Valid Payment payment) {
+    // ...
+  }
+  
+}</programlisting>
+      <para>
+        The <literal>@Min</literal> annotation declares that the <literal>amount</literal> is only valid when it's at
+        least <literal>1</literal>. The <literal>@Valid</literal> annotation on <literal>Payment</literal> declares
+        that the HTTP framework must validate the data transfer object and return <literal>400 Bad Request</literal>
+        automatically when the object isn't valid.
+      </para>
+      <para>
+        This approach works as intended when the entire data transfer object is transferred, but it breaks down if we
+        start using <literal>PUT</literal> or <literal>PATCH</literal> to update individual properties. In RESTBucks
+        we can't update a payment, but we can update an order. So let's look at that example next:
+      </para>
+      <programlisting>public class Order {
+  
+  @TODO
+  public String customer;
+  // ...
+}
+
+@RequestMapping(Uris.ORDER)
+public class OrderController {
+  
+  @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES, produces = Api.DEFAULT_MEDIA_TYPES)
+  public Order update(@PathParam("order-id") String id, @Valid Order order) {
+    // ...
+  }
+  
+  @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM, produces = Api.DEFAULT_MEDIA_TYPES)
+  public Order partialUpdate(@PathParam("order-id") String id, @FormParam("customer") @TODO String customer) {
+    // ...
+  }
+  
+}</programlisting>
+      <para>
+        As this example shows, we now need to specify the validation annotation in more than one place. In order to
+        make this DRY, we need to change the <literal>customer</literal> from a <literal>String</literal> to a new
+        class that will handle the validation:
+      </para>
+      <programlisting><![CDATA[public class Name implements Comparable<Name> {
+  private String name;
+        
+  public Name(String value) {
+    if (!isValid(value)) {
+      throw new IllegalArgumentException("Not a valid name: " + value);
+    }
+    this.name = value;
+  }
+  
+  // toString(), compareTo(), hashCode(), equals()
+}
+
+public class Order {
+  
+  public Name customer;
+  
+}
+
+@RequestMapping(Uris.ORDER)
+public class OrderController {
+  
+  @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES, produces = Api.DEFAULT_MEDIA_TYPES)
+  public Order update(@PathParam("order-id") String id, Order order) {
+    // ...
+  }
+  
+  @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM, produces = Api.DEFAULT_MEDIA_TYPES)
+  public Order partialUpdate(@PathParam("order-id") String id, @FormParam("customer") Name customer) {
+    // ...
+  }
+  
+}]]></programlisting>
+      <para>
+        Now we have some nicely DRY code, but it is still fundamentally flawed: the <literal>Order</literal> class
+        is a data transfer object (DTO), while the <literal>Name</literal> class is a domain object. So we're mixing
+        different abstraction levels here. It's better to keep them separate:
+      </para>
+      <programlisting><![CDATA[public class Name implements Comparable<Name> {
+  private String name;
+        
+  public Name(String value) {
+    if (!isValid(value)) {
+      throw new IllegalArgumentException("Not a valid name: " + value);
+    }
+    this.name = value;
+  }
+  
+  // toString(), compareTo(), hashCode(), equals()
+}
+
+public class OrderDto {
+  
+  public OrderDto() {
+  }
+  
+  public OrderDto(Order order) {
+    customer = order.getCustomer().toString();
+  }
+  
+  public String customer;
+  
+}
+
+public class Order {
+
+  public Name getCustomer() {
+    // ...
+  }
+    
+  public void setCustomer(Name customer) {
+    // ...
+  }
+  
+}
+
+@RequestMapping(Uris.ORDER)
+public class OrderController {
+  
+  private orderRepository = ...
+  
+  @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES, produces = Api.DEFAULT_MEDIA_TYPES)
+  public OrderDto update(@PathParam("order-id") String id, OrderDto orderDto) {
+    // ...
+  }
+  
+  @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM, produces = Api.DEFAULT_MEDIA_TYPES)
+  public OrderDto partialUpdate(@PathParam("order-id") String id, @FormParam("customer") String customer) {
+    Order order = orderRepository.load(id);
+    order.setCustomer(new Name(customer));
+    orderRepository.save(order);
+    return new OrderDto(order);
+  }
+  
+}]]></programlisting>
+      <para>
+        This code is still DRY, but it now also follows the Single Responsibility Principle <citation>SOLID</citation>:
+        each class has only one reason to change. The DTO changes when we need to optimize the message structure for
+        performance reasons, while the domain objects change whenever we change our understanding or support of the
+        problem domain.
+      </para>
     </section>
     
     <section id="output-encoding">
       <title>Output Encoding</title>
+      <para>
+        Input validation is an important tool in security, and you should put it to good use. You should not overuse it,
+        however. Sometimes there is a security issue that looks like it can be fixed with input validation, but where
+        that is not appropriate.
+      </para>
+      <para>
+        Consider the classic vulnerability of SQL Injection, where a SQL query string is built up using input from the
+        client. 
+      </para>
     </section>
   </section>
   

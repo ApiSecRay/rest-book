@@ -844,4 +844,14 @@
     <biblioid class="uri">https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project</biblioid>
   </biblioentry>
   
+  <biblioentry>
+    <abbrev>Todo1</abbrev>
+    <biblioid class="uri">http://blog.whitehatsec.com/root-of-the-issue/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>JSR 303</abbrev>
+    <biblioid class="uri">TODO</biblioid>
+  </biblioentry>
+  
 </bibliography>
