@@ -27,10 +27,10 @@
       <para>Name state transitions with link relations.</para>
     </step>
     <step>
-      <para>Design messages.</para>
+      <para>Design data.</para>
     </step>
     <step>
-      <para>Document application semantics.</para>
+      <para>Document semantics.</para>
     </step>
     <step>
       <para>Select a media type to serialize messages.</para>
@@ -841,13 +841,13 @@
   </section>
 
   <section id="design-messages">
-    <title>Design Messages</title>
+    <title>Design Data</title>
     <para>
       At this point we are done with the interaction part of our resource model. All that is left to do, is address the
       data part. In other words, we have to design our representations.
-      In this step we'll design the structure of the messages that client and server exchange. In the next step, we'll
-      assign precise meaning to the items in our structures. Finally, we'll  serialize the messages into a series of 
-      bytes using media types. 
+      In this step we'll design the structure of the data transferred between client and server. In the next step, we'll
+      assign precise meaning to that data. Finally, we'll tie the data and the links together in a message that we'll
+      serialize into a series of bytes using a media type.
     </para>
     <para>
       We start with indicating which of our HTTP methods require a request and which require a response. This decision 

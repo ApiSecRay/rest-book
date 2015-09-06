@@ -154,7 +154,7 @@
     </para>
   </section>
   
-  <section>
+  <section id="serialize-errors">
     <title>Serializing Error Conditions As Messages</title>
     <para>
       There are two places in the HTTP response where we could conceivably put the problem details: in one or more

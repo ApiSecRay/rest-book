@@ -267,7 +267,11 @@
           For instance, you can use annotations to automatically wire controllers to domain services.
         </para>
       </listitem>
-    </itemizedlist>      
+    </itemizedlist>
+    <para>
+      We'll use Spring in the remainder of this chapter, but the ideas carry over very well to other Java frameworks
+      (like JAX-RS) and other programming languages.
+    </para>
   </section>
   
   <section id="dry">
@@ -284,31 +288,31 @@
     </para>
     <para>
       The DRY guideline is helpful in controllers as well. Controllers bind code to resources and media types.
-      Most of your controllers will work with the same media type, so there may be a temptation to spread this choice
-      all over your code. For instance, the following code snippet uses the <literal>@Produces</literal> JAX-RS
-      annotation to specify which media type to use as the <literal>Content-Type</literal> of the response:
+      For instance, the following code snippet uses the Spring <literal>@RequestMapping</literal> annotation to specify
+      which media type to use as the <literal>Content-Type</literal> of the response:
     </para>
-    <programlisting>@GET
-@Produces("application/ld+json")
+    <programlisting>@RequestMapping(method = RequestMethod.GET,
+    produces = { "application/ld+json" })
 public HomeDto get() {
   return new HomeDto();
 }</programlisting>
     <para>
       This looks fine in isolation, but if you code all your controllers like this, the string
       <literal>"application/ld+json"</literal> will be all over the place. It's better to use a constant instead, e.g.
-      <literal>@Produces(Api.MEDIA_TYPE_APPLICATION_LD_JSON)</literal>.
-      Here we've created a new <literal>Api</literal> class to hold a constant for the media type.
+      <literal>produces = { Api.MEDIA_TYPE_APPLICATION_LD_JSON }</literal>.
+      Here we've created a new <literal>Api</literal> class to hold a constant for the media type. We'll get back to
+      that class later.
     </para>
     <para>
       If you've selected a media type for which your HTTP framework has native support, then you probably can use a
-      constant defined by the HTTP framework rather than your own. For instance, JAX-RS has a
-      <literal>MediaTypes</literal> class with constants for basic media types like <literal>application/json</literal>
+      constant defined by the HTTP framework rather than your own. For instance, Spring has a
+      <literal>MediaType</literal> class with constants for basic media types like
+      <literal>application/json</literal>.
     </para>
     <para>
       Imagine what would have to happen if we were to change media type. We'd introduce a new constant for the new 
       media type and we'd still have to go in and update all our controllers. We could ease our pain by using a
-      refactoring tool to rename the constant, but we'd still have to submit changes to all our controllers to our 
-      version control system.
+      refactoring tool to rename the constant, but we'd still end up with changes in all our controller classes.
     </para>
     <para>
       We can prevent that by introducing another layer of indirection:
@@ -316,8 +320,8 @@ public HomeDto get() {
     <programlisting>String MEDIA_TYPE_DEFAULT = MEDIA_TYPE_APPLICATION_LD_JSON;
 String MEDIA_TYPE_APPLICATION_LD_JSON = "application/ld+json";</programlisting>
     <para>
-      We can now use <literal>@Consumes(Api.MEDIA_TYPE_DEFAULT)</literal> in our controllers, and they won't need to
-      change if we decide to use a different media type.
+      We can now use <literal>produces = { Api.MEDIA_TYPE_DEFAULT }</literal> in our controllers, and
+      they won't need to change if we decide to use a different media type.
     </para>
     <para>
       We're still not completely out of the woods, however. As we'll see in <xref linkend="breaking-changes"/>, we'll
@@ -328,8 +332,8 @@ String MEDIA_TYPE_APPLICATION_LD_JSON = "application/ld+json";</programlisting>
     <programlisting>String[] MEDIA_TYPE_DEFAULT = { MEDIA_TYPE_APPLICATION_LD_JSON };
 String MEDIA_TYPE_APPLICATION_LD_JSON = "application/ld+json";</programlisting>
     <para>
-      The use of media types is but one example of the DRY principle at work. You should do something similar for
-      URLs, namespaces (if you use XML-based media types), link relations, error constants, etc. 
+      The use of media types is only one example of where we can apply the DRY principle. You should do something
+      similar for URLs, namespaces (if you use XML-based media types), link relations, error constants, etc.
     </para>
     <para>
       Some of the identifiers in that list are part of your API, like link relations, while others are implementation
@@ -338,18 +342,18 @@ String MEDIA_TYPE_APPLICATION_LD_JSON = "application/ld+json";</programlisting>
     </para>
     <para>
       In the example above, we've put the constants for the media types in a class called <literal>Api</literal>. You
-      can collect all identifiers there that are part of your API. That makes it possible to publish the
-      <literal>Api</literal> class somewhere where clients can consume it. This is actually the beginning of an SDK!
-      We'll talk more about SDKs in <xref linkend="sdk"/>.
+      can make this class the home of all identifiers that are part of your API. That makes it possible to publish the
+      <literal>Api</literal> class somewhere where clients can consume it. This is actually the beginning of a Software
+      Development Kit (SDK)! We'll talk more about that in <xref linkend="sdk"/>.
     </para>
     <para>
-      We just said that URLs are implementation choices, but that's only partially true. There is one URL that is
-      actually part of your API: the billboard URI. The constant for this URL should therefore be part of the
-      <literal>Api</literal> class rather than the internal class that contains the other URLs.
+      We just said that URLs are implementation choices, but there is one exception: the billboard URI. The constant
+      for this URL should therefore be part of the <literal>Api</literal> class rather than the internal class that
+      contains the other URLs.
     </para>
     <para>
-      Another example of using the DRY guideline is with URLs. Since URLs are hierarchical in nature, it makes sense to 
-      define one URL constant in terms of another, for example:
+      Since URLs are hierarchical in nature, we can apply the DRY principle to them by defining one URL constant in
+      terms of another:
     </para>
     <programlisting>String URL_ORDERS = "/orders/";
 String URL_ORDER = URL_ORDERS + "{id}/";</programlisting>
@@ -361,30 +365,45 @@ String URL_ORDER = URL_ORDERS + "{id}/";</programlisting>
     </para>
     <para>
       Different HTTP frameworks support this in different ways. For example, in Spring you can use a combination of the
-      <literal>ControllerAdvice</literal> and <literal>ExceptionHandler</literal> annotations to centralize exception
+      <literal>@ControllerAdvice</literal> and <literal>@ExceptionHandler</literal> annotations to centralize exception
       handling:
     </para>
-    <programlisting><![CDATA[@ControllerAdvice
+    <programlisting><![CDATA[public class NotFoundException extends RuntimeException {
+  super("http://errors.restbucks.com/not-found");
+}
+
+public class MissingItemException extends IllegalArgumentException {
+  super("http://errors.restbucks.com/missing-item");
+}
+
+public class UnknownItemException extends IllegalArgumentException {
+  super("http://errors.restbucks.com/unknown-item");
+}
+
+// Other exception classes ...
+
+
+@ControllerAdvice
 public class CentralErrorHandler {
 
- @ExceptionHandler({OrderNotFoundException.class})
- public ResponseEntity<String> orderNotFound(OrderNotFoundException e) {
-  return new ResponseEntity<String>(Api.ERROR_NOT_FOUND,
-      HttpStatus.NOT_FOUND);
+ @ExceptionHandler({ NotFoundException.class })
+ public ResponseEntity<String> notFound(Exception e) {
+  return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
  }
        
- @ExceptionHandler({ItemOutOfStockException.class})
- public ResponseEntity<String> itemOutOfStock(ItemOutOfStockException e) {
-  return new ResponseEntity<String>(Api.ERROR_ITEM_OUT_OF_STOCK,
-      HttpStatus.BAD_REQUEST);
+ @ExceptionHandler({ IllegalArgumentException.class })
+ public ResponseEntity<String> illegalArgument(IllegalArgumentException e) {
+  return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
  }
  
  // Other exception handlers...
 }]]></programlisting>
     <para>
       As the above example shows, it makes sense to define custom exception classes for each of the API's error
-      conditions (see <xref linkend="error"/>). This facilitates translation to error messages and helps with providing
-      details and/or recovery options to the client (not shown in the example).
+      conditions (see <xref linkend="error"/>). The central error handler maps them onto HTTP status codes and
+      translates them to something that can be serialized as an HTTP response body. In the example above that is a
+      simple message string, but you serve your clients better by more structured messages with additional details that
+      can help the client recover, as we discussed in <xref linkend="serialize-errors"/>.
     </para>
   </section>
 
@@ -465,25 +484,44 @@ public class CentralErrorHandler {
     <section id="input-validation">
       <title>Input Validation</title>
       <para>
-        At some point you need to verify that the input supplied by the client meets the criteria you have set for it.
-        For instance, the <literal>payment</literal> message in RESTBucks contains a <literal>amount</literal> property
-        (see <xref linkend="design-messages"/>). You'd want to check that this property contains a positive value,
-        because allowing a negative value could lead to people stealing money from you <citation>Todo1</citation>.
+        You should design your API such that it is easy to use (see <xref linkend="dx"/>). One aspect of that is to
+        make it difficult to use the API incorrectly.
+      </para>
+      <para>
+        For instance, in RESTBucks we decided that each item in the order must be listed separately. There is no
+        <literal>count</literal> property on an item that specifies how many of the items are ordered. If there were,
+        someone could specify a negative number and we'd have to check it. Making the client repeat the items prevents
+        this kind of mistake and eliminates the need for a check.
+      </para>
+      <para>
+        This approach only goes so far, of course. In a different domain, where a client would routinely add hundreds 
+        of the same item to an order, having to specify each one individually would be annoying. At some point you 
+        need to verify that input supplied by the client meets the criteria you have set for it.
+      </para>
+      <para>
+        One example in RESTBucks is the <literal>payment</literal> message, which contains an <literal>amount</literal>
+        property (see <xref linkend="design-messages"/>). You'd want to check that this property contains a positive 
+        value, because allowing a negative value could lead to people stealing money from you
+        <citation>WhiteHatSec12</citation>.
+      </para>
+      <para>
+        Input validation plays an important role in preventing these kinds of undesired business outcomes. It is also a
+        role in preventing security bugs. For instance, in languages like C a client could provide data that extends
+        beyond the allocated bounds (a so-called <firstterm>Buffer Overrun</firstterm> vulnerability), which can lead to
+        all sorts of subsequent problems, like Elevation of Privilege (see <xref linkend="security"/>).
       </para>
       <para>
         Remember that the input from the client arrives as part of the HTTP message, which the HTTP framework and a
-        message converter translate into a data transfer object. The data transfer object may then be translated into a
-        domain object, or it may contain input for a domain service.
+        message converter translate into a data transfer object that is made available to a controller. This is thus
+        our first opportunity to validate the input. For the payment example, the controller may look something like
+        this:
       </para>
-      <para>
-        Our first opportunity to validate the input is then in our controller, where the data transfer object is passed
-        into a method by the HTTP framework. For the payment example, the controller may look something like this:
-      </para>
-      <programlisting>@RequestMapping(Uris.PAYMENT)
+      <programlisting>@RestController
+@RequestMapping(Uris.PAYMENT)
 public class PaymentController() {
   
-  @RequestMapping(method = Method.POST)
-  @Consumes(Api.DEFAULT_MEDIA_TYPES)
+  @RequestMapping(method = RequestMethod.POST,
+      consumes = Api.MEDIA_TYPE_DEFAULT)
   public void pay(Payment payment) {
     double amount = payment.amount;
     // ...
@@ -493,13 +531,13 @@ public class PaymentController() {
       <para>
         Note that our <literal>Payment</literal> data transfer object declares the <literal>amount</literal> field to
         be of type <literal>double</literal>. One could argue that this is the first step in validation, where the type
-        of the property is checked.
+        of the property is checked. If the provided sequence of bytes doesn't specify a double under the rules of the
+        media type, then the message converter will likely throw an exception.
       </para>
       <para>
-        We like to make the distinction between syntactic and semantic validation. Checking the type is
-        <firstterm>syntactic</firstterm> validation, because you can perform it without understanding what the value
-        means. <firstterm>Semantic validation</firstterm> is the next step where you perform further checks based on
-        knowledge of what the value represents in the problem domain.
+        This is a form of <firstterm>syntactic</firstterm> validation, because you can perform it without understanding
+        what the value means. <firstterm>Semantic validation</firstterm> is the next step where you perform further
+        checks based on knowledge of what the value represents in the problem domain.
       </para>
       <para>
         Syntactic validation is all about the syntax of the message, and should therefore be handled by the message
@@ -509,8 +547,8 @@ public class PaymentController() {
       </para>
       <para>
         The next step is semantic checking: the <literal>amount</literal> should be positive. There are several ways
-        to accomplish this. This first is to use an XML or JSON schema to validate the HTTP message body. There are
-        several problems with this approach.
+        to accomplish this. This first is to use an XML or JSON schema to validate the HTTP message body. There are,
+        however, several problems with this approach.
       </para>
       <para>
         Schema validation can only go so far. Validating individual properties will probably work fine, but things get
@@ -541,11 +579,8 @@ public class PaymentController() {
   public double amount;
 }
 
-@RequestMapping(Uris.PAYMENT)
 public class PaymentController {
   
-  @RequestMapping(method = Method.POST) // TODO: Is this the right syntax?
-  @Consumes(Api.DEFAULT_MEDIA_TYPES)
   public void pay(@Valid Payment payment) {
     // ...
   }
@@ -554,13 +589,25 @@ public class PaymentController {
       <para>
         The <literal>@Min</literal> annotation declares that the <literal>amount</literal> is only valid when it's at
         least <literal>1</literal>. The <literal>@Valid</literal> annotation on <literal>Payment</literal> declares
-        that the HTTP framework must validate the data transfer object and return <literal>400 Bad Request</literal>
-        automatically when the object isn't valid.
+        that the Bean Validation framework must validate the data transfer object and throw a
+        <literal>ConstraintViolationException</literal> when the object isn't valid. The HTTP framework then returns
+        <literal>400 Bad Request</literal> automatically.
       </para>
       <para>
-        This approach works as intended when the entire data transfer object is transferred, but it breaks down if we
-        start using <literal>PUT</literal> or <literal>PATCH</literal> to update individual properties. In RESTBucks
-        we can't update a payment, but we can update an order. So let's look at that example next:
+        Note that in Spring you can inspect the validation errors by adding an <literal>Errors</literal> parameter
+        directly after the parameter with the <literal>@Valid</literal> annotation:
+      </para>
+      <programlisting>public void pay(@Valid Payment payment, Errors errors) {
+    if (errors.hasErrors()) {
+      // Handle errors ...
+    }
+    // ...
+  }</programlisting>
+      <para>
+        The <literal>@Valid</literal> approach works as intended when the entire data transfer object is transferred,
+        but it breaks down if we start using <literal>PUT</literal> or <literal>PATCH</literal> to update individual
+        properties. In RESTBucks we can't update a payment, but we can update an order. So let's look at that example 
+        next:
       </para>
       <programlisting>public class Order {
   

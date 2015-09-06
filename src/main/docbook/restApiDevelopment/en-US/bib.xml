@@ -390,6 +390,12 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>JSR 303</abbrev>
+    <biblioid class="uri">http://beanvalidation.org/1.1/spec/</biblioid>
+    <citetitle>Bean Validation specification</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>JWT</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/rfc7519</biblioid>
     <citetitle>JSON Web Token (JWT)</citetitle>
@@ -814,6 +820,12 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>WhiteHatSec12</abbrev>
+    <biblioid class="uri">http://blog.whitehatsec.com/root-of-the-issue/</biblioid>
+    <citetitle>Root of the issue</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>WikiCache</abbrev>
     <biblioid class="uri">https://en.wikipedia.org/wiki/Cache_%28computing%29</biblioid>
   </biblioentry>
@@ -842,16 +854,6 @@
   <biblioentry>
     <abbrev>ZAP</abbrev>
     <biblioid class="uri">https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project</biblioid>
-  </biblioentry>
-  
-  <biblioentry>
-    <abbrev>Todo1</abbrev>
-    <biblioid class="uri">http://blog.whitehatsec.com/root-of-the-issue/</biblioid>
-  </biblioentry>
-  
-  <biblioentry>
-    <abbrev>JSR 303</abbrev>
-    <biblioid class="uri">TODO</biblioid>
   </biblioentry>
   
 </bibliography>
