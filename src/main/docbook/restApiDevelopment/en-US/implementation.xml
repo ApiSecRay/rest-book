@@ -490,29 +490,30 @@ public class CentralErrorHandler {
       <para>
         For instance, in RESTBucks we decided that each item in the order must be listed separately. There is no
         <literal>count</literal> property on an item that specifies how many of the items are ordered. If there were,
-        someone could specify a negative number and we'd have to check it. Making the client repeat the items prevents
-        this kind of mistake and eliminates the need for a check.
+        someone could specify a negative number and steal our money <citation>WhiteHatSec12</citation>. We'd prevent
+        that by checking the count. Making the client repeat the items makes this kind of attack impossible and
+        therefore eliminates the need for a check.
       </para>
       <para>
         This approach only goes so far, of course. In a different domain, where a client would routinely add hundreds 
-        of the same item to an order, having to specify each one individually would be annoying. At some point you 
-        need to verify that input supplied by the client meets the criteria you have set for it.
+        of the same item to an order, having to specify each one individually would be very annoying, for instance.
+        So at some point you need to verify that input supplied by the client meets the criteria you have set for it.
       </para>
       <para>
         One example in RESTBucks is the <literal>payment</literal> message, which contains an <literal>amount</literal>
-        property (see <xref linkend="design-messages"/>). You'd want to check that this property contains a positive 
-        value, because allowing a negative value could lead to people stealing money from you
-        <citation>WhiteHatSec12</citation>.
+        property (see <xref linkend="design-messages"/>). This property is also vulnerable to an attack when the client
+        specifies a negative value. So we need to verify that the input is valid.
       </para>
       <para>
-        Input validation plays an important role in preventing these kinds of undesired business outcomes. It is also a
-        role in preventing security bugs. For instance, in languages like C a client could provide data that extends
-        beyond the allocated bounds (a so-called <firstterm>Buffer Overrun</firstterm> vulnerability), which can lead to
-        all sorts of subsequent problems, like Elevation of Privilege (see <xref linkend="security"/>).
+        Input validation plays an important role in preventing these kinds of undesired business outcomes. It is also 
+        important for preventing security bugs. For instance, in languages like C a client could provide data that
+        extends beyond the memory allocated for it (a so-called <firstterm>Buffer Overrun</firstterm> vulnerability), 
+        which can lead to all sorts of subsequent problems, like Elevation of Privilege (see
+        <xref linkend="security"/>).
       </para>
       <para>
-        Remember that the input from the client arrives as part of the HTTP message, which the HTTP framework and a
-        message converter translate into a data transfer object that is made available to a controller. This is thus
+        Remember that the input from the client arrives as part of the HTTP message that a message converter translate
+        into a data transfer object, which the HTTP framework subsequently makes available to a controller. This is 
         our first opportunity to validate the input. For the payment example, the controller may look something like
         this:
       </para>
@@ -535,30 +536,32 @@ public class PaymentController() {
         media type, then the message converter will likely throw an exception.
       </para>
       <para>
-        This is a form of <firstterm>syntactic</firstterm> validation, because you can perform it without understanding
-        what the value means. <firstterm>Semantic validation</firstterm> is the next step where you perform further
-        checks based on knowledge of what the value represents in the problem domain.
-      </para>
-      <para>
+        This is a form of <firstterm>syntactic</firstterm> validation, because you only need to understand the syntax
+        rules governing the value to perform the validation.
         Syntactic validation is all about the syntax of the message, and should therefore be handled by the message
         converter. If it encounters the value <literal>foo</literal> for the <literal>amount</literal> property, it can
         throw an <literal>IllegalArgumentException</literal>, which the central error handling will convert to a
         <literal>400 Bad Request</literal> response to the client.
       </para>
       <para>
-        The next step is semantic checking: the <literal>amount</literal> should be positive. There are several ways
-        to accomplish this. This first is to use an XML or JSON schema to validate the HTTP message body. There are,
-        however, several problems with this approach.
+        <firstterm>Semantic validation</firstterm> is the next step where you perform further checks based on knowledge 
+        of what the value represents in the problem domain. In this example, the <literal>amount</literal> should be 
+        positive.
       </para>
       <para>
-        Schema validation can only go so far. Validating individual properties will probably work fine, but things get
-        hairy when we want to validate relations between properties. For maximum flexibility, we’d like to use a general
-        purpose programming language like Java to express constraints.
+        Since semantic checking depends on an understanding of the problem domain, it must be handled by domain-aware
+        code. For generic domain concepts, like email addresses, you may be able to find libraries that perform the
+        validation for you. For more specialized domains, you will have to implement the validation yourself.
+        There are several ways to accomplish this. 
+      </para>
+      <para>
+        This first is to use an XML or JSON schema to validate the HTTP message body. There are, however, several
+        problems with this approach. The first is that schema validation can only go so far. Validating individual
+        properties will probably work fine, but things get hairy when we want to validate relations between properties.
+        For maximum flexibility, we’d like to use a general purpose programming language like Java to express constraints.
       </para>
       <para>
         More importantly, <emphasis>schema validation is generally not a good idea in a REST service</emphasis>.
-      </para>
-      <para>
         A major goal of REST is to decouple client and server so that they can evolve separately. If we validate against 
         a schema, then a new client that sends a new property would break against an old server that doesn’t understand 
         the new property. (We discuss evolution of REST APIs in <xref linkend="maintenance"/>.)
@@ -570,12 +573,12 @@ public class PaymentController() {
         <literal>null</literal> values properly.
       </para>
       <para>
-        If we shouldn't use schema validation, then we may turn to programming language specific validation frameworks.
+        Instead of schema validation we should use programming language specific validation frameworks, if available.
         For instance, the Java world offers <firstterm>Bean Validation</firstterm> <citation>JSR 303</citation>. With
-        Bean Validation, you can add annotations to your data transfer objects to perform semantic checking:
+        Bean Validation, you could add annotations to your data transfer objects to perform semantic checking:
       </para>
       <programlisting>public class Payment {
-  @Min(1)
+  @Min(1) // TODO: Does [Min] support doubles?
   public double amount;
 }
 
@@ -590,12 +593,13 @@ public class PaymentController {
         The <literal>@Min</literal> annotation declares that the <literal>amount</literal> is only valid when it's at
         least <literal>1</literal>. The <literal>@Valid</literal> annotation on <literal>Payment</literal> declares
         that the Bean Validation framework must validate the data transfer object and throw a
-        <literal>ConstraintViolationException</literal> when the object isn't valid. The HTTP framework then returns
-        <literal>400 Bad Request</literal> automatically.
+        <literal>ConstraintViolationException</literal> when the object isn't valid. The HTTP framework must call the 
+        Bean Validation framework, catch the exception and return <literal>400 Bad Request</literal>.
       </para>
       <para>
         Note that in Spring you can inspect the validation errors by adding an <literal>Errors</literal> parameter
-        directly after the parameter with the <literal>@Valid</literal> annotation:
+        directly after the parameter with the <literal>@Valid</literal> annotation if you need more control over the
+        error handling:
       </para>
       <programlisting>public void pay(@Valid Payment payment, Errors errors) {
     if (errors.hasErrors()) {
@@ -606,30 +610,37 @@ public class PaymentController {
       <para>
         The <literal>@Valid</literal> approach works as intended when the entire data transfer object is transferred,
         but it breaks down if we start using <literal>PUT</literal> or <literal>PATCH</literal> to update individual
-        properties. In RESTBucks we can't update a payment, but we can update an order. So let's look at that example 
-        next:
+        properties. In RESTBucks we can't update a payment, but we can update an order. So let's look at that example: 
       </para>
       <programlisting>public class Order {
   
-  @TODO
+  @Name
   public String customer;
   // ...
 }
 
+@RestController
 @RequestMapping(Uris.ORDER)
 public class OrderController {
   
-  @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES, produces = Api.DEFAULT_MEDIA_TYPES)
-  public Order update(@PathParam("order-id") String id, @Valid Order order) {
+  @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
+      produces = Api.DEFAULT_MEDIA_TYPES)
+  public Order update(@PathVariable("order-id") String id, @Valid Order order) {
     // ...
   }
   
-  @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM, produces = Api.DEFAULT_MEDIA_TYPES)
-  public Order partialUpdate(@PathParam("order-id") String id, @FormParam("customer") @TODO String customer) {
+  @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM, 
+      produces = Api.DEFAULT_MEDIA_TYPES)
+  public Order partialUpdate(@PathVariable("order-id") String id, 
+      @RequestPart("customer") @Name String customer) {
     // ...
   }
   
 }</programlisting>
+      <para>
+        This example uses a custom <literal>@Name</literal> annotation that validates the customer's name. By the way,
+        this is actually a surprisingly difficult thing to do <citation>Jennings10</citation>.
+      </para>
       <para>
         As this example shows, we now need to specify the validation annotation in more than one place. In order to
         make this DRY, we need to change the <literal>customer</literal> from a <literal>String</literal> to a new
@@ -638,10 +649,7 @@ public class OrderController {
       <programlisting><![CDATA[public class Name implements Comparable<Name> {
   private String name;
         
-  public Name(String value) {
-    if (!isValid(value)) {
-      throw new IllegalArgumentException("Not a valid name: " + value);
-    }
+  public Name(@Name String value) {
     this.name = value;
   }
   
@@ -657,36 +665,28 @@ public class Order {
 @RequestMapping(Uris.ORDER)
 public class OrderController {
   
-  @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES, produces = Api.DEFAULT_MEDIA_TYPES)
-  public Order update(@PathParam("order-id") String id, Order order) {
+  @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
+      produces = Api.DEFAULT_MEDIA_TYPES)
+  public Order update(@PathVariable("order-id") String id, Order order) {
     // ...
   }
   
-  @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM, produces = Api.DEFAULT_MEDIA_TYPES)
-  public Order partialUpdate(@PathParam("order-id") String id, @FormParam("customer") Name customer) {
+  @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM,
+      produces = Api.DEFAULT_MEDIA_TYPES)
+  public Order partialUpdate(@PathVariable("order-id") String id, 
+      @RequestPart("customer") Name customer) {
     // ...
   }
   
 }]]></programlisting>
       <para>
-        Now we have some nicely DRY code, but it is still fundamentally flawed: the <literal>Order</literal> class
-        is a data transfer object (DTO), while the <literal>Name</literal> class is a domain object. So we're mixing
-        different abstraction levels here. It's better to keep them separate:
+        Now we have nicely DRY code, but it is still fundamentally flawed. The <literal>Order</literal> class is a data 
+        transfer object (DTO), while the <literal>Name</literal> class is a domain object, so we're mixing different
+        abstraction levels here. It's better to keep them separate:
       </para>
-      <programlisting><![CDATA[public class Name implements Comparable<Name> {
-  private String name;
-        
-  public Name(String value) {
-    if (!isValid(value)) {
-      throw new IllegalArgumentException("Not a valid name: " + value);
-    }
-    this.name = value;
-  }
+      <programlisting><![CDATA[public class OrderDto {
   
-  // toString(), compareTo(), hashCode(), equals()
-}
-
-public class OrderDto {
+  public String customer;
   
   public OrderDto() {
   }
@@ -695,59 +695,123 @@ public class OrderDto {
     customer = order.getCustomer().toString();
   }
   
-  public String customer;
-  
 }
 
 public class Order {
 
+  private Name customer;
+  
   public Name getCustomer() {
-    // ...
+    return customer;
   }
     
   public void setCustomer(Name customer) {
-    // ...
+    this.customer = customer;
   }
   
 }
 
+@RestController
 @RequestMapping(Uris.ORDER)
 public class OrderController {
   
-  private orderRepository = ...
+  @Autowired
+  private OrderRepository orderRepository;
   
-  @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES, produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderDto update(@PathParam("order-id") String id, OrderDto orderDto) {
+  @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
+      produces = Api.DEFAULT_MEDIA_TYPES)
+  public OrderDto update(@PathVariable("order-id") String id, OrderDto orderDto) {
     // ...
   }
   
-  @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM, produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderDto partialUpdate(@PathParam("order-id") String id, @FormParam("customer") String customer) {
-    Order order = orderRepository.load(id);
+  @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM,
+      produces = Api.DEFAULT_MEDIA_TYPES)
+  public OrderDto partialUpdate(@PathVariable("order-id") String id,
+      @RequestPart("customer") String customer) {
+    Order order = orderRepository.findOne(id);
+    if (order == null) {
+      throw new NotFoundException();
+    }
     order.setCustomer(new Name(customer));
-    orderRepository.save(order);
+    order = orderRepository.save(order);
     return new OrderDto(order);
   }
   
 }]]></programlisting>
       <para>
-        This code is still DRY, but it now also follows the Single Responsibility Principle <citation>SOLID</citation>:
-        each class has only one reason to change. The DTO changes when we need to optimize the message structure for
-        performance reasons, while the domain objects change whenever we change our understanding or support of the
-        problem domain.
+        This code is DRY <emphasis>and</emphasis> follows the Single Responsibility Principle <citation>SOLID</citation>.
+        The DTO only needs to change when we need to optimize the message structure for performance reasons, not when
+        our understanding or support of the problem domain changes.
       </para>
     </section>
     
     <section id="output-encoding">
       <title>Output Encoding</title>
       <para>
-        Input validation is an important tool in security, and you should put it to good use. You should not overuse it,
-        however. Sometimes there is a security issue that looks like it can be fixed with input validation, but where
-        that is not appropriate.
+        While input validation is an important tool in security, it's not the only thing we have in our toolbox.
+        Sometimes there is a security issue that looks like it can be fixed with input validation, but where that is 
+        not appropriate.
       </para>
       <para>
-        Consider the classic vulnerability of SQL Injection, where a SQL query string is built up using input from the
-        client. 
+        Consider the classic vulnerability of <firstterm>SQL Injection</firstterm>, where a SQL query string is built 
+        up using input provided by the client:
+      </para>
+      <programlisting>String query = "select * from order where customer = '" + customer + "'";</programlisting>
+      <para>
+        This code is susceptible to attacks where the client puts a quote in the value for <literal>customer</literal>,
+        like <literal>1' OR '1'='1</literal>. Instead of showing the orders for one customer, this will show all
+        orders, which is an Information Disclosure vulnerability (see <xref linkend="security"/>).
+      </para>
+      <para>
+        Some people see this problem as caused by a lack of input validation. They would implement the
+        <literal>@Name</literal> validation constraint of the previous section as the place to solve this problem by
+        refusing names with quotes.
+      </para>
+      <para>
+        This is incorrect and may lead to negative business outcomes. A customer named O'Connor, for instance, would
+        be denied access to the service and might generate a lot of bad press on social networks because of it. The
+        problems is not that <literal>O'Connor</literal> is an invalid name, but rather that the name causes problems
+        when used in the SQL context.
+      </para>
+      <para>
+        Such problems call for a solution known as <firstterm>output encoding</firstterm>, where the value is encoded
+        in such a way that it can't wreak havoc in that particular context. In the SQL example, the problem is the 
+        mixing of code (the SQL query) and data (the name of the customer). Using <firstterm>parameterized
+        queries</firstterm> eliminates that confusion:
+      </para>
+      <programlisting>Statement query = new Statement("select * from order where customer = :?"); // TODO: Fix syntax
+query.setString(0, customer);</programlisting>
+      <para>
+        The <literal>setString()</literal> method encodes the value of <literal>customer</literal> in such a way that
+        it can never be treated as code.
+      </para>
+      <para>
+        Other injection attacks are based on the same idea of mixing code and data, and they can also be fixed using
+        output encoding. Common examples are XML/HTML and JSON/JavaScript. Even plain text log files can suffer from 
+        an injection attack known as log forging, where the meaning of the text changes when it's split across lines.
+      </para>
+      <para>
+        Most output contexts that you will encounter are standard contexts that other people use as well, because they
+        depend on the technology rather than the problem domain. You should use an existing output encoding library 
+        rather than build something yourself, beause there are often tricky corner cases that are easy to get wrong. 
+        ESAPI is an example of an output encoding library that covers most common output contexts
+        <citation>EASPI</citation>.
+      </para>
+      <para>
+        The type of encoding is specific to the context, so extra special care must be taken when data is used in
+        multiple contexts. One example is a client-provided value that is used in a JavaScript string that is part of
+        an HTML file. Output encoding must be performed for each context and in the correct order, or else 
+        vulnerabilities will remain.
+      </para>
+      <para>
+        Output encoding is the mirror twin of input validation. Input validation ensures that all input is properly
+        converted to values that meet the constraints of the problem domain. Output encoding conversely ensures that
+        these values remain valid in whatever technology they are expressed.
+      </para>
+      <para>
+        Input validation and output encoding are simple enough tools, but the trick is to apply them consistently. An
+        attacker only needs to find one place where they are forgotten to breach your system. We'll discuss how to
+        ensure that you've covered all your bases in <xref linkend="test-security"/>.
       </para>
     </section>
   </section>
@@ -801,7 +865,7 @@ public class OrderController {
       The code is divided into two parts. The first part is completely specified by the API description and is under
       control of the code generator. Any changes to this code will be overwritten. The second part is skeleton code
       that the developer is supposed to implement. These files are under control of the developer and will never be
-      overwritten.
+      overwritten once generated.
     </para>
     <para>
       This division makes it possible to add code generation to the automated build process. There are plugins for
@@ -829,14 +893,13 @@ public class OrderController {
       again to update your RADL file. Any manual updates to the API description are preserved. Documentation for
       resources, etc. is extracted from JavaDoc comments, so developers can stay close to the code.
     </para>
-    <para>
-    </para>
   </section>
 
   <section>
     <title>Summary</title>
     <para>
-      TODO:
+      This chapter covers how to implement a REST API in such a way that it is easy to maintain and secure. We'll now
+      turn our attention to how to verify that this implementation meets the expectations of all stakeholders.
     </para>
   </section>
 </chapter>
