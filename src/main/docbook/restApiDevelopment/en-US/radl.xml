@@ -245,7 +245,7 @@
     </para>
     <para>
       Errors are not linked to states, transitions, or even resources, because RADL tries to encourage clients to 
-      follow the best practice of building centralized error handling capabilities, as we'll see in <xref linkend="dry"/>.
+      follow the best practice of building centralized error handling capabilities, as we'll see in <xref linkend="controller"/>.
     </para>
     <para>
       The final section of a RADL document is the resource model. The information in this part is comparable to an

@@ -276,7 +276,51 @@ assert URI.create("http://www.example.com/foo/baz/")
       For more information on building REST clients, see <citation>Amundsen15</citation>.
     </para>
   </section>
-  
+
+  <section>
+    <title>Non-functional requirements</title>
+    <para>
+      Performance and scalability are important non-functional requirements. Caching reduces the load on a server, as 
+      we saw in <xref linkend="caching"/>, and therefore helps with both. The good news is that you get caching almost 
+      for free if you follow the HTTP standard, since a good HTTP library will then take care of it. All you have to do
+      is configure it properly. Here's an example for Apache HTTP Components:
+    </para>
+    <programlisting>TODO: </programlisting>
+    <para>
+      Another important non-functional requirement is resiliency, the ability to continue to function in the face of
+      sub-optimal circumstances. In a loosely coupled system such as one based on the REST architectural pattern, the
+      client should assume as little as much about the server as it can get away with. It shouldn't even assume that
+      the server is always going to be available! 
+    </para>
+    <para>
+      The client's options are of course limited when the server isn't available, but one thing it definitely must 
+      <emphasis>not</emphasis> do is crash. A client should be able to degrade functionality gracefully when the server
+      doesn't respond at all, or when it responds in erroneous or unexpected ways.
+    </para>
+    <para>
+      One pattern that helps to solve this problem is the <firstterm>circuit breaker</firstterm>
+      <citation>TODO</citation>. Here we catch errors on external calls, and if the error rate exceeds some predefined
+      maximum, we close the cirtcuite breaker. When a circuit breaker is closed, any subsequent calls to it will return
+      immediately, without actually trying the external call. After some time, the circuit breaker will try the external
+      server again, and it that works, will return to the normal open state.
+    </para>
+    <para>
+      The circuit breaker pattern reduces the load on the troubled server. If the server's troubles were caused by an
+      inability to scale to the current load, than reducing the load may be enough to let it recover. If there's
+      something more perminent going wrong, then at least reducing calls to it will help the log files from overflowing.
+    </para>
+    <para>
+      The circuit breaker pattern also helps the client. There is no point in repeatedly waiting for a non-responsive
+      server. It's much better to fail fast. This is especially important in a microservices architecture, where the
+      client may be the server to another client. In such a situation, any delays introduced because of one 
+      malfunctioning server may ripple through to many dependent services, taking out the entire cluster of services.
+      Circuit breakers limit the total amount of damage.
+    </para>
+    <para>
+      TODO: command pattern, Hystrix
+    </para>
+  </section>  
+
   <section>
     <title>Summary</title>
     <para>

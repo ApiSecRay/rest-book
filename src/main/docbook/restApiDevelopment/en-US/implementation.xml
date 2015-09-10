@@ -7,7 +7,7 @@
     This chapter discusses some important topics to consider while building a REST server.
   </para>
   
-  <section>
+  <section id="server-arch">
     <title>Anatomy of a REST Server</title>
     <para>
       There are a number of areas that each REST API implementation must address. Since it's important to separate
@@ -274,8 +274,8 @@
     </para>
   </section>
   
-  <section id="dry">
-    <title>Keeping it DRY</title>
+  <section id="controller">
+    <title>Implementing Controllers</title>
     <para>
       An important principle in software development is <firstterm>Don't Repeat Yourself</firstterm> (DRY). If every
       concept is expressed in only one place, then you only need to update one place when changes are required. If you
@@ -406,21 +406,24 @@ public class CentralErrorHandler {
       simple message string, but you serve your clients better by more structured messages with additional details that
       can help the client recover, as we discussed in <xref linkend="serialize-errors"/>.
     </para>
-  </section>
-
-  <section id="reactive">
-    <title>Reactive programming</title>
+    <para>
+      TODO: Building links using Spring HATEOAS
+    </para>
+    <para>
+      TODO: Assign semantics using Spring Hydra
+    </para>
+    <para>
+      Controllers and services often call upon the help of other, external, services. This is especially true in a
+      microservices architecture (see <xref linkend="apis"/>). In those situations, the REST server acts as a client to
+      another server, so all the advice for building clients applies (see <xref linkend="client"/>).
+    </para>
+    <para>
+      TODO: one-thread-per-connection vs one-thread-per-event
+    </para>
     <para>
       <firstterm>Reactive programming</firstterm> is an emerging discipline which combines concurrency and event-based
       and asynchronous systems <citation>Reactive Manifesto</citation>. It is at the core of many high-performance
       concurrent systems.
-    </para>
-  </section>
-
-  <section id="external">
-    <title>Calling external services</title>
-    <para>
-      TODO: Calling external services. Circuit breakers, etc.
     </para>
   </section>
 

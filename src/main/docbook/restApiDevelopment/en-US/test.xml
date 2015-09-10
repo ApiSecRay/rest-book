@@ -194,7 +194,7 @@ public void getMenu() {
       The test code you write is just that: code. Therefore the same considerations apply to it as to the code that
       implements your API. You'll need to evolve your tests over time just like you need to evolve your implementation, 
       and it pays to treat your test code with the same care.
-      In particular, keep your test code as DRY (see <xref linkend="dry"/>) as your implementation code. That will make 
+      In particular, keep your test code as DRY (see <xref linkend="controller"/>) as your implementation code. That will make 
       it much less painful to change your tests later.
     </para>
     <para>

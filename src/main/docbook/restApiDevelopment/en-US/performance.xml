@@ -153,7 +153,7 @@
     <para>
       This means that all the best practices around DTOs apply to REST messages too. One example is to 
       <quote>encapsulate the serialization mechanism for transferring data over the wire</quote>. We'll discuss how to
-      do that in <xref linkend="dry"/>.
+      do that in <xref linkend="server-arch"/>.
     </para>
     <para>
       DTOs are very different from domain objects. <firstterm>Domain objects</firstterm> implement the ubiquitous 
