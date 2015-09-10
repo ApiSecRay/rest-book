@@ -174,8 +174,9 @@
   </biblioentry>
   
   <biblioentry>
-    <abbrev>EASPI</abbrev>
-    <biblioid class="uri">TODO</biblioid>
+    <abbrev>ESAPI</abbrev>
+    <biblioid class="uri">https://www.owasp.org/index.php/Category:OWASP_Enterprise_Security_API</biblioid>
+    <citetitle>The OWASP Enterprise Security API</citetitle>
   </biblioentry>
   
   <biblioentry>
@@ -389,8 +390,8 @@
     <biblioid class="uri">http://jbehave.org/</biblioid>
   </biblioentry>
   
-  <biblioentry> <!-- TODO: Check last name of author -->
-    <abbrev>Jennings10</abbrev>
+  <biblioentry>
+    <abbrev>McKenzie10</abbrev>
     <biblioid class="uri">http://www.kalzumeus.com/2010/06/17/falsehoods-programmers-believe-about-names/</biblioid>
     <citetitle>Falsehoods Programmers Believe About Names</citetitle>
   </biblioentry>

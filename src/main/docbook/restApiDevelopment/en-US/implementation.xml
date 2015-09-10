@@ -277,14 +277,15 @@
   <section id="dry">
     <title>Keeping it DRY</title>
     <para>
-      An important principle in software development is <firstterm>Don't Repeat Yourself</firstterm> (DRY). By making
-      sure that every concept is expressed in one place only, you decrease your maintenance burden and keep your
-      velocity up.
+      An important principle in software development is <firstterm>Don't Repeat Yourself</firstterm> (DRY). If every
+      concept is expressed in only one place, then you only need to update one place when changes are required. If you
+      distribute a concept over multiple places, then you your maintenance burden goes up and your future productivity
+      down.
     </para>
     <para>
       If you clearly distinguish the components described in the previous section, you're already in a good position,
-      but there is more you can do. The domain model is a good example of this: every concept from the problem domain
-      should be captured in one place in the code (e.g. in one class).
+      but there is more you can do. The domain model is a good example: every concept from the problem domain should be
+      captured in one place in the code (e.g. in one class).
     </para>
     <para>
       The DRY guideline is helpful in controllers as well. Controllers bind code to resources and media types.
@@ -407,19 +408,19 @@ public class CentralErrorHandler {
     </para>
   </section>
 
-  <section id="external">
-    <title>Calling external services</title>
-    <para>
-      TODO: Calling external services. Circuit breakers, etc.
-    </para>
-  </section>
-
   <section id="reactive">
     <title>Reactive programming</title>
     <para>
       <firstterm>Reactive programming</firstterm> is an emerging discipline which combines concurrency and event-based
       and asynchronous systems <citation>Reactive Manifesto</citation>. It is at the core of many high-performance
       concurrent systems.
+    </para>
+  </section>
+
+  <section id="external">
+    <title>Calling external services</title>
+    <para>
+      TODO: Calling external services. Circuit breakers, etc.
     </para>
   </section>
 
@@ -578,7 +579,7 @@ public class PaymentController() {
         Bean Validation, you could add annotations to your data transfer objects to perform semantic checking:
       </para>
       <programlisting>public class Payment {
-  @Min(1) // TODO: Does [Min] support doubles?
+  @Min(1)
   public double amount;
 }
 
@@ -639,7 +640,7 @@ public class OrderController {
 }</programlisting>
       <para>
         This example uses a custom <literal>@Name</literal> annotation that validates the customer's name. By the way,
-        this is actually a surprisingly difficult thing to do <citation>Jennings10</citation>.
+        this is actually a surprisingly difficult thing to get right <citation>McKenzie10</citation>.
       </para>
       <para>
         As this example shows, we now need to specify the validation annotation in more than one place. In order to
@@ -748,30 +749,28 @@ public class OrderController {
     <section id="output-encoding">
       <title>Output Encoding</title>
       <para>
-        While input validation is an important tool in security, it's not the only thing we have in our toolbox.
         Sometimes there is a security issue that looks like it can be fixed with input validation, but where that is 
-        not appropriate.
+        not appropriate. For example, consider the classic <firstterm>SQL Injection</firstterm> vulnerability, where a
+        SQL query string is built up using input provided by the client:
       </para>
-      <para>
-        Consider the classic vulnerability of <firstterm>SQL Injection</firstterm>, where a SQL query string is built 
-        up using input provided by the client:
-      </para>
-      <programlisting>String query = "select * from order where customer = '" + customer + "'";</programlisting>
+      <programlisting>String query = "select * from order where customer = '" + customer + "'";
+Statement statement = connection.createStatement();
+ResultSet results = statement.executeQuery(query);</programlisting>
       <para>
         This code is susceptible to attacks where the client puts a quote in the value for <literal>customer</literal>,
         like <literal>1' OR '1'='1</literal>. Instead of showing the orders for one customer, this will show all
         orders, which is an Information Disclosure vulnerability (see <xref linkend="security"/>).
       </para>
       <para>
-        Some people see this problem as caused by a lack of input validation. They would implement the
-        <literal>@Name</literal> validation constraint of the previous section as the place to solve this problem by
-        refusing names with quotes.
+        Since the malicious input in this example causes the problem, you may think that we can fix it by fixing the
+        input, i.e. by using input validation. We could use the <literal>@Name</literal> validation constraint of the
+        previous section and have it refuse names with quotes.
       </para>
       <para>
-        This is incorrect and may lead to negative business outcomes. A customer named O'Connor, for instance, would
-        be denied access to the service and might generate a lot of bad press on social networks because of it. The
-        problems is not that <literal>O'Connor</literal> is an invalid name, but rather that the name causes problems
-        when used in the SQL context.
+        This is incorrect and may lead to negative business outcomes. Suppose you were to build an API around Academy
+        Award winners and wouldn't be able to accept Tatum O'Neal!
+        The problems is not that <literal>O'Neal</literal> is an invalid name, but rather that the name causes 
+        problems <emphasis>when used in the context of SQL queries</emphasis>.
       </para>
       <para>
         Such problems call for a solution known as <firstterm>output encoding</firstterm>, where the value is encoded
@@ -779,8 +778,10 @@ public class OrderController {
         mixing of code (the SQL query) and data (the name of the customer). Using <firstterm>parameterized
         queries</firstterm> eliminates that confusion:
       </para>
-      <programlisting>Statement query = new Statement("select * from order where customer = :?"); // TODO: Fix syntax
-query.setString(0, customer);</programlisting>
+      <programlisting>PreparedStatement statement = connection.prepareStatement(
+    "select * from order where customer = ?");
+statement.setString(1, customer);
+ResultSet results = statement.executeQuery();</programlisting>
       <para>
         The <literal>setString()</literal> method encodes the value of <literal>customer</literal> in such a way that
         it can never be treated as code.
@@ -793,23 +794,23 @@ query.setString(0, customer);</programlisting>
       <para>
         Most output contexts that you will encounter are standard contexts that other people use as well, because they
         depend on the technology rather than the problem domain. You should use an existing output encoding library 
-        rather than build something yourself, beause there are often tricky corner cases that are easy to get wrong. 
+        rather than build something yourself, because there are often tricky corner cases that are easy to get wrong. 
         ESAPI is an example of an output encoding library that covers most common output contexts
-        <citation>EASPI</citation>.
+        <citation>ESAPI</citation>.
       </para>
       <para>
         The type of encoding is specific to the context, so extra special care must be taken when data is used in
-        multiple contexts. One example is a client-provided value that is used in a JavaScript string that is part of
-        an HTML file. Output encoding must be performed for each context and in the correct order, or else 
+        multiple contexts. One example is a client-provided value that is used in a JavaScript string that is embedded
+        in an HTML page. Output encoding must be performed for each context and in the correct order, or else
         vulnerabilities will remain.
       </para>
       <para>
         Output encoding is the mirror twin of input validation. Input validation ensures that all input is properly
         converted to values that meet the constraints of the problem domain. Output encoding conversely ensures that
-        these values remain valid in whatever technology they are expressed.
+        these values remain valid in whatever technological context they are used.
       </para>
       <para>
-        Input validation and output encoding are simple enough tools, but the trick is to apply them consistently. An
+        Input validation and output encoding are simple enough tools, but the trick is to apply them everywhere. An
         attacker only needs to find one place where they are forgotten to breach your system. We'll discuss how to
         ensure that you've covered all your bases in <xref linkend="test-security"/>.
       </para>
@@ -847,7 +848,7 @@ query.setString(0, customer);</programlisting>
         <term>Controllers</term>
         <listitem>
           <para>
-            The URI mapping, HTTP method handlers and media type declarations for each resource. The handlers delegate
+            The URI mapping, HTTP method handlers, and media type declarations for each resource. The handlers delegate
             to services that are injected.
           </para>
         </listitem>
@@ -898,7 +899,7 @@ query.setString(0, customer);</programlisting>
   <section>
     <title>Summary</title>
     <para>
-      This chapter covers how to implement a REST API in such a way that it is easy to maintain and secure. We'll now
+      This chapter covers how to implement a REST API in such a way that it is secure and easy to maintain. We'll now
       turn our attention to how to verify that this implementation meets the expectations of all stakeholders.
     </para>
   </section>
