@@ -163,7 +163,15 @@
       programming language objects into requests.
     </para>
     <para>
-      TODO: must-ignore
+      To make evolution of services easier, clients should follow the <firstterm>must-ignore</firstterm> pattern when
+      processing data and links. This means that anything that the client encounters that it doesn't understand should
+      be treated as if it weren't there.
+    </para>
+    <para>
+      The opposite of <emphasis>must-ignore</emphasis> is <firstterm>must-understand</firstterm>, where the client
+      must raise and error and stop processing when it encounters something it doesn't understand. There is definitely
+      a place for <emphasis>must-understand</emphasis>, but in RESTful systems we try to minimize it as much as
+      possible because it is a form of tight coupling between client and server.
     </para>
     <para>
       Faithful Hypermedia Clients will render the response and let the user pick a link. The links in the home
@@ -241,8 +249,24 @@ assert URI.create("http://www.example.com/foo/baz/")
       During the course of a session, the client may have to visit the same resource repeatedly, like the home resource.
       In those situations it may pay to use client-side caching, as discussed in <xref linkend="caching"/>. Many HTTP 
       client libraries implement caching, so if the server follows the standard HTTP caching mechanisms, then you may
-      get all this for free. If you have to implement caching yourself, you should probably look at using the Decorator 
-      pattern to wrap a caching client around a standard client.
+      get all this for free. For example, here's how to set up caching with Apache HttpClient:
+    </para>
+    <programlisting>CacheConfig cacheConfig = CacheConfig.custom()
+    .setMaxCacheEntries(1000)
+    .setMaxObjectSize(8192)
+    .build();
+RequestConfig requestConfig = RequestConfig.custom()
+    .setConnectTimeout(30000)
+    .setSocketTimeout(30000)
+    .build();
+CloseableHttpClient client = CachingHttpClients.custom()
+    .setCacheConfig(cacheConfig)
+    .setDefaultRequestConfig(requestConfig)
+    .build();</programlisting>
+    <para>
+      The caching client is a drop-in replacement of a regular HTTP client, thanks to the Decorator pattern. If your
+      client doesn't provide caching and you're forced to implement it yourself, then you should definitely use this
+      approach as well.
     </para>
     <para>
       Most HTTP libraries will be able to recover from certain errors automatically. For instance, if a network error
@@ -278,31 +302,29 @@ assert URI.create("http://www.example.com/foo/baz/")
   </section>
 
   <section>
-    <title>Non-functional requirements</title>
+    <title>Resiliency</title>
     <para>
-      Performance and scalability are important non-functional requirements. Caching reduces the load on a server, as 
-      we saw in <xref linkend="caching"/>, and therefore helps with both. The good news is that you get caching almost 
-      for free if you follow the HTTP standard, since a good HTTP library will then take care of it. All you have to do
-      is configure it properly. Here's an example for Apache HTTP Components:
-    </para>
-    <programlisting>TODO: </programlisting>
-    <para>
-      Another important non-functional requirement is resiliency, the ability to continue to function in the face of
-      sub-optimal circumstances. In a loosely coupled system such as one based on the REST architectural pattern, the
-      client should assume as little as much about the server as it can get away with. It shouldn't even assume that
-      the server is always going to be available! 
+      An important non-functional requirement is resiliency, the ability to continue to function in the face of
+      errors. In a loosely coupled system such as one based on the REST architectural pattern, the client should assume 
+      as little as much about the server as it can get away with. It shouldn't even assume that the server is always 
+      going to be available.
     </para>
     <para>
       The client's options are of course limited when the server isn't available, but one thing it definitely must 
-      <emphasis>not</emphasis> do is crash. A client should be able to degrade functionality gracefully when the server
-      doesn't respond at all, or when it responds in erroneous or unexpected ways.
+      <emphasis>not</emphasis> do is crash. Imagine your browser crashing everytime you tried to access a non-existing
+      URL! A client should be able to degrade functionality gracefully when the server doesn't respond at all, or when 
+      it responds in erroneous or unexpected ways.
     </para>
     <para>
       One pattern that helps to solve this problem is the <firstterm>circuit breaker</firstterm>
-      <citation>TODO</citation>. Here we catch errors on external calls, and if the error rate exceeds some predefined
-      maximum, we close the cirtcuite breaker. When a circuit breaker is closed, any subsequent calls to it will return
-      immediately, without actually trying the external call. After some time, the circuit breaker will try the external
-      server again, and it that works, will return to the normal open state.
+      <citation>Nygard07</citation>. The basic idea behind the circuit breaker is to wrap an external call in a 
+      circuit breaker object, which monitors for failures. Once the failures reach a certain threshold, the circuit 
+      breaker closes, and all further calls to the circuit breaker return with an error, without the external call being 
+      made at all. You will want to log and monitor it when a circuit breaker closes (see <xref linkend="logging"/>).
+    </para>
+    <para>
+      A closed circuit breaker won't make external calls at first, but after a while it should try one again. If that
+      works, the breaker may return itself to the open state. If it still fails, the breaker remains closed.
     </para>
     <para>
       The circuit breaker pattern reduces the load on the troubled server. If the server's troubles were caused by an
@@ -316,6 +338,27 @@ assert URI.create("http://www.example.com/foo/baz/")
       malfunctioning server may ripple through to many dependent services, taking out the entire cluster of services.
       Circuit breakers limit the total amount of damage.
     </para>
+    <para>
+      When the circuit breaker is closed the client should provide <firstterm>graceful degragation</firstterm> of its 
+      service using a <firstterm>fallback method</firstterm>. There are a couple of options, that may or may not make
+      sense for a given situation:
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          Return an error. This makes sense for a client that acts on behalf of a human user, but not so much for an
+          autonomous client. The client lets the user figure out how to proceed. This is often an unsatifactory
+          approach for the user, because there is no recovery option offered and the user may not understand the
+          underlying problem. User eXperience experts sometimes call this approach <firstterm>passing the
+          buck</firstterm> and warn against it.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          If the operation was to look up or calculate an answer, the client might opt to return a default answer.
+        </para>
+      </listitem>
+    </itemizedlist>
     <para>
       TODO: command pattern, Hystrix
     </para>

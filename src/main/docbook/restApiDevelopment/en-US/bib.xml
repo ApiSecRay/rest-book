@@ -477,6 +477,25 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Nygard07</abbrev>
+    <citetitle>Release It!: Design and Deploy Production-Ready Software</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Michael</firstname>
+          <surname>Nygard</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <publisher>
+      <publishername>Pragmatic Bookshelf</publishername>
+    </publisher>
+    <copyright>
+      <year>2007</year>
+    </copyright>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>OAuth2</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/rfc6749</biblioid>
     <citetitle>The OAuth 2.0 Authorization Framework</citetitle>
