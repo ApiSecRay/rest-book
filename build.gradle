@@ -67,11 +67,6 @@ apply plugin: 'radl-gradle'
 radl.radlCoreVersion = radlCoreVersion
 radl.serviceName = 'RESTBucks'
 
-afterEvaluate {
-  validateRadl.enabled = false // Need schema changes
-  generateDocumentationFromRadl.enabled = false
-}
-
 
 apply plugin: 'jdocbook'
 

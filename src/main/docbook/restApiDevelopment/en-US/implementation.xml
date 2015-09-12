@@ -275,7 +275,7 @@
   </section>
   
   <section id="controller">
-    <title>Implementing Controllers</title>
+    <title>Controllers</title>
     <para>
       An important principle in software development is <firstterm>Don't Repeat Yourself</firstterm> (DRY). If every
       concept is expressed in only one place, then you only need to update one place when changes are required. If you
