@@ -325,14 +325,6 @@ String MEDIA_TYPE_APPLICATION_LD_JSON = "application/ld+json";</programlisting>
       they won't need to change if we decide to use a different media type.
     </para>
     <para>
-      We're still not completely out of the woods, however. As we'll see in <xref linkend="breaking-changes"/>, we'll
-      sometimes want to <emphasis>add</emphasis> a supported media type rather than replace it. In that case we'd still 
-      have to go in and change all our controllers. We can prevent that by using an array of media types instead of a
-      single one:
-    </para>
-    <programlisting>String[] MEDIA_TYPE_DEFAULT = { MEDIA_TYPE_APPLICATION_LD_JSON };
-String MEDIA_TYPE_APPLICATION_LD_JSON = "application/ld+json";</programlisting>
-    <para>
       The use of media types is only one example of where we can apply the DRY principle. You should do something
       similar for URLs, namespaces (if you use XML-based media types), link relations, error constants, etc.
     </para>
@@ -401,10 +393,16 @@ public class CentralErrorHandler {
 }]]></programlisting>
     <para>
       As the above example shows, it makes sense to define custom exception classes for each of the API's error
-      conditions (see <xref linkend="error"/>). The central error handler maps them onto HTTP status codes and
-      translates them to something that can be serialized as an HTTP response body. In the example above that is a
-      simple message string, but you serve your clients better by more structured messages with additional details that
-      can help the client recover, as we discussed in <xref linkend="serialize-errors"/>.
+      conditions (see <xref linkend="error"/>). You should not, however, define new exceptions for cases that are
+      already covered by standard exceptions. For instance, in Java <literal>IllegalArgumentException</literal> covers
+      the <literal>400 Bad Request</literal> status, and <literal>IllegalStateException</literal> covers
+      <literal>500 Internal Server Error</literal>.
+    </para>
+    <para>
+      The central error handler maps exception classes onto HTTP status codes and translates them to something that can
+      be serialized as an HTTP response body. In the example above that is a simple message string, but you serve your
+      clients better by more structured messages with additional details that can help the client recover, as we
+      discussed in <xref linkend="serialize-errors"/>.
     </para>
     <para>
       TODO: Building links using Spring HATEOAS
@@ -861,6 +859,15 @@ ResultSet results = statement.executeQuery();</programlisting>
         <listitem>
           <para>
             Skeleton code for the services.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Errors</term>
+        <listitem>
+          <para>
+            Custom exceptions for the defined error conditions, a DTO for transferring errors, and a central error
+            handler that translates exceptions into error DTOs and returns the appropriate status codes.
           </para>
         </listitem>
       </varlistentry>

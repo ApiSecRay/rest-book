@@ -171,9 +171,9 @@
     <!-- All link relations used -->
   </link-relations>
 
-  <messages>
-    <!-- The data in the messages -->
-  </messages>
+  <property-groups>
+    <!-- The properties in the messages -->
+  </property-groups>
 
   <media-types>
     <!-- All media types used -->
@@ -220,16 +220,18 @@
       having to manually hunt down references.)
     </para>
     <para>
-      The structure of the messages exchanged between client and server is captured in the 
-      <literal>&lt;messages&gt;</literal> section. Each message is a list of properties, which can be nested.
-      Each <literal>&lt;property&gt;</literal> element may contain a <literal>uri</literal> attribute that points to 
-      the semantic definition of the property. You can also add examples to a <literal>&lt;message&gt;</literal>.
+      The structure of the data exchanged between client and server is captured in the 
+      <literal>&lt;property-groups&gt;</literal> section. Each property group holds a list of properties and nested
+      property groups.
+      Each <literal>&lt;property-group&gt;</literal> and <literal>&lt;property&gt;</literal> element may contain a
+      <literal>uri</literal> attribute that points to the semantic definition of the property (group).
+      You can also add examples to a property group.
     </para>
     <para>
-      States and transitions may be linked to messages. In the former case, the message describes what information
-      is available in the given state. In the latter case, the message describes what information the client must
-      present to the server to transition to the next state. Messages are separate from the state model so that
-      they can be re-used, as we saw in <xref linkend="design-messages"/>.
+      States and transitions may be linked to property groups. In the former case, the property group describes what
+      information is available in the given state. In the latter case, the property group describes what information
+      the client must present to the server to transition to the next state. Property groups are separate from the
+      state model so that they can be re-used, as we saw in <xref linkend="design-messages"/>.
     </para>
     <para>
       Next up is a list of media types used. Most APIs will have a primary media type that they use for most messages.
@@ -299,7 +301,7 @@
     </transitions>
   </state>
 
-  <state name="Deciding" message-ref="menu"/>
+  <state name="Deciding"/>
     <transitions>
       <transition name="Place order" to="Ordered">
         <documentation>
@@ -474,9 +476,10 @@
          Name resources with URIs.
        </para>
        <para>
-        The <literal>&lt;location&gt;</literal> element is mandatory under a <literal>&lt;resource&gt;</literal>. So as
-        soon as you add a resource in the previous step, the validation tool will issue a warning about a missing
-        <literal>&lt;location&gt;</literal>. Again, the structure and tooling around RADL guide you in your next step.
+        The <literal>&lt;location&gt;</literal> element captures the URI or URI Template of a
+        <literal>&lt;resource&gt;</literal>. As soon as you add a resource in the previous step, the validation tool
+        will issue a warning about a missing <literal>&lt;location&gt;</literal>. Again, the structure and tooling
+        around RADL guide you in your next step.
        </para>
        <para>
          The URIs for the RESTBucks resources are in <xref linkend="restbucks-resources"/>. Here's how that looks in
@@ -578,7 +581,7 @@
       </listitem>
       <listitem>
        <para>
-        Design messages.
+        Design data.
        </para>
        <para>
          The RADL validation tool knows which HTTP methods require requests and/or responses. In RADL, a 
@@ -586,15 +589,16 @@
          <literal>&lt;transition&gt;</literal> and its <literal>&lt;response&gt;</literal> to a 
          <literal>&lt;state&gt;</literal>, so the validation tool can issue a warning whenever the
          corresponding <literal>&lt;transition&gt;</literal> or <literal>&lt;state&gt;</literal> doesn't refer to a
-         <literal>&lt;message&gt;</literal>.
+         <literal>&lt;property-group&gt;</literal>.
        </para>
        <para>
-         The messages for RESTBucks are in <xref linkend="restbucks-messages"/>. Here are the messages in RADL:
+         The data for RESTBucks messages are in <xref linkend="restbucks-messages"/>. Here are the corresponding
+         property groups in RADL:
        </para>
-       <programlisting><![CDATA[<messages>
-  <message name="home"/>
+       <programlisting><![CDATA[<property-groups>
+  <property-group name="home"/>
   
-  <message name="items">
+  <property-group name="items">
     <properties>
       <property name="item">
         <properties>
@@ -606,17 +610,17 @@
         </properties>
       </property>
     </properties>
-  </message>       
+  </property-group>       
 
-  <message name="menu">
+  <property-group name="menu">
     <properties>
       <property name="items">
         <properties ref="items"/>
       </property>
     </properties>
-  </message>       
+  </property-group>       
 
-  <message name="order">
+  <property-group name="order">
     <properties>
       <property name="items">
         <properties ref="items"/>
@@ -625,9 +629,9 @@
       <property name="total"/>
       <property name="currency"/>
     </properties>
-  </message>       
+  </property-group>       
 
-  <message name="payment">
+  <property-group name="payment">
     <properties>
       <property name="amount"/>
       <property name="currency"/>
@@ -638,9 +642,9 @@
       <property name="expiryYear"/>
       <property name="cardSecurityCode"/>
     </properties>
-  </message>       
+  </property-group>       
 
-  <message name="receipt">
+  <property-group name="receipt">
     <properties>
       <property name="dateTime"/>
       <property name="shop"/>
@@ -651,55 +655,54 @@
       <property name="currency"/>
       <property name="paymentMethod"/>
     </properties>
-  </message>       
+  </property-group>       
   
-  <message name="serving"/>
-</messages>]]></programlisting>
+  <property-group name="serving"/>
+</proeprty-groups>]]></programlisting>
       <para>
-        Note that the <literal>&lt;message&gt;</literal> named <literal>items</literal> is not something that will
-        ever be sent over the wire on its own. It is part of several other messages, and is extracted to avoid
-        duplication.
+        Note that the property group <literal>items</literal> is not something that will ever be sent over the wire on
+        its own. It is part of several other property groups, and is extracted to avoid duplication.
       </para>
       <para>
-        The next step is to refer to those messages from the states and transitions:
+        The next step is to refer to the property groups from the states and transitions:
       </para>
       <programlisting><![CDATA[<states>
-  <state name="Arrived" message-ref="home">
+  <state name="Arrived" property-group="home">
     <!-- Rest omitted for brevity -->
   </state>
   
-  <state name="Deciding" message-ref="menu">
+  <state name="Deciding" property-group="menu">
     <transitions>
-      <transition name="Place order" to="Ordered" message-ref="order">
+      <transition name="Place order" to="Ordered" property-group="order">
         <!-- Rest omitted for brevity -->
       </transition>
     </transitions>
     <!-- Rest omitted for brevity -->
   </state>
   
-  <state name="Ordered" message-ref="order">
+  <state name="Ordered" property-group="order">
     <transitions>
-      <transition name="Change" to="Ordered" message-ref="order">
+      <transition name="Change" to="Ordered" property-group="order">
         <!-- Rest omitted for brevity -->
       </transition>
-      <transition name="Pay" to="Paid" message-ref="payment">
+      <transition name="Pay" to="Paid" property-group="payment">
         <!-- Rest omitted for brevity -->
       </transition>
     </transitions>
     <!-- Rest omitted for brevity -->
   </state>
   
-  <state name="Canceled" message-ref="order"/>
+  <state name="Canceled" property-group="order"/>
 
-  <state name="Paid" message-ref="receipt">
+  <state name="Paid" property-group="receipt">
     <!-- Rest omitted for brevity -->
   </state>
   
-  <state name="Waiting" message-ref="serving">
+  <state name="Waiting" property-group="serving">
     <!-- Rest omitted for brevity -->
   </state>
 
-  <state name="Served" message-ref="serving">
+  <state name="Served" property-group="serving">
     <!-- Rest omitted for brevity -->
   </state>
 </states>]]></programlisting>
@@ -718,78 +721,62 @@
         The semantics for RESTBucks are defined in <xref linkend="restbuck-semantics"/>. Here's what that looks like 
         in RADL:
       </para>
-      <programlisting><![CDATA[<messages>
-  <message name="home" uri="http://schema.org/CafeOrCoffeeShop"/>
+      <programlisting><![CDATA[<property-groups>
+  <property-group name="home" uri="http://schema.org/CafeOrCoffeeShop"/>
   
-  <message name="items">
-    <properties>
-      <property name="item" uri="http://schema.org/Product">
-        <properties>
-          <property name="name" uri="http://schema.org/name"/>
-          <property name="size" uri="http://schema.org/height"/>
-          <property name="milk" uri="http://www.productontology.org/doc/Milk"/>
-          <property name="price" uri="http://schema.org/price"/>
-          <property name="currency" uri="http://schema.org/priceCurrency"/>
-        </properties>
-      </property>
-    </properties>
-  </message>       
-
-  <message name="menu" uri="http://schema.org/menu">
-    <properties>
-      <property name="items">
-        <properties ref="items"/>
-      </property>
-    </properties>
-  </message>       
-
-  <message name="order" uri="http://schema.org/Order">
-    <properties>
-      <property name="items">
-        <properties ref="items"/>
-      </property>
-      <property name="customer" uri="http://schema.org/customer"/>
-      <property name="total" uri="http://schema.org/totalPrice"/>
+  <property-group name="items">
+    <property-group name="item" repeats="true"
+        uri="http://schema.org/Product">
+      <property name="name" uri="http://schema.org/name"/>
+      <property name="size" uri="http://schema.org/height"/>
+      <property name="milk"
+          uri="http://www.productontology.org/doc/Milk"/>
+      <property name="price" uri="http://schema.org/price"/>
       <property name="currency" uri="http://schema.org/priceCurrency"/>
-    </properties>
-  </message>       
+    </property-group>
+  </property-group>
 
-  <message name="payment"
+  <property-group name="menu" uri="http://schema.org/menu">
+    <property-group name="items" ref="items"/>
+  </property-group>
+
+  <property-group name="order" uri="http://schema.org/Order">
+    <property-group name="items" ref="items"/>
+    <property name="customer" uri="http://schema.org/customer"/>
+    <property name="total" uri="http://schema.org/totalPrice"/>
+    <property name="currency" uri="http://schema.org/priceCurrency"/>
+  </property-group>
+
+  <property-group name="receipt" uri="http://schema.org/Order">
+    <property name="dateTime" uri="http://schema.org/orderDate"/>
+    <property name="shop" uri="http://schema.org/seller"/>
+    <property-group name="items" ref="items"/>
+    <property name="total" uri="http://schema.org/totalPrice"/>
+    <property name="currency" uri="http://schema.org/priceCurrency"/>
+    <property name="paymentMethod"
+        uri="http://schema.org/acceptedPaymentMethod"/>
+  </property-group>
+  
+  <property-group name="payment"
       uri="http://reference.data.gov.uk/def/payment#payment">
-    <properties>
-      <property name="amount" uri="http://schema.org/totalPrice"/>
-      <property name="currency" uri="http://schema.org/priceCurrency"/>
-      <property name="paymentMethod"
-          uri="http://schema.org/acceptedPaymentMethod"/>
-      <property name="cardholderName"
-          uri="https://w3id.org/creditcard/v1/name"/>
-      <property name="cardNumber"
-          uri="https://w3id.org/creditcard/v1/number"/>
-      <property name="expiryMotnh"
-          uri="https://w3id.org/creditcard/v1/expiryMonth"/>
-      <property name="expiryYear"
-          uri="https://w3id.org/creditcard/v1/expiryYear"/>
-      <property name="cardSecurityCode"
-          uri="https://w3id.org/creditcard/v1/verificationCode"/>
-    </properties>
-  </message>       
+    <property name="amount" uri="http://schema.org/totalPrice"/>
+    <property name="currency" uri="http://schema.org/priceCurrency"/>
+    <property name="paymentMethod"
+        uri="http://schema.org/acceptedPaymentMethod"/>
+    <property name="cardholderName"
+        uri="https://w3id.org/creditcard/v1/name"/>
+    <property name="cardNumber"
+        uri="https://w3id.org/creditcard/v1/number"/>
+    <property name="expiryMotnh"
+        uri="https://w3id.org/creditcard/v1/expiryMonth"/>
+    <property name="expiryYear"
+        uri="https://w3id.org/creditcard/v1/expiryYear"/>
+    <property name="cardSecurityCode"
+        uri="https://w3id.org/creditcard/v1/verificationCode"/>
+  </property-group>
 
-  <message name="receipt" uri="http://schema.org/Order">
-    <properties>
-      <property name="dateTime" uri="http://schema.org/orderDate"/>
-      <property name="shop" uri="http://schema.org/seller"/>
-      <property name="items">
-        <properties ref="items"/>
-      </property>
-      <property name="total" uri="http://schema.org/totalPrice"/>
-      <property name="currency" uri="http://schema.org/priceCurrency"/>
-      <property name="paymentMethod"
-          uri="http://schema.org/acceptedPaymentMethod"/>
-    </properties>
-  </message>       
-  
-  <message name="serving" uri="http://schema.org/Order"/>
-</messages>]]></programlisting>
+  <property-group name="serving" uri="http://schema.org/Order"/>
+</property-groups>]]></programlisting>
       </listitem>
       <listitem>
        <para>
@@ -802,7 +789,7 @@
        <para>
          For RESTBucks we selected JSON-LD. Here's how that looks in RADL:
        </para>
-       <programlisting><![CDATA[<media-types>
+       <programlisting><![CDATA[<media-types default="application/ld+json">
   <media-type name="application/ld+json">
     <specification href="http://www.w3.org/TR/json-ld/"/>
   </media-type>
@@ -846,9 +833,8 @@
         <para>
           The <literal>&lt;response&gt;</literal> element in this example is empty. Leaving out a media type that the
           response produces is a shorthand notation that avoids duplication. It means that the default media type is
-          consumed (for a request) or produced (for a response). The default media type is the one with the
-          <literal>default</literal> attribute set to <literal>true</literal>. (If no media type sets this attribute,
-          then the first one listed is considered to be the default.)
+          consumed (for a request) or produced (for a response). The default media type is set using the
+          <literal>default</literal> attribute on the <literal>&lt;media-types&gt;</literal> element.
           So <literal>&lt;response/&gt;</literal> in the above example is equivalent to:
         </para>
         <programlisting><![CDATA[<response>
@@ -870,83 +856,88 @@
          RADL:
        </para>
        <programlisting><![CDATA[<errors>
-  <error name="http://errors.restbucks.com/missing-item">
+  <error name="http://errors.restbucks.com/missing-item"
+      status-code="400">
     <documentation>
       The order you provided doesn't contain any menu item.
     </documentation>
   </error>
-
-  <error name="http://errors.restbucks.com/unknown-item">
+  <error name="http://errors.restbucks.com/unknown-item"
+      status-code="400">
     <documentation>
       The menu item you requested is unknown to the server.
     </documentation>
   </error>
-
-  <error name="http://errors.restbucks.com/invalid-item">
+  <error name="http://errors.restbucks.com/invalid-item"
+      status-code="400">
     <documentation>
       The attributes you provided are invalid for the requested menu item.
     </documentation>
   </error>
-  
-  <error name="http://errors.restbucks.com/item-out-of-stock">
+  <error name="http://errors.restbucks.com/item-out-of-stock"
+      status-code="400">
     <documentation>
       The menu item you requested is temporarily out of stock.
     </documentation>
   </error>
-  
-  <error name="http://errors.restbucks.com/missing-customer">
+  <error name="http://errors.restbucks.com/missing-customer"
+      status-code="400">
     <documentation>
       The order you provided doesn't contain a customer name.
     </documentation>
   </error>
-  
-  <error name="http://errors.restbucks.com/invalid-payment">
+  <error name="http://errors.restbucks.com/invalid-payment"
+      status-code="400">
     <documentation>
       The payment details you provided contain invalid values.
     </documentation>
   </error>
-  
-  <error name="http://errors.restbucks.com/overpaid">
+  <error name="http://errors.restbucks.com/overpaid"
+      status-code="400">
     <documentation>
       The amount of money you paid is more than what the order costs.
     </documentation>
   </error>
-  
-  <error name="http://errors.restbucks.com/payment-not-processed">
+  <error name="http://errors.restbucks.com/payment-not-processed"
+      status-code="400">
     <documentation>
       The payment you provided could not be processed.
     </documentation>
   </error>
-  
-  <error name="http://errors.restbucks.com/not-found">
+  <error name="http://errors.restbucks.com/already-paid"
+      status-code="400">
+    <documentation>
+      The order is already paid and cannot be changed anymore.
+    </documentation>
+  </error>
+  <error name="http://errors.restbucks.com/not-found"
+      status-code="404">
     <documentation>
       The URI you requested doesn't exists or is not accessible by you.
     </documentation>
   </error>
-  
-  <error name="http://errors.restbucks.com/method-not-allowed">
+  <error name="http://errors.restbucks.com/method-not-allowed"
+      status-code="405">
     <documentation>
       The method you used is not supported on this URI.
     </documentation>
   </error>
-  
-  <error name="http://errors.restbucks.com/not-acceptible">
+  <error name="http://errors.restbucks.com/not-acceptible"
+      status-code="406">
     <documentation>
-      The media type you requested in the <literal>Accept</literal> header
-      is not supported for this method on this URI.
+      The media type you requested in the Accept header is not supported
+      for this method on this URI.
     </documentation>
   </error>
-  
-  <error name="http://errors.restbucks.com/server-error">
+  <error name="http://errors.restbucks.com/server-error"
+      status-code="500">
     <documentation>
-      
-      Something went wrong on our side. We have logged the problem so our
-      staff can look into it. We're sorry for the inconvenience.
-    
+      Something went wrong on our side. We have logged the problem so
+      our staff can look into it. We are sorry for the inconvenience.
     </documentation>
   </error>
-  
-  <error name="http://errors.restbucks.com/service-unavailable">
+  <error name="http://errors.restbucks.com/service-unavailable"
+      status-code="503">
     <documentation>
       The server is temporarily not able to handle the request.
     </documentation>
