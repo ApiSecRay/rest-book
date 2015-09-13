@@ -64,8 +64,11 @@ eclipse {
 
 apply plugin: 'radl-gradle'
 
-radl.radlCoreVersion = radlCoreVersion
-radl.serviceName = 'RESTBucks'
+radl {
+  coreVersion = radlCoreVersion
+  serviceName = 'RESTBucks'
+  generateSpring = true
+}
 
 
 apply plugin: 'jdocbook'
