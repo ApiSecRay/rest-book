@@ -91,7 +91,7 @@
           <para>
             The HTTP framework may be able to handle additional media types that are often used in REST APIs, like
             <literal>application/json</literal> and <literal>application/xml</literal>. It does this through
-            <firstterm>serialization libraries</firstterm> like JAX-B and Jackson. Different frameworks use different
+            <firstterm>serialization libraries</firstterm> like JAXB and Jackson. Different frameworks use different
             names for these media type handlers; in this book we'll borrow the term <firstterm>message
             converter</firstterm> from Spring.
           </para>
@@ -381,12 +381,12 @@ public class CentralErrorHandler {
 
  @ExceptionHandler({ NotFoundException.class })
  public ResponseEntity<String> notFound(Exception e) {
-  return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+  return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
  }
        
  @ExceptionHandler({ IllegalArgumentException.class })
  public ResponseEntity<String> illegalArgument(IllegalArgumentException e) {
-  return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+  return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
  }
  
  // Other exception handlers...
@@ -402,14 +402,89 @@ public class CentralErrorHandler {
       The central error handler maps exception classes onto HTTP status codes and translates them to something that can
       be serialized as an HTTP response body. In the example above that is a simple message string, but you serve your
       clients better by more structured messages with additional details that can help the client recover, as we
-      discussed in <xref linkend="serialize-errors"/>.
+      discussed in <xref linkend="serialize-errors"/>. This is relatively straightforward:
+    </para>
+    <programlisting><![CDATA[public class ErrorDto {
+  public String type;
+  public String title;
+  // Any more fields you want to return to the client, like details
+}
+
+@ControllerAdvice
+public class CentralErrorHandler {
+
+ @ExceptionHandler({ NotFoundException.class })
+ public ResponseEntity<ErrorDto> notFound(Exception e) {
+   ErrorDto error = new ErrorDto();
+   error.type = "http://errors.restbucks.com/not-found";
+   error.title = "The URI you requested doesn't exists or is not accessible by you.";
+  return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+ }]]></programlisting>
+    <para>
+      This example shows how easy it is with Spring to return a data transfer object (DTO): you just declare a class
+      with properties and Spring's message converters take care of the rest. If you're not using Spring, you may need
+      to do some extra work. For instance, with JAXB you add some annotations on the DTO's fields so that the JAXB
+      (un)marshaller can properly (de)serialize them <citation>JAXB</citation>.
     </para>
     <para>
-      TODO: Building links using Spring HATEOAS
+      As we saw earlier, the properties of a DTO can be regular JavaBeans properties (private fields with accessors and
+      mutators), or they can simply be public fields. A DTO doesn't contain any behavior, so the latter is perfectly
+      fine in this specific case.
     </para>
     <para>
-      TODO: Assign semantics using Spring Hydra
+      You should also define DTOs for any other data that you want to transfer (see <xref linkend="design-messages"/>).
+      DTOs are needed not just for returning data from the server to the client, but also for the server to accept data
+      from the client as input.
     </para>
+    <para>
+      Controllers don't just return data, or else we'd have a level 2 API (see <xref linkend="maturity"/>). They need
+      to include links (level 3a) and forms (level 3b) as well.
+    </para>
+    <para>
+      Links can be seen as a special form of data and thus serialized through the DTO. However, that requires the
+      controller to know the details of the media type, since links are serialized differently in different media
+      types. That means you can't support multiple media types with the same controller code. It also means that you
+      have to rewrite multiple controller classes if you decide to change the media type. This is undesirable.
+    </para>
+    <para>
+      The solution is to capture the concept of a link in code, so it can be abstracted from the physical form as used
+      in the media type. The Spring HATEOAS project provides support for this through the
+      <literal>ResourceSupport</literal> class <citation>Spring HATEOAS</citation>. You must derive your DTOs from this 
+      class, which is yet another reason to distinguish DTOs from domain objects.
+    </para>
+    <para>
+      The <literal>ResourceSupport</literal> class provides an <literal>add()</literal> method that accepts links
+      built using <literal>LinkBuilder</literal>. The <literal>LinkBuilder</literal> is coupled to the destination 
+      controller rather than to the URI it handles:
+    </para>
+    <programlisting>public class HomeDto extends ResourceSupport {
+}
+
+@RequestMapping("/")
+public class HomeController {
+
+  @RequestMapping(method = RequestMethod.GET,
+      produces = { MEDIA_TYPE_DEFAULT })
+  public HomeDto get() {
+    HomeDto result = new HomeDto();
+    result.add(LinkBuilder.TODO);
+    return result;
+  }
+  
+}</programlisting>
+    <para>
+      If the media type supports forms, then you need to do something similar for them as for links. At the time of
+      writing there is no support for forms in Spring's projects, but fortunately there is a contribution from the
+      community that provides an <literal>AffordanceBuilder</literal> that works analogous to
+      <literal>LinkBuilder</literal> <citation>Spring Hydra</citation>.
+    </para>
+    <programlisting>TODO</programlisting>
+    <para>
+      With data, links, and forms, our API is at level 3(b). To get to level 4, we need to add semantics (see 
+      <xref linkend="semantics"/>). If you've selected JSON-LD as the media type and Hydra as the vocabulary for REST
+      semantics, then you can use the annotations from Spring Hydra to easily add application semantics to DTOs:
+    </para>
+    <programlisting>TODO</programlisting>
     <para>
       Controllers and services often call upon the help of other, external, services. This is especially true in a
       microservices architecture (see <xref linkend="apis"/>). In those situations, the REST server acts as a client to
@@ -478,9 +553,6 @@ public class CentralErrorHandler {
 	      TODO: Think this through. When implementing a controller, we no longer have access to the link relation that
 	      led to the method being invoked on the URI...
 	    </para>
-      <para>
-        TODO: eXtensible Access Control Markup Language?
-      </para>
     </section>
     
     <section id="input-validation">
@@ -569,7 +641,7 @@ public class PaymentController() {
         the new property. (We discuss evolution of REST APIs in <xref linkend="maintenance"/>.)
       </para>
       <para>
-        It’s better to silently ignore properties you don’t understand. The JAX-B serialization library is a good 
+        It’s better to silently ignore properties you don’t understand. The JAXB serialization library is a good 
         example of this. It also works the other way around: properties that are not sent by an old client end up as 
         <literal>null</literal> in the data transfer object. Consequently, a server must be careful to handle 
         <literal>null</literal> values properly.
@@ -823,7 +895,8 @@ ResultSet results = statement.executeQuery();</programlisting>
     <para>
       Some of the components of a REST server that we saw in <xref linkend="rest-server"/> are unique to the service
       the API is providing, but other parts are more or less boiler plate code. If you're following the design-first
-      approach with an API description language (see <xref linkend="radl"/>), you may be able to generate some code.
+      approach with an API description language (see <xref linkend="radl"/>), you may be able to generate some or all
+      of the boilerplate code.
     </para>
     <para>
       For example, the Spring code generator for RADL creates the following classes for you:
@@ -850,15 +923,19 @@ ResultSet results = statement.executeQuery();</programlisting>
         <listitem>
           <para>
             The URI mapping, HTTP method handlers, and media type declarations for each resource. The handlers delegate
-            to services that are injected.
+            to helper classes that are injected. The helper processes the input DTO, if any, and creates the DTO for
+            the response. The controller adds the links and forms defined in RADL that the helper reports as enabled
+            for the current response.
           </para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>Services</term>
+        <term>Controller helpers</term>
         <listitem>
           <para>
-            Skeleton code for the services.
+            Skeleton code for controllers to separate the tool-controlled part from the developer-controlled part (see
+            below). The controller helpers are responsible for processing request DTOs, talking to domain objects, 
+            building response DTOs, and determining whether links and/or forms should be added to them.
           </para>
         </listitem>
       </varlistentry>
@@ -868,6 +945,19 @@ ResultSet results = statement.executeQuery();</programlisting>
           <para>
             Custom exceptions for the defined error conditions, a DTO for transferring errors, and a central error
             handler that translates exceptions into error DTOs and returns the appropriate status codes.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Data transfer objects</term>
+        <listitem>
+          <para>
+            Any data exchanged between client and server that is described using <literal>property-group</literal>s is
+            translated to a DTO. If your media type supports links, then they are derived from
+            <literal>ResourceSupport</literal>. TODO: What's the equivalent in Spring Hydra? 
+            If you use JSON-LD as the media type and add <literal>uri</literal>
+            attributes to the <literal>property</literal> and/or <literal>property-group</literal> elements, then the 
+            DTOs and their fields are annotated using Spring Hydra.
           </para>
         </listitem>
       </varlistentry>
@@ -897,12 +987,14 @@ ResultSet results = statement.executeQuery();</programlisting>
     <para>
       Manually writing an API description for a large existing service is tedious. Fortunately, there is also RADL
       tooling that is useful in a code-first approach. At the time of writing, either Spring or JAX-RS code can be
-      analyzed and turned into a RADL file, although the tooling isn't as far along as for the design-first approach.
+      analyzed and turned into a (partial) RADL file, although the tooling isn't as mature as for the design-first
+      approach.
     </para>
     <para>
-      RADL extraction doesn't have to be a one-time event either. You can update the code and run the extraction tool
-      again to update your RADL file. Any manual updates to the API description are preserved. Documentation for
-      resources, etc. is extracted from JavaDoc comments, so developers can stay close to the code.
+      RADL extraction doesn't have to be a one-time event either. You can generate code, manually update the code and 
+      then run the extraction tool to update the RADL file. Any manual updates to the developer-controlled part of the 
+      API description are preserved. Documentation for resources, etc. is extracted from JavaDoc comments, so 
+      developers can stay close to the code.
     </para>
   </section>
 

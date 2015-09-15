@@ -967,7 +967,7 @@
       You can also make your access control policies <firstterm>context-aware</firstterm> by capturing the
       context in attributes. For instance, when I'm bleeding to death on the street after being hit by a car, I would
       want any doctor to see all of my medical data so he can save my life. We could capture that with an emergency
-      attribute ("break the glass") and have policies around that that include the obligation to log the access.
+      attribute ("break the glass") and have policies around that which allow acces with the obligation to log it.
     </para>
     <para>
       Other examples of context include the time of day in a policy that only allows access during business hours, the
@@ -1022,7 +1022,7 @@
       <citation>Link Hints</citation>.
     </para>
     <para>
-      Hard-coded methods pose a problem, however. Some method may be applicable for a given link
+      Hard-coded methods pose a problem, however. Some methods may be applicable for a given link
       relation for some user, but not others. You can't hard-code that information in a client,
       since that would be an <firstterm>authorization bypass</firstterm> vulnerability (CWE-639). The server
       must be responsible for enforcing security.

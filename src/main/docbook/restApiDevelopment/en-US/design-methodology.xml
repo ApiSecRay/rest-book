@@ -1029,7 +1029,7 @@
   </section>
   
   <section id="semantics">
-    <title>Document Application Semantics</title>
+    <title>Document Semantics</title>
     <para>
       Now that we've identified our messages, we must get a bit more specific in what the various data items in them
       mean and what values are acceptible for them.

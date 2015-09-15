@@ -386,6 +386,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>JAXB</abbrev>
+    <biblioid class="uri">https://jaxb.java.net/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>JBehave</abbrev>
     <biblioid class="uri">http://jbehave.org/</biblioid>
   </biblioentry>
