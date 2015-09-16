@@ -385,7 +385,8 @@ public class CentralErrorHandler {
  }
        
  @ExceptionHandler({ IllegalArgumentException.class })
- public ResponseEntity<String> illegalArgument(IllegalArgumentException e) {
+ public ResponseEntity<String> illegalArgument(
+    IllegalArgumentException e) {
   return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
  }
  
@@ -394,47 +395,54 @@ public class CentralErrorHandler {
     <para>
       As the above example shows, it makes sense to define custom exception classes for each of the API's error
       conditions (see <xref linkend="error"/>). You should not, however, define new exceptions for cases that are
-      already covered by standard exceptions. For instance, in Java <literal>IllegalArgumentException</literal> covers
-      the <literal>400 Bad Request</literal> status, and <literal>IllegalStateException</literal> covers
-      <literal>500 Internal Server Error</literal>.
+      already covered by standard exceptions. For instance, in Java <literal>IllegalArgumentException</literal> maps
+      naturally the <literal>400 Bad Request</literal> status, while <literal>IllegalStateException</literal>
+      corresponds to <literal>500 Internal Server Error</literal>.
     </para>
     <para>
       The central error handler maps exception classes onto HTTP status codes and translates them to something that can
       be serialized as an HTTP response body. In the example above that is a simple message string, but you serve your
       clients better by more structured messages with additional details that can help the client recover, as we
-      discussed in <xref linkend="serialize-errors"/>. This is relatively straightforward:
+      discussed in <xref linkend="serialize-errors"/>:
     </para>
     <programlisting><![CDATA[public class ErrorDto {
+
   public String type;
   public String title;
-  // Any more fields you want to return to the client, like details
+  // Any other fields you want to return to the client, 
+  // like details
+
 }
 
 @ControllerAdvice
 public class CentralErrorHandler {
 
- @ExceptionHandler({ NotFoundException.class })
- public ResponseEntity<ErrorDto> notFound(Exception e) {
-   ErrorDto error = new ErrorDto();
-   error.type = "http://errors.restbucks.com/not-found";
-   error.title = "The URI you requested doesn't exists or is not accessible by you.";
-  return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
- }]]></programlisting>
+  @ExceptionHandler({ NotFoundException.class })
+  public ResponseEntity<ErrorDto> notFound(Exception e) {
+    ErrorDto error = new ErrorDto();
+    error.type = "http://errors.restbucks.com/not-found";
+    error.title = 
+       "The URI you requested doesn't exists or is not accessible by you.";
+    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+  }
+
+}]]></programlisting>
     <para>
-      This example shows how easy it is with Spring to return a data transfer object (DTO): you just declare a class
-      with properties and Spring's message converters take care of the rest. If you're not using Spring, you may need
-      to do some extra work. For instance, with JAXB you add some annotations on the DTO's fields so that the JAXB
-      (un)marshaller can properly (de)serialize them <citation>JAXB</citation>.
+      This example shows how easy Spring makes it to return a data transfer object (DTO): you just declare a class
+      with properties and the message converters take care of the rest. If you're using XML, you may need to do some
+      extra work to define the mapping of DTO fields to XML elements and attributes. For instance, JAXB provides
+      <literal>XmlElement</literal> and <literal>XmlAttribute</literal> annotations for the DTO's fields
+      <citation>JAXB</citation>.
     </para>
     <para>
       As we saw earlier, the properties of a DTO can be regular JavaBeans properties (private fields with accessors and
       mutators), or they can simply be public fields. A DTO doesn't contain any behavior, so the latter is perfectly
-      fine in this specific case.
+      fine.
     </para>
     <para>
-      You should also define DTOs for any other data that you want to transfer (see <xref linkend="design-messages"/>).
-      DTOs are needed not just for returning data from the server to the client, but also for the server to accept data
-      from the client as input.
+      You should define DTOs not just for error reporting, but for any data that you want to transfer (see 
+      <xref linkend="design-messages"/>). DTOs are needed not just for returning data from the server to the client,
+      but also for the server to accept data from the client as input.
     </para>
     <para>
       Controllers don't just return data, or else we'd have a level 2 API (see <xref linkend="maturity"/>). They need
@@ -444,18 +452,18 @@ public class CentralErrorHandler {
       Links can be seen as a special form of data and thus serialized through the DTO. However, that requires the
       controller to know the details of the media type, since links are serialized differently in different media
       types. That means you can't support multiple media types with the same controller code. It also means that you
-      have to rewrite multiple controller classes if you decide to change the media type. This is undesirable.
+      have to rewrite many controller classes if you decide to change the media type. This is obviously undesirable.
     </para>
     <para>
       The solution is to capture the concept of a link in code, so it can be abstracted from the physical form as used
-      in the media type. The Spring HATEOAS project provides support for this through the
-      <literal>ResourceSupport</literal> class <citation>Spring HATEOAS</citation>. You must derive your DTOs from this 
-      class, which is yet another reason to distinguish DTOs from domain objects.
+      in the media type. Spring HATEOAS provide the <literal>Link</literal> class, that you can build using a
+      <literal>LinkBuilder</literal> <citation>Spring HATEOAS</citation>. The <literal>LinkBuilder</literal> is coupled
+      to the destination controller class/method rather than to the URI it handles.
     </para>
     <para>
-      The <literal>ResourceSupport</literal> class provides an <literal>add()</literal> method that accepts links
-      built using <literal>LinkBuilder</literal>. The <literal>LinkBuilder</literal> is coupled to the destination 
-      controller rather than to the URI it handles:
+      Once you've built links, you have to add them to your DTO. You do this by deriving your DTO from the       
+      <literal>ResourceSupport</literal> class. This is yet another reason to distinguish DTOs from domain objects.
+      The <literal>ResourceSupport</literal> class provides methods to add, remove, and query links:
     </para>
     <programlisting>public class HomeDto extends ResourceSupport {
 }
@@ -467,7 +475,10 @@ public class HomeController {
       produces = { MEDIA_TYPE_DEFAULT })
   public HomeDto get() {
     HomeDto result = new HomeDto();
-    result.add(LinkBuilder.TODO);
+    Link link = ControllerLinkBuilder
+        .linkTo(ControllerLinkBuilder.methodOn(MenuController.class).get())
+        .withRel(Api.LINK_REL_MENU);
+    result.add(link);
     return result;
   }
   

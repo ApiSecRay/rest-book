@@ -5,12 +5,14 @@ package restbucks.rest.server.home;
 
 import org.springframework.stereotype.Service;
 
+import restbucks.rest.server.impl.ServiceUnavailableException;
+
 
 @Service
 public class HomeService {
 
   public Object get() {
-    return null; // TODO: Implement
+    throw new ServiceUnavailableException();
   }
 
 }
