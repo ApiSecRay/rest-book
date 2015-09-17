@@ -7,12 +7,16 @@
   </para>
   <para>
     Along the way of that journey, we'll be asked to make changes to our system. We'll gain new insights into the
-    problem by observing clients use our API. We'll get bug reports and feature requests. We'll see our competitors
-    innovate. For all these reasons and more, we need to adapt so we can thrive.
+    problem by observing how clients use our API. We'll get bug reports and feature requests. We'll see our competitors
+    innovate. For all these reasons and more, we need to adapt.
   </para>
   <para>
-    This chapter discusses approaches to making changes to a REST API in such a way that well-behaved clients won't 
-    break.
+    The problem with changing an API is that clients may depend on the old behavior and break when you change it. The
+    REST architectural style tries to minimize the chance of that occurring by keeping client and server as loosely
+    coupled as possible.
+  </para>
+  <para>
+    This chapter discusses approaches to changing a REST API in a controlled way.
   </para>
   
   <section>
@@ -87,7 +91,7 @@
           <para>
             An old client will not know to use the new name of the property. It will provide values under the old name,
             which the new server won't pick up. If the property is mandatory, the request will be rejected and the
-            client is broken. If the property is optional, it will be ignored, which may be okay, or may be disastrous.
+            client is broken. If the property is optional, it will be ignored, which may be okay or may be disastrous.
           </para>
         </listitem>
       </varlistentry>
@@ -129,7 +133,7 @@
       </varlistentry>
     </variablelist>
     <para>
-      Backwards compatible changes are always safe. They are very limited in scope, however, as the above shows.
+      Backwards compatible changes are always safe. They are very limited in scope, however, as the above list shows.
       In practice, we may get away with a change that is not backwards compatible in theory. The trick is to know your
       clients. Let's see how we can acquire such knowledge.
     </para>
@@ -157,18 +161,24 @@
     </para>
     <para>
       If you do know exactly what your clients need, you're in a much better position. If you know for sure that
-      nobody is using property X, for instance, you can safely delete it. If you know that only client Y is using
-      link relation Z, then you may be able to coordinate an incompatible change with the people that build client Y.
+      nobody is using property X, for instance, you can safely delete it. That will be safe in practice even though it's
+      a breaking change in theory.
     </para>
     <para>
-      We saw in <xref linkend="state-diagrams"/> that we can capture our client's requirements in state diagrams. And
-      <xref linkend="test"/> showed how to use those same state diagrams to verify that the client's requirements are
-      met.
+      Here's another example where knowledge of the clients helps with server evolution. Suppose that the server has
+      many clients, but only one of them is using a particular link relation. You may then be able to coordinate an 
+      incompatible change with the people that build that client.
+    </para>
+    <para>
+      We saw in <xref linkend="state-diagrams"/> that we can capture our client's requirements in state diagrams. 
+      <xref linkend="test"/> showed how to use those state diagrams to verify that the client's requirements are met.
+      These state diagrams thus capture the needs of the clients.
     </para>
     <para>
       But in a situation with many different, rapidly evolving clients, it becomes rather unwieldly to update the state 
       diagrams by hand. We should be looking at automation to help us out. Such automation is made possible by 
-      <firstterm>consumer contracts</firstterm>, the contract between you and one particular client, or consumer.
+      <firstterm>consumer contracts</firstterm>, the contract between the server/producer and one particular
+      client/consumer.
     </para>
     <para>
       To support automation, the consumer contract has to be an exectuable specification, just as BDD scenarios are.
@@ -178,29 +188,30 @@
     </para>
     <para>
       If you build the clients as well as the API, then a good place to capture client interactions is in the
-      Continuous Integration pipeline of the client. The black-box tests for the client will run against your API, 
-      either against a real server or against a stub. At this point we can intercept the client's calls and capture them
-      into a consumer contract.
+      Continuous Integration pipeline of the client. The black-box tests for the client will run against your API and
+      we can intercept the client's calls at this point and capture them into an automatically generated consumer
+      contract.
     </para>
     <para>
       Correlation IDs help to link related requests and responses together (see <xref linkend="correlation"/>), 
       especially when you run multiple tests in parallel (as you should to shorten the feedback cycle).
     </para>
     <para>
-      There are a couple of open source tools to support consumer contracts.
-      TODO: Describe Pacto and/or Pact with an example.
+      There are a couple of open source tools to support consumer contracts. We'll discuss Pact-JVM here
+      <citation>Pact</citation>.
+      TODO: Example
     </para>
     <para>
       If you don't control your clients, for example when your API fronts a hosted service, you most likely are not in
       a position to coordinate changes with your clients. You can still capture their interactions to see what parts of 
-      the API they use (see <xref linkend="logging"/>) and you can still use those interaction pattern to create 
+      the API they use (see <xref linkend="logging"/>) and you can still use those interaction patterns to create 
       consumer contracts, but these contracts are a lot less rigid. Just because you don't see a client use a certain
       part of the API today doesn't mean that they won't tomorrow.
     </para>
     <para>
       In this situation, you may rely on the consumer contract and hope for the best, or you may play safe and limit
       yourself to only backwards compatible changes. But at some point you will probably have to introduce a breaking
-      change. Let's see how we can manage those.
+      change, so let's see how we can manage those.
     </para>
   </section>
 
@@ -212,9 +223,15 @@
       advantage of all the cool new features that the new API offers.
     </para>
     <para>
-      One particularly widespread approach to implementing this idea is to add a version identifier to the URLs 
-      that clients use. For instance, your billboard URI would change from <literal>http://api.example.com/v1/</literal>
-      to <literal>http://api.example.com/v1/</literal>. There are several problems with this approach: 
+      This obviously has a cost associated with it, which is why you should always try to avoid it using the techniques
+      described earlier. You should be aware of these costs and also of the benefits and make an informed decision on
+      how to proceed. Now let's assume you want to go through with multiple versions of your API. 
+    </para>
+    <para>
+      One particularly widespread approach to implementing the idea of multiple versions of an API is to add a version
+      identifier to the URLs under which resources are available. For instance, your billboard URI would change from 
+      <literal>http://api.example.com/v1/</literal> to <literal>http://api.example.com/v1/</literal>. There are several
+      problems with this approach:
     </para>
     <itemizedlist>
       <listitem>

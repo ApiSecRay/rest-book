@@ -272,15 +272,15 @@ public void getMenu() {
       equivalent running, the less likely are they to give up in frustration and abandon your API.
     </para>
     <para>
+      You should put the SDKs on GitHub or an equivalent source code repository so they're easily found by client
+      developers and easy for you to update. As a bonus, this invites client developers to submit bug fixes, or even
+      ports of the SDK into a programming language that you don't currently support.
+    </para>
+    <para>
       At the time of writing, RADL has no tooling to generate SDKs, but it's not hard to conceive of such help.
       A big part of the SDK consists of following link relations and (de)serializing programming language objects 
       into HTTP messages. The API description contains all the information necessary to perform these tasks, so it's
       just a matter of putting the work in to build the tooling.
-    </para>
-    <para>
-      You should put the SDKs on GitHub or an equivalent source code repository so they're easily found by client
-      developers and easy for you to update. As a bonus, this invites client developers to submit bug fixes, or even
-      ports of the SDK into a programming language that you don't currently support.
     </para>
   </section>
   
@@ -317,7 +317,7 @@ public void getMenu() {
       verify that they work before you launch and then, say, annually to verify they continue to do so.
     </para>
     <para>
-      Some features may be to difficult for you to test because you lack the required security skills. You can opt to 
+      Some features may be too difficult for you to test because you lack the required security skills. You can opt to 
       outsource this testing to an external company that is specialized in these matters. This is known as a 
       <firstterm>penetration test</firstterm> or pentest.
       Obviously you can't do this in an automated fashion on every commit, so this shouldn't be your only option.
@@ -325,7 +325,7 @@ public void getMenu() {
     <para>
       Penetration testers are not cheap, but well worth the money. In some cases, they are virtually a must. For 
       instance, as a cloud service provider, you probably don't want every customers to go into your data center to
-      perform an audit. You can still satisfy the customer's curiosity for your security posture by handing them a
+      perform an audit. You can still satisfy the customer's need to understand your security posture by handing them a
       report from a reputable pentesting company.
     </para>
     <para>
@@ -349,17 +349,10 @@ public void getMenu() {
       given our increased reliance on open source.
     </para>
     <para>
-      SAST tools are good at finding certain types of bugs that are very relevant for testing APIs.
-      <firstterm>Injection attacks</firstterm> happen when the client submits data through the API that can be 
-      interpreted as code.
-      The most (in)famous example of this is SQL Injection, where data from the client is appended to an SQL query.
-      This data is intended to be just data, but through the use of special characters like quotes the data can be
-      interpreted as code instead.
-    </para>
-    <para>
-      We discussed the tools to withstand these types of attacks in <xref linkend="output-encoding"/> and
-      <xref linkend="input-validation"/>. The trick is to judiciously apply them everywhere, because an attacker needs
-      only one hole to get in. SAST tools can help you find the places where you've missed something.
+      SAST tools are good at finding certain types of bugs that are very relevant for testing APIs, like the injection
+      attacks we saw in <xref linkend="output-encoding"/>. Withstanding these attacks and other ones like them is not
+      too hard using input validation and output encoding, but the trick is to judiciously apply them everywhere. An
+      attacker needs only one hole to get in. SAST tools can help you find the places where you've missed something.
     </para>
     <para>
       You don't need a pentester to operate a SAST tool, of course. While some of these tools may have somewhat of a 
@@ -385,8 +378,7 @@ public void getMenu() {
     </para>
     <para>
       BDD Security also comes with a set of predefined scenarios to test various security features that are common
-      across applications. This is a positive application of the notion of attack library we saw in
-      <xref linkend="tm"/>.
+      across applications. This is a nice application of the notion of attack library we saw in <xref linkend="tm"/>.
     </para>
     <para>
       One special type of DAST tool may be interesting for testing APIs. <firstterm>Fuzz testing</firstterm>
