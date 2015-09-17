@@ -44,20 +44,44 @@
           Tests can be written after the code is finished to <emphasis>verify</emphasis> that it works, or 
           they can be written first to <emphasis>specify</emphasis> how the code should work. 
           Writing the test first may seem counter-intuitive or unnatural, but there are some advantages to this
-          approach: it guarantees that the code will be testable, it's more efficient to prevent bugs than to introduce
-          and then fix them, and tests can be used to drive the design and implementation.
+          approach:
         </para>
+        <itemizedlist>
+          <listitem>
+            <para>It guarantees that the code will be testable.</para>
+          </listitem>
+          <listitem>
+            <para>It's more efficient to prevent bugs than to first introduce and then fix them</para>
+          </listitem>
+          <listitem>
+            <para>
+              Tests can be used to drive the design and implementation so that we´re never building more than required.
+            </para>
+          </listitem>
+        </itemizedlist>
       </listitem>
     </varlistentry>
     <varlistentry>
       <term>Where</term>
       <listitem>
         <para>
-          Tests can be written at different levels of abstraction. Unit tests test a single unit (e.g. class) in
-          isolation. Integration tests focus on how the units work together. System tests look at the application as a
-          whole. As you move up the abstraction level from unit to system, you require fewer tests
-          <citation>Test Pyramid</citation>. You may want to go even further and test a collection of applications that
-          work together, for instance in a microservices architecture.
+          Tests can be written at different levels of abstraction
+        </para>
+        <itemizedlist>
+          <listitem>
+            <para>Unit tests test a single unit (e.g. class) in isolation.</para>
+          </listitem>
+          <listitem>
+            <para>Integration tests focus on how the units work together.</para>
+          </listitem>
+          <listitem>
+            <para>System tests look at the application as a whole.</para>
+          </listitem>
+        </itemizedlist>
+        <para>
+          As you move up the abstraction level from unit to system, you require fewer tests <citation>Test
+          Pyramid</citation>. You may want to go even further and test a collection of applications that work together,
+          for instance in a microservices architecture.
         </para>
       </listitem>
     </varlistentry>
@@ -126,11 +150,6 @@
       <literal>Then</literal> parts of the scenarios.
     </para>
     <para>
-      There are many BDD frameworks, depending on your programming environment. We only have room to show one here, and 
-      we'll use Java and the JBehave framework <citation>JBehave</citation>. Other frameworks offer comparable features, 
-      so even if your not using JBehave, or even Java, the following should still give you a good idea of how to proceed.
-    </para>
-    <para>
       If you don't have BDD scenarios at all, then you'll need some other method of creating test specifications. The 
       details of what follows will be different, but the idea remains the same: make calls into your API to verify that
       the implementation matches expectations. 
@@ -140,6 +159,11 @@
       different requests and responses for a given test case can be related. This is otherwise non-trivial when you
       run tests in parallel (as you should to get quicker feedback). The test case name makes a good candidate as the
       value of the correlation ID.
+    </para>
+    <para>
+      There are many BDD frameworks, depending on your programming environment. We only have room to show one here, and 
+      we'll use Java and the JBehave framework <citation>JBehave</citation>. Other frameworks offer comparable features, 
+      so even if your not using JBehave, or even Java, the following should still give you a good idea of how to proceed.
     </para>
     <para>
       JBehave makes it relatively easy to translate Gherkin scenarios into Java calls. For each line of the scenario,
@@ -170,8 +194,8 @@
     <para>
       Parameterizing methods like this means we can write another scenario with a line like <literal>Given a customer
       Joe</literal>, and we wouldn't need a new method to match it. As you add more scenarios, you'll find that most
-      lines in them can already be matched by existing methods, so your testing effort <emphasis>decreases</emphasis>
-      over time, rather than increase.
+      lines in them can already be matched by existing methods, so your testing effort actually
+      <emphasis>decreases</emphasis> over time.
     </para>
     <para>
       The next line is <literal>When she reads the menu</literal>, for which we add a method using the
@@ -184,7 +208,7 @@ public void getMenu() {
       TODO: Finish
     </para>
     <para>
-      We'll talk more about testing in the face of changes in <xref linkend="consumer-contract"/>.
+      We'll talk more about the relationship between testing and making changes in <xref linkend="consumer-contract"/>.
     </para>
   </section>
 
@@ -199,7 +223,7 @@ public void getMenu() {
     </para>
     <para>
       Since the tests exercise your API, they are in fact a client of it. Keeping your test code DRY has the interesting 
-      side effectof building up a <firstterm>Software Development Kit</firstterm> (SDK) for your API. Remember from 
+      side effect of building up a <firstterm>Software Development Kit</firstterm> (SDK) for your API. Remember from 
       <xref linkend="dx"/> that offering an SDK is a good way to improve the DX.
     </para>
     <para>
@@ -217,7 +241,7 @@ public void getMenu() {
     </para>
     <para>
       The SDK you're building up when implementing your tests will be written in whatever language you have chosen for
-      your automating your tests. If some clients are not written in that language, you may have to spend some 
+      automating your tests. If some clients are not written in that language, you may have to spend some 
       additional effort to port your SDK to the languages that your API users (i.e. the developers that build clients) 
       want to use. This is additional work, but you have an existing SDK that you can start from. And while you're
       porting your SDK, developers can look at the current SDK to see how to call your API.

@@ -431,7 +431,7 @@ public class CentralErrorHandler {
       This example shows how easy Spring makes it to return a data transfer object (DTO): you just declare a class
       with properties and the message converters take care of the rest. If you're using XML, you may need to do some
       extra work to define the mapping of DTO fields to XML elements and attributes. For instance, JAXB provides
-      <literal>XmlElement</literal> and <literal>XmlAttribute</literal> annotations for the DTO's fields
+      <literal>@XmlElement</literal> and <literal>@XmlAttribute</literal> annotations for the DTO's fields
       <citation>JAXB</citation>.
     </para>
     <para>
@@ -441,12 +441,12 @@ public class CentralErrorHandler {
     </para>
     <para>
       You should define DTOs not just for error reporting, but for any data that you want to transfer (see 
-      <xref linkend="design-messages"/>). DTOs are needed not just for returning data from the server to the client,
-      but also for the server to accept data from the client as input.
+      <xref linkend="design-messages"/>). This includes returning data from the server to the client as well as 
+      accepting data from the client as input.
     </para>
     <para>
       Controllers don't just return data, or else we'd have a level 2 API (see <xref linkend="maturity"/>). They need
-      to include links (level 3a) and forms (level 3b) as well.
+      to include links (level 3a) and forms (level 3b) in their responses as well.
     </para>
     <para>
       Links can be seen as a special form of data and thus serialized through the DTO. However, that requires the
@@ -455,14 +455,16 @@ public class CentralErrorHandler {
       have to rewrite many controller classes if you decide to change the media type. This is obviously undesirable.
     </para>
     <para>
-      The solution is to capture the concept of a link in code, so it can be abstracted from the physical form as used
-      in the media type. Spring HATEOAS provide the <literal>Link</literal> class, that you can build using a
-      <literal>LinkBuilder</literal> <citation>Spring HATEOAS</citation>. The <literal>LinkBuilder</literal> is coupled
-      to the destination controller class/method rather than to the URI it handles.
+      The solution is to capture the concept of a link in code, so different message converters can serialize it
+      differently, depending on the rules of the media type. Spring HATEOAS provide the <literal>Link</literal> class
+      for this purpose, that you can build using a <literal>LinkBuilder</literal> <citation>Spring HATEOAS</citation>.
+      The <literal>LinkBuilder</literal> is coupled to the destination controller class/method rather than to the URI
+      it handles.
     </para>
     <para>
       Once you've built links, you have to add them to your DTO. You do this by deriving your DTO from the       
-      <literal>ResourceSupport</literal> class. This is yet another reason to distinguish DTOs from domain objects.
+      <literal>ResourceSupport</literal> class. This is yet another reason to distinguish DTOs from domain objects,
+      where you want the freedom to derive from any class the problem domain calls for.
       The <literal>ResourceSupport</literal> class provides methods to add, remove, and query links:
     </para>
     <programlisting>public class HomeDto extends ResourceSupport {
@@ -485,8 +487,8 @@ public class HomeController {
 }</programlisting>
     <para>
       If the media type supports forms, then you need to do something similar for them as for links. At the time of
-      writing there is no support for forms in Spring's projects, but fortunately there is a contribution from the
-      community that provides an <literal>AffordanceBuilder</literal> that works analogous to
+      writing there is no support for forms in official Spring projects, but fortunately there is a contribution from
+      the community that provides an <literal>AffordanceBuilder</literal> that works analogous to
       <literal>LinkBuilder</literal> <citation>Spring Hydra</citation>.
     </para>
     <programlisting>TODO</programlisting>
@@ -695,9 +697,9 @@ public class PaymentController {
       <para>
         The <literal>@Valid</literal> approach works as intended when the entire data transfer object is transferred,
         but it breaks down if we start using <literal>PUT</literal> or <literal>PATCH</literal> to update individual
-        properties. In RESTBucks we can't update a payment, but we can update an order. So let's look at that example: 
+        properties. In RESTBucks we can't update a payment, but we can update an order. Let's look at that example: 
       </para>
-      <programlisting>public class Order {
+      <programlisting>public class OrderDto {
   
   @Name
   public String customer;
@@ -710,13 +712,13 @@ public class OrderController {
   
   @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public Order update(@PathVariable("order-id") String id, @Valid Order order) {
+  public OrderDto update(@PathVariable("order-id") String id, @Valid OrderDto order) {
     // ...
   }
   
   @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM, 
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public Order partialUpdate(@PathVariable("order-id") String id, 
+  public OrderDto partialUpdate(@PathVariable("order-id") String id, 
       @RequestPart("customer") @Name String customer) {
     // ...
   }
@@ -741,7 +743,7 @@ public class OrderController {
   // toString(), compareTo(), hashCode(), equals()
 }
 
-public class Order {
+public class OrderDto {
   
   public Name customer;
   
@@ -752,7 +754,7 @@ public class OrderController {
   
   @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public Order update(@PathVariable("order-id") String id, Order order) {
+  public OrderDto update(@PathVariable("order-id") String id, OrderDto order) {
     // ...
   }
   
@@ -765,9 +767,9 @@ public class OrderController {
   
 }]]></programlisting>
       <para>
-        Now we have nicely DRY code, but it is still fundamentally flawed. The <literal>Order</literal> class is a data 
-        transfer object (DTO), while the <literal>Name</literal> class is a domain object, so we're mixing different
-        abstraction levels here. It's better to keep them separate:
+        Now we have nicely DRY code, but it still suffers from a fundamental problem: the <literal>OrderDto</literal>
+        class is a data transfer object (DTO), while the <literal>Name</literal> class is a domain object, so we're
+        mixing different abstraction levels here. It's better to keep them separate:
       </para>
       <programlisting><![CDATA[public class OrderDto {
   
@@ -805,7 +807,8 @@ public class OrderController {
   
   @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderDto update(@PathVariable("order-id") String id, OrderDto orderDto) {
+  public OrderDto update(@PathVariable("order-id") String id,
+      OrderDto orderDto) {
     // ...
   }
   
@@ -826,7 +829,7 @@ public class OrderController {
       <para>
         This code is DRY <emphasis>and</emphasis> follows the Single Responsibility Principle <citation>SOLID</citation>.
         The DTO only needs to change when we need to optimize the message structure for performance reasons, not when
-        our understanding or support of the problem domain changes.
+        our understanding of or support for the problem domain changes.
       </para>
     </section>
     
@@ -867,8 +870,8 @@ ResultSet results = statement.executeQuery(query);</programlisting>
 statement.setString(1, customer);
 ResultSet results = statement.executeQuery();</programlisting>
       <para>
-        The <literal>setString()</literal> method encodes the value of <literal>customer</literal> in such a way that
-        it can never be treated as code.
+        The <literal>setString()</literal> method clearly marks the value of <literal>customer</literal> as code, so
+        that it can never be treated as code.
       </para>
       <para>
         Other injection attacks are based on the same idea of mixing code and data, and they can also be fixed using
@@ -907,7 +910,7 @@ ResultSet results = statement.executeQuery();</programlisting>
       Some of the components of a REST server that we saw in <xref linkend="rest-server"/> are unique to the service
       the API is providing, but other parts are more or less boiler plate code. If you're following the design-first
       approach with an API description language (see <xref linkend="radl"/>), you may be able to generate some or all
-      of the boilerplate code.
+      of the boilerplate code from your API description.
     </para>
     <para>
       For example, the Spring code generator for RADL creates the following classes for you:
@@ -968,7 +971,7 @@ ResultSet results = statement.executeQuery();</programlisting>
             <literal>ResourceSupport</literal>. TODO: What's the equivalent in Spring Hydra? 
             If you use JSON-LD as the media type and add <literal>uri</literal>
             attributes to the <literal>property</literal> and/or <literal>property-group</literal> elements, then the 
-            DTOs and their fields are annotated using Spring Hydra.
+            DTOs and their fields are annotated using Spring Hydra´s semantic annotations.
           </para>
         </listitem>
       </varlistentry>
@@ -998,7 +1001,7 @@ ResultSet results = statement.executeQuery();</programlisting>
     <para>
       Manually writing an API description for a large existing service is tedious. Fortunately, there is also RADL
       tooling that is useful in a code-first approach. At the time of writing, either Spring or JAX-RS code can be
-      analyzed and turned into a (partial) RADL file, although the tooling isn't as mature as for the design-first
+      analyzed and turned into a (partial) RADL file, although the tooling isn't as mature yet as for the design-first
       approach.
     </para>
     <para>
