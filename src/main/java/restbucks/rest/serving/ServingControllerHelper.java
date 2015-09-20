@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 
 
 @Service
-public class ServingService {
+public class ServingControllerHelper {
 
-  public Object get() {
+  public ServingDto get() {
     return null; // TODO: Implement
   }
 

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
 ##
 ## Sample RADL file for RESTBucks.
 ##
 ## Copyright © EMC Corporation. All rights reserved.
 ##
 -->
-<service name="RESTBucks" radl-version="1.0" 
+<service name="RESTBucks" radl-version="1.0"
     xmlns="urn:radl:service" xmlns:radl="urn:radl:service"
     xmlns:html="http://www.w3.org/1999/xhtml">
   <documentation>
-    This example service follows <html:a href="http://www.infoq.com/articles/webber-rest-workflow">RESTBucks</html:a>,
-    an online version of coffee shop Starbucks based on Gregor Hohpe's  
+    This example service follows <html:a href="http://www.infoq.com/articles/webber-rest-workflow">RESTBucks</html:a>, 
+    an online version of coffee shop Starbucks based on Gregor Hohpe's
     <html:a href="http://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html">observation</html:a> that
     it is an asynchronous processing pipeline.
   </documentation>
@@ -104,18 +104,30 @@
         <transition ref="Wait"/>
       </transitions>
     </link-relation>
-  
-    <link-relation name="edit">
-      <specification href="http://tools.ietf.org/html/rfc5023"/>
+
+    <link-relation name="https://schema.org/ReplaceAction">
+      <specification href="https://schema.org/ReplaceAction"/>
       <transitions>
         <transition ref="Change"/>
+      </transitions>
+    </link-relation>
+    
+    <link-relation name="https://schema.org/DeleteAction">
+      <specification href="https://schema.org/DeleteAction"/>
+      <transitions>
         <transition ref="Cancel"/>
-        <transition ref="Take serving"/>
       </transitions>
     </link-relation>
   
-    <link-relation name="payment">
-      <specification href="http://tools.ietf.org/html/rfc5988"/>
+    <link-relation name="http://schema.org/ReceiveAction">
+      <specification href="http://schema.org/ReceiveAction"/>
+      <transitions>
+        <transition ref="Take serving"/>
+      </transitions>
+    </link-relation>
+    
+    <link-relation name="https://schema.org/PayAction">
+      <specification href="https://schema.org/PayAction"/>
       <transitions>
         <transition ref="Pay"/>
       </transitions>
@@ -127,56 +139,55 @@
         <transition ref="Read menu"/>
       </transitions>
     </link-relation>
-  
+
     <link-relation name="http://schema.org/OrderAction">
       <specification href="http://schema.org/OrderAction"/>
       <transitions>
         <transition ref="Place order"/>
       </transitions>
     </link-relation>
-  
+
     <link-relation name="http://schema.org/Order">
       <specification href="http://schema.org/Order"/>
       <transitions>
         <transition ref="Take receipt"/>
       </transitions>
     </link-relation>
-  
   </link-relations>
 
   <property-groups>
     <property-group name="home" uri="http://schema.org/CafeOrCoffeeShop"/>
-    
+
     <property-group name="items">
       <property-group name="item" repeats="true" uri="http://schema.org/Product">
-            <property name="name" uri="http://schema.org/name"/>
-            <property name="size" uri="http://schema.org/height"/>
-            <property name="milk" uri="http://www.productontology.org/doc/Milk"/>
-            <property name="price" uri="http://schema.org/price"/>
-            <property name="currency" uri="http://schema.org/priceCurrency"/>
+        <property name="name" uri="http://schema.org/name"/>
+        <property name="size" uri="http://schema.org/height"/>
+        <property name="milk" uri="http://www.productontology.org/doc/Milk"/>
+        <property name="price" uri="http://schema.org/price"/>
+        <property name="currency" uri="http://schema.org/priceCurrency"/>
       </property-group>
     </property-group>
-  
+
     <property-group name="menu" uri="http://schema.org/menu">
       <property-group name="items" ref="items"/>
     </property-group>
-  
+
     <property-group name="order" uri="http://schema.org/Order">
       <property-group name="items" ref="items"/>
-        <property name="customer" uri="http://schema.org/customer"/>
-        <property name="total" uri="http://schema.org/totalPrice"/>
-        <property name="currency" uri="http://schema.org/priceCurrency"/>
+      <property name="customer" uri="http://schema.org/customer"/>
+      <property name="total" uri="http://schema.org/totalPrice"/>
+      <property name="currency" uri="http://schema.org/priceCurrency"/>
     </property-group>
-  
+
     <property-group name="receipt" uri="http://schema.org/Order">
-        <property name="dateTime" uri="http://schema.org/orderDate"/>
-        <property name="shop" uri="http://schema.org/seller"/>
+      <property name="dateTime" uri="http://schema.org/orderDate"/>
+      <property name="shop" uri="http://schema.org/seller"/>
       <property-group name="items" ref="items"/>
-        <property name="total" uri="http://schema.org/totalPrice"/>
-        <property name="currency" uri="http://schema.org/priceCurrency"/>
+      <property name="total" uri="http://schema.org/totalPrice"/>
+      <property name="currency" uri="http://schema.org/priceCurrency"/>
       <property name="paymentMethod" uri="http://schema.org/acceptedPaymentMethod"/>
     </property-group>
-    
+
     <property-group name="payment" uri="http://reference.data.gov.uk/def/payment#payment">
       <property name="amount" uri="http://schema.org/totalPrice"/>
       <property name="currency" uri="http://schema.org/priceCurrency"/>
@@ -269,7 +280,7 @@
         </method>
       </methods>
     </resource>
-    
+
     <resource name="Menu">
       <location uri="/menu/"/>
       <methods>
@@ -281,7 +292,7 @@
         </method>
       </methods>
     </resource>
-    
+
     <resource name="Orders">
       <location uri="/orders/"/>
       <methods>
@@ -294,7 +305,7 @@
         </method>
       </methods>
     </resource>
-    
+
     <resource name="Order">
       <location uri-template="/orders/{order-id}/"/>
       <methods>
@@ -318,7 +329,7 @@
         </method>
       </methods>
     </resource>
-    
+
     <resource name="Payments">
       <location uri-template="/orders/{order-id}/payments/"/>
       <methods>
@@ -331,7 +342,7 @@
         </method>
       </methods>
     </resource>
-    
+
     <resource name="Serving">
       <location uri-template="/orders/{order-id}/serving/"/>
       <methods>

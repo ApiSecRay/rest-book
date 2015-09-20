@@ -4,12 +4,13 @@
 package restbucks.rest.payment;
 
 import org.springframework.stereotype.Service;
+import restbucks.rest.receipt.ReceiptDto;
 
 
 @Service
-public class PaymentsService {
+public class PaymentsControllerHelper {
 
-  public Object post(Object input) {
+  public ReceiptDto post(PaymentDto input) {
     return null; // TODO: Implement
   }
 

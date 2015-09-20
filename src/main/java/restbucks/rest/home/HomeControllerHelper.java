@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 
 
 @Service
-public class HomeService {
+public class HomeControllerHelper {
 
-  public Object get() {
-    return new HomeDto(); // TODO: Implement
+  public HomeDto get() {
+    return new HomeDto();
   }
 
 }

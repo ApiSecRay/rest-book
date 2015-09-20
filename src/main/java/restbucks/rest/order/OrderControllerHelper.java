@@ -4,20 +4,21 @@
 package restbucks.rest.order;
 
 import org.springframework.stereotype.Service;
+import restbucks.rest.serving.ServingDto;
 
 
 @Service
-public class OrderService {
+public class OrderControllerHelper {
 
   public void delete() {
     // TODO: Implement
   }
 
-  public Object put(Object input) {
+  public OrderDto put(OrderDto input) {
     return null; // TODO: Implement
   }
 
-  public Object get() {
+  public ServingDto get() {
     return null; // TODO: Implement
   }
 
