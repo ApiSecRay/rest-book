@@ -788,15 +788,15 @@
         </tr>
         <tr>
           <td>Change order</td>
-          <td><literal>edit</literal></td>
+          <td><literal>https://schema.org/ReplaceAction</literal></td>
         </tr>
         <tr>
           <td>Cancel</td>
-          <td><literal>edit</literal></td>
+          <td><literal>https://schema.org/DeleteAction</literal></td>
         </tr>
         <tr>
           <td>Pay</td>
-          <td><literal>payment</literal></td>
+          <td><literal>https://schema.org/PayAction</literal></td>
         </tr>
         <tr>
           <td>Take receipt</td>
@@ -808,7 +808,7 @@
         </tr>
         <tr>
           <td>Take serving</td>
-          <td><literal>edit</literal></td>
+          <td><literal>http://schema.org/ReceiveAction</literal></td>
         </tr>
       </tbody>
     </table>
@@ -1912,6 +1912,7 @@
     </para>
     <para>
       Here is the whole sequence of HTTP messages for <xref linkend="bdd-customer-happy-path"/>:
+      TODO: Validate
     </para>
     <orderedlist>
       <listitem>
