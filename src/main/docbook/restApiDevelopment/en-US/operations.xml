@@ -1,6 +1,13 @@
 <chapter id="operations">
   <title>Operations</title>
   <para>
+    Now that we have a fully functional implementation of the API that is known to meet expectations, we're ready to
+    deploy the server into production and derive business value from it.
+  </para>
+  <para>
+    Traditionally, development and operations groups have been separate teams with very different skill sets and goals.
+    Just like Agile software development has merged coding and testing efforts into a single development team, many
+    organizations are moving to integrate development and operations into DevOps teams.   
     TODO: Operability
   </para>
   

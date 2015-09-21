@@ -11,7 +11,11 @@ import restbucks.rest.receipt.ReceiptDto;
 public class PaymentsControllerHelper {
 
   public ReceiptDto post(PaymentDto input) {
-    return null; // TODO: Implement
+    return new ReceiptDto(); // TODO: Implement
+  }
+
+  public boolean isLinkEnabled(String linkRelation) {
+    return true; // TODO: Implement
   }
 
 }

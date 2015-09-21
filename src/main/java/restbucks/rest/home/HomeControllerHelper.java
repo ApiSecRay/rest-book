@@ -10,7 +10,11 @@ import org.springframework.stereotype.Service;
 public class HomeControllerHelper {
 
   public HomeDto get() {
-    return new HomeDto();
+    return new HomeDto(); // TODO: Implement
+  }
+
+  public boolean isLinkEnabled(String linkRelation) {
+    return true; // TODO: Implement
   }
 
 }

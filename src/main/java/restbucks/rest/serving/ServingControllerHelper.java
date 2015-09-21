@@ -9,12 +9,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServingControllerHelper {
 
-  public ServingDto get() {
-    return null; // TODO: Implement
-  }
-
   public void delete() {
     // TODO: Implement
+  }
+
+  public ServingDto get() {
+    return new ServingDto(); // TODO: Implement
+  }
+
+  public boolean isLinkEnabled(String linkRelation) {
+    return true; // TODO: Implement
   }
 
 }

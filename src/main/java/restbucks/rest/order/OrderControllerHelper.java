@@ -14,12 +14,16 @@ public class OrderControllerHelper {
     // TODO: Implement
   }
 
-  public OrderDto put(OrderDto input) {
-    return null; // TODO: Implement
+  public ServingDto get() {
+    return new ServingDto(); // TODO: Implement
   }
 
-  public ServingDto get() {
-    return null; // TODO: Implement
+  public OrderDto put(OrderDto input) {
+    return new OrderDto(); // TODO: Implement
+  }
+
+  public boolean isLinkEnabled(String linkRelation) {
+    return true; // TODO: Implement
   }
 
 }

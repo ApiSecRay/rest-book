@@ -391,6 +391,32 @@ public void getMenu() {
   </section>
   
   <section>
+    <title>RADL Support During Testing</title>
+    <para>
+      The RADL tools can generate a dummy implementation of the server that implements the REST design as captured in
+      the API description. This implementation is functional in the sense that it implements all the methods on all
+      the resources, but it obviously doesn't contain the correct business logic. It returns mostly empty responses, 
+      and ignores any input sent by a client.
+    </para>
+    <para>
+      Nevertheless, this can be helpful when implementing any client, including a test. The test can issue its requests 
+      and inspect the responses. Any validations on those responses will fail, of course, since the server isn't really
+      implemented yet, but at least the tests can be written and verified to interact correctly with the server.
+    </para>
+    <para>
+      We can go a step further by adding examples to the API description. Remember that a RADL
+      <literal>property-group</literal> describes the data that is transferred between client and server. You can add
+      example values for the properties in a <literal>property-group</literal> and those will then be used by the
+      generated dummy implementation. If you're using BDD, then you can use the examples in the scenarios.
+    </para>
+    <para>
+      There is also help for testing the server. You can add usage scenarios, like BDD scenarios, to RADL and the
+      tooling can generate the BDD stories and JBehave steps to implement them. You can also start with BDD scenarios
+      and generate the RADL usage scenarios. 
+    </para>
+  </section>
+  
+  <section>
     <title>Summary</title>
     <para>
       This chapter briefly explores how to test the API implementation for functional and security problems. After

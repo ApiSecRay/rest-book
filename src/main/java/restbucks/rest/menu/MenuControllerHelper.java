@@ -10,7 +10,11 @@ import org.springframework.stereotype.Service;
 public class MenuControllerHelper {
 
   public MenuDto get() {
-    return null; // TODO: Implement
+    return new MenuDto(); // TODO: Implement
+  }
+
+  public boolean isLinkEnabled(String linkRelation) {
+    return true; // TODO: Implement
   }
 
 }
