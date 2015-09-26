@@ -22,34 +22,32 @@ public class AcceptanceTests extends JUnitStories {
   public AcceptanceTests() {
     Embedder embedder = configuredEmbedder();
     embedder.embedderControls()
-    .doGenerateViewAfterStories(true)
-    .doIgnoreFailureInStories(true)
-    .doIgnoreFailureInView(true)
-    .doVerboseFailures(true)
-    .doVerboseFiltering(true);
+        .doGenerateViewAfterStories(true)
+        .doIgnoreFailureInStories(true)
+        .doIgnoreFailureInView(true)
+        .doVerboseFailures(true)
+        .doVerboseFiltering(true);
   }
 
   @Override
   protected List<String> storyPaths() {
-    List<String> result = new StoryFinder().findPaths("src/test/resources", "**/*.story", "");
-    System.out.println("Running stories in: " + result);
-    return result;
+    return new StoryFinder().findPaths("src/test/resources", "stories/*.story", "");
   }
 
   @Override
   public Configuration configuration() {
     return new MostUsefulConfiguration()
-    .useStoryReporterBuilder(newStoryBuilder())
-    .usePendingStepStrategy(new FailingUponPendingStep())
-    .useFailureStrategy(new SilentlyAbsorbingFailure())
-    .useStoryLoader(new LoadFromClasspath());
+        .useStoryReporterBuilder(newStoryBuilder())
+        .usePendingStepStrategy(new FailingUponPendingStep())
+        .useFailureStrategy(new SilentlyAbsorbingFailure())
+        .useStoryLoader(new LoadFromClasspath());
   }
 
   private StoryReporterBuilder newStoryBuilder() {
     return new StoryReporterBuilder()
-    .withFailureTrace(true)
-    .withFailureTraceCompression(true)
-    .withFormats(Format.HTML);
+        .withFailureTrace(true)
+        .withFailureTraceCompression(true)
+        .withFormats(Format.HTML, Format.XML);
   }
 
   @Override

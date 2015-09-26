@@ -55,16 +55,38 @@ test {
     file('target').mkdirs() // Required by JBehave
   }
   doLast {
+    // Prepare pretty HTML report
     def dir = file("$buildDir/reports/acceptance-tests")
+    def resultDir = file('target/jbehave')
     ant.move(todir: dir.path) {
-      fileset(dir: file('target/jbehave/view').path)
+      fileset(dir: new File(resultDir, 'view').path, excludes: "**/*.xml.html")
     }
-    ant.delete(dir: file('target').path, failonerror: false)
     def testResourcesDir = sourceSets.test.resources.srcDirs[0].path
     ant.copy(todir: dir.path) {
       fileset(dir: testResourcesDir, includes: "**/*.css")
       fileset(dir: testResourcesDir, includes: "**/*.png")
     }
+    
+    // Count results
+    def numTested = 0
+    def numFailed = 0
+    def numPending = 0
+    resultDir.listFiles().findAll { it.name.endsWith('.xml') && !it.name.endsWith('Stories.xml') }.each {
+      new XmlSlurper().parse(it).scenario.each {
+        numTested++
+        if (it.step.find { it.@outcome == 'failed' } != null) {
+          numFailed++
+        } else if (it.step.find { it.@outcome == 'notPerformed' } != null) {
+          numPending++
+        }
+      }
+    }
+    def message = "Acceptance tests: $numTested scenarios, $numFailed failed, $numPending pending"
+    ant.delete(dir: file('target').path, failonerror: false)
+    if (numFailed > 0) {
+      throw new GradleException(message)
+    }
+    println message
   }
 }
 
