@@ -5,8 +5,7 @@ import java.util.List;
 
 import org.jbehave.core.configuration.Configuration;
 import org.jbehave.core.configuration.MostUsefulConfiguration;
-import org.jbehave.core.embedder.Embedder;
-import org.jbehave.core.failures.FailingUponPendingStep;
+import org.jbehave.core.failures.PassingUponPendingStep;
 import org.jbehave.core.failures.SilentlyAbsorbingFailure;
 import org.jbehave.core.io.LoadFromClasspath;
 import org.jbehave.core.io.StoryFinder;
@@ -20,13 +19,13 @@ import org.jbehave.core.steps.InstanceStepsFactory;
 public class AcceptanceTests extends JUnitStories {
 
   public AcceptanceTests() {
-    Embedder embedder = configuredEmbedder();
-    embedder.embedderControls()
+    configuredEmbedder().embedderControls()
         .doGenerateViewAfterStories(true)
         .doIgnoreFailureInStories(true)
         .doIgnoreFailureInView(true)
         .doVerboseFailures(true)
-        .doVerboseFiltering(true);
+        .doVerboseFiltering(true)
+        ;
   }
 
   @Override
@@ -38,7 +37,7 @@ public class AcceptanceTests extends JUnitStories {
   public Configuration configuration() {
     return new MostUsefulConfiguration()
         .useStoryReporterBuilder(newStoryBuilder())
-        .usePendingStepStrategy(new FailingUponPendingStep())
+        .usePendingStepStrategy(new PassingUponPendingStep())
         .useFailureStrategy(new SilentlyAbsorbingFailure())
         .useStoryLoader(new LoadFromClasspath());
   }

@@ -1,3 +1,5 @@
+Scenario: Chrissy orders a latte
+
 Given a customer Chrissy
 When she reads the menu
 And she orders a tall whole milk caffe latte

@@ -9,9 +9,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.jbehave.core.annotations.AfterStories;
+import org.jbehave.core.annotations.BeforeStories;
 import org.jbehave.core.annotations.Given;
-import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
+
+import restbucks.main.Application;
 
 
 public class RestbuckSteps {
@@ -24,7 +27,21 @@ public class RestbuckSteps {
   private final HttpClient client = HttpClientBuilder.create().build();
   private HttpResponse response;
   private String customer;
+  private Thread serverThread;
 
+  @BeforeStories
+  public void init() throws InterruptedException {
+    serverThread = new Thread(() -> Application.main(new String[0]));
+    serverThread.start();
+    Thread.sleep(10000);
+  }
+  
+  @AfterStories
+  public void done() throws InterruptedException {
+    serverThread.interrupt();
+    serverThread.join();
+  }
+  
   @Given("a customer $customer")
   public void setCustomer(String customer) {
     this.customer = customer;
@@ -34,46 +51,45 @@ public class RestbuckSteps {
   public void getMenu() throws ClientProtocolException, IOException {
     HttpUriRequest request = new HttpGet(BILLBOARD_URI);
     response = client.execute(request);
-
   }
 
-  @When("she orders a tall whole milk caffe latte")
-  public void order() {
+//  @When("she orders a $drink")
+  public void order(String drink) {
   }
 
-  @Then("she is due $2.75")
-  public void assertAmount() {
+//  @Then("she is due \\$$amount")
+  public void assertAmount(double amount) {
   }
 
-  @When("she pays")
+//  @When("she pays")
   public void pay() {
   }
 
-  @Then("she is handed a receipt")
+//  @Then("she is handed a receipt")
   public void assertReceipt() {
   }
 
-  @When("she takes the receipt")
+//  @When("she takes the receipt")
   public void takeReceipt() {
   }
 
-  @Then("she must wait for the barista")
+//  @Then("she must wait for the barista")
   public void waitForServing() {
   }
 
-  @When("the barista calls her name")
+//  @When("the barista calls her name")
   public void served() {
   }
 
-  @Then("her serving is ready")
+//  @Then("her serving is ready")
   public void assertServing() {
   }
 
-  @When("she takes her serving")
+//  @When("she takes her serving")
   public void takeServing() {
   }
 
-  @Then("she is happy")
+//  @Then("she is happy")
   public void end() {
   }
 

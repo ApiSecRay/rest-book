@@ -26,7 +26,7 @@ buildscript {
 
 apply plugin: 'java'
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 repositories {
   mavenCentral()
@@ -73,10 +73,19 @@ test {
     def numPending = 0
     resultDir.listFiles().findAll { it.name.endsWith('.xml') && !it.name.endsWith('Stories.xml') }.each {
       new XmlSlurper().parse(it).scenario.each {
+        def failed = false
+        def pending = false
+        it.step.each {
+          if (it.@outcome == 'failed') {
+            failed = true
+          } else if (it.@outcome == 'pending') {
+            pending = true
+          }
+        }
         numTested++
-        if (it.step.find { it.@outcome == 'failed' } != null) {
+        if (failed) {
           numFailed++
-        } else if (it.step.find { it.@outcome == 'notPerformed' } != null) {
+        } else if (pending) {
           numPending++
         }
       }
