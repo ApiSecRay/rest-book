@@ -3,7 +3,13 @@
   <para>
     We now have a design for an API that meets the requirements, causes the least amount of surprise by reusing
     well-known design patterns, is helpful when things go wrong, gives good performance and scalability, and is secure.
-    But until we've implemented that design, we don't actually have anything at all. 
+    But until we've implemented that design, we don't actually have anything at all. Remember:
+  </para>
+  <blockquote>
+    <attribution><citation>Agile Manifesto</citation></attribution>
+    <para>Working software over comprehensive documentation</para>
+  </blockquote>
+  <para>
     This chapter discusses some important topics to consider while building a REST server.
   </para>
   

@@ -73,6 +73,11 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>Agile Manifesto</abbrev>
+    <biblioid class="uri">http://www.agilemanifesto.org/</biblioid>
+  </biblioentry>  
+  
+  <biblioentry>
     <abbrev>ALPS</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/draft-amundsen-richardson-foster-alps-01</biblioid>
   </biblioentry>
