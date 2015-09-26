@@ -52,13 +52,19 @@ jar {
 test {
   outputs.upToDateWhen { false }
   doFirst {
-    file('target').mkdirs()
+    file('target').mkdirs() // Required by JBehave
   }
   doLast {
-    ant.move(todir: file("$buildDir/reports/jbehave").path) {
+    def dir = file("$buildDir/reports/acceptance-tests")
+    ant.move(todir: dir.path) {
       fileset(dir: file('target/jbehave/view').path)
     }
     ant.delete(dir: file('target').path, failonerror: false)
+    def testResourcesDir = sourceSets.test.resources.srcDirs[0].path
+    ant.copy(todir: dir.path) {
+      fileset(dir: testResourcesDir, includes: "**/*.css")
+      fileset(dir: testResourcesDir, includes: "**/*.png")
+    }
   }
 }
 
