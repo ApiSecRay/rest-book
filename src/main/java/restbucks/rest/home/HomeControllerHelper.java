@@ -14,7 +14,7 @@ public class HomeControllerHelper {
   }
 
   public boolean isLinkEnabled(String linkRelation) {
-    return true; // TODO: Implement
+    return true;// TODO: Implement
   }
 
 }
