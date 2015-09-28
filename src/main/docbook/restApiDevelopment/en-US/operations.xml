@@ -6,13 +6,85 @@
   </para>
   <para>
     Traditionally, development and operations groups have been separate teams with very different skill sets and goals.
-    Just like Agile software development has merged coding and testing efforts into a single development team, many
+    Just like Agile software development has merged many coding and testing efforts into a single development team, many
     organizations are moving to integrate development and operations into DevOps teams.   
-    TODO: Operability
+  </para>
+  <para>
+    However you choose to organize it, most software requires work to run it. Servers must be provisioned, software
+    installed and patched, etc. For some software this is easier than for others. We use the term 
+    <emphasis>operability</emphasis> to indicate how easy it is to operate a product.
+  </para>
+  <para>
+    Operability is one of the non-functional requirements that is often forgotten early on in the development lifecycle 
+    (see <xref linkend="non-functional-requirements"/>). Yet with a little bit of thinking ahead, we can make our lives
+    a lot easier later on. Remember that most of a software product's life is spent running.
+  </para>
+  <para>
+    This chapter discusses some issues that often come up when running software with REST APIs in production.
   </para>
   
   <section>
     <title>Separating Configuration From Code</title>
+    <para>
+      One of the best practices for running software is to separate configuration from code. 
+      <firstterm>Configuration</firstterm> encompasses information that is likely to differ from one environment to the 
+      next. By separating it from the code you prevent having to change your code for every deployment.
+    </para>
+    <para>
+      For programs with REST APIs, you should make the billboard URI part of the program's configuration, so that you
+      can easily make the program available in different locations for different purposes. For instance, you'd want
+      different instances of your programming running for development, testing, and production. But you may also want
+      different instances running in production, say for different SLAs, or for sales demos. You may even offer a
+      sandbox where interested people can try out your program, or where partners may test their add-ons against your
+      API. This may be as simple as running the program on a different host, or it may involve configuring different
+      URIs on the same host.
+    </para>
+    <para>
+      If your program is part of a collection of microservices, then you will also want to make the locations of the
+      other microservices part of the configuration. It may be worthwile to use a special <literal>service 
+      discovery</literal> solution for this purpose. These programs maintain a registry of what microservices run where.
+      This level of indirection shields decreases the configuration for each microservice, since they now only need to
+      know where the service registry runs.
+    </para>
+    <para>
+      One thing that all software should externalize in configuration, is passwords and other credentials. These change
+      from environment to environment, like other configuration, but there are additional considerations. In case of
+      a breach, you want to be able to change compromised credentials quickly, and changing code, testing it, and 
+      deploying it into production is simply not quick enough. Also, developers in many environments may not have access 
+      to production passwords, for external compliance or internal policy reasons.
+    </para>
+    <para>
+      There are several ways to separate configuration from code. One way of doing that is using environment 
+      variables, as is recommended for so-called twelve-factor apps <citation>12factor</citation>. Environment variables
+      are a low-tech solution that is available on any conceivable platform. For this reason, this approach works well
+      when deploying software into a Platform-as-a-Service (PaaS) solution like CloudFoundry or Heroku.
+    </para>
+    <para>
+      Other solutions can work as well. Configuration files that the program reads on startup or when it needs
+      information offer a bit more structure than environment variables. Structured data formats like XML, JSON, or YAML 
+      work well for configuration files. Another solution would be to use the Windows registry.
+    </para>
+    <para>
+      There exists a class of tools known as <firstterm>configuration management software</firstterm> that can maintain
+      external configuration for you. Tools like Puppet, Chef, and Ansible let you manage your configuration from a
+      single location. Perhaps more importantly, they let you treat the configuration as code, storing it in version
+      control, etc. This helps streamline processes around updating configuration, as is common in DevOps teams.   
+    </para>
+    <para>
+      The alternative to configuration management tools that <emphasis>push</emphasis> the configuration to the program 
+      is to let the program <emphasis>pull</emphasis> in the information it needs. For this you need a 
+      <firstterm>configuration server</firstterm> that stores the configuration for all programs in a given environment. 
+      The only configuration that you then still need for the program itself is the location of the configuration
+      server. Each environment has its own configuration server that serves configuration applicable for that
+      environment only.
+    </para>
+    <para>
+      Building your own configuration server isn't all that hard, but you have to ask yourself whether this is something
+      you should be spending your time on. The problem of serving configuration to programs isn't domain-specific, so
+      it makes more sense to re-use an existing solution like Consul or Etcd. If you're deploying to a PaaS like
+      CloudFoundry, then the PaaS may also play the role of configuration server, usually by providing the program with
+      configuration in environment variables.
+    </para>
   </section>
   
   <section id="logging">

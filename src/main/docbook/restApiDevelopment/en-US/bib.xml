@@ -5,6 +5,12 @@
   </para>
 
   <biblioentry>
+    <abbrev>12factor</abbrev>
+    <biblioid class="uri">http://12factor.net</biblioid>
+    <citetitle>The Twelve-Factor App</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>Adzic09</abbrev>
     <citetitle>Bridging the communication gap: specification by example</citetitle>
     <authorgroup>
