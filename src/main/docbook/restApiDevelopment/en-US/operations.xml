@@ -89,8 +89,50 @@
   
   <section id="logging">
     <title>Logging and Monitoring</title>
-    <para>KPIs</para>
-    <para>Correlating business processes with fine-grained messages</para>
+    <para>
+      <firstterm>Logging</firstterm> is the act of spitting out information about the state of the application while it runs. While in theory one
+      can write log output to any medium, in practice logging goes to either the console or to file. The former is the simplest and is favored in
+      twelve-factor apps, because the PaaS in which these apps run provides facilities to further process the output. For instance, log output from
+      multiple apps and multiple instances of the same app can be combined into a central log database that can be queried. Some of these queries
+      can even happen automatically and the information thus obtained can power statistics and graphs on production dashboards.
+    </para>
+    <para>
+      Log files can be more convenient if you don't have access to the aforementioned log infrastructure. They are a sink in which information is
+      collected, so the developer can analyze them at a later time rather than having to watch the output fly by in real time.
+      There exists several logging frameworks that can output to either the console, log files, or both. You should use such a framework and make the
+      destination a configuration option, so that you get the best of both worlds.
+    </para>
+    <para>
+      The point of logging is to be able to see what happened inside an application after the fact. This can aid a developer in debugging an issue,
+      which is an ad-hoc way of using log output. It can be very instructive to use correlation IDs, especially in a microservices
+      architecture (see <ref linkend="correlation"/>). This allows you to see the connection between otherwise distinct messages and build up a
+      global understanding of how the system is behaving.
+    </para>
+    <para>
+      While support for debugging is important in development and troubleshooting scenarios, it is fundamentally an ad-hoc activity. You can also take a
+      more structured approach by setting up monitoring tools that automatically look at the logs. These tools can be configured to recognize certain
+      events in the log output and raise an <literal>alert</literal> when such an event occurs.
+    </para>
+    <para>
+      Monitoring tools can also be configured to take automatic action on alerts. They can send an email or notify a pager when an event occurs, so 
+      that a human can look at the event and determine the appropriate course of action. You must take care to configure the alerts appropriately; if
+      the tool acts like the boy who cried wolf, then in time human operators will start to ignore the alerts.
+    </para>
+    <para>
+      The next step in automating is when the monitoring tool takes automatic action without human intervention. The tool could recognize that 
+      the app has crashed and automatically restart it, for instance, although this is usually the job of a PaaS. The monitoring tool can even
+      analyze and correlate multiple events and draw conclusions from emerging patterns and deviations from normal.
+    </para>
+    <para>
+      You should define a couple of <firstterm>Key Performance Indicators</firstterm> (KPIs), numbers that ideally clearly express how well the 
+      application is doing in a certain dimension. For instance, the Appdex value concisely captures the performance of the application from the user's
+      perspective <citation>Appdex</citation>. Advanced organizations can even automatically roll back changes when a drop in Appdex is detected.
+    </para>
+    <para>
+      Some KPIs are particularly important for applications with REST APIs. They can help you drive adoption of your API by improving the Developer
+      eXperience (see <xref linkend="dx"/>). The percentage of client errors, as indicated by 4xx status codes, for instance, says something about how 
+      easy or hard it is to use the API correctly. TODO: What else? See Apigee whitepaper
+    </para>
   </section>
   
   <section>
