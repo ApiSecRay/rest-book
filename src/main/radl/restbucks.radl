@@ -3,7 +3,7 @@
 ##
 ## Sample RADL file for RESTBucks.
 ##
-## Copyright © EMC Corporation. All rights reserved.
+## Copyright (c) EMC Corporation. All rights reserved.
 ##
 -->
 <service name="RESTBucks" radl-version="1.0"
