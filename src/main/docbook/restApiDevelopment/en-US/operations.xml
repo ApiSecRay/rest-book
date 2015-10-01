@@ -125,7 +125,7 @@
        </listitem>
     </orderedlist>
     <para>
-      Logging can support both because it can look at what's happening inside the application.
+      Logging can support both because it can paints a picture of what's happening inside the application.
     </para>
     <para>
       Logging can aid a developer in debugging an issue, which is an ad-hoc way of using log output. It can be very 
@@ -134,10 +134,10 @@
       how the system behaves when used by real users.
     </para>
     <para>
-      Hopefully this pictures matches the expectations, but that isn't always the case. It's certainly possible to miss
-      certain usage patterns during development. This usually leads to tests that don't accurately reflect the real use
-      (see <xref linkend="test"/>). By measuring how users actually use the application we can improve our tests and
-      close the feedback loop.
+      Hopefully this pictures matches the expectations, but that isn't always going to be the case. It's certainly 
+      possible to miss certain usage patterns during development. This usually leads to tests that don't accurately 
+      reflect the real use (see <xref linkend="test"/>). By measuring how users actually use the application we can 
+      improve our tests and close the feedback loop.
     </para>
     <para>
       While support for debugging is important in development and troubleshooting scenarios, it is fundamentally an 
@@ -170,12 +170,11 @@
       Some KPIs are particularly important for applications with REST APIs. They can help you drive adoption of your 
       API by improving the Developer eXperience (see <xref linkend="dx"/>). The percentage of client errors, as 
       indicated by 4xx status codes, for instance, says something about how easy or hard it is to use the API correctly. 
-      TODO: What else? See Apigee whitepaper
     </para>
     <para>
       Ultimately the KPIs you track must roll up into the overall business' KPIs, like revenue and profit. These global
       KPIs are backward looking in the sense that they tell you how well you did over the last period. While this is
-      important for reporting purposes, they are not very actionable.
+      important for reporting purposes, those numbers are not very actionable.
     </para>
     <para>
       You need to decompose the global KPIs into other KPIs that are more forward looking and predictive. For instance,
@@ -184,19 +183,37 @@
     </para>
     <para>
       Consider the number of users. Most services have a so-called <firstterm>sales funnel</firstterm>, as depicted in
-      <xref linkend="funnel"/>. The funnel consists of various stages that users have to go through before they can
-      generate revenue. They can get stuck at each stage, so measuring the <firstterm>conversion rate</firstterm> at
-      each stage is important. You do that by logging the events of moving to a new stage.
+      <xref linkend="funnel"/>. The funnel consists of various stages that users can go through to generate increasing 
+      revenue, from becoming aware that the service exists all the way to becoming advocates for it.
     </para>
     <para>
-      The KPIs that are most relevant vary by API and by the goals they serve. Financial goals like revenue are common,
-      but not every API is about making money. You should have put some thought into why you want to operate an API
-      before you started building and operating it, so it shouldn't be too hard to come up with KPIs that work for you.
+      Each stage of the funnel may have its own KPIs. For instance, in the awareness stage you may want to track where
+      users come from, while NPS is a more relevant KPI in the advocay stage. Since you'll have users in all stages,
+      you need many different KPIs. One particularly important KPI for the early stages is <emphasis>Time To First
+      Hello World</emphasis>, which measure the time it takes a developer to write their first simple client of your API.
+    </para>
+    <para>
+      Users can get stuck at each stage of the funnel, so measuring the <firstterm>conversion rate</firstterm> at
+      each stage is important to get insight into how to increase revenue. We can do that by logging the events of 
+      users moving to a new stage. The resulting measurements can help drive improvements. For instance, you can use 
+      the relative conversion rates to identify the phase of the Hook model of user adoption that requires more 
+      attention <citation>Eyal14</citation>.
+    </para>
+    <para>
+      The KPIs that are most relevant vary by API, because each API serves different users and is an instrument to
+      achieve different goals. Financial goals like revenue are common, but not every API is about making money. If you 
+      explicitly define your goals before you start building the service, you can add logging as required and measure 
+      KPIs based on that logging. Measuring internal KPIs for internal APIs is often just as important as for external
+      ones.
+    </para>
+    <para>
+      For most KPIs you will want to capture both the current numbers and the trends. The latter will give you some
+      indication of where things are going and thus has more predictive power that can fuel decisions.
     </para>
     <figure id="funnel">
       <mediaobject>
         <imageobject>
-          <imagedata fileref="images/funnel.png" scale="68" align="center"/>
+          <imagedata fileref="images/funnel.png" scale="100" align="center"/>
         </imageobject>
       </mediaobject>
       <title>Sales funnel</title>

@@ -213,6 +213,23 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>Eyal14</abbrev>
+    <citetitle>Hooked: How to build habit-forming products</citetitle>
+    <authorgroup>
+      <author>
+        <personname>
+          <firstname>Nir</firstname>
+          <surname>Eyal</surname>
+        </personname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2014</year>
+    </copyright>
+  </biblioentry>
+  
+  
+  <biblioentry>
     <abbrev>FHC</abbrev>
     <biblioid class="uri">http://www.infoq.com/articles/hypermedia-api-tutorial-part-two</biblioid>
   </biblioentry>
