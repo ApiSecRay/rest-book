@@ -500,7 +500,7 @@
         <para>
           You may be inclined to exclude such errors from the list, but remember that the underlying assumption is that 
           the client behaves as a good REST client. You may want to monitor when that assumption is violated, so that 
-          you can help misguided client developers and ward off attackers (see <xref linkend="alerting"/>). You can
+          you can help misguided client developers and ward off attackers (see <xref linkend="sec-ops"/>). You can
           only monitor what you have identified as worthy of monitoring, so it makes sense to identify these kinds of
           errors even though they shouldn't occur.
         </para>

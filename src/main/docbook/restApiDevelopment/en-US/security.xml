@@ -1099,7 +1099,7 @@
     <para>
       With a tamper-proof audit trail in place we can in theory detect malicious activity by insiders. To turn theory
       into practice, we should employ alerting to notify a broad group of administrators when something fishy is going
-      on (see <xref linkend="alerting"/>). If you only notify one person, then you put that person in a position of
+      on (see <xref linkend="sec-ops"/>). If you only notify one person, then you put that person in a position of
       power, which could be abused.
     </para>
     <para>

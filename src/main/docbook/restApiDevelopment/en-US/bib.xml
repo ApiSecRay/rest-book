@@ -114,9 +114,9 @@
   </biblioentry>
   
   <biblioentry>
-    <abbrev>Appdex</abbrev>
-    <biblioid class="uri">TODO</biblioid>
-    <citetitle>Application Performance Index TODO</citetitle>
+    <abbrev>Apdex</abbrev>
+    <biblioid class="uri">http://apdex.org/documents/ApdexTechnicalSpecificationV11_000.pdf</biblioid>
+    <citetitle>Application Performance Index</citetitle>
   </biblioentry>
   
   <biblioentry>

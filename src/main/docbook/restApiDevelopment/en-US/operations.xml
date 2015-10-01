@@ -90,103 +90,163 @@
   <section id="logging">
     <title>Logging and Monitoring</title>
     <para>
-      <firstterm>Logging</firstterm> is the act of spitting out information about the state of the application while it runs. While in theory one
-      can write log output to any medium, in practice logging goes to either the console or to file. The former is the simplest and is favored in
-      twelve-factor apps, because the PaaS in which these apps run provides facilities to further process the output. For instance, log output from
-      multiple apps and multiple instances of the same app can be combined into a central log database that can be queried. Some of these queries
-      can even happen automatically and the information thus obtained can power statistics and graphs on production dashboards.
+      <firstterm>Logging</firstterm> is the act of spitting out information about the state of the application while it 
+      runs. While in theory one can write log output to any medium, in practice logging goes to either the console or 
+      to file. The former is the simplest and is favored in twelve-factor apps, because the PaaS in which these apps
+      run provides facilities to further process the output.
     </para>
     <para>
-      Log files can be more convenient if you don't have access to the aforementioned log infrastructure. They are a sink in which information is
-      collected, so the developer can analyze them at a later time rather than having to watch the output fly by in real time.
-      There exists several logging frameworks that can output to either the console, log files, or both. You should use such a framework and make the
-      destination a configuration option, so that you get the best of both worlds.
+      For instance, log output from multiple apps and multiple instances of the same app can be combined into a central
+      log database that can be queried. Some of these queries can even happen automatically and the information thus 
+      obtained can power statistics and graphs on production dashboards.
     </para>
     <para>
-      The point of logging is to be able to see what happened inside an application after the fact. This can aid a developer in debugging an issue,
-      which is an ad-hoc way of using log output. It can be very instructive to use correlation IDs, especially in a microservices
-      architecture (see <ref linkend="correlation"/>). This allows you to see the connection between otherwise distinct messages and build up a
-      global understanding of how the system is behaving.
+      Log files can be more convenient than the console if you don't have access to the aforementioned log 
+      infrastructure. They are a sink in which information is collected, so the developer can analyze them at a later 
+      time rather than having to watch the output fly by in real time.
     </para>
     <para>
-      While support for debugging is important in development and troubleshooting scenarios, it is fundamentally an ad-hoc activity. You can also take a
-      more structured approach by setting up monitoring tools that automatically look at the logs. These tools can be configured to recognize certain
-      events in the log output and raise an <literal>alert</literal> when such an event occurs.
+      There exists several logging frameworks that can output to either the console, log files, or both. You should use 
+      such a framework and make the destination a configuration option, so that you get the best of both worlds.
     </para>
     <para>
-      Monitoring tools can also be configured to take automatic action on alerts. They can send an email or notify a pager when an event occurs, so 
-      that a human can look at the event and determine the appropriate course of action. You must take care to configure the alerts appropriately; if
-      the tool acts like the boy who cried wolf, then in time human operators will start to ignore the alerts.
+      There are two reasons for logging:
+    </para>
+    <orderedlist>
+       <listitem>
+         <para>
+           To aid in finding and solving problems.
+         </para>
+       </listitem>
+       <listitem>
+         <para>
+           To gather statistics about the application's usage.
+         </para>
+       </listitem>
+    </orderedlist>
+    <para>
+      Logging can support both because it can look at what's happening inside the application.
     </para>
     <para>
-      The next step in automating is when the monitoring tool takes automatic action without human intervention. The tool could recognize that 
-      the app has crashed and automatically restart it, for instance, although this is usually the job of a PaaS. The monitoring tool can even
-      analyze and correlate multiple events and draw conclusions from emerging patterns and deviations from normal.
+      Logging can aid a developer in debugging an issue, which is an ad-hoc way of using log output. It can be very 
+      instructive to use correlation IDs, especially in a microservices architecture (see <xref linkend="correlation"/>). 
+      This allows you to see the connection between otherwise distinct messages and build up a global understanding of 
+      how the system behaves when used by real users.
     </para>
     <para>
-      You should define a couple of <firstterm>Key Performance Indicators</firstterm> (KPIs), numbers that ideally clearly express how well the 
-      application is doing in a certain dimension. For instance, the Appdex value concisely captures the performance of the application from the user's
-      perspective <citation>Appdex</citation>. Advanced organizations can even automatically roll back changes when a drop in Appdex is detected.
+      Hopefully this pictures matches the expectations, but that isn't always the case. It's certainly possible to miss
+      certain usage patterns during development. This usually leads to tests that don't accurately reflect the real use
+      (see <xref linkend="test"/>). By measuring how users actually use the application we can improve our tests and
+      close the feedback loop.
     </para>
     <para>
-      Some KPIs are particularly important for applications with REST APIs. They can help you drive adoption of your API by improving the Developer
-      eXperience (see <xref linkend="dx"/>). The percentage of client errors, as indicated by 4xx status codes, for instance, says something about how 
-      easy or hard it is to use the API correctly. TODO: What else? See Apigee whitepaper
+      While support for debugging is important in development and troubleshooting scenarios, it is fundamentally an 
+      ad-hoc activity. You can also take a more structured approach by setting up monitoring tools that automatically
+      look at the logs. These tools can be configured to recognize certain events in the log output and raise an
+      <literal>alert</literal> when such an event occurs.
     </para>
+    <para>
+      Alerts can take many forms. They can be emails or pager messages that prompt a human to look at the event and 
+      determine the appropriate course of action. You must take care to configure the alerts appropriately; if the tool 
+      acts as the boy who cried wolf, then in time human operators will start to ignore the alerts.
+    </para>
+    <para>
+      The next step in automation is when the monitoring tool takes automatic action without human intervention. The 
+      tool could recognize that an application has crashed and automatically restart it, for instance (although this is 
+      usually the job of a PaaS). The monitoring tool can even analyze and correlate multiple events and draw
+      conclusions from emerging patterns and deviations from normal, as in the case of fraud detection tools.
+    </para>
+    <para>
+      Debugging and alerting are reactive activities, prompted by seeing undesired events. But logging can also play a
+      more positive role by making measurements that fuel future improvement initiatives.
+    </para>
+    <para>
+      You should define a couple of <firstterm>Key Performance Indicators</firstterm> (KPIs) for your API, numbers that 
+      ideally clearly express how well the application is doing in a certain dimension. For instance, the Apdex value 
+      concisely captures the performance of the application from the user's perspective <citation>Apdex</citation>. 
+      Advanced organizations can even automatically roll back changes when a drop in Apdex is detected.
+    </para>
+    <para>
+      Some KPIs are particularly important for applications with REST APIs. They can help you drive adoption of your 
+      API by improving the Developer eXperience (see <xref linkend="dx"/>). The percentage of client errors, as 
+      indicated by 4xx status codes, for instance, says something about how easy or hard it is to use the API correctly. 
+      TODO: What else? See Apigee whitepaper
+    </para>
+    <para>
+      Ultimately the KPIs you track must roll up into the overall business' KPIs, like revenue and profit. These global
+      KPIs are backward looking in the sense that they tell you how well you did over the last period. While this is
+      important for reporting purposes, they are not very actionable.
+    </para>
+    <para>
+      You need to decompose the global KPIs into other KPIs that are more forward looking and predictive. For instance,
+      revenue can be decomposed in number of users and Average Revenue Per User (ARPU). Increasing either of these
+      numbers will increase revenue, but you go about increasing them in different ways.
+    </para>
+    <para>
+      Consider the number of users. Most services have a so-called <firstterm>sales funnel</firstterm>, as depicted in
+      <xref linkend="funnel"/>. The funnel consists of various stages that users have to go through before they can
+      generate revenue. They can get stuck at each stage, so measuring the <firstterm>conversion rate</firstterm> at
+      each stage is important. You do that by logging the events of moving to a new stage.
+    </para>
+    <para>
+      The KPIs that are most relevant vary by API and by the goals they serve. Financial goals like revenue are common,
+      but not every API is about making money. You should have put some thought into why you want to operate an API
+      before you started building and operating it, so it shouldn't be too hard to come up with KPIs that work for you.
+    </para>
+    <figure id="funnel">
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/funnel.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <title>Sales funnel</title>
+    </figure>
   </section>
   
-  <section>
+  <section id="sec-ops">
     <title>Security</title>
     <para>
       We discussed vulnerabilities in some detail in <xref linkend="security"/>, but there is an operational side to 
       them as well that we should look at.
     </para>
-
-    <section id="alerting">
-      <title>Alerting</title>
-    </section> 
-
-    <section>
-      <title>Vulnerability Disclosure</title>
-		  <para>
-		    Vulnerabilities may be known or unknown. The latter are called <firstterm>zero-day</firstterm> vulnerabilities,
-		    because we start counting days when we first become aware of a vulnerability. There is a lively black market 
-		    for zero days. To counterbalance that, more and more companies have started <firstterm>bug bounty 
-		    programs</firstterm>, where they pay people who report vulnerabilities to them, so they can fix them before
-		    they are exploited.
-		  </para>
-		  <para>
-		    Vulnerabilities may be discovered by criminals or other malicious agents, by <firstterm>security
-		    researchers</firstterm>, by users of the API, or by the provider of the API itself. Security researches and 
-		    users will generally report them to the provider so they can be fixed. Some security researchers give the
-		    provider some time to fix vulnerabilities, after which they will <firstterm>disclose</firstterm> them. This 
-		    means that they publicize their results, which usually contains a proof of concept that shows how to exploit
-		    the vulnerability.
-		  </para>
-		  <para>
-		    There is a strong debate about vulnerability disclosure. At one extreme, some researchers disclose anything
-		    they find immediately. This means that the vulnerabilities can now be exploited, and users are at risk.
-		    For this very reason, other people prefer to keep the vulnerabilities a secret until a fix is available. The
-		    middle ground is taken by people who will give providers a certain amount of time, say 90 days, after which
-		    they will disclose.
-		  </para>
-		  <para>
-		    At the very least, you should offer a way for people to report vulnerabilities. If you don't you risk that
-		    any vulnerabilities that are found are made public before you get a chance to protect your customers' data.
-		    Our advice is to follow the convention of setting up an email address named 
-		    <literal>security@yourcompany.com</literal> where vulnerabilities can be reported. Always thank anyone
-		    using that email address for helping you out, and work closely with them to reproduce and fix the issue.
-		  </para>
-		  <para>
-		    You should add a section to your website that describes in detail how you would like to see vulnerabilities 
-		    reported. This should obviously include the security email address, but also very specific instructions on what 
-		    information you want to receive and in what form.
-		  </para>
-		  <para>
-		    You can also start your own bug bounty program. This may or may not make sense for your API, depending on a lot 
-		    of factors such as how widely your API is used and how valuable the data is that flows through it.
-		  </para>
-    </section>
+	  <para>
+	    Vulnerabilities may be known or unknown. The latter are called <firstterm>zero-day</firstterm> vulnerabilities,
+	    because we start counting days when we first become aware of a vulnerability. There is a lively black market 
+	    for zero days. To counterbalance that, more and more companies have started <firstterm>bug bounty 
+	    programs</firstterm>, where they pay people who report vulnerabilities to them, so they can fix them before
+	    they are exploited.
+	  </para>
+	  <para>
+	    Vulnerabilities may be discovered by criminals or other malicious agents, by <firstterm>security
+	    researchers</firstterm>, by users of the API, or by the provider of the API itself. Security researches and 
+	    users will generally report them to the provider so they can be fixed. Some security researchers give the
+	    provider some time to fix vulnerabilities, after which they will <firstterm>disclose</firstterm> them. This 
+	    means that they publicize their results, which usually contains a proof of concept that shows how to exploit
+	    the vulnerability.
+	  </para>
+	  <para>
+	    There is a strong debate about vulnerability disclosure. At one extreme, some researchers disclose anything
+	    they find immediately. This means that the vulnerabilities can now be exploited, and users are at risk.
+	    For this very reason, other people prefer to keep the vulnerabilities a secret until a fix is available. The
+	    middle ground is taken by people who will give providers a certain amount of time, say 90 days, after which
+	    they will disclose.
+	  </para>
+	  <para>
+	    At the very least, you should offer a way for people to report vulnerabilities. If you don't you risk that
+	    any vulnerabilities that are found are made public before you get a chance to protect your customers' data.
+	    Our advice is to follow the convention of setting up an email address named 
+	    <literal>security@yourcompany.com</literal> where vulnerabilities can be reported. Always thank anyone
+	    using that email address for helping you out, and work closely with them to reproduce and fix the issue.
+	  </para>
+	  <para>
+	    You should add a section to your website that describes in detail how you would like to see vulnerabilities 
+	    reported. This should obviously include the security email address, but also very specific instructions on what 
+	    information you want to receive and in what form.
+	  </para>
+	  <para>
+	    You can also start your own bug bounty program. This may or may not make sense for your API, depending on a lot 
+	    of factors such as how widely your API is used and how valuable the data is that flows through it.
+	  </para>
   </section>
   
   <section id="support">

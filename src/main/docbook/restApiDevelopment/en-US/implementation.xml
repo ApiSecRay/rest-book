@@ -207,6 +207,10 @@
             services (an operation that doesn't conceptually belong in one object, such as paying an order). Like REST
             services, domain services are stateless. They are often injected as dependencies into controllers.
           </para>
+          <para>
+            Domain objects are what your application is really about. That makes them the logical place to add logging
+            of events that are interesting from a business perspective, as we'll see in <xref linkend="logging"/>.
+          </para>
         </listitem>
       </varlistentry>
       <varlistentry>
