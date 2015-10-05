@@ -1,28 +1,25 @@
 package com.restbucks.bdd;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URI;
+import java.util.Collections;
 
 import org.jbehave.core.annotations.AfterStories;
 import org.jbehave.core.annotations.BeforeStories;
 import org.jbehave.core.annotations.Given;
 import org.jbehave.core.annotations.When;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.Assert;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.web.client.RestTemplate;
 
-import de.escalon.hypermedia.spring.hydra.HydraMessageConverter;
+import de.escalon.hypermedia.spring.HypermediaTypes;
 import restbucks.Application;
-import restbucks.rest.home.HomeDto;
-import restbucks.rest.item.ItemDto;
-import restbucks.rest.menu.MenuDto;
+import restbucks.rest.api.Api;
+import restbucks.rest.item.ItemResource;
+import restbucks.rest.menu.MenuResource;
+import restbucks.rest.order.OrderResource;
 
 
 public class RestbuckSteps {
@@ -34,113 +31,54 @@ public class RestbuckSteps {
   private static final URI BILLBOARD_URI = URI.create(String.format("http://%s:%d%s", HOST, PORT, BILLBOARD));
 
   private Thread serverThread;
-  private final RestTemplate restTemplate = new RestTemplate();
-  private ResourceSupport dto;
+  private ResourceSupport Resource;
   private String customer;
+  private final Client client = new Client(BILLBOARD_URI, HypermediaTypes.APPLICATION_JSONLD);
 
   @BeforeStories
   public void init() throws InterruptedException {
     serverThread = new Thread(() -> Application.main(new String[0]));
     serverThread.start();
     Thread.sleep(STARTUP_TIME);
-    restTemplate.getMessageConverters().add(new HydraMessageConverter());
+    client.setLinkDiscoverers(Collections.singletonList(new HydraLinkDiscoverer()));
+    client.setRestOperations(new RestTemplate());
   }
-  
+
   @AfterStories
   public void done() throws InterruptedException {
     serverThread.interrupt();
     serverThread.join();
   }
-  
+
   @Given("a customer $customer")
   public void setCustomer(String customer) {
     this.customer = customer;
-    dto = get(BILLBOARD_URI, HomeDto.class);
   }
 
-  private <T extends ResourceSupport> T get(URI uri, Class<T> dtoClass) {
-    String entity = restTemplate.getForObject(uri, String.class);
-    T result;
-    try {
-      result = dtoClass.newInstance();
-    } catch (InstantiationException | IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-    JSONObject json = new JSONObject(entity);
-    JSONArray names = json.names();
-    for (int i = 0; i < names.length(); i++) {
-      String name = names.getString(i);
-      if (name.startsWith("@")) {
-        continue;
-      }
-      Object value = json.get(name);
-      if (value instanceof String) {
-        setProperty(name, value, result);
-      } else if (value instanceof JSONObject) {
-        JSONObject val = (JSONObject)value;
-        if (name.startsWith("http://")) {
-          addLink(name, val, result);
-        }
-      } else if (value instanceof JSONArray) {
-        JSONArray val = (JSONArray)value;
-//        setProperty(name, val, result);
-      } else {
-        throw new IllegalStateException("Unknown value of type: " + value.getClass().getName());
-      }
-    }
-    
-    assertNotNull("Missing response entity @ " + uri, result);
-    return result;
-  }
-
-  private void setProperty(String name, Object value, Object object) {
-    try {
-      Field field = object.getClass().getField(name);
-      field.set(object, value);
-    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private void addLink(String relation, JSONObject link, ResourceSupport object) {
-    object.add(new Link(link.getString("@id"), relation));
-  }
-  
   @When("she reads the menu")
   public void getMenu() throws IOException {
-    dto = get(resolveLink("http://schema.org/menu"), MenuDto.class);
-  }
-
-  private URI resolveLink(String relation) {
-    Link result = dto.getLink(relation);
-    if (result == null) {
-      StringBuilder message = new StringBuilder()
-          .append("Missing link for relation ")
-          .append(relation)
-          .append(". Got:\n");
-      for (Link link : dto.getLinks()) {
-        message.append(link.getRel()).append('\n');
-      }
-      message.append(dto.getClass().getName()).append(':').append(dto);
-      fail(message.toString());
-    }
-    return URI.create(result.getHref());
+    Resource = client.follow(Api.LINK_REL_MENU).toObject(MenuResource.class);
   }
 
   @When("she orders a $drink")
   public void order(String drink) {
-    ItemDto item = parseItem(drink);
-    ItemDto result = findMenuItem(item);
+    ItemResource item = parseItem(drink);
+    ItemResource result = findMenuItem(item);
     assertNotNull("Item not on the menu: " + item.name, result);
+
+    OrderResource order = new OrderResource();
+    order.customer = customer;
+    order.item = new ItemResource[] { item };
+    Resource = client.follow(order, Api.LINK_REL_ORDERACTION).toObject(OrderResource.class);
   }
 
-  private ItemDto findMenuItem(ItemDto item) {
-    MenuDto menu = (MenuDto)dto;
-    ItemDto result = null;
-    if (menu.items == null) {
+  private ItemResource findMenuItem(ItemResource item) {
+    ItemResource result = null;
+    MenuResource menu = (MenuResource)Resource;
+    if (menu == null || menu.item == null) {
       return result;
     }
-    for (ItemDto candidate : menu.items.item) {
+    for (ItemResource candidate : menu.item) {
       if (candidate.name.equals(item.name)) {
         result = candidate;
       }
@@ -148,8 +86,8 @@ public class RestbuckSteps {
     return result;
   }
 
-  private ItemDto parseItem(String drink) {
-    ItemDto item = new ItemDto();
+  private ItemResource parseItem(String drink) {
+    ItemResource item = new ItemResource();
     String[] parts = drink.split("\\s+");
     item.size = parts[0];
     item.milk = parts[1];

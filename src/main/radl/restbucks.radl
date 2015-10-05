@@ -158,44 +158,42 @@
   <property-groups>
     <property-group name="home" uri="http://schema.org/CafeOrCoffeeShop"/>
 
-    <property-group name="items">
-      <property-group name="item" repeats="true" uri="http://schema.org/Product">
-        <property name="name" uri="http://schema.org/name"/>
-        <property name="size" uri="http://schema.org/height"/>
-        <property name="milk" uri="http://www.productontology.org/doc/Milk"/>
-        <property name="price" uri="http://schema.org/price"/>
-        <property name="currency" uri="http://schema.org/priceCurrency"/>
-      </property-group>
+    <property-group name="item" uri="http://schema.org/Product">
+      <property name="name" uri="http://schema.org/name"/>
+      <property name="size" uri="http://schema.org/height"/>
+      <property name="milk" uri="http://www.productontology.org/doc/Milk"/>
+      <property name="price" uri="http://schema.org/price" type="number"/>
+      <property name="currency" uri="http://schema.org/priceCurrency"/>
     </property-group>
 
     <property-group name="menu" uri="http://schema.org/menu">
-      <property-group name="items" ref="items"/>
+      <property-group name="item" ref="item" repeats="true"/>
     </property-group>
 
     <property-group name="order" uri="http://schema.org/Order">
-      <property-group name="items" ref="items"/>
+      <property-group name="item" ref="item" repeats="true"/>
       <property name="customer" uri="http://schema.org/customer"/>
-      <property name="total" uri="http://schema.org/totalPrice"/>
+      <property name="total" uri="http://schema.org/totalPrice" type="number"/>
       <property name="currency" uri="http://schema.org/priceCurrency"/>
     </property-group>
 
     <property-group name="receipt" uri="http://schema.org/Order">
-      <property name="dateTime" uri="http://schema.org/orderDate"/>
+      <property name="dateTime" uri="http://schema.org/orderDate" type="xsd:dateTime"/>
       <property name="shop" uri="http://schema.org/seller"/>
-      <property-group name="items" ref="items"/>
-      <property name="total" uri="http://schema.org/totalPrice"/>
+      <property-group name="item" ref="item" repeats="true"/>
+      <property name="total" uri="http://schema.org/totalPrice" type="number"/>
       <property name="currency" uri="http://schema.org/priceCurrency"/>
       <property name="paymentMethod" uri="http://schema.org/acceptedPaymentMethod"/>
     </property-group>
 
     <property-group name="payment" uri="http://reference.data.gov.uk/def/payment#payment">
-      <property name="amount" uri="http://schema.org/totalPrice"/>
+      <property name="amount" uri="http://schema.org/totalPrice" type="number"/>
       <property name="currency" uri="http://schema.org/priceCurrency"/>
       <property name="paymentMethod" uri="http://schema.org/acceptedPaymentMethod"/>
       <property name="cardholderName" uri="https://w3id.org/creditcard/v1/name"/>
       <property name="cardNumber" uri="https://w3id.org/creditcard/v1/number"/>
-      <property name="expiryMotnh" uri="https://w3id.org/creditcard/v1/expiryMonth"/>
-      <property name="expiryYear" uri="https://w3id.org/creditcard/v1/expiryYear"/>
+      <property name="expiryMonth" uri="https://w3id.org/creditcard/v1/expiryMonth" type="number"/>
+      <property name="expiryYear" uri="https://w3id.org/creditcard/v1/expiryYear" type="number"/>
       <property name="cardSecurityCode" uri="https://w3id.org/creditcard/v1/verificationCode"/>
     </property-group>
 

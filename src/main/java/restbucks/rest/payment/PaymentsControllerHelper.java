@@ -4,14 +4,14 @@
 package restbucks.rest.payment;
 
 import org.springframework.stereotype.Service;
-import restbucks.rest.receipt.ReceiptDto;
+import restbucks.rest.receipt.ReceiptResource;
 
 
 @Service
 public class PaymentsControllerHelper {
 
-  public ReceiptDto post(PaymentDto input) {
-    return new ReceiptDto(); // TODO: Implement
+  public ReceiptResource post(PaymentResource input) {
+    return new ReceiptResource(); // TODO: Implement
   }
 
   public boolean isLinkEnabled(String linkRelation) {

@@ -12,11 +12,11 @@ import org.springframework.http.ResponseEntity;
 public class ServingControllerHelper {
 
   public ResponseEntity<Void> delete() {
-    return new ResponseEntity<Void>(HttpStatus.OK); // TODO: Implement
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT); // TODO: Implement
   }
 
-  public ServingDto get() {
-    return new ServingDto(); // TODO: Implement
+  public ServingResource get() {
+    return new ServingResource(); // TODO: Implement
   }
 
   public boolean isLinkEnabled(String linkRelation) {

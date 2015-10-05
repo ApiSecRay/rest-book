@@ -18,17 +18,17 @@ public class Application {
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
   }
-  
+
   @Bean
   CommandLineRunner run(DrinkRepository repository) {
     return args -> {
-      repository.save(new Drink("cafe latte", 2.75, Currency.getInstance("USD")));
+      repository.save(new Drink("caffe latte", 2.75, Currency.getInstance("USD")));
     };
   }
-  
+
   @Bean
   public HydraMessageConverter hydraMessageConverter() {
     return new HydraMessageConverter();
   }
-  
+
 }

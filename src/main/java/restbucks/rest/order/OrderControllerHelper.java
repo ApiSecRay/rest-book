@@ -4,7 +4,7 @@
 package restbucks.rest.order;
 
 import org.springframework.stereotype.Service;
-import restbucks.rest.serving.ServingDto;
+import restbucks.rest.serving.ServingResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -13,15 +13,15 @@ import org.springframework.http.ResponseEntity;
 public class OrderControllerHelper {
 
   public ResponseEntity<Void> delete() {
-    return new ResponseEntity<Void>(HttpStatus.OK); // TODO: Implement
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT); // TODO: Implement
   }
 
-  public ServingDto get() {
-    return new ServingDto(); // TODO: Implement
+  public ServingResource get() {
+    return new ServingResource(); // TODO: Implement
   }
 
-  public OrderDto put(OrderDto input) {
-    return new OrderDto(); // TODO: Implement
+  public OrderResource put(OrderResource input) {
+    return new OrderResource(); // TODO: Implement
   }
 
   public boolean isLinkEnabled(String linkRelation) {

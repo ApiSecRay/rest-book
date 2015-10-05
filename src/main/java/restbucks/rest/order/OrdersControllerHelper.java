@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrdersControllerHelper {
 
-  public OrderDto post(OrderDto input) {
-    return new OrderDto(); // TODO: Implement
+  public OrderResource post(OrderResource input) {
+    return new OrderResource(); // TODO: Implement
   }
 
   public boolean isLinkEnabled(String linkRelation) {
