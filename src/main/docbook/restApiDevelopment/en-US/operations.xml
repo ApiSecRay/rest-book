@@ -101,7 +101,7 @@
       obtained can power statistics and graphs on production dashboards.
     </para>
     <para>
-      Log files can be more convenient than the console if you don't have access to the aforementioned log 
+      Log files can be more convenient than the console if you don't have access to such log 
       infrastructure. They are a sink in which information is collected, so the developer can analyze them at a later 
       time rather than having to watch the output fly by in real time.
     </para>
@@ -125,7 +125,7 @@
        </listitem>
     </orderedlist>
     <para>
-      Logging can support both because it can paints a picture of what's happening inside the application.
+      Logging can support both because it paints a picture of what's happening inside the application.
     </para>
     <para>
       Logging can aid a developer in debugging an issue, which is an ad-hoc way of using log output. It can be very 
@@ -143,28 +143,30 @@
       While support for debugging is important in development and troubleshooting scenarios, it is fundamentally an 
       ad-hoc activity. You can also take a more structured approach by setting up monitoring tools that automatically
       look at the logs. These tools can be configured to recognize certain events in the log output and raise an
-      <literal>alert</literal> when such an event occurs.
+      <firstterm>alert</firstterm> when such an event occurs.
     </para>
     <para>
       Alerts can take many forms. They can be emails or pager messages that prompt a human to look at the event and 
       determine the appropriate course of action. You must take care to configure the alerts appropriately; if the tool 
-      acts as the boy who cried wolf, then in time human operators will start to ignore the alerts.
+      acts as the boy who cried wolf, then in time human operators will learn to ignore the alerts.
     </para>
     <para>
-      The next step in automation is when the monitoring tool takes automatic action without human intervention. The 
+      The next step in automation is when the monitoring tool takes automatic action without any human intervention. The 
       tool could recognize that an application has crashed and automatically restart it, for instance (although this is 
       usually the job of a PaaS). The monitoring tool can even analyze and correlate multiple events and draw
       conclusions from emerging patterns and deviations from normal, as in the case of fraud detection tools.
     </para>
     <para>
       Debugging and alerting are reactive activities, prompted by seeing undesired events. But logging can also play a
-      more positive role by making measurements that fuel future improvement initiatives.
+      more proactive role by making measurements that show problems before they arise or that fuel future improvement 
+      initiatives.
     </para>
     <para>
       You should define a couple of <firstterm>Key Performance Indicators</firstterm> (KPIs) for your API, numbers that 
-      ideally clearly express how well the application is doing in a certain dimension. For instance, the Apdex value 
-      concisely captures the performance of the application from the user's perspective <citation>Apdex</citation>. 
-      Advanced organizations can even automatically roll back changes when a drop in Apdex is detected.
+      ideally clearly express how well the application is doing in a certain dimension. For instance, the 
+      <firstterm>Apdex</firstterm> value concisely captures the performance of the application from the user's 
+      perspective <citation>Apdex</citation>. Advanced organizations can even automatically roll back changes when a
+      drop in Apdex is detected.
     </para>
     <para>
       Some KPIs are particularly important for applications with REST APIs. They can help you drive adoption of your 
@@ -172,19 +174,20 @@
       indicated by 4xx status codes, for instance, says something about how easy or hard it is to use the API correctly. 
     </para>
     <para>
-      Ultimately the KPIs you track must roll up into the overall business' KPIs, like revenue and profit. These global
+      Ultimately the KPIs you track must roll up into the overall business KPIs, like revenue and profit. These global
       KPIs are backward looking in the sense that they tell you how well you did over the last period. While this is
       important for reporting purposes, those numbers are not very actionable.
     </para>
     <para>
       You need to decompose the global KPIs into other KPIs that are more forward looking and predictive. For instance,
-      revenue can be decomposed in number of users and Average Revenue Per User (ARPU). Increasing either of these
-      numbers will increase revenue, but you go about increasing them in different ways.
+      revenue can be decomposed into number of users and Average Revenue Per User (ARPU). Increasing either of these
+      numbers will increase revenue, but you go about increasing them in different ways. Making the distinction yields
+      more actionable KPIs.
     </para>
     <para>
       Consider the number of users. Most services have a so-called <firstterm>sales funnel</firstterm>, as depicted in
       <xref linkend="funnel"/>. The funnel consists of various stages that users can go through to generate increasing 
-      revenue, from becoming aware that the service exists all the way to becoming advocates for it.
+      revenue, from first becoming aware that the service exists all the way to becoming advocates for it.
     </para>
     <para>
       Each stage of the funnel may have its own KPIs. For instance, in the awareness stage you may want to track where
@@ -194,7 +197,7 @@
     </para>
     <para>
       Users can get stuck at each stage of the funnel, so measuring the <firstterm>conversion rate</firstterm> at
-      each stage is important to get insight into how to increase revenue. We can do that by logging the events of 
+      each stage is important to get insight into how to increase adoption. We can do that by logging the events of 
       users moving to a new stage. The resulting measurements can help drive improvements. For instance, you can use 
       the relative conversion rates to identify the phase of the Hook model of user adoption that requires more 
       attention <citation>Eyal14</citation>.
@@ -203,7 +206,7 @@
       The KPIs that are most relevant vary by API, because each API serves different users and is an instrument to
       achieve different goals. Financial goals like revenue are common, but not every API is about making money. If you 
       explicitly define your goals before you start building the service, you can add logging as required and measure 
-      KPIs based on that logging. Measuring internal KPIs for internal APIs is often just as important as for external
+      KPIs based on that logging. Measuring KPIs for internal APIs is often just as important as for external
       ones.
     </para>
     <para>
@@ -261,6 +264,15 @@
 	    information you want to receive and in what form.
 	  </para>
 	  <para>
+	    Once you have fixed a publicly disclosed vulnerability, you should report that you have fixed it using some form
+	    of <firstterm>service bulletin</firstterm>. Different organizations use different names for this document, but
+	    the idea is to describe the vulnerability, including exactly what systems were vulnerable, and when it was fixed.
+    </para>
+    <para>
+	    You may choose to provide details about the fix, but that is not necessary. In fact, those details may make it
+	    easier for attackers to find a new hole in your defenses.
+	  </para>
+	  <para>
 	    You can also start your own bug bounty program. This may or may not make sense for your API, depending on a lot 
 	    of factors such as how widely your API is used and how valuable the data is that flows through it.
 	  </para>
@@ -268,6 +280,9 @@
   
   <section id="support">
     <title>Support</title>
+    <para>
+      
+    </para>
   </section>
   
   <section>
