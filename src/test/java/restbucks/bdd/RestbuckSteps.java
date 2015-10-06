@@ -12,6 +12,7 @@ import org.jbehave.core.annotations.Given;
 import org.jbehave.core.annotations.When;
 import org.junit.Assert;
 import org.springframework.hateoas.ResourceSupport;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import de.escalon.hypermedia.spring.HypermediaTypes;
@@ -34,21 +35,28 @@ public class RestbuckSteps {
   private static final URI BILLBOARD_URI = URI.create(String.format("http://%s:%d%s", HOST, PORT, BILLBOARD));
 
   private Thread serverThread;
-  private ResourceSupport Resource;
+  private ResourceSupport resource;
   private String customer;
-  private final Client client = new Client(BILLBOARD_URI, HypermediaTypes.APPLICATION_JSONLD);
+  private final Client client = new Client(BILLBOARD_URI, HypermediaTypes.APPLICATION_JSONLD,
+      Collections.singletonList(new HydraLinkDiscoverer()), getRestOperations());
 
+  private static RestOperations getRestOperations() {
+    RestTemplate result = new RestTemplate();
+    result.getMessageConverters().add(0, new RestbucksMessageConverter());
+    return result;
+  }
+  
   @BeforeStories
   public void init() throws InterruptedException {
+    startServer();
+  }
+
+  private void startServer() throws InterruptedException {
     serverThread = new Thread(() -> Application.main(new String[0]));
     serverThread.start();
     Thread.sleep(STARTUP_TIME);
-    client.setLinkDiscoverers(Collections.singletonList(new HydraLinkDiscoverer()));
-    RestTemplate operations = new RestTemplate();
-    operations.getMessageConverters().add(0, new RestbucksMessageConverter());
-    client.setRestOperations(operations);
   }
-
+  
   @AfterStories
   public void done() throws InterruptedException {
     serverThread.interrupt();
@@ -62,7 +70,7 @@ public class RestbuckSteps {
 
   @When("she reads the menu")
   public void getMenu() throws IOException {
-    Resource = client.follow(Api.LINK_REL_MENU).toObject(MenuResource.class);
+    resource = client.follow(Api.LINK_REL_MENU).toObject(MenuResource.class);
   }
 
   @When("she orders a $drink")
@@ -74,12 +82,12 @@ public class RestbuckSteps {
     OrderResource order = new OrderResource();
     order.customer = customer;
     order.item = new ItemResource[] { item };
-    Resource = client.follow(order, Api.LINK_REL_ORDERACTION).toObject(OrderResource.class);
+    resource = client.follow(order, Api.LINK_REL_ORDERACTION).toObject(OrderResource.class);
   }
 
   private ItemResource findMenuItem(ItemResource item) {
     ItemResource result = null;
-    MenuResource menu = (MenuResource)Resource;
+    MenuResource menu = (MenuResource)resource;
     if (menu == null || menu.item == null) {
       return result;
     }

@@ -19,35 +19,44 @@ public class HydraLinks {
   private static final String HREF_MEMBER = "@id";
   private static final String OPERATION_MEMBER = "hydra:operation";
   private static final String METHOD_MEMBER = "hydra:method";
+  private static final String COLLECTION_MEMBER = "hydra:collection";
+  private static final String MANAGES_MEMBER = "hydra:manages";
+  private static final String PROPERTY_MEMBER = "hydra:property";
 
-  public static List<Link> findLinksWithRel(String rel, String representation) {
+  public List<Link> findLinksWithRel(String rel, String representation) {
     JSONObject object = toJson(representation);
     if (object.has(rel)) {
-      JSONObject result = getLinkObject(object, rel);
+      LinkObject result = getLinkObject(object, rel);
       if (result != null) {
-        return Collections.singletonList(toAffordance(rel, result));
+        return Collections.singletonList(toAffordance(result.getRel(), result.getOperation()));
       }
     }
     return Collections.emptyList();
   }
 
-  private static JSONObject toJson(String representation) {
-    return new JSONObject(representation == null ? EMPTY_JSON_OBJECT : representation);
+  private JSONObject toJson(String representation) {
+    return new JSONObject(isEmpty(representation)  ? EMPTY_JSON_OBJECT : representation);
   }
 
-  private static JSONObject getLinkObject(JSONObject object, String key) {
-    JSONObject result = null;
+  private boolean isEmpty(String representation) {
+    return representation == null || representation.trim().isEmpty();
+  }
+
+  private LinkObject getLinkObject(JSONObject object, String key) {
     Object value = object.get(key);
     if (value instanceof JSONObject) {
-      result = (JSONObject)value;
-      if (!result.has(HREF_MEMBER) || !result.has(OPERATION_MEMBER)) {
-        result = null;
+      JSONObject link = (JSONObject)value;
+      if (link.has(HREF_MEMBER)  && link.has(OPERATION_MEMBER)) {
+        return new LinkObject(key, link);
       }
+    } else if (value instanceof JSONArray && COLLECTION_MEMBER.equals(key)) {
+      JSONObject item = (JSONObject)((JSONArray)value).get(0);
+      return new LinkObject(item.getJSONObject(MANAGES_MEMBER).getString(PROPERTY_MEMBER), item);
     }
-    return result;
+    return null;
   }
 
-  private static Affordance toAffordance(String rel, JSONObject linkObject) {
+  private Affordance toAffordance(String rel, JSONObject linkObject) {
     Affordance result = new Affordance(linkObject.getString(HREF_MEMBER));
     result.addRel(rel);
     List<ActionDescriptor> actionDescriptors = new ArrayList<>();
@@ -61,14 +70,34 @@ public class HydraLinks {
     return result;
   }
 
-  public static void add(ResourceSupport resource, String representation) {
+  public void add(ResourceSupport resource, String representation) {
     JSONObject object = toJson(representation);
-    for (String name : JSONObject.getNames(object)) {
-      JSONObject linkObject = getLinkObject(object, name);
+    for (String key : object.keySet()) {
+      LinkObject linkObject = getLinkObject(object, key);
       if (linkObject != null) {
-        resource.add(toAffordance(name, linkObject));
+        resource.add(toAffordance(linkObject.getRel(), linkObject.getOperation()));
       }
     }
+  }
+
+  private static class LinkObject {
+
+    private final String rel;
+    private final JSONObject operation;
+
+    public LinkObject(String rel, JSONObject operation) {
+      this.rel = rel;
+      this.operation = operation;
+    }
+
+    public String getRel() {
+      return rel;
+    }
+
+    public JSONObject getOperation() {
+      return operation;
+    }
+    
   }
 
 }

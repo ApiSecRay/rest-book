@@ -21,24 +21,14 @@ public class Client {
 
   private final URI uri;
   private final MediaType mediaType;
-  private List<LinkDiscoverer> linkDiscoverers;
-  private RestOperations operations;
+  private final Iterable<LinkDiscoverer> linkDiscoverers;
+  private final RestOperations operations;
   private HttpEntity<?> response;
 
-  public Client(URI uri, MediaType mediaType) {
-    this(uri, mediaType, null);
-  }
-
-  Client(URI uri, MediaType mediaType, String response) {
+  public Client(URI uri, MediaType mediaType, Iterable<LinkDiscoverer> linkDiscoverers, RestOperations operations) {
     this.uri = uri;
     this.mediaType = mediaType;
-  }
-
-  public void setLinkDiscoverers(List<LinkDiscoverer> linkDiscoverers) {
     this.linkDiscoverers = linkDiscoverers;
-  }
-
-  public void setRestOperations(RestOperations operations) {
     this.operations = operations;
   }
 

@@ -14,6 +14,8 @@ import de.escalon.hypermedia.spring.HypermediaTypes;
 
 public class HydraLinkDiscoverer implements LinkDiscoverer {
 
+  private final HydraLinks hydraLinks = new HydraLinks();
+
   @Override
   public boolean supports(MediaType mediaType) {
     return mediaType.isCompatibleWith(HypermediaTypes.APPLICATION_JSONLD);
@@ -42,7 +44,7 @@ public class HydraLinkDiscoverer implements LinkDiscoverer {
 
   @Override
   public List<Link> findLinksWithRel(String rel, String representation) {
-    return HydraLinks.findLinksWithRel(rel, representation);
+    return hydraLinks.findLinksWithRel(rel, representation);
   }
 
 }

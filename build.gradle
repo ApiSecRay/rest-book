@@ -42,10 +42,11 @@ dependencies {
       'org.springframework.hateoas:spring-hateoas',
       'com.jayway.jsonpath:json-path:2.0.0',
       'de.escalon.hypermedia:hydra-spring:0.2.0-beta2',
-      'org.springframework.boot:spring-boot-starter-data-jpa:1.2.6.RELEASE'
-  testCompile 'junit:junit:4.12','org.jbehave:jbehave-core:4.0.3', 
-      'org.apache.httpcomponents:httpclient:4.5',
+      'org.springframework.boot:spring-boot-starter-data-jpa:1.2.6.RELEASE',
+      'commons-io:commons-io:2.4',
       'org.json:json:20141113'
+  testCompile 'junit:junit:4.12','org.jbehave:jbehave-core:4.0.3', 
+      'org.apache.httpcomponents:httpclient:4.5'
   runtime("com.h2database:h2")
 }
 
