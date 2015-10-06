@@ -1,4 +1,4 @@
-package com.securesoftwaredev.restbook.client;
+package restbook.client;
 
 import static org.junit.Assert.assertEquals;
 

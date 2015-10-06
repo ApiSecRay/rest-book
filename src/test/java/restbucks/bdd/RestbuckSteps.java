@@ -1,4 +1,4 @@
-package com.restbucks.bdd;
+package restbucks.bdd;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -16,6 +16,9 @@ import org.springframework.web.client.RestTemplate;
 
 import de.escalon.hypermedia.spring.HypermediaTypes;
 import restbucks.Application;
+import restbucks.client.Client;
+import restbucks.client.HydraLinkDiscoverer;
+import restbucks.client.RestbucksMessageConverter;
 import restbucks.rest.api.Api;
 import restbucks.rest.item.ItemResource;
 import restbucks.rest.menu.MenuResource;
@@ -41,7 +44,9 @@ public class RestbuckSteps {
     serverThread.start();
     Thread.sleep(STARTUP_TIME);
     client.setLinkDiscoverers(Collections.singletonList(new HydraLinkDiscoverer()));
-    client.setRestOperations(new RestTemplate());
+    RestTemplate operations = new RestTemplate();
+    operations.getMessageConverters().add(0, new RestbucksMessageConverter());
+    client.setRestOperations(operations);
   }
 
   @AfterStories

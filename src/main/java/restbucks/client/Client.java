@@ -1,4 +1,4 @@
-package com.restbucks.bdd;
+package restbucks.client;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -133,7 +133,7 @@ public class Client {
 
     public HopInfo(String rel) {
       this.rel = rel;
-      this.dtoClass = String.class;
+      this.dtoClass = ResourceSupport.class;
     }
 
     public void setDtoClass(Class<?> dtoClass) {

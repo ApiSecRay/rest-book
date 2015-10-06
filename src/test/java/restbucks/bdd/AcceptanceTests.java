@@ -1,4 +1,4 @@
-package com.restbucks.bdd;
+package restbucks.bdd;
 
 import java.util.Arrays;
 import java.util.List;
