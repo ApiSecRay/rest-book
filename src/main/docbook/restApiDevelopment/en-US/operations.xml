@@ -203,6 +203,12 @@
       attention <citation>Eyal14</citation>.
     </para>
     <para>
+      Users of your API are developers. While developers share many characteristics, they are not a homogeneous group
+      and can be segmented by type of application, preferred technology, and professional level. You may want to use
+      different KPIs for each of those segments, or at least calculate a single KPI for each segment, to drive focused
+      adoption campaigns.
+    </para>
+    <para>
       The KPIs that are most relevant vary by API, because each API serves different users and is an instrument to
       achieve different goals. Financial goals like revenue are common, but not every API is about making money. If you 
       explicitly define your goals before you start building the service, you can add logging as required and measure 
@@ -281,7 +287,58 @@
   <section id="support">
     <title>Support</title>
     <para>
-      
+      StackOverflow, community      
+    </para>
+    <para>
+      PARAPHRASE:
+      At some point, every developer will have questions and no product addresses every need perfectly. When that 
+      happens, your developers want swift attention and notification of what’s happening. Even if you don’t know the 
+      answer or have a fix, respond immediately to let them know you are on it.
+    </para>
+    <para>
+      It’s really important to provide developers with an easy sign-up process that shows some subset of the API’s
+      functionality in action—immediately—so they can see that your product meets their needs in minutes.
+    </para>
+    <para>
+      Smooth sign up for immediate access. A good rule of thumb is that a developer should get some instant 
+      gratification within minutes as an incentive to keep going.
+    </para>
+    <para>
+      Make some functionality free to enable developers to understand how the API works and the value of the data or 
+      service. Sometimes, creating the perception that you are offering something for free (such as a month’s free 
+      access) can reduce barriers to adoption.
+    </para>
+    <para>
+      Authentication is often the hard part of using an API. Consider providing one endpoint that doesn’t require 
+      credentials so that developers can try before signing up.
+    </para>
+    <para>
+      Make sure your API documentation is complete and straightforward. Try one of the interactive API documentation 
+      consoles, where developers can test API calls and see the results.
+    </para>
+    <para>
+      Be very clear about your policies and careful about changing terms. Your terms should address issues of data 
+      ownership, “what happens if I close my account?” and privacy.
+    </para>
+    <para>
+      There are two dimensions to transparency. On the technology side, if you have rate-limiting policies for API
+      consumption, display them clearly, like Twitter does. On the communication side, if there’s a problem, put a 
+      notice front and center and make sure developers are in the loop. Solid examples of this in action are API status 
+      pages from Amazon and Salesforce.
+    </para>
+    <para>
+      Send a welcome email with a name and phone number. Be sure it lists a person, not a generic email address like 
+      feedback@company. com. Use Google alerts to monitor blogs and newsgroups for mentions of your API. Participate on
+      Stack Overflow and respond quickly to tweets.
+    </para>
+    <para>
+       Your API portal needs to deliver a great experience from beginning to end. Do developers have all the things 
+       they need to be successful? Developer resources and tools? Do you offer great SDKs for the common platforms? Do 
+       developers have access to other developers so that they can get answers to questions? Is there a place to search 
+       FAQs? Is it easy to find terms of service?
+    </para>
+    <para>
+      Developers consistently cite SDKs and code samples in the top three resources that make them successful.
     </para>
   </section>
   
