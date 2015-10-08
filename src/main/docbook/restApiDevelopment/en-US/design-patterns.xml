@@ -230,8 +230,25 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         The response to a Create request should always have the <literal>201 Created</literal> status code and use the 
         <literal>Location</literal> header to point to the created resource. Additionally, we recommend that the
         reponse also includes the representation of the created resource. There may be information in there that the
-        server added, like links, or input that the server rejeced. It makes sense to provide that feedback and save 
+        server added, like links, or input that the server rejected. It makes sense to provide that feedback and save 
         the client a roundtrip.
+      </para>
+      <para>
+        The sidebar "<xref linkend="uris"/>" in <xref linkend="name-resources"/> proposes that you put a UUID or other
+        automaticaly generated ID in the URI of the newly created resource. That only works if the server is responsible
+        for determining what the URI looks like. This is the most common situation.
+      </para>
+      <para>
+        Sometimes, however, there are reasons to deviate from this pattern and let the client determine part of the URI.
+        The server in that case presents the client with a URI template <citation>RFC 6570</citation> with a variable
+        part that the client must provide a value for. If the client is responsible for determining the URI under which
+        a new resource becomes available, then you should use the <literal>PUT</literal> method rather than
+        <literal>POST</literal>.
+      </para>
+      <para>
+        One example where this is would be a good approach is when the client responds to messages that come out of
+        order. In the correct order, the client would create the resource on receiving the first message and update
+        the resource on receiving the second. That's not possible if the "second" message may arrive before the "first".
       </para>
     </simplesect>
     <simplesect>
