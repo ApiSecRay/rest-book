@@ -46,7 +46,9 @@ dependencies {
       'commons-io:commons-io:2.4',
       'org.json:json:20141113'
   testCompile 'junit:junit:4.12','org.jbehave:jbehave-core:4.0.3', 
-      'org.apache.httpcomponents:httpclient:4.5'
+      'org.apache.httpcomponents:httpclient:4.5',
+      "org.powermock:powermock-api-mockito:$powermockVersion",
+      "org.powermock:powermock-module-junit4:$powermockVersion"
   runtime("com.h2database:h2")
 }
 

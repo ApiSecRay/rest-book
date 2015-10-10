@@ -1,5 +1,7 @@
 package restbucks.client;
 
+import static org.junit.Assert.assertFalse;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +13,9 @@ import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestOperations;
 
 import de.escalon.hypermedia.affordance.Affordance;
@@ -23,7 +27,7 @@ public class Client {
   private final MediaType mediaType;
   private final Iterable<LinkDiscoverer> linkDiscoverers;
   private final RestOperations operations;
-  private HttpEntity<?> response;
+  private ResponseEntity<?> response;
 
   public Client(URI uri, MediaType mediaType, Iterable<LinkDiscoverer> linkDiscoverers, RestOperations operations) {
     this.uri = uri;
@@ -55,10 +59,17 @@ public class Client {
     public <T extends ResourceSupport> T toObject(Class<T> dtoClass) {
       for (HopInfo info : getHops(dtoClass)) {
         Link link = getLink(info.getRel());
-        response = operations.exchange(link.getHref(), getMethod(link), getRequestEntity(info.getInput()),
-            info.getDtoClass());
+        perform(link.getHref(), getMethod(link), getRequestEntity(info.getInput()), info.getDtoClass());
       }
       return (T)response.getBody();
+    }
+
+    private void perform(String href, HttpMethod method, HttpEntity<?> requestEntity, Class<?> dtoClass) {
+      System.err.println(method + " " + href);
+      response = operations.exchange(href, method, requestEntity, dtoClass);
+      HttpStatus status = response.getStatusCode();
+      assertFalse("Client error", status.is4xxClientError());
+      assertFalse("Server error", status.is5xxServerError());
     }
 
     private Iterable<HopInfo> getHops(Class<?> dtoClass) {

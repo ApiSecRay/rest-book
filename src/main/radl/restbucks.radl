@@ -100,8 +100,14 @@
     <link-relation name="self">
       <specification href="http://tools.ietf.org/html/rfc4287"/>
       <transitions>
-        <transition ref="Receive notification"/>
         <transition ref="Wait"/>
+      </transitions>
+    </link-relation>
+
+    <link-relation name="https://schema.org/RespondAction"> <!-- TODO: Look up correct link relation -->
+      <specification href="http://tools.ietf.org/html/rfc4287"/>
+      <transitions>
+        <transition ref="Receive notification"/>
       </transitions>
     </link-relation>
 
