@@ -230,7 +230,7 @@
   </section>
   
   <section id="sec-ops">
-    <title>Security</title>
+    <title>Vulnerability Disclosure</title>
     <para>
       We discussed vulnerabilities in some detail in <xref linkend="security"/>, but there is an operational side to 
       them as well that we should look at.
@@ -286,7 +286,7 @@
   </section>
   
   <section id="support">
-    <title>Support</title>
+    <title>Documentation &amp; Support</title>
     <para>
       Even if you do your utmost best to design, build, and run a rich and intuitive API, there will always be
       questions about it. Some aspect of your API may not be as intuitive as you think, or may simply not be what your
@@ -312,47 +312,101 @@
       are offering something for free, such as a month’s free access.
     </para>
     <para>
+      It can help to make the sign-up process more personable. For instance, you could send a welcome email with a 
+      real person's name and phone number rather than a generic "support" number.
+    </para>
+    <para>
       Remember the sales funnel. These initial stages are all about driving adoption. Developers need to get some
       instant gratification within minutes as an incentive to keep going. The best way to achieve that is to make them
-      clearly see that your product meets their needs without spending too much time. Optimize for Time To First Hello
+      clearly see that your API meets their needs without spending too much time. Optimize for Time To First Hello
       World.
     </para>
     <para>
-      Authentication is often the hard part of using an API. Consider providing one endpoint that doesn’t require 
-      credentials so that developers can try before signing up.
-    </para>
-
-    <para>
-      Make sure your API documentation is complete and straightforward. Try one of the interactive API documentation 
-      consoles, where developers can test API calls and see the results.
+      Ideally, the documentation is divided into a couple of different modules, with decreasing levels of abstraction
+      and increasing levels of detail. These different modules should address different stages in the developer's
+      learning cycle.
     </para>
     <para>
-      Be very clear about your policies and careful about changing terms. Your terms should address issues of data 
-      ownership, “what happens if I close my account?” and privacy.
+      The <firstterm>Getting Started Guide</firstterm> should give a high-level overview of what the system is for and
+      why the client developer may want to build a client for it. It should be as short as possible and contain links
+      to more detailed documentation. It should tell the client how to perform one-time actions like acquiring an API
+      key if the API requires one. Finally, it should describe how to build the simplest program that can work with the
+      API, the equivalent of the infamous <literal>Hello, world!</literal> application.
     </para>
     <para>
-      There are two dimensions to transparency. On the technology side, if you have rate-limiting policies for API
-      consumption, display them clearly, like Twitter does. On the communication side, if there’s a problem, put a 
-      notice front and center and make sure developers are in the loop. Solid examples of this in action are API status 
-      pages from Amazon and Salesforce.
+      The next level is a <firstterm>Collection of Common Use Cases</firstterm>, with code examples that walk the client
+      developer through the entire process from start to finish. The state diagrams we developed during analysis
+      (see <xref linkend="state-diagrams"/>) form the basis of these descriptions. The particular use cases depend on
+      the specifics of the API, of course, but all API documentation should explain how to authenticate with the 
+      service (see <xref linkend="authentication"/>). Since this is often the hardest part of using an API, you may
+      want to consider providing one endpoint that doesn’t require credentials. That will allow developers to try out 
+      your API before signing up and getting an API key.
     </para>
     <para>
-      Send a welcome email with a name and phone number. Be sure it lists a person, not a generic email address like 
-      feedback@company. com. Use Google alerts to monitor blogs and newsgroups for mentions of your API. Participate on
-      Stack Overflow and respond quickly to tweets.
+      Developers consistently cite SDKs (see <xref linkend="sdk"/>) and code samples in the top three resources that 
+      make them successful, so you should really have one. The Collection of Common Use Cases should show the client 
+      developer how to use the SDK. One way of capturing these examples is to have the SDK log its actions, both in 
+      terms of the programming language API it provides and in terms of plain HTTP (e.g. using <literal>curl</literal>), 
+      since there may not be a version of the SDK in the client developer's preferred programming language.
     </para>
     <para>
-       Your API portal needs to deliver a great experience from beginning to end. Do developers have all the things 
-       they need to be successful? Developer resources and tools? Do you offer great SDKs for the common platforms? Do 
-       developers have access to other developers so that they can get answers to questions? Is there a place to search 
-       FAQs? Is it easy to find terms of service?
+      If the SDK is available in multiple languages, the documentation should make it easy for the client developer to
+      select one and see all the examples in that language without having to select that language for every example.
+      If the API supports multiple media types, then the documentation should likewise make it easy to select one media
+      type for all the examples. The point of all this is to remove as many distractions as possible and get the client
+      developer to working code as quickly as possible.
     </para>
     <para>
-      Developers consistently cite SDKs and code samples in the top three resources that make them successful.
+      For the same reason it also helps to make the documentation interactive. For example, Swagger UI includes a
+      <literal>Try it out!</literal> button that makes a request to a sample implementation of the API and includes the
+      response into the documentation <citation>Swagger UI Demo</citation>. The client developer can try out different
+      inputs and compare the responses to get a better feel for how the API is supposed to be used.
+    </para>
+    <para>
+      The <firstterm>Reference Manual</firstterm> should be complete and thorough, listing everything you will
+      ever need to know about the API, like the HTTP methods and link relations to use, what error conditions may be
+      encountered, etc.
+      The Reference Manual should offer a search and/or index facility to quickly find the right location in the
+      wealth of information that it contains. 
+    </para>
+    <para>
+      Given the need for completeness and correctness, the reference manual is best generated from the API description.
+      We saw an example of a Reference Manual in HTML for the RESTBucks API in <xref linkend="restbucks-api-doc"/>.
+    </para>
+    <para>
+      If the API is for one hosted service only, then that's all the documentation that is required. If the API is for
+      a system that can be installed in multiple places, however, an <firstterm>Administrator's Guide</firstterm> is
+      also needed. This document should explain how to install the system, how to configure it for secure use, 
+      how to scale it, etc. In short, it should contain all the information required for setting up the system and 
+      operating it properly.
+    </para>
+    <para>
+      After the developer has established that your API is providing a service that they need, their next step is to see
+      if there are any roadblocks to using it. This is where you need to tell them about terms of service. you should 
+      at least address the important issues of data ownership, “what happens if I close my account?”, and privacy.
+    </para>
+    <para>
+      If there are policies that apply to usage of the API, such as rate limiting (see <xref linkend="dos"/>), then you
+      need to display them clearly, like Twitter does. Another area where you need to be transparent is the status of
+      your API. If there are availability issues, put a notice front and center and make sure developers are in the 
+      loop. Solid examples are the API status pages from Amazon and Salesforce. If your website and service are hosted
+      on the same infrastructure, you may want to use a separate channel for status updates, like a special Twitter
+      account.
+    </para>
+    <para>
+      No matter how easy you make it for users to contact you, there will always be people who won't use the available
+      options and rather complain somewhere else. Use Google Alerts to monitor blogs and newsgroups for mentions of 
+      your API. Participate on Stack Overflow and respond quickly to tweets.
     </para>
   </section>
   
   <section>
     <title>Summary</title>
+    <para>
+      This chapter covers how to run the API that you designed, implemented, and tested in a production environment
+      and how to help its users be productive with it. Having your API used under actual load by actual users will
+      probably reveal opportunities for improvement. This may lead to a next round of design and implementation, but
+      now you have existing users and data to consider. The next chapter explains how to evolve your API over time.
+    </para>
   </section>
 </chapter>

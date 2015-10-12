@@ -545,7 +545,7 @@ public class HomeController {
   </section>
 
   <section id="secure-impl">
-    <title>Security</title>
+    <title>Secure Implementation</title>
     <para>
       We discussed security features in <xref linkend="security"/>. Security features address design flaws, which
       account for roughly half of all vulnerabilities. The other half are implementation bugs, and we will discuss
