@@ -41,17 +41,17 @@
     </para>
     <para>
       If your program is part of a collection of microservices, then you will also want to make the locations of the
-      other microservices part of the configuration. It may be worthwile to use a special <literal>service 
-      discovery</literal> solution for this purpose. These programs maintain a registry of what microservices run where.
-      This level of indirection shields decreases the configuration for each microservice, since they now only need to
-      know where the service registry runs.
+      other microservices part of the configuration. It may be worthwile to use a special <firstterm>service 
+      discovery</firstterm> solution for this purpose. These programs maintain a registry of what microservices run where.
+      This level of indirection decreases the amount of configuration for each microservice, since they now only need to
+      know where the one service registry runs instead of where all the microservices run that they want to call.
     </para>
     <para>
       One thing that all software should externalize in configuration, is passwords and other credentials. These change
-      from environment to environment, like other configuration, but there are additional considerations. In case of
+      from environment to environment, like other configuration, but additional considerations apply. In case of
       a breach, you want to be able to change compromised credentials quickly, and changing code, testing it, and 
-      deploying it into production is simply not quick enough. Also, developers in many environments may not have access 
-      to production passwords, for external compliance or internal policy reasons.
+      deploying it into production is simply not fast enough. Also, developers in many environments are not allowed to 
+      have access to production passwords, for external compliance or internal policy reasons.
     </para>
     <para>
       There are several ways to separate configuration from code. One way of doing that is using environment 
@@ -65,17 +65,17 @@
       work well for configuration files. Another solution would be to use the Windows registry.
     </para>
     <para>
-      There exists a class of tools known as <firstterm>configuration management software</firstterm> that can maintain
-      external configuration for you. Tools like Puppet, Chef, and Ansible let you manage your configuration from a
-      single location. Perhaps more importantly, they let you treat the configuration as code, storing it in version
-      control, etc. This helps streamline processes around updating configuration, as is common in DevOps teams.   
+      There also exists a class of tools known as <firstterm>configuration management software</firstterm> that can
+      maintain external configuration for you. Tools like Puppet, Chef, and Ansible let you manage your configuration
+      from a single location. Perhaps more importantly, they let you treat the configuration as code, storing it in
+      version control, etc. This helps streamline processes around updating configuration, as is common in DevOps teams.
     </para>
     <para>
       The alternative to configuration management tools that <emphasis>push</emphasis> the configuration to the program 
       is to let the program <emphasis>pull</emphasis> in the information it needs. For this you need a 
       <firstterm>configuration server</firstterm> that stores the configuration for all programs in a given environment. 
       The only configuration that you then still need for the program itself is the location of the configuration
-      server. Each environment has its own configuration server that serves configuration applicable for that
+      server. Each environment should have its own configuration server that serves configuration applicable for that
       environment only.
     </para>
     <para>
@@ -90,7 +90,7 @@
   <section id="logging">
     <title>Logging and Monitoring</title>
     <para>
-      <firstterm>Logging</firstterm> is the act of spitting out information about the state of the application while it 
+      <firstterm>Logging</firstterm> is the act of sending out information about the state of the application while it 
       runs. While in theory one can write log output to any medium, in practice logging goes to either the console or 
       to file. The former is the simplest and is favored in twelve-factor apps, because the PaaS in which these apps
       run provides facilities to further process the output.
@@ -98,7 +98,7 @@
     <para>
       For instance, log output from multiple apps and multiple instances of the same app can be combined into a central
       log database that can be queried. Some of these queries can even happen automatically and the information thus 
-      obtained can power statistics and graphs on production dashboards.
+      obtained can power statistics and graphs in production dashboards.
     </para>
     <para>
       Log files can be more convenient than the console if you don't have access to such log 
@@ -125,7 +125,7 @@
        </listitem>
     </orderedlist>
     <para>
-      Logging can support both because it paints a picture of what's happening inside the application.
+      Logging can support both use cases because it paints a picture of what's happening inside the application.
     </para>
     <para>
       Logging can aid a developer in debugging an issue, which is an ad-hoc way of using log output. It can be very 
@@ -151,10 +151,10 @@
       acts as the boy who cried wolf, then in time human operators will learn to ignore the alerts.
     </para>
     <para>
-      The next step in automation is when the monitoring tool takes automatic action without any human intervention. The 
-      tool could recognize that an application has crashed and automatically restart it, for instance (although this is 
-      usually the job of a PaaS). The monitoring tool can even analyze and correlate multiple events and draw
-      conclusions from emerging patterns and deviations from normal, as in the case of fraud detection tools.
+      Some monitoring tools can also take automatic action without any human intervention. The tool could recognize that 
+      an application has crashed and automatically restart it, for instance (although this is usually the job of a 
+      PaaS). The monitoring tool can even analyze and correlate multiple events and draw conclusions from emerging 
+      patterns and deviations from normal, as in the case of fraud detection tools.
     </para>
     <para>
       Debugging and alerting are reactive activities, prompted by seeing undesired events. But logging can also play a
@@ -191,7 +191,7 @@
     </para>
     <para>
       Each stage of the funnel may have its own KPIs. For instance, in the awareness stage you may want to track where
-      users come from, while NPS is a more relevant KPI in the advocay stage. Since you'll have users in all stages,
+      users come from, while NPS is a more relevant KPI in the later stages. Since you'll have users in all stages,
       you need many different KPIs. One particularly important KPI for the early stages is <emphasis>Time To First
       Hello World</emphasis>, which measure the time it takes a developer to write their first simple client of your API.
     </para>
@@ -217,7 +217,7 @@
     </para>
     <para>
       For most KPIs you will want to capture both the current numbers and the trends. The latter will give you some
-      indication of where things are going and thus has more predictive power that can fuel decisions.
+      indication of where things are going and thus has more predictive power that can fuel decision making.
     </para>
     <figure id="funnel">
       <mediaobject>
@@ -237,10 +237,9 @@
     </para>
 	  <para>
 	    Vulnerabilities may be known or unknown. The latter are called <firstterm>zero-day</firstterm> vulnerabilities,
-	    because we start counting days when we first become aware of a vulnerability. There is a lively black market 
-	    for zero days. To counterbalance that, more and more companies have started <firstterm>bug bounty 
-	    programs</firstterm>, where they pay people who report vulnerabilities to them, so they can fix them before
-	    they are exploited.
+	    because we start counting days when we first become aware of a vulnerability. Unfortunately, there is a lively 
+      black market for zero days. Whether that is something that will affect your API depends largely on the value of
+      the data that your API captures.
 	  </para>
 	  <para>
 	    Vulnerabilities may be discovered by criminals or other malicious agents, by <firstterm>security
@@ -252,10 +251,10 @@
 	  </para>
 	  <para>
 	    There is a strong debate about vulnerability disclosure. At one extreme, some researchers disclose anything
-	    they find immediately. This means that the vulnerabilities can now be exploited, and users are at risk.
+	    they find immediately. This means that the vulnerabilities can now be exploited by anyone, and users are at risk.
 	    For this very reason, other people prefer to keep the vulnerabilities a secret until a fix is available. The
 	    middle ground is taken by people who will give providers a certain amount of time, say 90 days, after which
-	    they will disclose.
+	    they will disclose their findings  .
 	  </para>
 	  <para>
 	    At the very least, you should offer a way for people to report vulnerabilities. If you don't you risk that
@@ -279,39 +278,50 @@
 	    easier for attackers to find a new hole in your defenses.
 	  </para>
 	  <para>
-	    You can also start your own bug bounty program. This may or may not make sense for your API, depending on a lot 
-	    of factors such as how widely your API is used and how valuable the data is that flows through it.
+	    To counterbalance the financial rewards of the zero-day black market, you can start your own <firstterm>bug 
+      bounty</firstterm> program, where they pay people who report vulnerabilities to them, so they can fix them before
+      they are exploited. This may or may not make sense for your API, depending on a lot of factors such as how widely 
+      your API is used and how valuable the data is that flows through it.
 	  </para>
   </section>
   
   <section id="support">
     <title>Support</title>
     <para>
-      StackOverflow, community      
+      Even if you do your utmost best to design, build, and run a rich and intuitive API, there will always be
+      questions about it. Some aspect of your API may not be as intuitive as you think, or may simply not be what your
+      particular user base is used to. There may also be questions around pricing, licensing, terms of conditions, etc.
     </para>
     <para>
-      PARAPHRASE:
-      At some point, every developer will have questions and no product addresses every need perfectly. When that 
-      happens, your developers want swift attention and notification of what’s happening. Even if you don’t know the 
-      answer or have a fix, respond immediately to let them know you are on it.
+      Your users will want answers to their questions. Remember that the users of your API are developers. These people
+      may be a little different from what you're used to a end users, and may require a different approach. For 
+      instance, many developers will sooner look at <emphasis>StackOverflow</emphasis> that at your website. That 
+      doesn't mean you shouldn't have a section of your sebsite dedicated to support, but it does mean you need to also
+      use alternatives like StackOverflow and Twitter.
     </para>
     <para>
-      It’s really important to provide developers with an easy sign-up process that shows some subset of the API’s
-      functionality in action—immediately—so they can see that your product meets their needs in minutes.
+      It helps to think of support not as a reactive response to problems, but as a proactive enabler for users. Take
+      them by the hand and guide them through their initial steps, which is where most of the questions usually arise.
+      This is a good way to keep the user moving through the sales funnel.
     </para>
     <para>
-      Smooth sign up for immediate access. A good rule of thumb is that a developer should get some instant 
-      gratification within minutes as an incentive to keep going.
+      The first step is usually the sign-up process. If you can offer something without requiring someone to sign up,
+      that's great, but if not, at least make it as easy as possible.
+      Make some functionality free so developers get a chance to understand how the API works and what value the data or 
+      service provides. If you don't want to do that, then you may want to consider creating the perception that you 
+      are offering something for free, such as a month’s free access.
     </para>
     <para>
-      Make some functionality free to enable developers to understand how the API works and the value of the data or 
-      service. Sometimes, creating the perception that you are offering something for free (such as a month’s free 
-      access) can reduce barriers to adoption.
+      Remember the sales funnel. These initial stages are all about driving adoption. Developers need to get some
+      instant gratification within minutes as an incentive to keep going. The best way to achieve that is to make them
+      clearly see that your product meets their needs without spending too much time. Optimize for Time To First Hello
+      World.
     </para>
     <para>
       Authentication is often the hard part of using an API. Consider providing one endpoint that doesn’t require 
       credentials so that developers can try before signing up.
     </para>
+
     <para>
       Make sure your API documentation is complete and straightforward. Try one of the interactive API documentation 
       consoles, where developers can test API calls and see the results.
