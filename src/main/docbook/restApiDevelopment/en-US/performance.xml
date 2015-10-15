@@ -149,11 +149,9 @@
       A <firstterm>Data Transfer Object</firstterm> (DTO) is defined as <quote>an object that carries data between 
       processes in order to reduce the number of method calls</quote> <citation>Fowler12</citation>.
       If this sounds familiar, then that's because that's exactly what self-describing messages in RESTful systems are.
-      To avoid confusion with objects exchanged with database servers, some people use the more narrowly focused term
-      <firstterm>Transport Layer Object</firstterm> (TLO) instead of DTO.
     </para>
     <para>
-      All the best practices around DTOs and TLOs apply to REST messages too. One example is to 
+      All the best practices around DTOs apply to REST messages too. One example is to 
       <quote>encapsulate the serialization mechanism for transferring data over the wire</quote>. We'll discuss how to
       do that in <xref linkend="server-arch"/>.
     </para>

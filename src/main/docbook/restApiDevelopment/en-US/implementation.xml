@@ -10,7 +10,7 @@
     <para>Working software over comprehensive documentation</para>
   </blockquote>
   <para>
-    This chapter discusses some important topics to consider while building a REST server.
+    This chapter discusses how to build a REST server.
   </para>
   
   <section id="server-arch">
@@ -24,7 +24,7 @@
       <title>The components of a REST server</title>
       <mediaobject>
         <imageobject>
-          <imagedata fileref="images/rest-server.png" scale="58" align="center"/>
+          <imagedata fileref="images/rest-server.png" scale="50" align="center"/>
         </imageobject>
       </mediaobject>
     </figure>
@@ -33,7 +33,7 @@
     </para>
     <variablelist>
       <varlistentry>
-        <term>HTTP Server</term>
+        <term>HTTP server</term>
         <listitem>
           <para>
             The HTTP messages that the client sends must be handled somewhere in the server. A socket must be opened on
@@ -42,13 +42,13 @@
           </para>
           <para>
             There isn't any good reason to build this yourself. You should deploy your code to an HTTP server like
-            Tomcat or Apache that handles this for you. Alternatively, you can embed an HTTP server like Jetty in your 
-            code.
+            Tomcat or Apache that handles this for you. Alternatively, you can embed an HTTP server like Jetty or Netty
+            in your code.
           </para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>HTTP Framework</term>
+        <term>HTTP framework</term>
         <listitem>
           <para>
             The HTTP server will speak the HTTP protocol, but it will not implement your resources. You need to extend
@@ -58,7 +58,7 @@
           <para>
             This is another component that you should not write yourself. There are plenty of excellent frameworks out
             there that do this for you, like Jersey or Spring WebMVC. Those frameworks make it easy to link URIs to
-            your code, for example using simple annotations.
+            your code, for example using annotations.
           </para>
         </listitem>
       </varlistentry>
@@ -80,13 +80,17 @@
             logic from the model to affordances in the presentation. For REST APIs, those affordances are the HTTP
             methods of the uniform interface.
           </para>
+          <para>
+            Controllers make up an important part of a REST server. We'll discuss them in more depth below in 
+            <xref linkend="controller"/>.
+          </para>
         </listitem>
       </varlistentry>
       <varlistentry>
         <term>Message converters</term>
         <listitem>
           <para>
-            The HTTP server handles most of the HTTP protocol, but not all. The HTTP protocol is extensible, for 
+            The HTTP server handles most of the HTTP protocol, but not all. The HTTP protocol is extensible; for 
             example, media types define how the content of the HTTP message body is encoded (see
             <xref linkend="media-types"/>).
           </para>
@@ -117,7 +121,7 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>Transport layer objects</term>
+        <term>Data transfer objects</term>
         <listitem>
           <para>
             In a REST API, the "view" part of MVC is the data content that is serialized in the body of the HTTP
@@ -127,8 +131,9 @@
           <para>
             While the term Data Transfer Object (DTO) captures that meaning well, many people associate it exclusively 
             with the data transfered to and from a database server. Some people therefore prefer to use the term 
-            Transport Layer Object (TLO) for DTOs exchanged between REST clients and servers. We will follow that 
-            convention in this book.
+            <firstterm>Transport Layer Object</firstterm> for DTOs exchanged between REST clients and servers. We won't 
+            discuss the data layer in this book, as it's not specific to REST APIs, and therefore there is no risk of
+            confusion here, but you should be aware of the issue.
           </para>
           <para>
             There are two basic approaches for constructing DTOs. The first is to make them immutable objects, where
@@ -137,7 +142,8 @@
           </para>
           <para>
             The better approach is therefore to make all the properties writable. Since a DTO must not have logic, this 
-            is one of the few occasions where you can safely make the fields public and omit getters and setters.
+            is one of the few occasions where you could safely choose to make the fields public and to omit getters and 
+            setters.
           </para>
           <para>
             Of course, that means that some other part of the code is responsible for checking whether individual
@@ -147,7 +153,7 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>Domain objects</term>
+        <term>Domain model</term>
         <listitem>
           <para>
             The "model" in the MVC pattern is the domain model. Domain model objects capture the logic of your problem 
@@ -160,33 +166,33 @@
           </para>
           <para>
             Other approaches can work as well. Whatever approach you choose to follow, make sure to separate the domain
-            logic from the controllers and clearly distinguish between transport layer objects and domain objects.
+            logic from the controllers and clearly distinguish between data transfer objects and domain objects.
           </para>
           <para>
-            Transport layer objects transfer data between processes; in this case between a REST client and server.
+            Data transfer objects transfer data between processes; in this case between a REST client and server.
             They don't have any behavior associated with them; they just exposes data. A domain object, in contrast, is 
             all about encapsulating data rather than exposing it. You use domain objects for their behavior rather than
             their data.
           </para>
           <para>
-            Domain objects are <emphasis>discovered</emphasis> during analysis, while transport layer objects are
+            Domain objects are <emphasis>discovered</emphasis> during analysis, while data transfer objects are
             <emphasis>designed</emphasis> and thus are subject to all kinds of design trade-offs. As we saw in
             <xref linkend="granularity"/>, performance and scalability concerns may prompt us to change the structure
             of our messages in a certain way. That doesn't mean that the problem domain has changed, however, and thus 
             should not lead to changes in the domain objects.
           </para>
           <para>
-            So while there is a certain degree of overlap between the data exposed by a transport layer object and that
+            So while there is a certain degree of overlap between the data exposed by a data transfer object and that
             encapsulated by a domain object, there isn't necessarily a one-to-one correspondence. It then follows
             that we need to map the DTOs onto domain objects and back.
           </para>
           <para>
             This mapping can be 1:1, and that's the best way to start. But when the need arises to change the message
             structure for performance or other reasons, resist the temptation to modify your domain objects. Instead
-            put a mapping layer in place to handles the translation from DTO to domain object and back.
+            put a mapping in place to translate from DTO to domain object and back.
           </para>
           <para>
-            Since this mapping is part of binding the "model" (domain) and "view" (transport layer object) parts of MVC,
+            Since this mapping is part of binding the "model" (domain) and "view" (data transfer object) parts of MVC,
             the right place to implement it is in the controller.
           </para>
           <para>
@@ -196,19 +202,18 @@
             page and prevents subtle bugs based on misunderstandings <citation>Evans04</citation>.
           </para>
           <para>
-            <firstterm>Dependency injection</firstterm> is a design pattern where an object doesn't create or look up
-            its dependencies itself, but rather gets told from the outside what they are. One application of this
-            pattern is to inject domain objects as dependencies into controllers, so that the controllers can call the
-            domain objects to execute business logic.
-          </para>
-          <para>
             Domain-driven design distinguishes between different kinds of domain objects, like entities (something with
             an identity, such as a person), value objects (something without identity, such as a dollar amount), and
             services (an operation that doesn't conceptually belong in one object, such as paying an order). Like REST
             services, domain services are stateless. They are often injected as dependencies into controllers.
           </para>
           <para>
-            Domain objects are what your application is really about. That makes them the logical place to add logging
+            <firstterm>Dependency injection</firstterm> is a design pattern where an object doesn't create or look up
+            its dependencies itself, but rather gets told from the outside what they are. This pattern works well for
+            adding domain services to controllers.
+          </para>
+          <para>
+            The domain model is what your application is really about. That makes it the logical place to add logging
             of events that are interesting from a business perspective, as we'll see in <xref linkend="logging"/>.
           </para>
         </listitem>
@@ -218,8 +223,7 @@
         <listitem>
           <para>
             Remember from <xref linkend="rest"/> that state in a RESTful system is separated into application state and
-            resource state. Application state is maintained on the client, which we'll discuss in
-            <xref linkend="client"/>.
+            resource state. Application state is maintained on the client, as we'll see in <xref linkend="client"/>.
           </para>
           <para>
             Resource state is maintained on the server, so you'll need some sort of database to persist it.
@@ -234,8 +238,8 @@
           <para>
             To keep your domain objects independent from your persistency solution, you may want to introduce an
             abstraction known as a <firstterm>Data Access Layer</firstterm> (DAL). The DAL should be captured in a
-            technology-independent way, so you can inject it as a dependency into your domain objects without binding 
-            the domain model to a specific database technology.
+            technology-independent way, so you can inject it as a dependency into your domain model while keeping it
+            independent of a specific database technology.
           </para>
         </listitem>
       </varlistentry>
@@ -309,8 +313,8 @@
     </para>
     <programlisting>@RequestMapping(method = RequestMethod.GET,
     produces = { "application/ld+json" })
-public HomeDto get() {
-  return new HomeDto();
+public HomeResource get() {
+  return new HomeResource();
 }</programlisting>
     <para>
       This looks fine in isolation, but if you code all your controllers like this, the string
@@ -333,8 +337,8 @@ public HomeDto get() {
     <para>
       We can prevent that by introducing another layer of indirection:
     </para>
-    <programlisting>String MEDIA_TYPE_DEFAULT = MEDIA_TYPE_APPLICATION_LD_JSON;
-String MEDIA_TYPE_APPLICATION_LD_JSON = "application/ld+json";</programlisting>
+    <programlisting>String MEDIA_TYPE_APPLICATION_LD_JSON = "application/ld+json";
+String MEDIA_TYPE_DEFAULT = MEDIA_TYPE_APPLICATION_LD_JSON;</programlisting>
     <para>
       We can now use <literal>produces = { Api.MEDIA_TYPE_DEFAULT }</literal> in our controllers, and
       they won't need to change if we decide to use a different media type.
@@ -420,7 +424,7 @@ public class CentralErrorHandler {
       clients better by more structured messages with additional details that can help the client recover, as we
       discussed in <xref linkend="serialize-errors"/>:
     </para>
-    <programlisting><![CDATA[public class ErrorDto {
+    <programlisting><![CDATA[public class ErrorResource {
 
   public String type;
   public String title;
@@ -433,8 +437,8 @@ public class CentralErrorHandler {
 public class CentralErrorHandler {
 
   @ExceptionHandler({ NotFoundException.class })
-  public ResponseEntity<ErrorDto> notFound(Exception e) {
-    ErrorDto error = new ErrorDto();
+  public ResponseEntity<ErrorResource> notFound(Exception e) {
+    ErrorResource error = new ErrorResource();
     error.type = "http://errors.restbucks.com/not-found";
     error.title = 
        "The URI you requested doesn't exists or is not accessible by you.";
@@ -443,7 +447,7 @@ public class CentralErrorHandler {
 
 }]]></programlisting>
     <para>
-      This example shows how easy Spring makes it to return a transport layer object (TLO): you just declare a class
+      This example shows how easy Spring makes it to return a data transfer object (DTO): you just declare a class
       with properties and the message converters take care of the rest. If you're using XML, you may need to do some
       extra work to define the mapping of DTO fields to XML elements and attributes. For instance, JAXB provides
       <literal>@XmlElement</literal> and <literal>@XmlAttribute</literal> annotations for the DTO's fields
@@ -473,8 +477,8 @@ public class CentralErrorHandler {
       The solution is to capture the concept of a link in code, so different message converters can serialize it
       differently, depending on the rules of the media type. Spring HATEOAS provide the <literal>Link</literal> class
       for this purpose, that you can build using a <literal>LinkBuilder</literal> <citation>Spring HATEOAS</citation>.
-      The <literal>LinkBuilder</literal> is coupled to the destination controller class/method rather than to the URI
-      it handles.
+      The <literal>ControllerLinkBuilder</literal> is a <literal>LinkBuilder</literal> that points to the destination 
+      controller class/method rather than to the URI it handles. This reduces the impact of URL changes in your code.
     </para>
     <para>
       Once you've built links, you have to add them to your DTO. You do this by deriving your DTO from the       
@@ -482,7 +486,7 @@ public class CentralErrorHandler {
       where you want the freedom to derive from any class the problem domain calls for.
       The <literal>ResourceSupport</literal> class provides methods to add, remove, and query links:
     </para>
-    <programlisting>public class HomeDto extends ResourceSupport {
+    <programlisting>public class HomeResource extends ResourceSupport {
 }
 
 @RequestMapping("/")
@@ -490,10 +494,10 @@ public class HomeController {
 
   @RequestMapping(method = RequestMethod.GET,
       produces = { MEDIA_TYPE_DEFAULT })
-  public HomeDto get() {
-    HomeDto result = new HomeDto();
-    Link link = AffordanceBuilder
-        .linkTo(AffordanceBuilder.methodOn(MenuController.class).get())
+  public HomeResource get() {
+    HomeResource result = new HomeResource();
+    Link link = ControllerLinkBuilder
+        .linkTo(ControllerLinkBuilder.methodOn(MenuController.class).get())
         .withRel(Api.LINK_REL_MENU);
     result.add(link);
     return result;
@@ -510,6 +514,15 @@ public class HomeController {
     <programlisting>Link link = ControllerLinkBuilder
     .linkTo(OrderController.class)
     .withRel(Api.LINK_REL_DELETEACTION)</programlisting>
+    <para>
+      This approach doesn't work when the method defines its own URI rather than inherit it from the class level. It 
+      also doesn't express the intent clearly. A better solution is therefore to make the method return a dummy type:
+    </para>
+    <programlisting><![CDATA[@RequestMapping(method = RequestMethod.DELETE)
+  public ResponseEntity<Void> delete() {
+    // ...
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+  }]]></programlisting>
     <para>
       If the controller method expects input, say one implementing <literal>PUT</literal>, then you must supply
       something. For instance, if the method uses <literal>@PathVariable</literal> to extract an ID from the URI, then
@@ -631,7 +644,7 @@ public class HomeController {
       </para>
       <para>
         Remember that the input from the client arrives as part of the HTTP message that a message converter translate
-        into a transport layer object, which the HTTP framework subsequently makes available to a controller. This is 
+        into a data transfer object, which the HTTP framework subsequently makes available to a controller. This is 
         our first opportunity to validate the input. For the payment example, the controller may look something like
         this:
       </para>
@@ -648,7 +661,7 @@ public class PaymentController() {
   
 }</programlisting>
       <para>
-        Note that our <literal>Payment</literal> transport layer object declares the <literal>amount</literal> field to
+        Note that our <literal>Payment</literal> data transfer object declares the <literal>amount</literal> field to
         be of type <literal>double</literal>. One could argue that this is the first step in validation, where the type
         of the property is checked. If the provided sequence of bytes doesn't specify a double under the rules of the
         media type, then the message converter will likely throw an exception.
@@ -687,13 +700,13 @@ public class PaymentController() {
       <para>
         It’s better to silently ignore properties you don’t understand. The JAXB serialization library is a good 
         example of this. It also works the other way around: properties that are not sent by an old client end up as 
-        <literal>null</literal> in the transport layer object. Consequently, a server must be careful to handle 
+        <literal>null</literal> in the data transfer object. Consequently, a server must be careful to handle 
         <literal>null</literal> values properly.
       </para>
       <para>
         Instead of schema validation we should use programming language specific validation frameworks, if available.
         For instance, the Java world offers <firstterm>Bean Validation</firstterm> <citation>JSR 303</citation>. With
-        Bean Validation, you could add annotations to your transport layer objects to perform semantic checking:
+        Bean Validation, you could add annotations to your data transfer objects to perform semantic checking:
       </para>
       <programlisting>public class Payment {
   @Min(1)
@@ -710,7 +723,7 @@ public class PaymentController {
       <para>
         The <literal>@Min</literal> annotation declares that the <literal>amount</literal> is only valid when it's at
         least <literal>1</literal>. The <literal>@Valid</literal> annotation on <literal>Payment</literal> declares
-        that the Bean Validation framework must validate the transport layer object and throw a
+        that the Bean Validation framework must validate the data transfer object and throw a
         <literal>ConstraintViolationException</literal> when the object isn't valid. The HTTP framework must call the 
         Bean Validation framework, catch the exception and return <literal>400 Bad Request</literal>.
       </para>
@@ -726,11 +739,11 @@ public class PaymentController {
     // ...
   }</programlisting>
       <para>
-        The <literal>@Valid</literal> approach works as intended when the entire transport layer object is transferred,
+        The <literal>@Valid</literal> approach works as intended when the entire data transfer object is transferred,
         but it breaks down if we start using <literal>PUT</literal> or <literal>PATCH</literal> to update individual
         properties. In RESTBucks we can't update a payment, but we can update an order. Let's look at that example: 
       </para>
-      <programlisting>public class OrderDto {
+      <programlisting>public class OrderResource {
   
   @Name
   public String customer;
@@ -743,13 +756,13 @@ public class OrderController {
   
   @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderDto update(@PathVariable("order-id") String id, @Valid OrderDto order) {
+  public OrderResource update(@PathVariable("order-id") String id, @Valid OrderResource order) {
     // ...
   }
   
   @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM, 
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderDto partialUpdate(@PathVariable("order-id") String id, 
+  public OrderResource partialUpdate(@PathVariable("order-id") String id, 
       @RequestPart("customer") @Name String customer) {
     // ...
   }
@@ -774,7 +787,7 @@ public class OrderController {
   // toString(), compareTo(), hashCode(), equals()
 }
 
-public class OrderDto {
+public class OrderResource {
   
   public Name customer;
   
@@ -785,7 +798,7 @@ public class OrderController {
   
   @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderDto update(@PathVariable("order-id") String id, OrderDto order) {
+  public OrderResource update(@PathVariable("order-id") String id, OrderResource order) {
     // ...
   }
   
@@ -798,18 +811,18 @@ public class OrderController {
   
 }]]></programlisting>
       <para>
-        Now we have nicely DRY code, but it still suffers from a fundamental problem: the <literal>OrderDto</literal>
-        class is a transport layer object, while the <literal>Name</literal> class is a domain object, so we're
+        Now we have nicely DRY code, but it still suffers from a fundamental problem: the <literal>OrderResource</literal>
+        class is a data transfer object, while the <literal>Name</literal> class is a domain object, so we're
         mixing different abstraction levels here. It's better to keep them separate:
       </para>
-      <programlisting><![CDATA[public class OrderDto {
+      <programlisting><![CDATA[public class OrderResource {
   
   public String customer;
   
-  public OrderDto() {
+  public OrderResource() {
   }
   
-  public OrderDto(Order order) {
+  public OrderResource(Order order) {
     customer = order.getCustomer().toString();
   }
   
@@ -838,14 +851,14 @@ public class OrderController {
   
   @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderDto update(@PathVariable("order-id") String id,
-      OrderDto orderDto) {
+  public OrderResource update(@PathVariable("order-id") String id,
+      OrderResource OrderResource) {
     // ...
   }
   
   @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderDto partialUpdate(@PathVariable("order-id") String id,
+  public OrderResource partialUpdate(@PathVariable("order-id") String id,
       @RequestPart("customer") String customer) {
     Order order = orderRepository.findOne(id);
     if (order == null) {
@@ -853,7 +866,7 @@ public class OrderController {
     }
     order.setCustomer(new Name(customer));
     order = orderRepository.save(order);
-    return new OrderDto(order);
+    return new OrderResource(order);
   }
   
 }]]></programlisting>
@@ -988,13 +1001,13 @@ ResultSet results = statement.executeQuery();</programlisting>
         <term>Errors</term>
         <listitem>
           <para>
-            Custom exceptions for the defined error conditions, a TLO for transferring errors, and a central error
-            handler that translates exceptions into error TLOs and returns the appropriate status codes.
+            Custom exceptions for the defined error conditions, a DTO for transferring errors, and a central error
+            handler that translates exceptions into error DTOs and returns the appropriate status codes.
           </para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>Transport layer objects</term>
+        <term>Data transfer objects</term>
         <listitem>
           <para>
             Any data exchanged between client and server that is described using <literal>property-group</literal>s is
