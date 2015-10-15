@@ -521,27 +521,40 @@ public class HomeController {
     <programlisting><![CDATA[@RequestMapping(method = RequestMethod.DELETE)
   public ResponseEntity<Void> delete() {
     // ...
-    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }]]></programlisting>
     <para>
       If the controller method expects input, say one implementing <literal>PUT</literal>, then you must supply
       something. For instance, if the method uses <literal>@PathVariable</literal> to extract an ID from the URI, then
-      you can supply it if you know it. If you don't know it, you can supply null, and a URI template will be returned
-      rather than a URI. The client then has to fill in the URI template variable.
+      you can supply it if you know it. If you don't know it, you can supply <literal>null</literal>, and a URI template 
+      will be returned rather than a URI. The client then has to fill in the URI template variable to get a URI.
     </para>
     <para>
       If the media type supports forms, then you need to do something similar for them as for links. At the time of
       writing there is no support for forms in official Spring projects, but fortunately there is a contribution from
-      the community that provides an <literal>AffordanceBuilder</literal> that works analogous to
-      <literal>LinkBuilder</literal> <citation>Spring Hydra</citation>.
+      the community that provides an <literal>AffordanceBuilder</literal> that is a drop-in replacement for
+      <literal>ControllerLinkBuilder</literal> and that does support forms <citation>Spring Hydra</citation>. The
+      <literal>AffordanceBuilder</literal> will render the method to use in the response and a template for any data
+      that the client must provide.
     </para>
-    <programlisting>TODO</programlisting>
     <para>
       With data, links, and forms, our API is at level 3(b). To get to level 4, we need to add semantics (see 
       <xref linkend="semantics"/>). If you've selected JSON-LD as the media type and Hydra as the vocabulary for REST
-      semantics, then you can use the annotations from Spring Hydra to easily add application semantics to DTOs:
+      semantics, then you can use the <literal>Expose</literal> annotation from Spring Hydra to easily add application 
+      semantics to DTOs:
     </para>
-    <programlisting>TODO</programlisting>
+    <programlisting>@Expose("http://schema.org/Order")
+public class OrderResource extends ResourceSupport {
+
+  @Expose("http://schema.org/priceCurrency")
+  public String currency;
+  @Expose("http://schema.org/customer")
+  public String customer;
+  public ItemResource[] item;
+  @Expose("http://schema.org/totalPrice")
+  public double total;
+
+}</programlisting>
     <para>
       Controllers and services often call upon the help of other, external, services. This is especially true in a
       microservices architecture (see <xref linkend="apis"/>). In those situations, the REST server acts as a client to
@@ -561,10 +574,11 @@ public class HomeController {
     <title>Secure Implementation</title>
     <para>
       We discussed security features in <xref linkend="security"/>. Security features address design flaws, which
-      account for roughly half of all vulnerabilities. The other half are implementation bugs, and we will discuss
-      them here. 
+      account for roughly half of all vulnerabilities. The other half are implementation bugs, so we need to discuss
+      how to prevent them. 
     </para>
     
+    <!-- TODO: Decide whether this should stay or go
     <section id="impl-authz">
       <title>Authorization</title>
 	    <para>
@@ -572,8 +586,8 @@ public class HomeController {
 	      HTTP method. For instance, this is the approach that Spring Security takes.
 	    </para>
 	    <para>
-	      There are two places where such access control checks comes into play. The first is obviously when receiving a 
-	      request. You should also check permissions on any links you want to put in the response. The links that the 
+	      There are two places where such access control checks comes into play. The first is when a request arrives.
+	      You should also check permissions on any links you want to put in the response. The links that the
 	      requester is not allowed to follow should be omitted from the response, because the links are supposed to be
 	      options that the client can choose from for its next move.
 	    </para>
@@ -611,6 +625,7 @@ public class HomeController {
 	      led to the method being invoked on the URI...
 	    </para>
     </section>
+    -->
     
     <section id="input-validation">
       <title>Input Validation</title>
@@ -627,7 +642,7 @@ public class HomeController {
       </para>
       <para>
         This approach only goes so far, of course. In a different domain, where a client would routinely add hundreds 
-        of the same item to an order, having to specify each one individually would be very annoying, for instance.
+        of the same item to an order, having to specify each one individually would be very annoying.
         So at some point you need to verify that input supplied by the client meets the criteria you have set for it.
       </para>
       <para>
@@ -643,7 +658,7 @@ public class HomeController {
         <xref linkend="security"/>).
       </para>
       <para>
-        Remember that the input from the client arrives as part of the HTTP message that a message converter translate
+        Remember that the input from the client arrives as part of the HTTP message that a message converter translates
         into a data transfer object, which the HTTP framework subsequently makes available to a controller. This is 
         our first opportunity to validate the input. For the payment example, the controller may look something like
         this:
@@ -667,8 +682,8 @@ public class PaymentController() {
         media type, then the message converter will likely throw an exception.
       </para>
       <para>
-        This is a form of <firstterm>syntactic</firstterm> validation, because you only need to understand the syntax
-        rules governing the value to perform the validation.
+        This form of validation is <firstterm>syntactic</firstterm> in nature, because you only need to understand the 
+        syntax rules governing the value in order to perform the validation.
         Syntactic validation is all about the syntax of the message, and should therefore be handled by the message
         converter. If it encounters the value <literal>foo</literal> for the <literal>amount</literal> property, it can
         throw an <literal>IllegalArgumentException</literal>, which the central error handling will convert to a
@@ -687,7 +702,7 @@ public class PaymentController() {
       </para>
       <para>
         This first is to use an XML or JSON schema to validate the HTTP message body. There are, however, several
-        problems with this approach. The first is that schema validation can only go so far. Validating individual
+        problems with this approach. The first is that schema validation can only go so far: validating individual
         properties will probably work fine, but things get hairy when we want to validate relations between properties.
         For maximum flexibility, we’d like to use a general purpose programming language like Java to express constraints.
       </para>
@@ -733,11 +748,11 @@ public class PaymentController {
         error handling:
       </para>
       <programlisting>public void pay(@Valid Payment payment, Errors errors) {
-    if (errors.hasErrors()) {
-      // Handle errors ...
-    }
-    // ...
-  }</programlisting>
+  if (errors.hasErrors()) {
+    // Handle errors ...
+  }
+  // ...
+}</programlisting>
       <para>
         The <literal>@Valid</literal> approach works as intended when the entire data transfer object is transferred,
         but it breaks down if we start using <literal>PUT</literal> or <literal>PATCH</literal> to update individual
@@ -756,7 +771,8 @@ public class OrderController {
   
   @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderResource update(@PathVariable("order-id") String id, @Valid OrderResource order) {
+  public OrderResource update(@PathVariable("order-id") String id,
+      @Valid OrderResource order) {
     // ...
   }
   
@@ -770,10 +786,11 @@ public class OrderController {
 }</programlisting>
       <para>
         This example uses a custom <literal>@Name</literal> annotation that validates the customer's name. By the way,
-        this is actually a surprisingly difficult thing to get right <citation>McKenzie10</citation>.
+        this is actually a surprisingly difficult thing to get right, so you may want to think twice about it
+        <citation>McKenzie10</citation>.
       </para>
       <para>
-        As this example shows, we now need to specify the validation annotation in more than one place. In order to
+        As the example shows, we now need to specify the validation annotation in more than one place. In order to
         make this DRY, we need to change the <literal>customer</literal> from a <literal>String</literal> to a new
         class that will handle the validation:
       </para>
@@ -798,13 +815,14 @@ public class OrderController {
   
   @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderResource update(@PathVariable("order-id") String id, OrderResource order) {
+  public OrderResource update(@PathVariable("order-id") String id,
+      OrderResource order) {
     // ...
   }
   
   @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public Order partialUpdate(@PathVariable("order-id") String id, 
+  public OrderResource partialUpdate(@PathVariable("order-id") String id, 
       @RequestPart("customer") Name customer) {
     // ...
   }
@@ -914,13 +932,14 @@ ResultSet results = statement.executeQuery(query);</programlisting>
 statement.setString(1, customer);
 ResultSet results = statement.executeQuery();</programlisting>
       <para>
-        The <literal>setString()</literal> method clearly marks the value of <literal>customer</literal> as code, so
+        The <literal>setString()</literal> method clearly marks the value of <literal>customer</literal> as data, so
         that it can never be treated as code.
       </para>
       <para>
         Other injection attacks are based on the same idea of mixing code and data, and they can also be fixed using
         output encoding. Common examples are XML/HTML and JSON/JavaScript. Even plain text log files can suffer from 
-        an injection attack known as log forging, where the meaning of the text changes when it's split across lines.
+        an injection attack known as <firstterm>log forging</firstterm>, where the meaning of the text changes when it's
+        split across multiple lines.
       </para>
       <para>
         Most output contexts that you will encounter are standard contexts that other people use as well, because they
@@ -931,8 +950,8 @@ ResultSet results = statement.executeQuery();</programlisting>
       </para>
       <para>
         The type of encoding is specific to the context, so extra special care must be taken when data is used in
-        multiple contexts. One example is a client-provided value that is used in a JavaScript string that is embedded
-        in an HTML page. Output encoding must be performed for each context and in the correct order, or else
+        multiple contexts. One example is a client-provided value that is used in a JavaScript string that is then
+        embedded in an HTML page. Output encoding must be performed for each context and in the correct order, or else
         vulnerabilities will remain.
       </para>
       <para>
@@ -941,9 +960,9 @@ ResultSet results = statement.executeQuery();</programlisting>
         these values remain valid in whatever technological context they are used.
       </para>
       <para>
-        Input validation and output encoding are simple enough tools, but the trick is to apply them everywhere. An
-        attacker only needs to find one place where they are forgotten to breach your system. We'll discuss how to
-        ensure that you've covered all your bases in <xref linkend="test-security"/>.
+        Input validation and output encoding are simple enough tools, but the real trick is to apply them consistently 
+        everywhere. An attacker only needs to find one place where they are left out to breach your system. We'll 
+        discuss how to ensure that you've covered all your bases in <xref linkend="test-security"/>.
       </para>
     </section>
   </section>
@@ -982,7 +1001,7 @@ ResultSet results = statement.executeQuery();</programlisting>
           <para>
             The URI mapping, HTTP method handlers, and media type declarations for each resource. The handlers delegate
             to helper classes that are injected. The helper processes the input DTO, if any, and creates the DTO for
-            the response. The controller adds the links and forms defined in RADL that the helper reports as enabled
+            the response. The controller adds those links and forms defined in RADL that the helper reports as enabled
             for the current response.
           </para>
         </listitem>
@@ -992,7 +1011,7 @@ ResultSet results = statement.executeQuery();</programlisting>
         <listitem>
           <para>
             Skeleton code for controllers to separate the tool-controlled part from the developer-controlled part (see
-            below). The controller helpers are responsible for processing request DTOs, talking to domain objects, 
+            below). The controller helpers are responsible for processing request DTOs, talking to the domain model, 
             building response DTOs, and determining whether links and/or forms should be added to them.
           </para>
         </listitem>
@@ -1012,19 +1031,18 @@ ResultSet results = statement.executeQuery();</programlisting>
           <para>
             Any data exchanged between client and server that is described using <literal>property-group</literal>s is
             translated to a DTO. If your media type supports links, then they are derived from
-            <literal>ResourceSupport</literal>. TODO: What's the equivalent in Spring Hydra? 
-            If you use JSON-LD as the media type and add <literal>uri</literal>
+            <literal>ResourceSupport</literal>. If you use JSON-LD as the media type and add <literal>uri</literal>
             attributes to the <literal>property</literal> and/or <literal>property-group</literal> elements, then the 
-            DTOs and their fields are annotated using Spring Hydra´s semantic annotations.
+            DTOs and their fields are annotated with <literal>Expose</literal>.
           </para>
         </listitem>
       </varlistentry>
     </variablelist>
     <para>
       The code is divided into two parts. The first part is completely specified by the API description and is under
-      control of the code generator. Any changes to this code will be overwritten. The second part is skeleton code
-      that the developer is supposed to implement. These files are under control of the developer and will never be
-      overwritten once generated.
+      control of the code generator: any changes to this code will be overwritten. The second part is skeleton code
+      that the developer is supposed to implement. These files are under control of the developer and once generated
+      will never be overwritten.
     </para>
     <para>
       This division makes it possible to add code generation to the automated build process. There are plugins for
@@ -1032,21 +1050,10 @@ ResultSet results = statement.executeQuery();</programlisting>
       builds.
     </para>
     <para>
-      Generating code pays back some of the effort put into maintaining an API description. At the time of writing
-      there is no support for creating RADL files, so this is a manual activity. But it's easy to see how tooling could
-      be built to help with that.
-    </para>
-    <para>
-      For instance, an IDE plug-in could walk an API designer through the steps of procedure
-      "<xref linkend="state-diagram-to-resource-model"/>" (see <xref linkend="design"/>). It's even conceivable that
-      API descriptions can be kickstarted from BDD scenarios, following procedure
-      "<xref linkend="bdd-scenario-to-state-diagram"/>" of <xref linkend="bdd-to-sd"/>.
-    </para>
-    <para>
-      Manually writing an API description for a large existing service is tedious. Fortunately, there is also RADL
-      tooling that is useful in a code-first approach. At the time of writing, either Spring or JAX-RS code can be
-      analyzed and turned into a (partial) RADL file, although the tooling isn't as mature yet as for the design-first
-      approach.
+      Generating code pays back some of the effort put into maintaining an API description. Still, manually writing an 
+      API description for a large existing service is tedious. Fortunately, there is also RADL tooling that is useful 
+      in a code-first approach. At the time of writing, either Spring or JAX-RS code can be analyzed and turned into a
+      (partial) RADL file, although the tooling isn't as mature yet as for the design-first approach.
     </para>
     <para>
       RADL extraction doesn't have to be a one-time event either. You can generate code, manually update the code and 

@@ -261,6 +261,16 @@
       query string parameters. Please refer to the RADL specification and examples for more information
       <citation>RADL</citation>.
     </para>
+    <para>
+      At the time of writing there is no support for creating RADL files, so this is a manual activity. But it's easy 
+      to see how in the future tooling could be built to help with that.
+    </para>
+    <para>
+      For instance, an IDE plug-in could walk an API designer through the steps of procedure
+      "<xref linkend="state-diagram-to-resource-model"/>" (see <xref linkend="design"/>). It's even conceivable that
+      API descriptions can be kickstarted from BDD scenarios, following procedure
+      "<xref linkend="bdd-scenario-to-state-diagram"/>" of <xref linkend="bdd-to-sd"/>.
+    </para>
   </section>
   
   <section>
