@@ -5,16 +5,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.escalon.hypermedia.spring.HypermediaTypes;
 import de.escalon.hypermedia.spring.hydra.HydraMessageConverter;
 
 
@@ -26,6 +30,11 @@ public class RestbucksMessageConverter extends HydraMessageConverter {
   public void setObjectMapper(ObjectMapper objectMapper) {
     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     super.setObjectMapper(objectMapper);
+  }
+
+  @Override
+  public List<MediaType> getSupportedMediaTypes() {
+    return Collections.singletonList(HypermediaTypes.APPLICATION_JSONLD);
   }
 
   @Override

@@ -104,56 +104,56 @@
       </transitions>
     </link-relation>
 
-    <link-relation name="https://schema.org/RespondAction"> <!-- TODO: Look up correct link relation -->
+    <link-relation name="RespondAction"> <!-- TODO: Look up correct link relation -->
       <specification href="http://tools.ietf.org/html/rfc4287"/>
       <transitions>
         <transition ref="Receive notification"/>
       </transitions>
     </link-relation>
 
-    <link-relation name="https://schema.org/ReplaceAction">
+    <link-relation name="ReplaceAction">
       <specification href="https://schema.org/ReplaceAction"/>
       <transitions>
         <transition ref="Change"/>
       </transitions>
     </link-relation>
     
-    <link-relation name="https://schema.org/DeleteAction">
+    <link-relation name="DeleteAction">
       <specification href="https://schema.org/DeleteAction"/>
       <transitions>
         <transition ref="Cancel"/>
       </transitions>
     </link-relation>
   
-    <link-relation name="http://schema.org/ReceiveAction">
+    <link-relation name="ReceiveAction">
       <specification href="http://schema.org/ReceiveAction"/>
       <transitions>
         <transition ref="Take serving"/>
       </transitions>
     </link-relation>
     
-    <link-relation name="https://schema.org/PayAction">
+    <link-relation name="PayAction">
       <specification href="https://schema.org/PayAction"/>
       <transitions>
         <transition ref="Pay"/>
       </transitions>
     </link-relation>
   
-    <link-relation name="http://schema.org/menu">
+    <link-relation name="menu">
       <specification href="http://schema.org/menu"/>
       <transitions>
         <transition ref="Read menu"/>
       </transitions>
     </link-relation>
 
-    <link-relation name="http://schema.org/OrderAction">
+    <link-relation name="OrderAction">
       <specification href="http://schema.org/OrderAction"/>
       <transitions>
         <transition ref="Place order"/>
       </transitions>
     </link-relation>
 
-    <link-relation name="http://schema.org/Order">
+    <link-relation name="Order">
       <specification href="http://schema.org/Order"/>
       <transitions>
         <transition ref="Take receipt"/>
@@ -206,10 +206,8 @@
     <property-group name="serving" uri="http://schema.org/Order"/>
   </property-groups>
 
-  <media-types default="application/ld+json">
-    <media-type name="application/ld+json">
-      <specification href="http://www.w3.org/TR/json-ld/"/>
-    </media-type>
+  <media-types default="application/hal+json">
+    <media-type name="application/hal+json"/>
   </media-types>
 
   <errors>

@@ -7,7 +7,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import de.escalon.hypermedia.spring.hydra.HydraMessageConverter;
 import restbucks.domain.menu.Drink;
 import restbucks.domain.menu.DrinkRepository;
 
@@ -24,11 +23,6 @@ public class Application {
     return args -> {
       repository.save(new Drink("caffe latte", 2.75, Currency.getInstance("USD")));
     };
-  }
-
-  @Bean
-  public HydraMessageConverter hydraMessageConverter() {
-    return new HydraMessageConverter();
   }
 
 }

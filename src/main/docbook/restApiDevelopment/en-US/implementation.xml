@@ -24,7 +24,7 @@
       <title>The components of a REST server</title>
       <mediaobject>
         <imageobject>
-          <imagedata fileref="images/rest-server.png" scale="50" align="center"/>
+          <imagedata fileref="images/rest-server.png" scale="52" align="center"/>
         </imageobject>
       </mediaobject>
     </figure>

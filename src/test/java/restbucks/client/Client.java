@@ -66,8 +66,15 @@ public class Client {
 
     private void perform(String href, HttpMethod method, HttpEntity<?> requestEntity, Class<?> dtoClass) {
       System.err.println(method + " " + href);
+      if (requestEntity != null && requestEntity.getBody() != null) {
+        System.err.println(requestEntity.getBody());
+      }
       response = operations.exchange(href, method, requestEntity, dtoClass);
       HttpStatus status = response.getStatusCode();
+      System.err.println("=> " + status.value() + " " + status.getReasonPhrase());
+      if (response.getBody() != null) {
+        System.err.println(response.getBody());
+      }
       assertFalse("Client error", status.is4xxClientError());
       assertFalse("Server error", status.is5xxServerError());
     }
@@ -98,8 +105,9 @@ public class Client {
         }
         return link;
       }
+      String responseBody = (String)response.getBody();
       for (LinkDiscoverer discoverer : linkDiscoverers) {
-        Link link = discoverer.findLinkWithRel(rel, (String)response.getBody());
+        Link link = discoverer.findLinkWithRel(rel, responseBody);
         if (link != null) {
           return link;
         }
@@ -134,7 +142,7 @@ public class Client {
 
     public HopInfo(String rel) {
       this.rel = rel;
-      this.dtoClass = ResourceSupport.class;
+      this.dtoClass = String.class;
     }
 
     public void setDtoClass(Class<?> dtoClass) {
