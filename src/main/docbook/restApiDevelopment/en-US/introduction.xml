@@ -113,7 +113,8 @@
       <para>
         The <emphasis>cache constraint</emphasis> also helps with scalability. The server indicates how long data that 
         it sends is valid, so that the client does not have to keep asking for it. If clients do so anyway, the layered 
-        system constraint allows us to insert caching proxy servers to keep our servers available for useful work.
+        system constraint allows us to insert caching proxy servers to keep our servers available for useful work. We
+        discuss caching in <xref linkend="caching"/>.
       </para>
       <para>
         The <emphasis>uniform interface constraint</emphasis> is the one that really distinguishes REST from other 
@@ -133,6 +134,7 @@
           <term>Identification of resources</term>
           <listitem>
             <para>
+              We name things to be able to talk about them easily and we should do the same with resources.
               <blockquote>
                 <attribution>Roy Fielding <citation>Fielding00</citation></attribution>
                 <para>
@@ -141,9 +143,8 @@
                   Los Angeles"), a collection of other resources, a non-virtual object (e.g. a person), and so on.
                 </para>
               </blockquote>
-              We name things to be able to talk about them easily and we should do the same with resources. In
-              practice, we use <firstterm>Uniform Resource Identifiers</firstterm> <citation>RFC 3986</citation>
-              for this purpose.
+              In practice, we use <firstterm>Uniform Resource Identifiers</firstterm> <citation>RFC 3986</citation>
+              for naming resources.
             </para>
           </listitem>
         </varlistentry>
@@ -189,7 +190,7 @@
             <para>
               Sending isolated messages doesn't get us very far because we often need to refer to other resources in a 
               message to make it self-descriptive. We've already seen that we use resource identifiers like URIs to 
-              refer to other resources. When we including a URI in a message, we effectively add a 
+              refer to other resources. When we include a URI in a message, we effectively add a 
               <firstterm>hyperlink</firstterm> to that resource, and therefore we speak of a 
               <firstterm>hypermedia</firstterm> message.
             </para>
@@ -206,18 +207,20 @@
               <code>&lt;link rel="stylesheet" type="text/css" href="foo.css"/></code>, where the <literal>rel</literal>
               attribute contains the link relation. Link relations can also be implicit, like in this piece of HTML:
               <code>&lt;script type="text/javascript" src="bar.js"></code>, where the <literal>script</literal> element
-              defines the link relation. 
+              implicitly defines the link relation. 
             </para>
             <para>
               When a client is purely guided by the "menu" of choices the server provides through its links, it no 
-              longer needs to know about the URIs maintained by the server. It knows how to discover the URIs from the 
-              links via link relations. In the examples above, the URIs can be found in the 
+              longer needs to know about the URIs maintained by the server, because it knows how to discover the URIs 
+              from the links via link relations. In the examples above, the URIs can be found in the
               <literal>href</literal> attribute of the <literal>link</literal> element and the <literal>src</literal>
-              attribute of the <literal>script</literal> element. The only thing that is needed is a single URI to
-              bootstrap the whole process. Mike Amundsen calls this URI the <firstterm>billboard URI</firstterm>, 
-              because it's what you would put on a billboard if you were advertising for your service.
-              The client sends a message to the billboard URI and receives a response with links (typed by link 
-              relations) from where it can start its journey through the API.
+              attribute of the <literal>script</literal> element.
+            </para>
+            <para>
+              The only thing that is needed is a single URI to bootstrap the whole process. Mike Amundsen calls this 
+              URI the <firstterm>billboard URI</firstterm>, because it's what you would put on a billboard if you were 
+              advertising your service. The client sends a message to the billboard URI and receives a response 
+              with links (typed by link relations) from where it can start its journey through the API.
             </para>
           </listitem>
         </varlistentry>
@@ -228,7 +231,7 @@
       <title>REST Maturity</title>
       <para>
         The REST architectural style was defined in a PhD thesis, and as such it is both abstract and generic.
-        Unfortunately, that has led to some confusion of how to apply the constraints concretely in software development 
+        Unfortunately, that has led to some confusion about how to apply the constraints concretely in software development 
         projects. The HATEOAS part in particular has proven difficult to digest. The end result is that there are now 
         published APIs that call themselves RESTful, but adhere to the REST constraints with varying levels of 
         strictness.
@@ -236,7 +239,7 @@
       <para>
         Some people seem to think that if your API is accessible over HTTP, then it must be a REST API. In fact, none 
         of the REST constraints mention HTTP (or any other communication protocol, for that matter). They deal with
-        self-descriptive, hyperlinked messages, but not with the mode of transport of these messages. While today HTTP
+        self-descriptive and hyperlinked messages, but not with the mode of transport of these messages. While today HTTP
         is the default choice, it helps to remember that there is nothing inherently HTTP-ish about REST. Some people
         try to make a distinction by calling services that are accessed over HTTP <firstterm>web services</firstterm>.
       </para>
@@ -399,8 +402,8 @@
               <para>
                 No such guarantees are available for methods that are not idempotent: <literal>POST</literal> and
                 <literal>PATCH</literal>. For example, if we try to create a resource with <literal>POST</literal>, 
-                and the connection drops before we receive the response, we can't retry, or we may end up with two 
-                created resources instead of one.
+                and the connection drops before we receive the response, we can't retry, or we may end up creating two
+                resources instead of one.
               </para>
             </listitem>
           </varlistentry>
@@ -427,7 +430,7 @@
       <para>
         One way of making the client understand the semantics of the messages is to program that knowledge directly 
         into the client. This is what most people currently do. The downside of this approach is that it's not very
-        efficient. Every service requires a new client to be written, and almost all changes in the service require
+        efficient. Every service requires a new client to be written, and many changes in the service require
         an update of the client.
       </para>
       <para>
@@ -487,6 +490,9 @@
         profiles, whether in the form of semantic web technology, ALPS, or anything else that serves the same 
         purpose.
       </para>
+      <para>
+        <xref linkend="maturity2"/> shows the extended maturity model that we'll use in this book.
+      </para>
       <figure id="maturity2">
         <mediaobject>
           <imageobject>
@@ -531,7 +537,7 @@
 	    <para>
 	      The RESTBucks service needs to scale up quickly when demand peaks, for example when people are going to work. 
 	      At the same time, RESTBucks needs to continuously improve and expand their offerings to keep customers 
-	      satisfied, and to attract new customers. So evolvability is also a concern. Whenever we see a need for
+	      satisfied, and to attract new customers. So evolvability is also a concern. Whenever we see a combined need for
 	      scalability and evolvability, we know we have a good case for a REST API.
 	    </para>
     </section>
@@ -549,6 +555,8 @@
 	      If RESTBucks were a real company, we probably would have chosen a more Agile way of developing software, so 
 	      please don't get distracted by our current choice. We believe that more Agile methods in general work better 
 	      than more traditional Waterfall-like methods, but for the most part we'll ignore that in this book. 
+      </para>
+      <para>
 	      The exception is that we will present some Agile practices that we think add specific value for building REST 
 	      APIs. You are, of course, free to use these practices or ignore them. We'll try to make sure you'll get value 
 	      out of this book either way. In the end, this book is not about software development per se, but about
@@ -576,7 +584,7 @@
 	      While these constraints may limit what you can do, the essence of building a REST API remains the same. We are 
 	      confident that the techniques presented in the following chapters will work for you as well, although it may 
 	      sometimes require a bit of creativity. We'll talk specifically about the differences between starting with 
-	      design versus starting with code in <xref linkend="tools"/>.
+	      design versus starting with code in <xref linkend="api-description"/>.
 	    </para>
 	    <para>
 	      With all these preliminaries out the the way, let's get started building a business that can serve our customers 

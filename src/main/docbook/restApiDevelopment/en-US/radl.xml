@@ -1,7 +1,7 @@
 <chapter id="radl">
   <title>API Description</title>
 
-  <section>
+  <section id="api-description">
     <title>API Description Languages</title>
     <para>
       The ever increasing number of APIs makes it worth while to develop an ecosystem of tools that aid humans in

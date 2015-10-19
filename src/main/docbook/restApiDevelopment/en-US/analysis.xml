@@ -3,8 +3,8 @@
   <para>
     In this chapter we will look at the requirements for RESTBucks and how they affect the REST API. We'll look at 
     both functional and non-functional requirements and how to meet them in a way that is pleasant for the consumers of 
-    the API. Functional requirements define what a system is supposed to <emphasis>do</emphasis> and non-functional 
-    requirements define how a system is supposed to <emphasis>be</emphasis>.
+    the API. <firstterm>Functional requirements</firstterm> define what a system is supposed to <emphasis>do</emphasis>, 
+    while <firstterm>non-functional requirements</firstterm> define how a system is supposed to <emphasis>be</emphasis>.
   </para>
   
   <section>
@@ -166,7 +166,7 @@
       </para>
       <para>
         Of course, this is just the part of the workflow where everything goes according to plan, the so-called 
-        <firstterm>happy path</firstterm> or <firstterm>main success</firstterm> scenario. But a customer can 
+        <firstterm>happy path</firstterm> or <firstterm>main success scenario</firstterm>. But a customer can 
         also cancel or change an order that she hasn't paid for yet:
       </para>
       <figure id="sd-customer">
@@ -184,8 +184,7 @@
       </para>
       <para>
         The state diagram looks a bit different for the cashier and the barista: they work in loops, serving one 
-        customer after another. This is another pattern that is common in microservices, as we'll see in 
-        <xref linkend="processor"/>.
+        customer after another. This is another common pattern, as we'll see in <xref linkend="processor"/>.
         Here's the state diagram for the cashier:
       </para>
       <figure id="sd-cashier">
@@ -253,7 +252,7 @@
         <programlisting>Given a customer Chrissy
 When she reads the menu
 And she orders a tall whole milk caffe latte
-Then she is due $2.75 
+Then she is due USD 2.75 
 When she pays
 Then she is handed a receipt
 When she takes the receipt
@@ -261,7 +260,8 @@ Then she must wait for the barista
 When the barista calls her name
 Then her serving is ready
 When she takes her serving
-Then she is happy</programlisting>
+Then she is happy
+</programlisting>
        </example>	        
       <para>
         Each line starts with a keyword:
@@ -312,7 +312,7 @@ Then she is happy</programlisting>
       </para>
       <para>
         This process is made possible by the <emphasis>executable</emphasis> requirements that BDD gives use. You 
-        write scenarios in Gherkin format, and they are run by a computer to test whether the system behaves as 
+        write scenarios in Gherkin format, and they are run by a computer program to test whether the system behaves as 
         desired. This is made possible by a scenario parser that translates the Gherkin syntax into
          method calls in your programming language. For instance, <citation>JBehave</citation> is a BDD framework for 
          Java that contains such a parser. The methods that the parser calls are the glue code between the scenarios 
@@ -324,8 +324,8 @@ Then she is happy</programlisting>
         internal states like <literal>Deciding</literal> and uses more abstract terms like <literal>Select from 
         menu</literal>.
         We can't know from looking at a state diagram what's on the menu or what is selected in the customer's order.
-        In a BDD scenario, however, everything is spelled out explicitly. The customer orders a latte, for example,
-        rather than a hot tea. These concrete values can be checked by a computer program.
+        In a BDD scenario, however, everything is spelled out explicitly. The customer orders a latte rather than a hot 
+        tea, for example. These concrete values can be checked by a computer program.
       </para>
       <para>
         Note that the concrete nature of the examples includes providing a name for the customer. This isn't actually
@@ -345,7 +345,7 @@ Then she is happy</programlisting>
         like English. This means that everybody can read and write scenarios, opening the door for collaboration. This 
         is a distinctive difference with most forms of automated tests, which can only be read and written by 
         developers and/or testers. At the same time, the concrete examples prevent us from falling into the ambiguity 
-        trap.
+        trap that natural languages set for us.
       </para>
       <para>
         BDD scenarios are a great vehicle for promoting the use of the domain language by developers and testers
