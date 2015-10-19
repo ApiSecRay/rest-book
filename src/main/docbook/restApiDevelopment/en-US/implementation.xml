@@ -519,16 +519,67 @@ public class HomeController {
       also doesn't express the intent clearly. A better solution is therefore to make the method return a dummy type:
     </para>
     <programlisting><![CDATA[@RequestMapping(method = RequestMethod.DELETE)
-  public ResponseEntity<Void> delete() {
-    // ...
-    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-  }]]></programlisting>
+public ResponseEntity<Void> delete() {
+  // ...
+  return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+}]]></programlisting>
     <para>
       If the controller method expects input, say one implementing <literal>PUT</literal>, then you must supply
       something. For instance, if the method uses <literal>@PathVariable</literal> to extract an ID from the URI, then
       you can supply it if you know it. If you don't know it, you can supply <literal>null</literal>, and a URI template 
       will be returned rather than a URI. The client then has to fill in the URI template variable to get a URI.
     </para>
+    <para>
+      Remember that the response from the server is a menu for the client to choose from, so the server shouldn't return
+      options that the client isn't supposed to select. The controller should check two things before adding a link:
+    </para>
+    <variablelist>
+      <varlistentry>
+        <term><emphasis>Does the link make sense for the current state?</emphasis></term>
+        <listitem>
+          <para>
+            For instance, once an order in RESTBucks is paid, it cannot be paid again or changed. The state diagram 
+            (see <xref linkend="state-diagrams"/>) should tell you what is possible at any given moment.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><emphasis>Is the current user permitted to follow the link?</emphasis></term>
+        <listitem>
+          <para>
+            For instance, an unpaid order can be paid by the customer who ordered, but not by any other customer. The
+            threat model (see <xref linkend="threat-modeling"/>) should tell you what the current user can do at any 
+            given moment.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    <para>
+      There are many technologies that you can use to implement access control. Many applications today follow an
+      RBAC model (see <xref linkend="authorization"/>). As the above example shows, there are limits to what you can do
+      with roles, however, so for context-aware, fine-grained access control, you may want to look into ABAC and XACML.
+    </para>
+    <para>
+      When implementing these checks, make sure to keep the code at the right abstraction level. For instance, you
+      shouldn't check whether a user has access to a URI or link relation, as these are implementation choices. Instead,
+      focus on the transitions of the state diagram, as they capture the actions from the business perspective:
+    </para>
+    <programlisting>if (userIsPermitted(Actions.CANCEL)) {
+  Link link = ControllerLinkBuilder
+      .linkTo(OrderController.class)
+      .withRel(Api.LINK_REL_DELETEACTION);
+  result.add(link);
+}</programlisting>
+    <para>
+      In some cases there could be many such if statements, because there could be many links. Each check might be 
+      relatively expensive to perform, for instance when you have to call out to an external authorization system such 
+      as a XACML PDP. That is obviously not a happy combination, so from a performance perspective you may be better 
+      off with calculating all permitted actions in one go:
+    </para>
+    <programlisting><![CDATA[Collection<String> permittedActions = getPermittedActions();
+if (permittedActions.contains(Actions.CANCEL)) {
+  // Build and add link ...
+}]]></programlisting>
     <para>
       If the media type supports forms, then you need to do something similar for them as for links. At the time of
       writing there is no support for forms in official Spring projects, but fortunately there is a contribution from
@@ -560,72 +611,23 @@ public class OrderResource extends ResourceSupport {
       microservices architecture (see <xref linkend="apis"/>). In those situations, the REST server acts as a client to
       another server, so all the advice for building clients applies (see <xref linkend="client"/>).
     </para>
-    <para>
+    <!-- 
       TODO: one-thread-per-connection vs one-thread-per-event
-    </para>
-    <para>
+
       <firstterm>Reactive programming</firstterm> is an emerging discipline which combines concurrency and event-based
       and asynchronous systems <citation>Reactive Manifesto</citation>. It is at the core of many high-performance
       concurrent systems.
-    </para>
+      TODO: Explain more and show in action.
+    -->
   </section>
 
   <section id="secure-impl">
     <title>Secure Implementation</title>
     <para>
       We discussed security features in <xref linkend="security"/>. Security features address design flaws, which
-      account for roughly half of all vulnerabilities. The other half are implementation bugs, so we need to discuss
-      how to prevent them. 
+      account for roughly half of all vulnerabilities. The other half are implementation bugs, and we'd do well to take
+      measures to prevent them. 
     </para>
-    
-    <!-- TODO: Decide whether this should stay or go
-    <section id="impl-authz">
-      <title>Authorization</title>
-	    <para>
-	      The traditional way to implement authorization of REST APIs is to specify restrictions at the level of URI and 
-	      HTTP method. For instance, this is the approach that Spring Security takes.
-	    </para>
-	    <para>
-	      There are two places where such access control checks comes into play. The first is when a request arrives.
-	      You should also check permissions on any links you want to put in the response. The links that the
-	      requester is not allowed to follow should be omitted from the response, because the links are supposed to be
-	      options that the client can choose from for its next move.
-	    </para>
-	    <para>
-	      The problem with specifying access control in terms of URIs and HTTP methods is that these are implementation 
-	      details. 
-	      URIs shouldn’t be known to anybody but the API designer/developer; the client will discover them through link 
-	      relations. Even the HTTP methods can be hidden until runtime with mature media types like JSON-LD with Hydra.
-	      This is great for decoupling the client and server, but now we have to specify our security constraints in terms 
-	      of implementation details! This means that only the developers can specify the access control policy.
-	    </para>
-	    <para>
-	      This flies in the face of best security practices, where the access control policy is externalized 
-	      from the code (so it can be reused across applications) and specified by a security officer rather than a 
-	      developer. So how do we satisfy both requirements?
-	    </para>
-	    <para>
-	      The answer lies in the state diagram underlying the REST API. Remember, we want to authorize all transitions. 
-	      Yes, a transition in an HTTP-based API is implemented using an HTTP method on a URI. But in REST, we shield the 
-	      URI using a link relation. The link relation is very closely related to the type of action you want to perform.
-	    </para>
-	    <para>
-	      The same link relation can be used from different states, so the link relation can’t be the whole answer. We 
-	      also need the state, which is based on the representation returned by the REST server. This representation 
-	      usually contains a set of properties and a set of links. We’ve got the links covered with the link relations, 
-	      but we also need the properties.
-	    </para>
-	    <para>
-	      The link relation indicates the action to be performed, while the properties correspond to 
-	      resource attributes. Add to that the subject attributes obtained through the authentication process, and you 
-	      have all the ingredients for making an XACML request.
-	    </para>
-	    <para>
-	      TODO: Think this through. When implementing a controller, we no longer have access to the link relation that
-	      led to the method being invoked on the URI...
-	    </para>
-    </section>
-    -->
     
     <section id="input-validation">
       <title>Input Validation</title>
@@ -1000,19 +1002,19 @@ ResultSet results = statement.executeQuery();</programlisting>
         <listitem>
           <para>
             The URI mapping, HTTP method handlers, and media type declarations for each resource. The handlers delegate
-            to helper classes that are injected. The helper processes the input DTO, if any, and creates the DTO for
-            the response. The controller adds those links and forms defined in RADL that the helper reports as enabled
-            for the current response.
+            to support classes (see below) that are injected. The support class processes the input DTO, if any, and 
+            creates the DTO for the response. The controller adds those links and forms defined in RADL that the support
+            class reports as permitted for the current state and user.
           </para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>Controller helpers</term>
+        <term>Controller support</term>
         <listitem>
           <para>
             Skeleton code for controllers to separate the tool-controlled part from the developer-controlled part (see
-            below). The controller helpers are responsible for processing request DTOs, talking to the domain model, 
-            building response DTOs, and determining whether links and/or forms should be added to them.
+            below). The support classes are responsible for processing request DTOs, talking to the domain model, 
+            building response DTOs, and determining whether actions are permitted for the current state and user.
           </para>
         </listitem>
       </varlistentry>
@@ -1053,13 +1055,13 @@ ResultSet results = statement.executeQuery();</programlisting>
       Generating code pays back some of the effort put into maintaining an API description. Still, manually writing an 
       API description for a large existing service is tedious. Fortunately, there is also RADL tooling that is useful 
       in a code-first approach. At the time of writing, either Spring or JAX-RS code can be analyzed and turned into a
-      (partial) RADL file, although the tooling isn't as mature yet as for the design-first approach.
+      (partial) RADL file, although the tooling isn't as mature yet as for the design-first approach. Documentation for 
+      resources, etc. is extracted from JavaDoc comments, so developers can stay close to the code.
     </para>
     <para>
       RADL extraction doesn't have to be a one-time event either. You can generate code, manually update the code and 
       then run the extraction tool to update the RADL file. Any manual updates to the developer-controlled part of the 
-      API description are preserved. Documentation for resources, etc. is extracted from JavaDoc comments, so 
-      developers can stay close to the code.
+      API description are preserved.
     </para>
   </section>
 
