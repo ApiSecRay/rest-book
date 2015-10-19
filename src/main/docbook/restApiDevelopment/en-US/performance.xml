@@ -63,7 +63,7 @@
     <para>
       Any information that is not resource state is application state. This is whatever information the client needs to 
       maintain while in pursuit of its goal. We'll discuss maintaining application state in clients in
-      <xref linkend="application-state"/>.
+      <xref linkend="implement-client"/>.
     </para>
     <para>
       Some of the application state is only ever used by the client and remains local to it. The other part is required 
@@ -83,7 +83,7 @@
     <para>
       Generally speaking, this trade-off works well in favor of statelessness. By carefully implementing the I/O 
       handling, the server can reduce the impact of bigger messages. A growing trend in this area is reactive
-      programming (see <xref linkend="reactive"/>).
+      programming (see <xref linkend="controller"/>).
     </para>
     <para>
       JavaScript handles JSON-based messages natively. Other combinations of media type and technology stack usually
@@ -174,7 +174,7 @@
     <para>
       If you start with the functionality rather than the data, as we discussed in <xref linkend="state-diagrams"/>, 
       you're much less likely to walk into the domain-objects-as-messages trap. (We'll revisit this topic in
-      <xref linkend="dto"/>.)
+      <xref linkend="server-arch"/>.)
     </para>
     <para>
       So how do you make your messages more coarse-grained? 
@@ -683,7 +683,7 @@
       This realization led people to devise other ways of handling requests than using a thread per request. The
       difference in performance between the Nginx and Apache web servers, for example, is a clear indicator that there 
       is much to be gained from pursuing such alternatives. The Node.js server is another good example. We'll discuss
-      these more modern approaches in <xref linkend="reactive"/>.
+      these more modern approaches in <xref linkend="controller"/>.
     </para>
     <para>
       Even with reactive programming, though, there are downsides to serving large messages. The number of TCP 

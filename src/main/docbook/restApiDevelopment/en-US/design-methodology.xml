@@ -7,7 +7,7 @@
   </para>
   <para>
     We believe design should always be informed by an understanding of the problem you're designing a solution for. 
-    That's why we start where we left of in the previous chapter, <xref linkend="analysis"/>. 
+    That's why we start where we left off previously (<xref linkend="analysis"/>). 
   </para>
   <para>
     Here are the steps you should follow:
@@ -48,7 +48,7 @@
   <section>
     <title>Document Requirements With State Diagrams</title>
     <para>
-      We covered this in a lot of detail in <xref linkend="state-diagrams"/>. A state diagram consists of all the
+      We covered this in <xref linkend="state-diagrams"/>. A state diagram consists of all the
       possible states a client can be in and the transitions that the client can make between them. Note that a single
       REST API can serve more than one type of client, in which case you'd probably have one state diagram for each
       type. In that case, just follow procedure "<xref linkend="state-diagram-to-resource-model"/>" for each state 
@@ -82,7 +82,7 @@
       identify the resources with URIs for later.
     </para>
     <para>
-      Here's how we can build up the resource model from the state diagram:
+      Here's how to build up the resource model from the state diagram:
     </para>
     <procedure>
       <title>Derive the Resource Model From the State Diagram</title>
@@ -165,7 +165,7 @@
           We could have made the menu part of the representation returned by the <literal>Home</literal> resource. 
           That would have saved the client from following one link, but it also would have tied our service to the menu. 
           We like to keep one level of indirection at the start, so that we always have a place to add additional 
-          functionality in a backwards compatible way. We'll discuss this topic in more detail in 
+          functionality in a backwards compatible way. We'll explain this approach in more detail in 
           <xref linkend="maintenance"/>.
         </para>
         <informaltable>
@@ -522,7 +522,8 @@
       </listitem>
       <listitem>
         <para>
-          We've now gone through all states and transitions, so our resource model is complete.
+          We've now gone through all states and transitions, and we have discovered all resources model required to
+          implement the state diagram.
         </para>
       </listitem>
     </orderedlist>
@@ -635,7 +636,7 @@
         useful in deeply hierarchical cases to make the messages shorter. As as example, resolving the 
         relative URI <literal>1/</literal> against the base URI <literal>/users/</literal> gives the intended 
         <literal>/users/1/</literal>, whereas resolving the same relative URI against the base URI 
-        <literal>/users</literal> results in <literal>/1/</literal>, which is probably not what we inteded. 
+        <literal>/users</literal> results in <literal>/1/</literal>, which is probably not what we intended. 
         We'll talk more about resolving URIs in <xref linkend="client"/>.
       </para>
       <para>
@@ -731,7 +732,7 @@
     <para>
       We've put our home resource at <literal>/</literal>, which is a common choice. Note that this is a relative URI.
       For our design it doesn't matter what the absolute URI is, that's more of an implementation detail. It could be
-      <literal>http://api.restbucks.com/</literal>, for instance, or <literal>http://buycoffeeonline.com/</literal>.
+      <literal>http://dev.restbucks.com/</literal>, for instance, or <literal>http://buycoffeeonline.com/api/</literal>.
       While the billboard URI is an important decision from a marketing perspective, it's not all that important from
       a resource model perspective.
     </para>
@@ -813,41 +814,42 @@
       </tbody>
     </table>
     <para>
-      We can re-use a couple of standard link relations. 
-      The <literal>self</literal> link relation refers to the object itself, so we can use it to refresh a serving and 
-      "get notified" when its status changes.
-      The <literal>edit</literal> link relation refers to where the object can be edited. We can use this for updates 
-      and deletes: <literal>Change order</literal>, <literal>Cancel</literal>, and <literal>Take serving</literal>.
-      The <literal>payment</literal> link relation refers to a resource where payment is accepted, so it's perfect for 
-      the <literal>Pay</literal> transition.
+      The <literal>self</literal> standard link relation refers to the object itself, so we can use it to refresh a 
+      serving and "get notified" when its status changes.
     </para>
     <para>
-      The other transitions require extension link relations. If at all possible, link relations should be nouns that 
-      indicate the type of relationship that the target resource has with the current resource. That usually means they
-      are nouns rather than verbs.
+      For the other transitions we selected extension link relations. We decided to use concepts defined by
+      <literal>schema.org</literal>. These may not be standard link relations, but they have a much bigger chance of 
+      being familiar to a client developer than anything we invent ourselves. It also closely matches what we'll do in
+      <xref linkend="semantics"/>.
     </para>
     <para>
-      We decided to use concepts defined by schema.org. These
-      may not be standard link relations, but they have a much bigger chance of being familiar to a client developer
-      than anything we invent ourselves. We'll see a lot more of schema.org below.
+      We could have used the <literal>edit</literal> link relation for updates and deletes, but decided against it.
+      First of all, <literal>edit</literal> is defined in the context of the Atom Publishing Protocol
+      <citation>APP</citation>, which we're not using in our API. Furthermore, <literal>edit</literal> doesn't
+      distinguish between updates and deletes, so it isn't clear for a client whether the presence of an
+      <literal>edit</literal> means one or the other. Also, <literal>edit</literal> is a verb rather than
+      a noun. Finally, we're borrowing most of our link relations from <literal>schema.org</literal> anyway, so it's
+      just more consistent to pick all of them from the same location.
     </para>
     <para>
       You may not be in a domain as generic as e-commerce. In that case you will have to invent your own extension link
       relations.
 			The alternative to defining extension link relations is to start a standardization process of some sort, for 
 			instance an IETF Internet Draft or similar document that defines reusable link relations. If you're striving to 
-			be a thought leader in your domain, then this is a good opportunity to demonstrate that ambition.
+			be a thought leader in your domain, then that could be a good opportunity to demonstrate that ambition.
     </para>
   </section>
 
   <section id="design-messages">
     <title>Design Data</title>
     <para>
-      At this point we are done with the interaction part of our resource model. All that is left to do, is address the
+      At this point we are done with the interaction part of our resource model. All that is left to do is address the
       data part. In other words, we have to design our representations.
-      In this step we'll design the structure of the data transferred between client and server. In the next step, we'll
-      assign precise meaning to that data. Finally, we'll tie the data and the links together in a message that we'll
-      serialize into a series of bytes using a media type.
+      In this step we'll design the structure of the data transferred between client and server. In the next step
+      (<xref linkend="semantics"/>), we'll assign precise meaning to that data. Finally, we'll tie the data and the
+      links together in a message that we'll serialize into a series of bytes using a media type
+      (<xref linkend="media-types"/>).
     </para>
     <para>
       We start with indicating which of our HTTP methods require a request and which require a response. This decision 
@@ -941,18 +943,21 @@
       so we also add a <literal>size</literal> property. Our hot beverages also differ in how much milk they contain, 
       so we add a <literal>milk</literal> property. Finally, we're in this for the money, so we add a 
       <literal>price</literal> property. Since we have international aspirations, we should also add a
-      <literal>currency</literal> property. Our menu is really nothing more than a list of items. We could go further 
-      and put the items into categories. This is quite a common trick to help human users, but our software clients 
-      don't mind going through a seemingly endless list of items, so we're not going to bother with the added 
-      complexity until we get clear requirements that force us to.
+      <literal>currency</literal> property.
+    </para>
+    <para>
+      Our menu is really nothing more than a list of items. We could go further and put the items into categories. This
+      is quite a common trick to help human users, but our software clients don't mind going through a seemingly
+      endless list of items, so we're not going to bother with the added complexity until we get clear requirements that
+      force us to do so.
     </para>
     <para>
       An <literal>order</literal> contains of a number of items that the customer wants to purchase. These are the same 
-      items that are on the menu, of course, so we can re-use the item design. We need a couple of other properties. 
-      The barista needs to call the customer when the order is prepared, so we should add a <literal>customer</literal> 
-      property for this purpose. We also like to include a <literal>total</literal> (with <literal>currency</literal>). 
-      One could argue that this can be calculated from the items, but there may be complications like quantum discounts 
-      or specially priced combinations that we want to be prepared for.
+      items that are on the menu, of course, so we can re-use the item design. We need a couple of other properties as
+      well. The barista needs to call the customer when the order is prepared, so we should add a
+      <literal>customer</literal> property for this purpose. We also like to include a <literal>total</literal> (with
+      <literal>currency</literal>). One could argue that this can be calculated from the items, but there may be
+      complications like volume discounts or specially priced combinations that we want to be prepared for.
     </para>
     <para>
       A <literal>payment</literal> could take many forms. We could go overboard and design a very flexible solution that 
@@ -1031,8 +1036,8 @@
   <section id="semantics">
     <title>Document Semantics</title>
     <para>
-      Now that we've identified our messages, we must get a bit more specific in what the various data items in them
-      mean and what values are acceptible for them.
+      Now that we've identified our messages, we must get a bit more specific about what the various data items in them
+      mean and what values are acceptable for them.
     </para>
     <para>
       As much as we sometimes like to think we're unique, the fact is that we rarely are. Sure, RESTbucks is unique in
@@ -1042,12 +1047,12 @@
     </para>
     <para>
       There are a number of places where people have defined semantics for various things. Probably the best place to
-      start looking for vocabularies is schema.org <citation>SchemaOrg</citation>, which defines a large number of
+      start looking for vocabularies is <literal>schema.org</literal> <citation>SchemaOrg</citation>, which defines a large number of
       concepts.
       Other examples where you can find vocabularies are Friend of a Friend <citation>FOAF</citation>, the Dublin Core 
       Metadata Initiative <citation>DublinCore</citation> and Microformats <citation>MicroFormats</citation>.
-      Since we're in the e-commerce and coffee domains, we can find most of what we need at schema.org, but we need a
-      bit of web payments as well:
+      Since we're in the e-commerce and coffee domains, we can find most of what we need at
+      <literal>schema.org</literal>, but we need a bit of web payments as well:
     </para>
     <table id="restbuck-semantics">
       <title>Semantics for RESTBucks messages</title>
@@ -1180,7 +1185,7 @@
       have to define anything yourself.
     </para>
     <para>
-      Schema.org defines an <literal>Order</literal> as follows: <quote>An order is a confirmation of a transaction 
+      <literal>schema.org</literal> defines an <literal>Order</literal> as follows: <quote>An order is a confirmation of a transaction 
       (a receipt), which can contain multiple line items, each represented by an Offer that has been accepted by the 
       customer</quote>. An <literal>Order</literal> has an <literal>orderStatus</literal> property which can be 
       <literal>OrderPaymentDue</literal>, <literal>OrderProcessing</literal>, <literal>OrderPickupAvailable</literal>, 
@@ -1224,6 +1229,11 @@
       and are blessed by some sort of standards body.
     </para>
     <para>
+      There is some correlation between specificity and standardization. An application-specific media type will have 
+      little chance of getting adopted as an open standard, for instance. However, SVG and HTML are both open 
+      standards, but one is domain-specific while the other is general purpose.
+    </para>
+    <para>
       Media types that are described by a standard are usually registered with the Internet Assigned Numbers Authority 
       <citation>IANA</citation>. This makes them easy to discover. Registered media types are of the form
       type<literal>/</literal>sub-type, where the number of types is fixed. For REST APIs, most media types will fall
@@ -1231,11 +1241,6 @@
       The IANA registry is made up of several trees. The so-called vendor tree is for registering personal and corporate 
       standards, while the standards tree contains open standards. Media types in the vendor tree start the sub-type
       with the <literal>vnd.</literal> prefix.
-    </para>
-    <para>
-      There is some correlation between specificity and standardization. An application-specific media type will have 
-      little chance of getting adopted as an open standard, for instance. However, SVG and HTML are both open 
-      standards, but one is domain-specific while the other is general purpose.
     </para>
     <para>
       Ideally, you would select a general purpose media type defined as an open standard. This choice means
@@ -1649,7 +1654,8 @@
       <literal>sending</literal> and <literal>accepting</literal> properties. Siren only allows one value in its
       <literal>type</literal> property. But UBER doesn't provide anything in the way of data types, like Siren does.
     </para>
-    
+
+    <!-- TODO    
     <section>
       <title>JSON API</title>
       <para>
@@ -1659,6 +1665,7 @@
         TODO: describe
       </para>
     </section>
+     -->
     
     <section>
       <title>JSON-LD &amp; Hydra</title>
@@ -1865,6 +1872,7 @@
             <entry><para>Using <literal>Link</literal> header</para></entry>
             <entry><para>Low</para></entry>
           </row>
+          <!-- TODO
           <row>
             <entry><para>JSON API</para></entry>
             <entry><para>Personal standard</para></entry>
@@ -1874,6 +1882,7 @@
             <entry><para>TODO</para></entry>
             <entry><para>TODO</para></entry>
           </row>
+           -->
           <row>
             <entry><para>JSON-LD with Hydra</para></entry>
             <entry><para>JSON-LD is an open standard; Hydra a corporate standard</para></entry>
@@ -1912,7 +1921,7 @@
     </para>
     <para>
       Here is the whole sequence of HTTP messages for <xref linkend="bdd-customer-happy-path"/>:
-      TODO: Validate
+      <!-- TODO: Validate -->
     </para>
     <orderedlist>
       <listitem>
@@ -2015,10 +2024,10 @@ Cache-Control: max-age=86400, public
         <para>
           From the JSON-LD context the client can see that it is dealing with a 
           <literal>http://schema.org/CafeOrCoffeeShop</literal> that offers a 
-          <literal>http://schema.org/menu</literal>, since the default vocabulary is from schema.org. Typing RESTBucks
-          as a coffee shop enables interaction with clients that don't even know the billboard URI and happen to 
-          stumble upon the store. For instance, a spider program could try random IP addresses or follow random links 
-          and recognize the result as a coffe shop.
+          <literal>http://schema.org/menu</literal>, since the default vocabulary is from <literal>schema.org</literal>.
+          Typing RESTBucks as a coffee shop enables interaction with clients that don't even know the billboard URI and 
+          happen to stumble upon the store. For instance, a spider program could try random IP addresses or follow
+          random links and recognize the result as a coffee shop.
 		    </para>
 		  </listitem>
 		  <listitem>
@@ -2080,8 +2089,8 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         </para>
         <para>
           This goes to show how important it is to look at the message flow in detail before declaring your design 
-          done. As so often in our profession, the devil is in the details. There are many things to consider, as we'll
-          see in subsequent chapters.
+          done. As so often in our profession, the devil is in the details. There are many things to consider, and
+          we'll talk about each of them  in subsequent chapters.
         </para>
         <para>
           The client also understands from the <literal>http://schema.org/acceptedPaymentMethod</literal> property that 
@@ -2214,7 +2223,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
           from synchronous to asynchronous processing. We talk more about that pattern in <xref linkend="async"/>.
           Alternatively, we could implement the <literal>Payments</literal> resource to set an upper bound to the
           time we're prepared to wait for the external service. We'll talk more about that in 
-          <xref linkend="external"/>.
+          <xref linkend="implement-client"/>.
         </para>
       </listitem>
       <listitem>
@@ -2268,7 +2277,7 @@ Retry-After: 30
           data about how fast baristas prepare similar orders, or it could simply be a fixed value. This value is only 
           an advice, and the client is free to ignore it. But that most likely isn't going to speed the server up, so 
           there is little point. If all clients follow the advice, the server has more time to handle useful requests 
-          and everybody is better of.
+          and everybody is better off.
         </para>
       </listitem>
       <listitem>
@@ -2324,13 +2333,13 @@ Accept: application/ld+json
       </listitem>
       <listitem>
 		    <para>
-		      We design the structure of our messages, defined their precise meanings, and select a media type to serialize
+		      We design the structure of our messages, define their precise meanings, and select a media type to serialize
 		      the messages into the bytes we sent over the wire.
 		    </para>
       </listitem>
       <listitem>
 		    <para>
-		      We always validate a design by looking at the HTTP messages exchanged between client and server.
+		      We validate the design by looking at the HTTP messages exchanged between client and server.
 		    </para>
       </listitem>
     </orderedlist>

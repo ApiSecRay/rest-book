@@ -150,7 +150,7 @@
         <para>
           <firstterm>Spoofing</firstterm> occurs when one actor impersonates another. 
           <firstterm>Repudiation</firstterm> is when an actor does something and then can successfully claim that they 
-          didn't do it. <firstterm>Elevation of privileges </firstterm> occurs when one actor can operate with the 
+          didn't do it. <firstterm>Elevation of privileges</firstterm> occurs when one actor can operate with the 
           (higher) privileges of another.
           In the STRIDE approach, you check each of the elements in the model against the various classes of threats
           to identify which are applicable.
@@ -349,7 +349,7 @@
     </para>
     <para>
       <firstterm>Encryption</firstterm> is the act of transforming a <firstterm>plain text</firstterm> into a 
-      <firstterm>cypher text </firstterm> using a special mathematical function known as a <firstterm>cryptographic
+      <firstterm>cypher text</firstterm> using a special mathematical function known as a <firstterm>cryptographic
       algorithm</firstterm>. This algorithm takes a special number called a <firstterm>cryptographic key</firstterm>
       and some data (the plain text) as input and transforms (encrypts) it into some output (the cypher text), which
       can be converted back (decrypted) to the original input using the same algorithm and the same or a different key.

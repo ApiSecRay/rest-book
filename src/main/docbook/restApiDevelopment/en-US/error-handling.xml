@@ -562,7 +562,7 @@
         </para>
         <para>
           This is a specific case of a more general pattern: the server may depend on external services that may be 
-          unavailable for some reason (see <xref linkend="external"/>). Since this is hopefully a temporary condition, 
+          unavailable for some reason (see <xref linkend="implement-client"/>). Since this is hopefully a temporary condition, 
           you should return <literal>503 Service Unavailable</literal> rather than <literal>500 Internal Server 
           Error</literal>.
         </para>

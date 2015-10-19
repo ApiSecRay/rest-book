@@ -151,7 +151,7 @@
             <imagedata fileref="images/sd-customer-happy-path.png" scale="68" align="center"/>
           </imageobject>
         </mediaobject>
-        <title>Partial state diagram for RESTBucks customer</title>
+        <title>Partial state diagram for a RESTBucks customer</title>
       </figure>
       <para>
         The process starts when the customer walks into the store. We'll call this initial state 
@@ -351,19 +351,20 @@ Then she is happy
         BDD scenarios are a great vehicle for promoting the use of the domain language by developers and testers
         and everybody else who is not a domain expert. When everybody speaks the same language, the chances of 
         misunderstandings decrease drastically, and thereby the chances of subtle bugs.
-        We refer to that one language as the <firstterm>ubiquitous language</firstterm> <citation>Evans04</citation>.
+        We refer to this one language as the <firstterm>ubiquitous language</firstterm> <citation>Evans04</citation>.
       </para>
       <para>
         BDD scenarios are great for developers, since they provide quick and unequivocal feedback about whether the 
-        story is done. Not only the main success scenario, but also alternate and exception scenarios can be provided, 
-        as can abuse cases. <firstterm>Abuse cases</firstterm> <citation>McGraw06</citation> describe how the system 
-        should behave when it interacts with someone who wants to use it in inappropriate ways. For instance, someone 
-        might want to get their evil hands on a hot beverage without paying for it.
+        story they are working on is done. Not only the main success scenario, but also alternate and exception
+        scenarios can be provided, as can abuse cases. <firstterm>Abuse cases</firstterm> <citation>McGraw06</citation>
+        describe how the system should behave when it interacts with someone who wants to use it in inappropriate ways.
+        For instance, someone might want to get their evil hands on a hot beverage without paying for it.
        </para>
        <para>
         Adding alternate, exception, and abuse case scenarios requires that the Product Owner collaborates with 
         testers, developers, and security specialists. The payoff is that it becomes easier to manage all requirements,
-        even security requirements, and build both quality and security in from the start.
+        even security requirements, and build both quality and security in from the start. We'll look at exceptional
+        cases in <xref linkend="error"/> and at abuse cases in <xref linkend="threat-modeling"/>.
       </para>
      </section>
       
@@ -465,7 +466,7 @@ Then she is happy
          </listitem>
          <listitem>
            <para>
-             The next line is <literal>Then she is due $2.75</literal>. Since this line starts with 
+             The next line is <literal>Then she is due USD 2.75</literal>. Since this line starts with 
              <literal>Then</literal>, we must add a state:
              <mediaobject>
                <imageobject>
@@ -591,9 +592,8 @@ Then she is happy
   <section id="non-functional-requirements">
     <title>Non-Functional Requirements</title>
     <para>
-      Now that we've looked at the behavioral aspects of a RESTful system, let's look at the other criteria that can be 
-      used to judge the operation of a system. A non-functional requirement is an overall property of the system and not 
-      a specific function.
+      There are many more aspects to a RESTful system other than its functionality. A non-functional requirement is an
+      overall property of the system and not a specific function.
     </para>
 
 	  <section>
@@ -639,7 +639,7 @@ Then she is happy
 	    <para>
 	      Confidentiality, integrity, and availability are the basic ingredients of security, the subject of 
 	      <xref linkend="security"/>. Security is a vital topic for REST APIs, especially for those APIs that are open to 
-	      the public, so we will talk about it in many other chapters as well.
+	      the public, so we'll touch upon it in many other chapters as well.
 	    </para>
 	    <para>
 	      Accessibility and usability are about how easy it is to use a system. Let's look at that in some more detail. 
@@ -652,7 +652,7 @@ Then she is happy
 	      The term <firstterm>Developer eXperience</firstterm> (DX) is derived from User eXperience (UX), the art and
 	      science of making a piece of software pleasant to use. REST APIs are exercised by the clients calling them, but 
 	      those clients are programs that don't care about usability issues. The developers who write those clients do, 
-	      and they are your real users.
+	      however, and they are your real users.
 	    </para>
 	    <para>
 	      Developers aren't average computer software users, however. On the one hand, they are more experienced using 
@@ -662,14 +662,15 @@ Then she is happy
 	    </para>
 	    <para>
 	      DX encompasses various topics. The API must be well-designed, something which we'll cover in
-	      <xref linkend="design"/>. One aspect of that is that the API must adhere to the principle of least astonishment
-	      and follow well-established patterns that other APIs use, as we'll see in <xref linkend="patterns"/>.
+	      <xref linkend="design"/>. One aspect of that is that the API must adhere to the <firstterm>principle of least
+        astonishment</firstterm> and follow well-established patterns that other APIs use, as we'll see in
+        <xref linkend="patterns"/>.
 	    </para>
 	    <para>
 	      A developer also needs to be up and running with the API as fast as possible. The fewer roadblocks you put
 	      up, the better. Don't ask a lot of questions on your signup form, and don't let developers wait a day for 
 	      sending them their API key, if your service requires one. Do provide samples, but keep them short and to the
-        point. We cover documentation in <xref linkend="documentation"/>.
+        point. We cover documentation in <xref linkend="support"/>.
 	    </para>
 	    <para>
 	      Don't forget to give developers a convenient way to provide feedback. When they do, let them know what you have 
@@ -679,7 +680,7 @@ Then she is happy
 	    </para>
 	    <para>
 	      Keep in mind that developers rather do than read about doing. Provide an SDK to consume your API from their
-	      favorite programming language, rather than having them select and learn an HTTP library, as we explain in 
+	      favorite programming language, rather than having them select and learn an HTTP library, as we'll explain in 
 	      <xref linkend="sdk"/>. This will decrease the amount of effort to get them started.
       </para>
       <para>
@@ -709,14 +710,15 @@ Then she is happy
   <section>
     <title>Summary</title>
     <para>
-      This chapter looks at APIs from the viewpoint of the functional and non-functional requirements. Functional 
-      requirements are best captured in either state diagrams or examples. State diagrams can be semi-automatically
-      derived from examples if these are specified in the Gherkin syntax used by Behavior-Driven Development (BDD).
+      This chapter looks at APIs from the viewpoint of the functional and non-functional requirements placed upon it.
+      Functional requirements are best captured in either state diagrams or examples. State diagrams can be 
+      semi-automatically derived from examples if these are specified in the Gherkin syntax used by Behavior-Driven
+      Development (BDD).
     </para>
     <para>
       While functional requirements state what the system should do, non-functional requirements describe how the system
       should be. There are various non-functional requirements, including Developer eXperience (DX). The goal of DX is
-      to make the API and the surrounding ecosystem as easy and pleasant to use as possible.
+      to make the API and the surrounding ecosystem as easy and pleasant to use as possible to foster adoption.
     </para>
   </section>  
 </chapter>

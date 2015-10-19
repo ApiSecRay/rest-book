@@ -34,7 +34,7 @@
             The new element won't be used by older clients, but that's okay because it is optional. New clients may
             start using it, which can lead to older clients seeing it. If they validate using a strict schema, they will
             break. If, however, they follow the general guideline to ignore unknown elements (see 
-            <xref linkend="application-state"/>), they should be fine.
+            <xref linkend="implement-client"/>), they should be fine.
           </para>
           <para>
             You can add a new property anywhere you like; the order of properties shouldn't impact well-behaved clients.

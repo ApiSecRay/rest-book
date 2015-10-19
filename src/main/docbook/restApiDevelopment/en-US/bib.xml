@@ -120,6 +120,12 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>APP</abbrev>
+    <biblioid class="uri">http://tools.ietf.org/html/rfc5023</biblioid>
+    <citetitle>The Atom Publishing Protocol</citetitle>
+  </biblioentry>
+
+  <biblioentry>
     <abbrev>AppStream</abbrev>
     <biblioid class="uri">http://aws.amazon.com/appstream/</biblioid>
     <citetitle>AppStream API</citetitle>

@@ -36,7 +36,7 @@
     explains how to develop such clients.
   </para>
 
-  <section id="application-state">
+  <section id="implement-client">
     <title>Implementing Clients</title>
     <para>
       With all the documentation at hand to help out, the next step in building a REST client is to implement the

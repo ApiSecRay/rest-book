@@ -17,12 +17,33 @@
 
   <part>
     <title>Getting Started</title>
+    <partintro>
+      <para>
+        The first part of the book establishes what REST APIs are and why we need them
+        (<xref linkend="introduction"/>) and how to capture requirements placed upon them
+        (<xref linkend="analysis"/>).
+      </para>
+      <para>
+        This mostly theoretical part lays the foundation for the more practical parts that follow.
+      </para>
+    </partintro>
+        
     <xi:include href="introduction.xml"/>
     <xi:include href="analysis.xml"/>
   </part>
 
   <part>
-    <title>Designing APIs</title>
+    <title>Designing REST APIs</title>
+    <partintro>
+      <para>
+        This part of the book talks about all the different aspects of designing a REST API. We explain in detail how to
+        design a REST API (<xref linkend="design"/>), including using common design constructs
+        (<xref linkend="patterns"/>), handling exceptional cases (<xref linkend="error"/>), and designing for good
+        performance (<xref linkend="performance"/>) and security (<xref linkend="security"/>). We end with a discussion
+        on API design tooling (<xref linkend="radl"/>).
+      </para>
+    </partintro>
+    
     <xi:include href="design-methodology.xml"/>
     <xi:include href="design-patterns.xml"/>
     <xi:include href="error-handling.xml"/>
@@ -32,7 +53,15 @@
   </part>
 
   <part>
-    <title>Implementing APIs</title>
+    <title>Implementing REST APIs</title>
+    <partintro>
+      <para>
+        This part of the book explains how to turn an API design into a fully functional implementation
+        (<xref linkend="implementation"/>) that meets expectations (<xref linkend="test"/>). We'll also look at running
+        the implementation (<xref linkend="operations"/>) and changing it over time (<xref linkend="maintenance"/>).
+      </para>
+    </partintro>
+    
     <xi:include href="implementation.xml"/>
     <xi:include href="test.xml"/>
     <xi:include href="operations.xml"/>
@@ -40,7 +69,14 @@
   </part>
 
   <part>
-    <title>Using APIs</title>
+    <title>Using REST APIs</title>
+    <partintro>
+      <para>
+        In the final part of the book we come full circle by switching the perspective back from the server to the client
+        and from building an API to consuming it (<xref linkend="client"/>).
+      </para>
+    </partintro>
+    
     <xi:include href="client.xml"/>
   </part>  
 
