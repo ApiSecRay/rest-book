@@ -4,14 +4,14 @@ import org.apache.batik.transcoder.TranscoderOutput;
 
 buildscript {
   ext {
-    springBootVersion = '1.2.6'
+    springBootVersion = '1.2.7'
   }
   repositories {
     jcenter { 
       url 'http://dl.bintray.com/radl/RADL'
     }
     mavenCentral()
-    maven { url "https://repo.spring.io/milestone" }
+    maven { url 'https://repo.spring.io/milestone' }
     maven { url 'http://repository.jboss.org/nexus/content/groups/public/' }
   }
   
@@ -28,8 +28,11 @@ buildscript {
 apply plugin: 'java'
 
 sourceCompatibility = 1.8
+group = 'com.github.apisecray'
+version = '1.0.0'
 
 repositories {
+  maven { url 'https://repo.spring.io/snapshot' }
   mavenCentral()
   jcenter { 
     url 'http://dl.bintray.com/radl/RADL'
@@ -41,15 +44,15 @@ apply plugin: 'spring-boot'
 dependencies {
   compile 'org.springframework.boot:spring-boot-starter-web',
       'org.springframework.boot:spring-boot-starter-data-jpa',
-      'org.springframework.boot:spring-boot-starter-hateoas',
+      'org.springframework.hateoas:spring-hateoas:0.20.0.BUILD-SNAPSHOT',
+      'com.fasterxml.jackson.core:jackson-core:2.5.4',
       'com.jayway.jsonpath:json-path',
       'commons-io:commons-io:2.4',
       'commons-lang:commons-lang:2.6',
       'de.escalon.hypermedia:hydra-spring:0.2.0-beta2',
       'org.json:json:20141113'
   testCompile 'junit:junit:4.12','org.jbehave:jbehave-core:4.0.3', 
-      "org.powermock:powermock-api-mockito:$powermockVersion",
-      "org.powermock:powermock-module-junit4:$powermockVersion"
+      'org.springframework.boot:spring-boot-starter-test'
   runtime("com.h2database:h2")
 }
 

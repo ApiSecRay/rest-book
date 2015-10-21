@@ -8,23 +8,17 @@ import static org.mockito.Mockito.mock;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Calendar;
-import java.util.Collections;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.jbehave.core.annotations.AfterStories;
-import org.jbehave.core.annotations.BeforeStories;
 import org.jbehave.core.annotations.Given;
 import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
 import org.junit.Assert;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.ResourceSupport;
-import org.springframework.hateoas.hal.HalLinkDiscoverer;
-import org.springframework.http.MediaType;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.hateoas.client.Client;
 
-import restbucks.Application;
-import restbucks.client.Client;
 import restbucks.rest.api.Api;
 import restbucks.rest.item.ItemResource;
 import restbucks.rest.menu.MenuResource;
@@ -36,7 +30,6 @@ import restbucks.rest.serving.ServingResource;
 
 public class RestbuckSteps {
 
-  private static final int STARTUP_TIME = 15000;
   private static final long MAX_WAIT_TIME = 10000;
   private static final int INCREMENTAL_WAIT_TIME = 100;
   private static final String HOST = "localhost";
@@ -44,30 +37,11 @@ public class RestbuckSteps {
   private static final String BILLBOARD = "/";
   private static final URI BILLBOARD_URI = URI.create(String.format("http://%s:%d%s", HOST, PORT, BILLBOARD));
 
-  private Thread serverThread;
   private ResourceSupport resource;
   private String customer;
-  private final Client client = new Client(BILLBOARD_URI, MediaType.valueOf(Api.MEDIA_TYPE_HAL_JSON),
-      Collections.singletonList(new HalLinkDiscoverer()), new RestTemplate());
   private double paidAmount;
   private String paidCurrency;
-
-  @BeforeStories
-  public void init() throws InterruptedException {
-    startServer();
-  }
-
-  private void startServer() throws InterruptedException {
-    serverThread = new Thread(() -> Application.main(new String[0]));
-    serverThread.start();
-    Thread.sleep(STARTUP_TIME);
-  }
-
-  @AfterStories
-  public void done() throws InterruptedException {
-    serverThread.interrupt();
-    serverThread.join();
-  }
+  private final Client client = new Client(BILLBOARD_URI, MediaTypes.HAL_JSON);
 
   @Given("a customer $customer")
   public void setCustomer(String customer) {
@@ -76,7 +50,7 @@ public class RestbuckSteps {
 
   @When("she reads the menu")
   public void getMenu() throws IOException {
-    resource = client.follow(Api.LINK_REL_MENU).toObject(MenuResource.class);
+    resource = client.get(Api.LINK_REL_MENU).toObject(MenuResource.class);
   }
 
   @When("she orders a $drink")
@@ -88,7 +62,7 @@ public class RestbuckSteps {
     OrderResource order = new OrderResource();
     order.setCustomer(customer);
     order.setItems(new ItemResource[] { item });
-    resource = client.follow(order, Api.LINK_REL_ORDERACTION).toObject(OrderResource.class);
+    resource = client.post(order, Api.LINK_REL_ORDERACTION).toObject(OrderResource.class);
   }
 
   private ItemResource findMenuItem(ItemResource item) {
@@ -128,7 +102,7 @@ public class RestbuckSteps {
     PaymentResource payment = paymentForOrder();
     paidAmount = payment.getAmount();
     paidCurrency = payment.getCurrency();
-    resource = client.follow(payment, Api.LINK_REL_PAYACTION).toObject(ReceiptResource.class);
+    resource = client.post(payment, Api.LINK_REL_PAYACTION).toObject(ReceiptResource.class);
   }
 
   private PaymentResource paymentForOrder() {
@@ -164,7 +138,7 @@ public class RestbuckSteps {
 
   @When("she takes the receipt")
   public void takeReceipt() {
-    resource = client.follow(Api.LINK_REL_ORDER).toObject(OrderResource.class);
+    resource = client.get(Api.LINK_REL_ORDER).toObject(OrderResource.class);
   }
 
   @Then("she must wait for the barista")
@@ -186,12 +160,12 @@ public class RestbuckSteps {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
-    resource = client.follow(Api.LINK_REL_SELF).toObject(OrderResource.class);
+    resource = client.get(Api.LINK_REL_SELF).toObject(OrderResource.class);
   }
 
   @When("the barista calls her name")
   public void served() {
-    resource = client.follow(Api.LINK_REL_RESPONDACTION).toObject(ServingResource.class);
+    resource = client.get(Api.LINK_REL_RESPONDACTION).toObject(ServingResource.class);
   }
 
   @Then("her serving is ready")
@@ -201,7 +175,7 @@ public class RestbuckSteps {
 
   @When("she takes her serving")
   public void takeServing() {
-    resource = client.follow(Api.LINK_REL_RECEIVEACTION).toObject(ResourceSupport.class);
+    resource = client.delete(Api.LINK_REL_RECEIVEACTION).toObject(ResourceSupport.class);
   }
 
   @Then("she is happy")
