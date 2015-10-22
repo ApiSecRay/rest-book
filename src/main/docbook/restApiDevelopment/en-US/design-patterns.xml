@@ -38,8 +38,7 @@
         functions, it enables adding new functions without breaking existing clients. 
       </para>
       <para>
-        Every REST API should have a billboard URI, and every billboard URI should identify a home resource. There is
-        no drawback to this approach.
+        Every REST API should have a billboard URI, and every billboard URI should identify a home resource.
       </para>
     </simplesect>
     <simplesect>
@@ -103,6 +102,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         Collections allow finding members in a group of similar resources and adding new members to the group.
         It's very rare for an API not to have a group of similar resources, so virtually all REST APIs use collections.
+        In fact, you can build entire APIs using nothing but collection and item resources.
       </para>
     </simplesect>
     <simplesect>
@@ -120,7 +120,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         There are specialized media types for collections, like Atom <citation>Atom</citation> and Collection+JSON 
         <citation>Cj</citation>.
-        Most general purpose media types also have provisions for dealing with collections as well. We advise to select 
+        Most general purpose media types have provisions for dealing with collections as well. We advise to select 
         a general purpose media type and use its collection features rather than burdening the client with multiple 
         media types.
       </para>
@@ -186,7 +186,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Related Patterns</title>
       <para>
-        Members are usually added to a collection using the Create pattern. See <xref linkend="create"/>
+        Members are usually added to a collection using the Create pattern. See <xref linkend="create"/>.
       </para>
     </simplesect>
   </section>
@@ -554,7 +554,8 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         The usual pattern of communication in REST APIs is for the client to issue a request and the server to respond
         to that. A notification reverses the client and server roles, since the "server" is now the initiator. This can 
         only work if the server knows where to reach the client, which isn't usually the case. So this pattern places a 
-        higher demand on the client than normal: it must be able to accept incoming requests.
+        higher demand on the client than normal: it must be able to accept incoming requests. This is usually not the
+        case for traditional REST clients, but it's not a problem for clients that are also servers, like microservices.
       </para>
       <para>
         The client must still initiate the interaction. It sends the server a request to receive a notification. This
@@ -568,15 +569,15 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         be seen as resource state.
       </para>
       <para>
-        There are alternatives to using HTTP for implementing notifications. For instance, communication could involve
-        a service bus, where the client subscribes to an event that the server later publishes. Such non-HTTP solutions
-        are out of scope of this book; you can find an overview in <citation>EIP</citation>.
+        There are alternatives to using HTTP for implementing notifications. For instance, communication could take
+        place using asynchronous messages, where the client subscribes to an event that the server later publishes. 
+        Such non-HTTP solutions are out of scope of this book; you can find an overview in <citation>EIP</citation>.
       </para>
     </simplesect>
     <simplesect>
       <title>Example</title>
       <para>
-        Here the client provides a URI where the server can call back to in the <literal>notificationUrl</literal>
+        Here the client provides a URI that the server can call back in the <literal>notificationUrl</literal>
         property when it starts the long running action:
       </para>
       <programlisting>POST /orders/1234/payments/ HTTP/1.1
@@ -694,11 +695,11 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         If the grouping resource is interesting to other parties, like an order that needs to be fulfilled by some 
         backoffice process, then you may still want to remove it after the workflow is complete.
         Alternatively, you could move it to some other location to indicate its changed nature. For instance, a 
-        completed order could be moved from <literal>/orders/</literal> to <literal>/sales/2015/Q1/</literal> after it 
+        completed order could be moved from <literal>/orders/</literal> to <literal>/sales/2015/Q4/</literal> after it 
         had been fulfilled.
       </para>
       <para>
-        Note that moving a resource means the that resource's URI is no longer cool (see the sidebar 
+        Note that moving a resource means that the resource's URI is no longer cool (see the sidebar 
         "<xref linkend="uris"/>" in <xref linkend="name-resources"/>), so make sure the client wouldn't need access to 
         it anymore. If there is any chance that the client may still need to access the resource, then consider keeping 
         the URI around and responding with a 3xx status code <citation>HTTP</citation> and a 
@@ -741,7 +742,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
     <simplesect>
       <title>Motivation &amp; Applicability</title>
       <para>
-        Sometimes multiple parties need to cooperate on a single resource. For instance a customer, cashier, and 
+        Sometimes multiple parties need to cooperate on a single resource. For instance, a customer, cashier, and 
         barista work on the same order in RESTBucks. Each party handles part of the process and hands off to another 
         party. The hand-offs are coordinated using the state of the resource.
       </para>
@@ -765,7 +766,8 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         An alternative is to make the state explicit using a property. Each client watches the state property to see if 
         it's their turn to operate on it. Use this approach only if you really can't distinguish the various states by
-        the presence or absence of links.
+        the presence or absence of links. If the state property has business value of its own, you may even combine the
+        two approaches.
       </para>
       <para>
         This pattern is one place where it proves to be especially tempting for some people to put the possible actions 
@@ -899,7 +901,7 @@ Accept: application/ld+json
       <para>
         Sometimes we need producer-consumer like systems where one (type of) client produces resources that another
         consumes. In RESTBucks, for example, the cashier processes payment of orders that the customer creates, 
-        while the barista prepares turns those orders into servings. 
+        while the barista prepares those orders into servings. 
       </para>
     </simplesect>
     <simplesect>
@@ -1039,9 +1041,9 @@ Accept: application/ld+json</programlisting>
       <title>Implementation</title>
       <para>
         The HTTP specification defines a number of headers that help solve concurrency issues using conditional 
-        requests <citation>HTTP</citation>. <firstterm>Conditional requests</firstterm> are HTTP requests that include 
-        one or more header fields indicating a precondition to be tested before applying the method semantics to the 
-        target resource. These header fields are called <firstterm>validators</firstterm>.
+        requests. <firstterm>Conditional requests</firstterm> are HTTP requests that include one or more header fields
+        indicating a precondition to be tested before applying the method semantics to the target resource
+        <citation>HTTP</citation>. These header fields are called <firstterm>validators</firstterm>.
       </para>
       <para>
         A server can use the <literal>Last-Modified</literal> response header to indicate when information was last 
@@ -1167,7 +1169,7 @@ ETag: 2
       <para>
         The different parties in the Lifecycle pattern (see <xref linkend="lifecycle"/>) may run into concurrency 
         issues. Polling (see <xref linkend="polling"/>) clients may use conditional <literal>GET</literal> requests
-        to reduce network traffic.
+        to reduce network traffic (see <xref linkend="caching"/>).
       </para>
     </simplesect>
   </section>
@@ -1215,8 +1217,8 @@ ETag: 2
       </para> 
       <para>
         Even if the server doesn't understand the header, it can still show up in the logs, which may be useful if the 
-        client developer can get access to those. At the very least the client can log requests itself, and the 
-        correlation can happen on the client's side.
+        client developer can get access to those (see <xref linkend="logging"/>). At the very least the client can log 
+        requests itself, and the correlation can happen on the client's side.
       </para>
       <para>
         Another approach is for the service to publish a header for correlation purposes. The value of this header may 
@@ -1232,7 +1234,7 @@ ETag: 2
         use that as a correlation ID in all their requests, we can collect metrics like how many servings per day they
         they prepare, how often they run into concurrency issues, or how long they have to wait on average for a paid
         order. Armed with this information, we could optimize the number of baristas and how long they wait before they
-        polling for paid orders. We'll talk more about data-driven process optimizations in <xref linkend="logging"/>.
+        poll for paid orders. We'll talk more about data-driven process optimizations in <xref linkend="logging"/>.
       </para>
       <para>
         All we have to do to make this possible is to add a simple header to each request:
