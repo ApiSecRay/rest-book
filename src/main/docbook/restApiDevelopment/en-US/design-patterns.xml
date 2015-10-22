@@ -1494,13 +1494,13 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <title>Implementation</title>
       <para>
         Group the various requests into one body, using some <literal>multipart</literal> media type 
-        <citation>Multipart</citation>. The body of HTTP request that the client sends is made up of multiple 
+        <citation>Multipart</citation>. The body of the HTTP request that the client sends is made up of multiple 
         <firstterm>body parts</firstterm> that each represent an individual logical request and are preceded and
         followed by a <firstterm>boundary delimiter line</firstterm>.
       </para>
       <para>
         The boundary is specified by the client in the <literal>boundary</literal> parameter of the multipart media 
-        type, e.g. <literal>Content-Type: multipart//mixed; boundary="gc0p4Jq0M2Yt08j34c0p"</literal>. A boundary 
+        type, e.g. <literal>Content-Type: multipart/mixed; boundary="gc0p4Jq0M2Yt08j34c0p"</literal>. A boundary 
         delimiter line consists of two hyphens (<literal>--</literal>), the boundary, and optionally whitespace.
         Boundaries must not be longer than 70 US ASCII characters. The message should end with a boundary line followed 
         by two more hyphens, e.g. <literal>--gc0p4Jq0M2Yt08j34c0p--</literal>. A good way to make sure the boundary
@@ -1534,8 +1534,13 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
         carefully about alternatives before you commit to it.
       </para>
       <para>
-        TODO: Don't use <literal>application/http</literal> for the content type of the body parts, as this leaks
-        information of the protocol into the messages and will break when moving to HTTP/2.
+        A big problem with this approach is that each body part is an HTTP message in itself, using the 
+        <literal>application/http</literal> media type. This couples your message structure to the HTTP protocol. That
+        means switching from, say, HTTP 1.1 to HTTP 2.0 is not a trivial task anymore.
+      </para>
+      <para>
+        An alternative that doesn't suffer from this problem is to not use a multipart media type, but model the batch
+        operations explicitly. There is no standard for this, and things can easily get complex.
       </para>
     </simplesect>
     <simplesect>
@@ -1600,62 +1605,73 @@ Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
   </section>
 
   <section>
-    <title>Facade</title>
-    <para>
-      TODO: API Facade to existing system. 
-    </para>
-  </section>
-  
-  <section>
     <title>Gateway</title>
-    <para>
-      TODO: Clean up this description from http://microservices.io/patterns/apigateway.html 
-    </para>
-    <para>
-      API Gateway Pattern
-  
-      Problem
-  
-        How do the clients of a Microservices-based application access
-        the individual services?
-  
-      Forces
-  
-        The granularity of APIs provided by microservices is often
-        different than what a client needs. Microservices typically
-        provide fine-grained APIs, which means that clients need to
-        interact with multiple services. For example, as described
-        above, a client needing the details for a product needs to fetch
-        data from numerous services.
-  
-        Different clients need different data. For example, the desktop
-        browser version of a product details page is typically
-        more elaborate then the mobile version.
-  
-        Network performance is different for different types of
-        clients. For example, a mobile network is typically much slower
-        and has much higher latency than a non-mobile network. And, of
-        course, any WAN is much slower than a LAN. This means that a
-        native mobile client uses a network that has very difference
-        performance characteristics than a LAN used by a server-side web
-        application. The server-side web application can make multiple
-        requests to backend services without impacting the user
-        experience where as a mobile client can only make a few.
-  
-        The number of service instances and their locations (host+port)
-        changes dynamically
-  
-        Partitioning into services can change over time and should be
-        hidden from clients
-  
-      Solution
-  
-        Implement an API gateway that is the single entry point for all
-        clients. The API gateway handles requests in one of two
-        ways. Some requests are simply proxied/routed to the appropriate
-        service. It handles other requests by fanning out to multiple
-        services.
-    </para>
+    <simplesect>
+      <title>Intent</title>
+      <para>
+        Offer a single point of entry to multiple underlying (micro)services.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Motivation &amp; Applicability</title>
+	    <para>
+	      Microservices typically provide fine-grained APIs, which means that clients need to interact with multiple 
+	      services. This also happens when multiple legacy systems are made accessible to a client. In both cases the
+	      client must learn about multiple services, which could be using different media types, or even mix different API
+	      approaches like SOAP and REST.
+	    </para>
+	    <para>
+	      A gateway provides a facade to the client. It presents the underlying system as a single coherent unit even if
+	      that is not the reality. This uniform interface shields the client from complexity it doesn't need to see, like
+	      different partitioning of microservices over time.
+	    </para>
+	    <para>
+	      If different clients need different data, the gateway can also offer multiple views on the same underlying system. 
+	      These are sometimes referred to as <firstterm>experience APIs</firstterm>, because they offer a different 
+	      experience of basically the same API. For instance, a client on the local network can use a fine-grained API, 
+	      while a mobile client connecting over the Internet sees a much coarser-grained interface.
+	    </para>
+	    <para>
+	      A gateway can offer additional services as well. For instance, some gateways handle authentication, so that the 
+	      underlying microservices don't have to. Gateways can also help with evolution of the API, by implementing a
+	      translation of the old into the new API (see <xref linkend="maintenance"/>).
+	    </para>
+	  </simplesect>
+	  <simplesect>
+	    <title>Structure</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/pat-gateway.png" scale="68" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Implementation</title>
+      <para>
+        The API gateway handles requests in one of two ways. Some requests are simply forwarded to the appropriate
+        underlying service, like a proxy would. Other requests are fanned out to multiple services, and the results are 
+        combined into a single response.
+      </para>
+	  </simplesect>
+    <simplesect>
+      <title>Example</title>
+      <para>
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Related Patterns</title>
+      <para>
+        If multiple services need to be called to implement a single request, you may want to call each service in
+        parallel to reduce latency. These calls are good candidates for asynchronous processing (see 
+        <xref linkend="async"/>) and may require polling (see <xref linkend="polling"/>) and/or notifications (see
+        <xref linkend="notifications"/>).
+      </para>
+      <para>
+        It's usually a good idea to correlate the outgoing requests (see <xref linkend="correlation"/>).
+      </para>
+    </simplesect>
   </section>
     
   <section>
