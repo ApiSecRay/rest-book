@@ -28,10 +28,10 @@ public class OrdersControllerSupport {
   private DrinkRepository repository;
   
   public PermittedActions<OrderResource> post(OrderResource input) {
-    if (StringUtils.isBlank(input.getCustomer())) {
+    if (StringUtils.isBlank(input.customer)) {
       throw new MissingCustomerException();
     }
-    ItemResource[] items = input.getItems();
+    ItemResource[] items = input.items;
     if (items == null || items.length == 0) {
       throw new MissingItemException();
     }
@@ -39,7 +39,7 @@ public class OrdersControllerSupport {
     Currency currency = null;
     double total = 0;
     for (ItemResource item : items) {
-      Drink drink = repository.findByName(item.getName());
+      Drink drink = repository.findByName(item.name);
       if (drink == null) {
         throw new UnknownItemException();
       }
@@ -53,9 +53,10 @@ public class OrdersControllerSupport {
     }
     
     OrderResource result = new OrderResource();
-    result.setCurrency(currency.getCurrencyCode());
-    result.setTotal(total);
-    result.setCustomer(input.getCustomer());
+    result.currency = currency.getCurrencyCode();
+    result.total = total;
+    result.customer = input.customer;
+    result.items = items;
     
     return new PermittedActions<OrderResource>(result);
   }
