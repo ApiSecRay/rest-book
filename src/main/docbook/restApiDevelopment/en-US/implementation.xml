@@ -895,6 +895,12 @@ public class OrderController {
         The DTO only needs to change when we need to optimize the message structure for performance reasons, not when
         our understanding of or support for the problem domain changes.
       </para>
+      <para>
+        Input validation is a good tool to prevent problems caused by illegal values being used. But legal values can
+        sometimes also cause problems. For instance, an order may contain so many items that storing it in the database
+        could take a long time. If the service accepts such an order, then it opens the door to a Denial of Service
+        attack (see <xref linkend="security"/>). The validation routines should therefore reject such input.
+      </para>
     </section>
     
     <section id="output-encoding">
