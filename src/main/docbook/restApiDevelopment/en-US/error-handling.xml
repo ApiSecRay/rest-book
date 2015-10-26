@@ -40,8 +40,8 @@
           </para>
           <para>
             The most used status codes in this range are <literal>200 OK</literal>, <literal>201 Created</literal> (see
-            <xref linkend="create"/>), <literal>202 Accepted</literal> (see <xref linkend="async"/>), 
-            <literal>204 No Content</literal>, and <literal>206 Partial Content</literal>.
+            <xref linkend="create"/>), <literal>202 Accepted</literal> (see <xref linkend="async"/>), and 
+            <literal>204 No Content</literal>.
           </para>
         </listitem>
       </varlistentry>
@@ -70,7 +70,7 @@
             there is no resource at the provided URI. 
           </para>
           <para>
-            The most used status codes in this range are <literal>404 Bad Request</literal>, 
+            The most used status codes in this range are <literal>400 Bad Request</literal>, 
             <literal>401 Unauthorized</literal>, (see <xref linkend="authentication"/>), 
             <literal>403 Forbidden</literal> (see <xref linkend="authorization"/>), <literal>404 Not Found</literal>,
             <literal>409 Conflict</literal>, and <literal>412 Precondition Failed</literal> (see 
@@ -109,8 +109,7 @@
       <firstterm>problem details</firstterm>.
     </para>
     <para>
-      Clients must be prepared to handle any error condition, so you should document all problems that may arise when
-      using your API.
+      You should document all problems that may arise when using your API.
       The easiest way to do that, is to assign each error condition a unique error ID, so that clients can write error 
       handling code that dispatches on the error ID. In the HTTP world, IDs are URIs, so we propose that you name your 
       error conditions with URIs. Ideally, these URIs resolve to web addresses where client developers can learn more 
@@ -137,7 +136,7 @@
     <para>
       It's good to inform clients that things didn't go as planned. But we shouldn't stop there. The working model of
       REST is that the server provides the clients options to move toward completing its goal, and there is no reason
-      for error messages to be an exception. If the server knows of ways to help to client fix the problem, it should
+      for error messages to be an exception. If the server knows of ways to help the client fix the problem, it should
       provide options for doing so in the error response.
     </para>
     <para>
@@ -150,7 +149,44 @@
       At other times the client needs a bit more information.
       For instance, when the client orders a drink that is out of stock, the server could propose an alternative that 
       is available. For each error case you need to think hard about how to make the client's life as easy as possible 
-      and what information the server could offer to realize that.
+      and what information the server could offer to realize that recovery approach.
+    </para>
+    <para>
+      We'll discuss security in great detail in <xref linkend="security"/>, but here we must mention a couple of
+      things that are specific to error messages. They all have to do with how much information we should be willing
+      to give out to clients.
+    </para>
+    <para>
+      The first thing to consider is whether merely knowing that a resource exists is sensitive information in and of
+      itself.
+    </para>
+    <para>
+      For example, a Human Resources system may expose a collection of employees that are candidates for a promotion
+      at <literal>/promotions/{function}/{candidate}/</literal>, where 
+      <literal>function</literal> is a job title and <literal>candidate</literal> is an employee badge number. What
+      should be returned if a client asks for <literal>/promotions/distinguished_engineer/072462/</literal> but it 
+      doesn't have permission to know who the candidates are for this promotion?
+    </para>
+    <para>
+      Following our earlier advice, you should return <literal>403 Forbidden</literal>, as this is the most specific 
+      status code that is applicable. While the client won't be able to see the details of the candidate's 
+      application, it can deduce that this particular candidate applied for the promotion, or else it would have
+      received a <literal>404 Not Found</literal> response.
+      In cases like this, it may therefore be safer to return <literal>404 Not Found</literal> so that the client can't 
+      make the distinction.
+    </para>
+    <para>
+      Another common pitfall is to display technical information in error responses, like stack traces for server
+      errors. Although these can be very helpful for debugging purposes, they can also be used by attackers. For
+      instance, a stack trace may reveal that a particular open source component is used and an attacker may then 
+      exploit known vulnerabilities against that component to break into your system. This is called information
+      disclosure and we'll come back to it in <xref linkend="security"/>.
+    </para>
+    <para>
+      The right way to handle this is to log the technical information (see <xref linkend="logging"/>), along with
+      the error instance ID. In the HTTP response, only return a generic error message and the same error instance ID.
+      Developers will now have to look in the log files to find the technical information, which is a little less
+      convenient for them, but you have a much better chance of keeping your system safe.
     </para>
   </section>
   
@@ -158,7 +194,7 @@
     <title>Serializing Error Conditions As Messages</title>
     <para>
       There are two places in the HTTP response where we could conceivably put the problem details: in one or more
-      headers or in the entity-body. There aren't any standard headers defined for this purpose, however. The only one
+      headers or in the entity-body. There aren't any standard headers defined for this purpose. The only one
       that comes close is <literal>Warning</literal>, which is used to carry additional information about the status or 
       transformation of a message that might not be reflected in the status code. 
     </para>
@@ -215,13 +251,13 @@
         <tr>
           <td>detail</td>
           <td>
-            An human readable explanation specific to this occurrence of the problem
+            A human readable explanation specific to this occurrence of the problem
           </td>
         </tr>
         <tr>
           <td>instance</td>
           <td>
-            An absolute URI that identifies the specific occurrence of the problem.  It may or may not yield further
+            An absolute URI that identifies this occurrence of the problem. It may or may not yield further
             information if dereferenced.
           </td>
         </tr>
@@ -278,43 +314,6 @@
       we took the liberty of using the Problem Details specification as a stand-in for a semantic definition. The
       URLs listed don't resolve and will also change should the draft ever become an RFC. This is less than ideal, so
       you could opt to provide your own semantic definitions instead.
-    </para>
-    <para>
-      We'll discuss security in great detail in <xref linkend="security"/>, but here we must mention a couple of
-      things that are specific to error messages. They all have to do with how much information we should be willing
-      to give out to clients.
-    </para>
-    <para>
-      The first thing to consider is whether merely knowing that a resource exists is sensitive information in and of
-      itself.
-    </para>
-    <para>
-      For example, a Human Resources system may expose a collection of employees that are candidates for a promotion
-      at <literal>/promotions/{function}/{candidate}/</literal>, where 
-      <literal>function</literal> is a job title and <literal>candidate</literal> is an employee badge number. What
-      should be returned if a client asks for <literal>/promotions/distinguished_engineer/072462/</literal> but it 
-      doesn't have permission to know who the candidates are for this promotion?
-    </para>
-    <para>
-      Following our earlier advice, you should return <literal>403 Forbidden</literal>, as this is the most specific 
-      status code that is applicable. While the client won't be able to see the details of the candidate's 
-      application, it can deduce that this particular candidate applied for the promotion, or else it would have
-      received a <literal>404 Not Found</literal> response.
-      In cases like this, it may therefore be safer to return <literal>404 Not Found</literal> so that the client can't 
-      make the distinction.
-    </para>
-    <para>
-      Another common pitfall is to display technical information in error responses, like stack traces for server
-      errors. Although these can be very helpful for debugging purposes, they can also be used by attackers. For
-      instance, a stack trace may reveal that a particular open source component is used and an attacker may then 
-      exploit known vulnerabilities against that component to break into your system. This is called information
-      disclosure and we'll come back to it in <xref linkend="security"/>.
-    </para>
-    <para>
-      The right way to handle this is to log the technical information (see <xref linkend="logging"/>), along with
-      the error instance ID. In the HTTP response, only return a generic error message and the same error instance ID.
-      Developers will now have to look in the log files to find the technical information, which is a little less
-      convenient for them, but you have a much better chance of keeping your system safe.
     </para>
   </section>
   
@@ -390,9 +389,9 @@
       prepare early for unpleasant events than to find out about them in production.
     </para>
     <para>
-      It's important to realize what assumptions you're making when you answer the questions. Many errors occur because
-      of assumptions that turned out to be false. This is easier said than done, of course, but simply telling yourself
-      to watch out for hidden assumptions may improve your chances of success.      
+      Many errors occur because of assumptions that were made but turned out to be false, so it's important to realize
+      what assumptions you're making when you answer the questions. This is easier said than done, of course, but
+      simply telling yourself to watch out for hidden assumptions may improve your chances of success.
     </para>
     <para>
       There is one assumption in particular that many people make without being aware of it: that the client is using 
@@ -500,7 +499,7 @@
         <para>
           You may be inclined to exclude such errors from the list, but remember that the underlying assumption is that 
           the client behaves as a good REST client. You may want to monitor when that assumption is violated, so that 
-          you can help misguided client developers and ward off attackers (see <xref linkend="sec-ops"/>). You can
+          you can help misguided client developers and ward off attackers (see <xref linkend="logging"/>). You can
           only monitor what you have identified as worthy of monitoring, so it makes sense to identify these kinds of
           errors even though they shouldn't occur.
         </para>
@@ -652,7 +651,7 @@
 	              <entry>The menu item you requested is temporarily out of stock.</entry>
                 <entry>
                   List the out of stock item so the client can replace or remove it. Link to the menu so the client can 
-                  see is still available.
+                  see what items are available.
                 </entry>
 	            </row>
 	            <row>
@@ -793,7 +792,7 @@
             <entry>The menu item you requested is temporarily out of stock.</entry>
             <entry>
               List the out of stock item so the client can replace or remove it. Link to the menu so the client can 
-              see is still available.
+              see what items are available.
             </entry>
           </row>
           <row>

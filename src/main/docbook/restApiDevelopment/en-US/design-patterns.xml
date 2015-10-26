@@ -1621,9 +1621,9 @@ Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
 	      approaches like SOAP and REST.
 	    </para>
 	    <para>
-	      A gateway provides a facade to the client. It presents the underlying system as a single coherent unit even if
-	      that is not the reality. This uniform interface shields the client from complexity it doesn't need to see, like
-	      different partitioning of microservices over time.
+	      A gateway provides a <firstterm>facade</firstterm> to the client: it presents the underlying system as a single 
+	      coherent unit even if that is not the reality. This unified interface shields the client from complexity it 
+	      doesn't need to see, like different partitionings of microservices over time.
 	    </para>
 	    <para>
 	      If different clients need different data, the gateway can also offer multiple views on the same underlying system. 
@@ -1656,11 +1656,6 @@ Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
       </para>
 	  </simplesect>
     <simplesect>
-      <title>Example</title>
-      <para>
-      </para>
-    </simplesect>
-    <simplesect>
       <title>Related Patterns</title>
       <para>
         If multiple services need to be called to implement a single request, you may want to call each service in
@@ -1669,7 +1664,7 @@ Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
         <xref linkend="notifications"/>).
       </para>
       <para>
-        It's usually a good idea to correlate the outgoing requests (see <xref linkend="correlation"/>).
+        Multiple outgoing requests should be correlated to the same incoming request (see <xref linkend="correlation"/>).
       </para>
     </simplesect>
   </section>
@@ -1683,7 +1678,7 @@ Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
       methodology.
     </para>
     <para>
-      Some of the non-functional requirements make a big impact on an API's chances of success. We will look at 
+      Some non-functional requirements have a big impact on an API's chances of success. We will look at 
       them next in <xref linkend="error"/>, <xref linkend="performance"/>, and <xref linkend="security"/>.
     </para>
   </section>

@@ -1,6 +1,7 @@
 <chapter id="client">
   <title>REST Clients</title>
   <!-- TODO: Talk about storing application state -->
+  <!-- TODO: Client must be able to handle any status code -->
   <para>
     A <firstterm>REST client</firstterm> uses a REST API to achieve its goals by following the general flow depicted in
     <xref linkend="client-flow"/>. This model is a generalization of the Web, where the client is a browser driven by a
