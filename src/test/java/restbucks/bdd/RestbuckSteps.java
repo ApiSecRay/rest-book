@@ -63,6 +63,7 @@ public class RestbuckSteps {
     order.customer = customer;
     order.items = new ItemResource[] { item };
     resource = client.post(order, Api.LINK_REL_ORDERACTION).toObject(OrderResource.class);
+    // TODO: assertEquals("Status", 201, client.getStatusCode());
   }
 
   private ItemResource findMenuItem(ItemResource item) {
@@ -113,8 +114,8 @@ public class RestbuckSteps {
     result.paymentMethod = "creditcard";
     result.cardholderName = "C.C. Conway";
     result.cardNumber = "5525366617069778";
-    result.expiryYear = (double)2019;
-    result.expiryMonth = (double)6;
+    result.expiryYear = 2019;
+    result.expiryMonth = 6;
     result.cardSecurityCode = "836";
     return result;
   }

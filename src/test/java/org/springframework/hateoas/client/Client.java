@@ -207,6 +207,11 @@ public class Client {
     return result;
   }
 
+  public int getStatusCode() {
+    return response.getStatusCode().value();
+  }
+
+  
   public class Action {
 
     private final String rel;

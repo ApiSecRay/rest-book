@@ -3,22 +3,21 @@
  */
 package restbucks.rest.serving;
 
-import org.springframework.stereotype.Service;
-
-import restbucks.rest.impl.Actions;
-import restbucks.rest.impl.PermittedActions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import restbucks.rest.impl.PermittedActions;
 
 
 @Service
 public class ServingControllerSupport {
 
-  public ResponseEntity<Void> delete() {
+  public ResponseEntity<Void> delete(String orderId) {
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  public PermittedActions<ServingResource> get() {
+  public PermittedActions<ServingResource> get(String orderId) {
     ServingResource result = new ServingResource();
     // result.setXxx();
     PermittedActions<ServingResource> permittedActions = new PermittedActions<ServingResource>(result);

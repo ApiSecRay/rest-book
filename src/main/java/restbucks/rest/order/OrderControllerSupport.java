@@ -3,23 +3,22 @@
  */
 package restbucks.rest.order;
 
-import org.springframework.stereotype.Service;
-
-import restbucks.rest.impl.Actions;
-import restbucks.rest.serving.ServingResource;
-import restbucks.rest.impl.PermittedActions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import restbucks.rest.impl.PermittedActions;
+import restbucks.rest.serving.ServingResource;
 
 
 @Service
 public class OrderControllerSupport {
 
-  public ResponseEntity<Void> delete() {
+  public ResponseEntity<Void> delete(String orderId) {
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  public PermittedActions<ServingResource> get() {
+  public PermittedActions<ServingResource> get(String orderId) {
     ServingResource result = new ServingResource();
     // result.setXxx();
     PermittedActions<ServingResource> permittedActions = new PermittedActions<ServingResource>(result);
@@ -27,7 +26,7 @@ public class OrderControllerSupport {
     return permittedActions;
   }
 
-  public PermittedActions<OrderResource> put(OrderResource input) {
+  public PermittedActions<OrderResource> put(String orderId, OrderResource input) {
     OrderResource result = new OrderResource();
     // result.setXxx();
     PermittedActions<OrderResource> permittedActions = new PermittedActions<OrderResource>(result);
