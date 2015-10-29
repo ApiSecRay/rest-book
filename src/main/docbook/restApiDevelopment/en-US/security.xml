@@ -7,7 +7,7 @@
     read-only data, you must secure it.
   </para>
   <para>
-    Security consists of three factors, collectively known as the CIA-triad:
+    <firstterm>Security</firstterm> consists of three factors, collectively known as the CIA-triad:
   </para>
   <variablelist>
     <varlistentry>
@@ -79,7 +79,7 @@
       As with many other non-functional requirements, security is best built in rather than bolted on after the fact
       <citation>McGraw06</citation>.
       Preventing design flaws is the subject of this chapter, while we look at bugs with security implications in
-      <xref linkend="implementation"/>. Both activities should be part of a development approach that considers 
+      <xref linkend="secure-impl"/>. Both activities should be part of a development approach that considers 
       security at every step, what Microsoft calls a <firstterm>Security Development Lifecycle</firstterm> 
       <citation>SDL</citation>.
     </para>
@@ -102,7 +102,7 @@
         <para>Model the system.</para>
         <para>
           In this step you think about what you're going to build. Since it's the data that we're trying to protect,
-          most threat models start by looking at the various ways data flows through the system.
+          most threat models start by looking at the various ways data flows through the system and is stored.
         </para>
         <para>
           The notation that's most often used for this is a diagram called a <firstterm>Data Flow Diagram</firstterm>
@@ -126,7 +126,7 @@
           and/or back. We inventoried the data that flows across the transitions in <xref linkend="design-messages"/>.
         </para>
         <para>
-          With the actors, transitions, and messages, we have the basic building blocks for the model of the API, 
+          With the personas, transitions, and messages, we have the basic building blocks for the model of the API, 
           without having to wait for implementation details like we would with a DFD.
         </para>
       </step>
@@ -162,12 +162,12 @@
         </para>
         <para>
           The nodes in an attack tree can be combined either by AND or by OR. You'll likely need both, so you need some
-          way to visualize the relationship. There currently is no standard way of doing that, unfortunately, so you 
-          should document your approach.
+          way to visualize the relationship. Attack trees can be visualized as graphic trees, as textual outlines, as 
+          mind maps, or even as data structures that computer programs can analyze. Unfortunately, there is no standard 
+          for visualizing attack trees, so you should clearly document your approach.
         </para>
         <para>
-          Attack trees can be visualized as graphic trees, as textual outlines, as mind maps, or even as data 
-          structures that computer programs can analyze.
+          
         </para>
         <para>
           Attack trees are an attractive way to visualize threats, but they have some problems as well. The principal
@@ -196,7 +196,7 @@
         <para>
           Examples of broadly applicable attack libraries are the OWASP Top 10 and the SANS Top 25 
           <citation>Owasp</citation>, <citation>Sans</citation>. Mature security organizations may have developed their 
-          own attack libraries that are more tailored to their situation.
+          own attack libraries that are tailored to the specifics of their situation.
         </para>
       </step>
       <step>

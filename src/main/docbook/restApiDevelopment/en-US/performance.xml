@@ -276,6 +276,11 @@
       connectedness, a large value of <literal>depth</literal> may drain your server of resources and be used as a
       denial of service attack (see <xref linkend="security"/>). Again, use input validation to prevent such attacks.
     </para>
+    <para>
+      If you decide to make your messages less granular, you may think about introducing an API gateway (see 
+      <xref linkend="gateway"/>) as a translation layer in between the client and server. The gateway can then translate
+      one incoming call into multiple finer-grained calls to the server and merge the responses.
+    </para>
   </section>
   
   <section id="return-representation">
@@ -654,7 +659,7 @@
       <listitem>
 		    <para>
 		      If the request is secured using HTTPS (see <xref linkend="cryptography"/>), it won't be cached either.
-		      This is a major problem for REST APIs, that often must use HTTPS to protect sensitive content.
+		      This is a major problem for REST APIs, which often must use HTTPS to protect sensitive content.
 		      You can solve this problem by terminating the HTTPS connection at the load balancer, and then have the load 
 		      balancer route the traffic to a cluster of caching proxies rather than the origin servers. We discuss
 		      load balancers in <xref linkend="load-balancing"/>.
@@ -697,7 +702,7 @@
       This realization led people to devise other ways of handling requests than using a thread per request. The
       difference in performance between the Nginx and Apache web servers, for example, is a clear indicator that there 
       is much to be gained from pursuing such alternatives. The Node.js server is another good example. We'll discuss
-      these more modern approaches in <xref linkend="controller"/>.
+      these so-called reactive programming approaches in <xref linkend="controller"/>.
     </para>
     <para>
       Even with reactive programming, though, there are downsides to serving large messages. The number of TCP 
@@ -718,7 +723,7 @@
         <term><literal>Accept-Ranges</literal></term>
         <listitem>
           <para>
-            This response header field allows a server to indicate that it supports range requests for the target 
+            This response header allows a server to indicate that it supports range requests for the target 
             resource. The value of the header is either <literal>none</literal> to indicate that range requests are not 
             allowed, or a unit of ranges. The only unit defined by the HTTP specification is <literal>bytes</literal>.
           </para>
@@ -732,7 +737,7 @@
         <term><literal>Range</literal></term>
         <listitem>
           <para>
-            This request header field on modifies the semantics of the <literal>GET</literal> method to request 
+            This request header modifies the semantics of the <literal>GET</literal> method to request the 
             transfer of only one or more subranges of the selected representation data, rather than the entire selected
             representation data. The value consists of one or more ranges of bytes.
           </para>
@@ -758,7 +763,7 @@
         <term><literal>If-Range</literal></term>
         <listitem>
           <para>
-            This request header field can be used to make a <firstterm>conditional range request</firstterm>. If the 
+            This request header can be used to make a <firstterm>conditional range request</firstterm>. If the 
             representation is unchanged, the requested ranges are returned. If, however, the representation has 
             changed, the entire representation is returned.
           </para>
@@ -771,7 +776,7 @@
         <term><literal>Content-Range</literal></term>
         <listitem>
           <para>
-            This response header field describes what range of the selected representation is enclosed. This may be
+            This response header describes what range of the selected representation is enclosed. This may be
             different from the requested range, for instance when the client left out the starting or ending position,
             or when the client requested more bytes than the representation contains.
           </para>
@@ -781,7 +786,7 @@
             may send an asterisk (<literal>*</literal>) instead, e.g. <literal>bytes 0-500/*</literal>.
           </para>
           <para>
-            This response header field must only be used if the server returns a single range. For multiple ranges,
+            This response header must only be used if the server returns a single range. For multiple ranges,
             the server must use the <literal>multipart/byteranges</literal> media type, which is another variation of 
             the multipart media types we saw in <xref linkend="batch"/>. Each body part will contain the 
             <literal>Content-Range</literal> header with the range for that part.
@@ -796,10 +801,10 @@
       parts (typically around 80 bytes).
     </para>
     <para>
-      If the <literal>Range</literal> header field contains an invalid range, e.g. where the starting position is
+      If the <literal>Range</literal> header contains an invalid range, e.g. where the starting position is
       greater than the ending position, then the server should return <literal>416 Range Not Satisfiable</literal>. It
       should also return this status if none of the requested ranges overlap the current representation's length. A
-      server may return <literal>200 OK</literal> with the complete representation instead. 
+      server may choose to return <literal>200 OK</literal> with the complete representation instead. 
     </para>
     <para>
       Whenever a <literal>416 Range Not Satisfiable</literal> status is returned, the server should also include the

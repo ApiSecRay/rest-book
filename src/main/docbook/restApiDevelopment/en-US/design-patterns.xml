@@ -1604,7 +1604,7 @@ Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
     </simplesect>
   </section>
 
-  <section>
+  <section id="gateway">
     <title>Gateway</title>
     <simplesect>
       <title>Intent</title>
