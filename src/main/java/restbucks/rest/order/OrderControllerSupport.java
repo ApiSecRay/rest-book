@@ -4,7 +4,6 @@
 package restbucks.rest.order;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import restbucks.rest.impl.RestResponse;
@@ -14,24 +13,28 @@ import restbucks.rest.serving.ServingResource;
 @Service
 public class OrderControllerSupport {
 
-  public ResponseEntity<Void> delete(String orderId) {
-    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+  public RestResponse<Void> delete(String orderId) {
+    RestResponse<Void> response = new RestResponse<Void>(null);
+    response.setStatus(HttpStatus.NO_CONTENT);
+    return response;
   }
 
   public RestResponse<ServingResource> get(String orderId) {
     ServingResource result = new ServingResource();
-    // result.setXxx();
-    RestResponse<ServingResource> RestResponse = new RestResponse<ServingResource>(result);
-    // RestResponse.exclude(Actions.YYY);
-    return RestResponse;
+    // result.xxx = ...;
+    RestResponse<ServingResource> response = new RestResponse<ServingResource>(result);
+    // response.deny(Actions.YYY);
+    // response.setStatus(HttpStatus.ZZZ);
+    return response;
   }
 
   public RestResponse<OrderResource> put(String orderId, OrderResource input) {
     OrderResource result = new OrderResource();
-    // result.setXxx();
-    RestResponse<OrderResource> RestResponse = new RestResponse<OrderResource>(result);
-    // RestResponse.exclude(Actions.YYY);
-    return RestResponse;
+    // result.xxx = ...;
+    RestResponse<OrderResource> response = new RestResponse<OrderResource>(result);
+    // response.deny(Actions.YYY);
+    // response.setStatus(HttpStatus.ZZZ);
+    return response;
   }
 
 }

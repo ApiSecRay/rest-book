@@ -3,13 +3,9 @@ package restbucks.bdd;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Calendar;
-
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.jbehave.core.annotations.Given;
 import org.jbehave.core.annotations.Then;
@@ -63,7 +59,6 @@ public class RestbuckSteps {
     order.customer = customer;
     order.items = new ItemResource[] { item };
     resource = client.post(order, Api.LINK_REL_ORDERACTION).toObject(OrderResource.class);
-    // TODO: assertEquals("Status", 201, client.getStatusCode());
   }
 
   private ItemResource findMenuItem(ItemResource item) {
@@ -93,9 +88,14 @@ public class RestbuckSteps {
 
   @Then("she is due $currency $total")
   public void assertOrderTotal(String currency, double total) {
+    assertCreated();
     OrderResource order = (OrderResource)resource;
     assertEquals("Total", total, order.total, 0.01);
     assertEquals("Currency", currency, order.currency);
+  }
+
+  private void assertCreated() {
+    assertEquals("Status", 201, client.getStatusCode());
   }
 
   @When("she pays")
@@ -122,19 +122,19 @@ public class RestbuckSteps {
 
   @Then("she is handed a receipt")
   public void assertReceipt() {
+    assertCreated();
     ReceiptResource receipt = (ReceiptResource)resource;
-    assertEquals("Total", paidAmount, receipt.total, 0.01);
     assertEquals("Currency", paidCurrency, receipt.currency);
-    assertEquals("Date", today(), receipt.dateTime);
-  }
+    assertEquals("Total", paidAmount, receipt.total, 0.01);
+    assertEquals("Shop", "RESTBucks", receipt.shop);
 
-  private XMLGregorianCalendar today() {
-    XMLGregorianCalendar result = mock(XMLGregorianCalendar.class);
+    /* TODO:
     Calendar today = Calendar.getInstance();
-    result.setYear(today.get(Calendar.YEAR));
-    result.setMonth(today.get(Calendar.MONTH) + 1);
-    result.setDay(today.get(Calendar.DAY_OF_MONTH));
-    return result;
+    assertNotNull("Missing dateTime", receipt.dateTime);
+    assertEquals("Year", today.get(Calendar.YEAR), receipt.dateTime.getYear());
+    assertEquals("Month", today.get(Calendar.MONTH) + 1, receipt.dateTime.getMonth());
+    assertEquals("Day", today.get(Calendar.DATE), receipt.dateTime.getDay());
+    */
   }
 
   @When("she takes the receipt")

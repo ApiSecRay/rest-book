@@ -3,26 +3,28 @@
  */
 package restbucks.rest.serving;
 
+import org.springframework.stereotype.Service;
+import restbucks.rest.impl.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
-import restbucks.rest.impl.RestResponse;
 
 
 @Service
 public class ServingControllerSupport {
 
-  public ResponseEntity<Void> delete(String orderId) {
-    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+  public RestResponse<Void> delete(String orderId) {
+    RestResponse<Void> response = new RestResponse<Void>(null);
+    response.setStatus(HttpStatus.NO_CONTENT);
+    return response;
   }
 
   public RestResponse<ServingResource> get(String orderId) {
     ServingResource result = new ServingResource();
-    // result.setXxx();
-    RestResponse<ServingResource> RestResponse = new RestResponse<ServingResource>(result);
-    // RestResponse.exclude(Actions.YYY);
-    return RestResponse;
+    // result.xxx = ...;
+    RestResponse<ServingResource> response = new RestResponse<ServingResource>(result);
+    // response.deny(Actions.YYY);
+    // response.setStatus(HttpStatus.ZZZ);
+    return response;
   }
 
 }

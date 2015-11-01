@@ -10,8 +10,12 @@ import javax.persistence.Table;
 
 import restbucks.domain.DomainObject;
 import restbucks.domain.menu.Drink;
+import restbucks.domain.payment.Payment;
+import restbucks.rest.impl.AlreadyPaidException;
+import restbucks.rest.impl.InvalidPaymentException;
 import restbucks.rest.impl.MissingCustomerException;
 import restbucks.rest.impl.MissingItemException;
+import restbucks.rest.impl.OverpaidException;
 
 
 @Entity
@@ -21,6 +25,7 @@ public class Order extends DomainObject {
   private String customer;
   @ManyToMany
   private Collection<Drink> drinks;
+  private double paidAmount;
 
   protected Order() {
     // For JPA
@@ -45,6 +50,10 @@ public class Order extends DomainObject {
     return drinks;
   }
 
+  public double getPaidAmount() {
+    return paidAmount;
+  }
+
   public MonetaryAmount getCost() {
     Iterator<Drink> iterator = drinks.iterator();
     MonetaryAmount result = iterator.next().getCost();
@@ -54,6 +63,26 @@ public class Order extends DomainObject {
     return result;
   }
 
+  public void acceptPayment(Payment payment) {
+    MonetaryAmount cost = getCost();
+    double totalAmount = cost.getNumber().doubleValue();
+    if (totalAmount <= paidAmount) {
+      throw new AlreadyPaidException();
+    }
+    if (!cost.getCurrency().getCurrencyCode().equals(payment.getCurrencyCode())) {
+      throw new InvalidPaymentException();
+    }
+    double payingAmount = payment.getAmount();
+    if (payingAmount > totalAmount - paidAmount) {
+      throw new OverpaidException();
+    }
+    if (payingAmount < totalAmount - paidAmount) {
+      // For now only accept payments for the whole amount
+      throw new InvalidPaymentException();
+    }
+    paidAmount += payingAmount;
+  }
+  
   @Override
   public String toString() {
     return customer + " ordered " + drinks;

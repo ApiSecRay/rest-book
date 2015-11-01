@@ -9,6 +9,7 @@ import java.util.Collection;
 import javax.money.MonetaryAmount;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import restbucks.domain.menu.Drink;
@@ -41,6 +42,7 @@ public class OrdersControllerSupport {
     
     RestResponse<OrderResource> result = new RestResponse<OrderResource>(payload);
     result.setParameter("orderId", order.getId());
+    result.setStatus(HttpStatus.CREATED);
     return result;
   }
 
