@@ -5,19 +5,19 @@ package restbucks.rest.payment;
 
 import org.springframework.stereotype.Service;
 
-import restbucks.rest.impl.PermittedActions;
+import restbucks.rest.impl.RestResponse;
 import restbucks.rest.receipt.ReceiptResource;
 
 
 @Service
 public class PaymentsControllerSupport {
 
-  public PermittedActions<ReceiptResource> post(String orderId, PaymentResource input) {
+  public RestResponse<ReceiptResource> post(String orderId, PaymentResource input) {
     ReceiptResource result = new ReceiptResource();
     // result.setXxx();
-    PermittedActions<ReceiptResource> permittedActions = new PermittedActions<ReceiptResource>(result);
-    // permittedActions.exclude(Actions.YYY);
-    return permittedActions;
+    RestResponse<ReceiptResource> RestResponse = new RestResponse<ReceiptResource>(result);
+    // RestResponse.exclude(Actions.YYY);
+    return RestResponse;
   }
 
 }

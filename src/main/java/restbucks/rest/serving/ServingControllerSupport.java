@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import restbucks.rest.impl.PermittedActions;
+import restbucks.rest.impl.RestResponse;
 
 
 @Service
@@ -17,12 +17,12 @@ public class ServingControllerSupport {
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  public PermittedActions<ServingResource> get(String orderId) {
+  public RestResponse<ServingResource> get(String orderId) {
     ServingResource result = new ServingResource();
     // result.setXxx();
-    PermittedActions<ServingResource> permittedActions = new PermittedActions<ServingResource>(result);
-    // permittedActions.exclude(Actions.YYY);
-    return permittedActions;
+    RestResponse<ServingResource> RestResponse = new RestResponse<ServingResource>(result);
+    // RestResponse.exclude(Actions.YYY);
+    return RestResponse;
   }
 
 }

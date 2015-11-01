@@ -15,7 +15,7 @@ import restbucks.domain.menu.Drink;
 import restbucks.domain.menu.DrinkRepository;
 import restbucks.domain.order.Order;
 import restbucks.domain.order.OrderRepository;
-import restbucks.rest.impl.PermittedActions;
+import restbucks.rest.impl.RestResponse;
 import restbucks.rest.impl.UnknownItemException;
 import restbucks.rest.item.ItemResource;
 
@@ -28,18 +28,20 @@ public class OrdersControllerSupport {
   @Autowired
   private OrderRepository orders;
   
-  public PermittedActions<OrderResource> post(OrderResource input) {
+  public RestResponse<OrderResource> post(OrderResource input) {
     Order order = new Order(input.customer, toDrinks(input));
     order = orders.save(order);
     
     MonetaryAmount cost = order.getCost();
-    OrderResource result = new OrderResource();
-    result.customer = input.customer;
-    result.items = input.items;
-    result.total = cost.getNumber().doubleValue();
-    result.currency = cost.getCurrency().getCurrencyCode();
+    OrderResource payload = new OrderResource();
+    payload.customer = input.customer;
+    payload.items = input.items;
+    payload.total = cost.getNumber().doubleValue();
+    payload.currency = cost.getCurrency().getCurrencyCode();
     
-    return new PermittedActions<OrderResource>(result);
+    RestResponse<OrderResource> result = new RestResponse<OrderResource>(payload);
+    result.setParameter("orderId", order.getId());
+    return result;
   }
 
   private Collection<Drink> toDrinks(OrderResource order) {

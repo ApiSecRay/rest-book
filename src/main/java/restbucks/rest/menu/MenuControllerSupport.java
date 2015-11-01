@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import restbucks.domain.menu.Drink;
 import restbucks.domain.menu.DrinkRepository;
 import restbucks.domain.menu.MenuItem;
-import restbucks.rest.impl.PermittedActions;
+import restbucks.rest.impl.RestResponse;
 import restbucks.rest.item.ItemResource;
 
 
@@ -22,8 +22,8 @@ public class MenuControllerSupport {
   @Autowired
   private DrinkRepository repository;
   
-  public PermittedActions<MenuResource> get() {
-    return new PermittedActions<MenuResource>(getMenu());
+  public RestResponse<MenuResource> get() {
+    return new RestResponse<MenuResource>(getMenu());
   }
 
   private MenuResource getMenu() {

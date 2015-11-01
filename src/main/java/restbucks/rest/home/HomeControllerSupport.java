@@ -5,14 +5,14 @@ package restbucks.rest.home;
 
 import org.springframework.stereotype.Service;
 
-import restbucks.rest.impl.PermittedActions;
+import restbucks.rest.impl.RestResponse;
 
 
 @Service
 public class HomeControllerSupport {
 
-  public PermittedActions<HomeResource> get() {
-    return new PermittedActions<HomeResource>(new HomeResource());
+  public RestResponse<HomeResource> get() {
+    return new RestResponse<HomeResource>(new HomeResource());
   }
 
 }
