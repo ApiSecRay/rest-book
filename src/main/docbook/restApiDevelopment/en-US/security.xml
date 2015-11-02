@@ -523,8 +523,8 @@
       but as a digest.
       <footnote>
         <para>
-          As a salted digest, to be precise. A salt is random data that is used as an additional input to a hash
-          function, so that hashing the same password twice results in two different digests.
+          As a salted digest, to be precise. A <firstterm>salt</firstterm> is random data that is used as an additional 
+          input to a hash function, so that hashing the same password twice results in two different digests.
         </para>
       </footnote>
     </para>
@@ -619,6 +619,7 @@
         The server validates the signature using the procedure described in <xref linkend="cryptography"/>. See
         <xref linkend="digest-auth"/>.
       </para>
+      <!-- TODO: Fix spelling in image -->
       <figure id="digest-auth">
         <mediaobject>
           <imageobject>
@@ -696,8 +697,8 @@
         The encryption part of the signing process may be performed using either a symmetric key or the private key of
         a public/private key pair. We advise to use asymmetric keys, so that in the event the server's database of keys
         gets compromised, you haven't given away any information that attackers can use. The key you store is the public
-        key rather than a secret key, after all. (Of course, you must still protect the private keys of the clients, but
-        those are not all stored in a single location.)
+        key rather than a secret key, after all. (Of course, the private keys of the clients must still be protected,
+        but that is the responsibility of the client, so they are not all stored in a single location.)
       </para>
       <para>
         A digital signature not only proves the identity of the sender of a message, but also the integrity of the
@@ -716,7 +717,7 @@
         operates with the same permissions irrespective of the user it operates on behalf of. Unfortunately, there are
         many situations where that is not acceptable.
       </para>
-      <para>TODO: FIDO</para>
+      <!-- TODO: FIDO -->
     </section>
 
     <section id="oauth">
@@ -932,7 +933,7 @@
       <xref linkend="bdd"/> can be a good start.
     </para>
     <para>
-      Our goal with RBAC is to group users based on the level of access that we want to give them. We should segment
+      The goal of using RBAC is to group users based on the level of access that we want to give them. We should segment
       our users into groups in such a way that no one person can do something disastrous on their own. This is known as
       <firstterm>Separation of Duties</firstterm> or <firstterm>Segregation of Duties</firstterm>. It is an important 
       tool in the fight against fraud and accidental errors.
@@ -966,14 +967,15 @@
     <para>
       You can also make your access control policies <firstterm>context-aware</firstterm> by capturing the
       context in attributes. For instance, when I'm bleeding to death on the street after being hit by a car, I would
-      want any doctor to see all of my medical data so he can save my life. We could capture that with an emergency
-      attribute ("break the glass") and have policies around that which allow acces with the obligation to log it.
+      want any doctor to see all of my medical data so they can save my life. We could capture that with an emergency
+      attribute ("break the glass") and have policies around it with additional protection, like the obligation to log 
+      the access request.
     </para>
     <para>
-      Other examples of context include the time of day in a policy that only allows access during business hours, the
-      device used to access the service, or the strength of authentication (e.g. was two-factor authentication used).
-      Maybe we want to give only read access to a sensitive document when you're abroad, or no access at all if your IP
-      address indicates you're abroad, while your agenda shows you should be in the country.
+      Other examples of context include the time of day (e.g. in a policy that only allows access during business hours), 
+      the device used to access the service, or the strength of authentication (e.g. was two-factor authentication 
+      used). Maybe we want to give only read access to a sensitive document when you're abroad, or no access at all if
+      your IP address indicates you're abroad, while your agenda shows you should be in the country.
     </para>
     <para>
       Whether you use ACLs, RBAC, or ABAC, you should always make sure to give people just enough permissions to
@@ -1093,19 +1095,20 @@
       Even with signed audit records we may still not be out of the woods. We must also protect audit records against
       malicious input that could change the meaning. For instance, if each audit record is stored as a single line in a
       text file, then a message containing a newline may make it look like multiple audit records were written.
-      This attack is known as <firstterm>log forging</firstterm>. The mitigating control against this vulnerability is
-      to do proper output encoding, as we'll discuss in <xref linkend="output-encoding"/>.
+      This attack is known as <firstterm>log forging</firstterm>. We'll discuss the mitigation control against these 
+      types of attacks in <xref linkend="output-encoding"/>.
     </para>
     <para>
       With a tamper-proof audit trail in place we can in theory detect malicious activity by insiders. To turn theory
       into practice, we should employ alerting to notify a broad group of administrators when something fishy is going
       on (see <xref linkend="sec-ops"/>). If you only notify one person, then you put that person in a position of
-      power, which could be abused.
+      power, which could be abused. This is the principle of segragation of duties at work.
     </para>
     <para>
       In some cases, it may make sense to make the audit trail available to clients. That allows them to monitor the
       activities of people on their end and alert on suspicious behavior. If your API serves more than one customer,
-      then it is imperative that you only show audit records for the customer requesting the audit trail.
+      then it is imperative that you only show audit records for the customer requesting the audit trail. IOW, you
+      should employ proper authorization.
     </para>
     <para>
       What events to audit depends on your API, but there are some general guidelines. Any activity with security 
