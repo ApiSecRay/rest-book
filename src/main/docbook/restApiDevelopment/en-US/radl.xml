@@ -4,11 +4,11 @@
   <section id="api-description">
     <title>API Description Languages</title>
     <para>
-      The ever increasing number of APIs makes it worth while to develop an ecosystem of tools that aid humans in
+      The ever increasing number of APIs makes it worthwhile to develop an ecosystem of tools that aid humans in
       working with APIs.
     </para>
     <para>
-      One tool could produce human-readable documentation, usually in HTML or PDF form, that supports client developers.
+      One tool could produce human-readable documentation, say in HTML or PDF form, that supports client developers.
       Another tool could produce skeleton code for a server implementing the API, a client consuming it, or an SDK 
       for developing a client for it (see <xref linkend="sdk"/>). Yet another tool could test whether a server 
       implements the documented API correctly. Another one could fuzz requests
@@ -21,7 +21,7 @@
       deployment pipeline <citation>HumbleFarley10</citation>.
     </para>
     <para>
-      All these tools need to understand the APIs they're managing, which means we need to be able to describe APIs in a
+      All these tools need to understand the APIs they work with, which means we need to be able to describe APIs in a
       machine-processable way. A language for doing so is known as an <firstterm>API description language</firstterm>.
     </para>
     <para>
@@ -39,14 +39,14 @@
         <para>
           The API description language must be able to describe APIs on the highest levels (3 and 4) of the maturity 
           model (see <xref linkend="maturity"/>). It would be nice if it can also describe lower levels, but that
-          doesn't have much priority, since we want to encourage higher-level APIs.
+          doesn't have much priority for us since we want to encourage higher-level APIs.
         </para>
       </listitem>
       <listitem>
         <para>
           The description language must be machine-processable, so that it can support tools. It would be nice if the
-          language is also somewhat human-readable, but that is not a priority, since the tools (editors) can hide most
-          if not all of the syntax.
+          language is also somewhat human-readable, but that is not a priority since editing tools can hide most
+          (if not all) of the syntax.
         </para>
       </listitem>
       <listitem>
@@ -60,8 +60,8 @@
         <para>
           The language should support both the design-first and the code-first style of API development. In this book, 
           we're focusing on design-first, because that's a more convenient approach to teach. It is not the only way, 
-          however, or even the best way in all situations. For existing projects, it can be much more convenient to work 
-          your way back from the already existing code to arrive at a design and then improve or expand the design.
+          however, or the best way in every situation. For existing projects, it can be much more convenient to work 
+          your way back from the code that already exists to arrive at a design and then improve or expand the design.
           This is especially true when there is no design documentation, or when that documentation is out-of-date.
         </para>
       </listitem>
@@ -83,8 +83,9 @@
     <para>
       <xref linkend="api-description-languages"/> shows how the existing API description languages score on these
       requirements. Only RADL supports semantic profiles and only RADL guides the API designer. It scores about
-      the same as other API description languages on the other criteria. In our view that makes it the winner. In the
-      interest of full disclosure we should mention that the author is a RADL contributor.
+      the same as other API description languages on the other criteria. In our view that makes it the winner, but we
+      are RADL contributors so we may be biased. Hopefully the criteria listed above will help you make your own
+      informed decision.
     </para>
     <para>
       One potential downside of RADL is that its community is much smaller than that of some of the others, in
@@ -155,9 +156,9 @@
       describe semantic, hypermedia-driven APIs (level 4).
     </para>
     <para>
-      The RADL language and tooling around it are open source. At the time of writing, the 
-      tools are far from complete, but functional enough for some real world use cases. The RADL community keeps adding
-      more capabilities and encourages feedback and contributions.
+      The RADL language and tooling around it are open source. At the time of writing, the tools are incomplete but
+      functional enough for real world usage. The RADL community keeps adding more capabilities and encourages feedback
+      and contributions.
     </para>
     <para>
       The RADL language has a place for all the concepts described in this book. Here's the basic structure: 
@@ -197,10 +198,10 @@
     <para>
       Items in RADL are identified by name. This is true for states and transitions and many other elements that we
       will see shortly. The name is captured in the <literal>name</literal> attribute of the element. The value of
-      this attribute is a human-readable string. Some elements can refer to other elements using their name.
+      this attribute is a human-readable string. Some elements can refer to other elements by name.
     </para>
     <para>
-      Many items in RADL, like states and transitions, support the <literal>&lt;documentation&gt;</literal> element that 
+      Most items in RADL, like states and transitions, support the <literal>&lt;documentation&gt;</literal> element that 
       contains information that is intended to be read by a human. Documentation is mostly meant for client developers 
       that program against the REST API, but it can also be used for other purposes, like giving information to server
       developers. 
@@ -215,13 +216,12 @@
     <para>
       The <literal>&lt;link-relation&gt;</literal> element contains the transitions implemented by the 
       link relation. A client developer can use the state diagram to determine how to accomplish its goal, and then
-      discover the link relations the client must follow to transition to the subsequent states. (Don't worry, the
-      tooling around RADL takes care of that for you and presents you with easy to consume information without you 
-      having to manually hunt down references.)
+      discover the link relations the client must follow to transition to the subsequent states. The tooling around
+      presents this information in an easy to consume way so that you don't have to manually hunt down references.
     </para>
     <para>
-      The structure of the data exchanged between client and server is captured in the 
-      <literal>&lt;property-groups&gt;</literal> section. Each property group holds a list of properties and nested
+      The structure of the data that is exchanged between client and server is captured in the 
+      <literal>&lt;property-groups&gt;</literal> section. Each property group holds a list of properties and/or nested
       property groups.
       Each <literal>&lt;property-group&gt;</literal> and <literal>&lt;property&gt;</literal> element may contain a
       <literal>uri</literal> attribute that points to the semantic definition of the property (group).
@@ -234,7 +234,7 @@
       state model so that they can be re-used, as we saw in <xref linkend="design-messages"/>.
     </para>
     <para>
-      Next up is a list of media types used. Most APIs will have a primary media type that they use for most messages.
+      Next up is a list of media types used. Most APIs will have a default media type that they use for most messages.
       An API may also occasionally use other media types, for instance for uploading documents. Like a 
       <literal>&lt;link-relation&gt;</literal>, a <literal>&lt;media-type&gt;</literal> element may contain a 
       <literal>&lt;specification&gt;</literal>.
