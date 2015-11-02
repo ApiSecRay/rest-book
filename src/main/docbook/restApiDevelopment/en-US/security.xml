@@ -1120,7 +1120,7 @@
       Speaking of storage, audit records can easily add up. You will probably want to keep them around for some 
       limited time and then dispose of them. You may be subject to laws and regulations that govern how long you need
       to retain information, so do your homework. Conversely, some laws and regulations may also set an upper bound on
-      how long you retain information, effectively forcing you to dispose of it after a certain period.
+      how long you are allowed to retain information, effectively forcing you to dispose of it after a certain period.
     </para>
   </section>
 
@@ -1167,20 +1167,20 @@
       </tbody>
     </informaltable>
     <para>
-      Note that the <literal>X-</literal> prefix in these header names violate current best practices
+      Note that the <literal>X-</literal> prefix in these header names violates current best practices
       <citation>RFC 6648</citation>, so if the headers ever get standardized, they will surely loose the prefix.
       You may want to adopt these headers (preferably without the prefix) to reduce the learning curve for
       client developers who are already familiar with this pattern. 
     </para>
     <para>
-      For this scheme to work, you have to be able to correlate requests to the same source. For Twitter's API, that is
+      For this scheme to work, you have to be able to correlate requests from the same source. For Twitter's API, that is
       quite easy, as each API request is tied to a registered client through a client API key.
     </para>
     <para>
       For public websites, there is often nothing better than using IP addresses. There are serious problems with this
       approach. First, IP addresses can be spoofed. Second, and more importantly, any serious DoS attack will be a
       <emphasis>distributed</emphasis> DoS attack, where the attacker employs an army of computers against your system,
-      often ones that are compromised with malware: a <firstterm>botnet</firstterm>. Each member machine of the botnet
+      often ones that are compromised with malware (a <firstterm>botnet</firstterm>). Each member machine of the botnet
       has its own IP address.
     </para>
     <para>
@@ -1194,16 +1194,16 @@
     </para>
     <para>
       You don't have to pay for that protection all the time, however. You could simply run your own servers, and only
-      switch to route traffic through a cloud security service when you detect an attack. Make sure you're
-      capable of automatically detecting an attack and of automatically acting on the detection.
+      switch to route traffic through a cloud security service when you detect an attack. Make sure you're capable of
+      automatically detecting an attack and of automatically acting on the detection if you want to go that route.
     </para> 
   </section>
 
   <section>
     <title>Securing RESTBucks</title>
     <para>
-      We covered a lot of ground in this chapter. Let's put all this theory into practice by applying it to RESTBucks,
-      following procedure "<xref linkend="tm"/>":
+      We covered a lot of ground in this chapter. Let's put all this theory into practice by applying procedure 
+      "<xref linkend="tm"/>" to RESTBucks:
     </para>
     <orderedlist>
       <listitem>
@@ -1402,17 +1402,18 @@
           <listitem>
             <para>
               We'll use TLS, which means the server will be identified by a public key certificate and the client can
-              be reasonably sure the server isn't spoofed.
+              be reasonably sure the server isn't spoofed. We need to have the certificate signed by a commonly
+              accepted root CA.
             </para>
           </listitem>
           <listitem>
             <para>
-              We don't want to limit our customers to a handfull that we know, so TLS with mutual authentication isn't
+              We don't want to limit our customers to a handful that we know, so TLS with mutual authentication isn't
               a good idea to mitigate spoofing the customer. We could authenticate them with a password, but that means
               they would have to sign up for our service and sign in every time they want to order something. While
               that's a perfectly fine solution for many online shops, we don't like it for RESTBucks. We think
-              that's too much of a hassle for them and, more importantly, too much of a hassle for us to securely
-              maintain their passwords.
+              that's too much of a hassle for them and also too much of a hassle for us to securely maintain their
+              passwords.
             </para>
             <para>
               That leaves at least two options that make more sense: social login and a low-tech custom scheme. The
@@ -1540,7 +1541,8 @@
           <listitem>
             <para>
               We also set a maximum on the number of orders in the barista's queue. If that maximum is met, we stop
-              accepting customers. This gives the baristas a chance to catch up.
+              accepting customers until the queue size drops below another threshold. This gives the baristas a chance
+              to catch up.
             </para>
           </listitem>
           <listitem>
@@ -1644,11 +1646,11 @@
         </tr>
         <tr>
           <td></td>
-          <td>Transaction ID</td>
+          <td>Transaction ID for customers</td>
         </tr>
         <tr>
           <td></td>
-          <td>Credit card verification</td>
+          <td>Credit card verification for payments</td>
         </tr>
         <tr>
           <td>Authorization</td>
@@ -1686,9 +1688,13 @@
       is especially important for APIs that unlock systems over the public Internet.
     </para>
     <para>
+      We identify threats against our system during threat modeling. To mitigate the threats, we employ cryptography,
+      authentication, authorization, auditing, and anti-DoS measures like rate limiting.
+    </para>
+    <para>
       We've now seen how to design APIs that meet the functionality and most important non-functional requirements of
-      a system. Before we move our focus to implementing APIs, we want to take a look at some tools that can make the
-      life of an API designer easier.
+      a system. Before we move our focus to implementing APIs, we want to take a look at a class of tools that can make
+      the life of an API designer easier.
     </para>
   </section>
 </chapter>
