@@ -97,8 +97,8 @@
   </states>
 
   <link-relations>
-    <link-relation name="self">
-      <specification href="http://tools.ietf.org/html/rfc4287"/>
+    <link-relation name="@id">
+      <specification href="http://www.w3.org/TR/json-ld/"/>
       <transitions>
         <transition ref="Wait"/>
       </transitions>

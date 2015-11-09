@@ -238,8 +238,8 @@ CloseableHttpClient client = CachingHttpClients.custom()
     </para>
   </section>
 
-  <section>
-    <title>Resiliency</title>
+  <section id="resilience">
+    <title>Resilience</title>
     <para>
       An important non-functional requirement is resiliency, the ability to continue to function in the face of
       errors. In a loosely coupled system such as one based on the REST architectural pattern, the client should assume 

@@ -209,15 +209,15 @@
     </para>
     <para>
       The next section contains the link relations used by the API. 
-      For standard link relations you can use the <literal>&lt;specification&gt;</literal> element to point to where 
-      the link relation is defined. For extension link relations, you may add <literal>&lt;documentation&gt;</literal> 
+      For standard link relations you can use the <literal>&lt;specification&gt;</literal> element to point the standard
+      that defines the link relation. For extension link relations, you may add <literal>&lt;documentation&gt;</literal>
       as desired.
     </para>
     <para>
       The <literal>&lt;link-relation&gt;</literal> element contains the transitions implemented by the 
       link relation. A client developer can use the state diagram to determine how to accomplish its goal, and then
       discover the link relations the client must follow to transition to the subsequent states. The tooling around
-      presents this information in an easy to consume way so that you don't have to manually hunt down references.
+      RADL presents this information in an easy to consume way so that you don't have to manually hunt down references.
     </para>
     <para>
       The structure of the data that is exchanged between client and server is captured in the 
@@ -228,16 +228,18 @@
       You can also add examples to a property group.
     </para>
     <para>
-      States and transitions may be linked to property groups. In the former case, the property group describes what
-      information is available in the given state. In the latter case, the property group describes what information
-      the client must present to the server to transition to the next state. Property groups are separate from the
-      state model so that they can be re-used, as we saw in <xref linkend="design-messages"/>.
+      States and transitions may be linked to property groups. For a state, the property group describes what
+      information is available in that state. For a transition, the property group describes what information
+      the client must present to the server to follow that transition. Property groups are separate from the
+      state model so that they can be re-used between states and transitions, as we saw in
+      <xref linkend="design-messages"/>.
     </para>
     <para>
-      Next up is a list of media types used. Most APIs will have a default media type that they use for most messages.
-      An API may also occasionally use other media types, for instance for uploading documents. Like a 
+      Next up is a list of media types used. Most APIs will have a default media type that they use for most messages,
+      which you can indicate with the <literal>default</literal> attribute on <literal>&lt;media-types&gt;</literal>.
+      An API may also use other media types, for instance for uploading documents. Like a 
       <literal>&lt;link-relation&gt;</literal>, a <literal>&lt;media-type&gt;</literal> element may contain a 
-      <literal>&lt;specification&gt;</literal>.
+      <literal>&lt;specification&gt;</literal> and/or <literal>&lt;documentation&gt;</literal>.
     </para>
     <para>
       You can capture the error conditions of an API using the <literal>&lt;errors&gt;</literal> element. It contains
@@ -246,15 +248,16 @@
       a URI that defines the semantics of the error.
     </para>
     <para>
-      Errors are not linked to states, transitions, or even resources, because RADL tries to encourage clients to 
-      follow the best practice of building centralized error handling capabilities, as we'll see in <xref linkend="controller"/>.
+      Errors are not linked to states, transitions, or even resources, because RADL tries to encourage both servers and
+      clients to follow the best practice of building centralized error handling capabilities, as we'll see in
+      <xref linkend="controller"/> and <xref linkend="resilience"/>.
     </para>
     <para>
       The final section of a RADL document is the resource model. The information in this part is comparable to an
       entire RAML or Swagger API description. Each <literal>&lt;resource&gt;</literal> contains a 
       <literal>&lt;location&gt;</literal> element that captures the URI or URI template. It also contains the methods.
-      A <literal>&lt;method&gt;</literal> captures which transitions it implements and also contains the request and/or 
-      response.
+      A <literal>&lt;method&gt;</literal> captures which transitions it implements and also indicates the request and/or 
+      response media types supported.
     </para>
     <para>
       This is just a high-level overview of RADL. There are more elements, for instance for capturing headers and URI
@@ -262,13 +265,14 @@
       <citation>RADL</citation>.
     </para>
     <para>
-      At the time of writing there is no support for creating RADL files, so this is a manual activity. But it's easy 
-      to see how in the future tooling could be built to help with that.
+      At the time of writing the only support for creating RADL files is by extracting it from code. For the
+      design-first approach, creating an API description in RADL is a manual activity. But it's easy to see how in the
+      future tooling could be built to help with that.
     </para>
     <para>
       For instance, an IDE plug-in could walk an API designer through the steps of procedure
-      "<xref linkend="state-diagram-to-resource-model"/>" (see <xref linkend="design"/>). It's even conceivable that
-      API descriptions can be kickstarted from BDD scenarios, following procedure
+      "<xref linkend="state-diagram-to-resource-model"/>" (see <xref linkend="design"/>) using a wizard. It's even
+      conceivable that API descriptions can be kickstarted from BDD scenarios, following procedure
       "<xref linkend="bdd-scenario-to-state-diagram"/>" of <xref linkend="bdd-to-sd"/>.
     </para>
   </section>
@@ -278,7 +282,7 @@
     <para>
       The structure of RADL guides the API designer through the process of designing an API, from requirements captured
       by the state model to the resources and error conditions. We'll show you how that works by going through the steps
-      of procedure "<xref linkend="design-rest-api"/>" for RESTBucks:
+      of procedure "<xref linkend="design-rest-api"/>" in <xref linkend="error"/> for RESTBucks:
     </para>
     <orderedlist>
       <listitem>
@@ -393,7 +397,7 @@
          Each transition in the state diagram needs to be implemented by some method on some resource. The
          RADL validation tool will issue warnings if there are unimplemented transitions. By adding an implementing
          method for the transition you can make that warning go away. In this sense, the RADL structure and tooling
-         guide you in your design.
+         guide the API designer in the design process.
        </para>
        <para>
          The resources and methods for RESTbucks are listed in <xref linkend="restbucks-customer-resources"/>.
@@ -420,7 +424,7 @@
     </methods>
   </resource>
   
-  <resource name="Orders"
+  <resource name="Orders">
     <methods>
       <method name="POST">
         <transitions>
@@ -492,7 +496,7 @@
         around RADL guide you in your next step.
        </para>
        <para>
-         The URIs for the RESTBucks resources are in <xref linkend="restbucks-resources"/>. Here's how that looks in
+         The URIs for the RESTBucks resources are in <xref linkend="restbucks-resources"/>. Here's what that looks in
          RADL:
        </para>
        <programlisting><![CDATA[<resources>
@@ -512,22 +516,22 @@
   </resource>
   
   <resource name="Order">
-    <location uri-template="/orders/{id}/"/>
+    <location uri-template="/orders/{order-id}/"/>
     <!-- Methods omitted for brevity -->
   </resource>
   
   <resource name="Payments"
-    <location uri-template="/orders/{id}/payments/"/>
+    <location uri-template="/orders/{order-id}/payments/"/>
     <!-- Methods omitted for brevity -->
   </resource>
   
   <resource name="Receipt">
-    <location uri-template="/orders/{id}/receipt/"/>
+    <location uri-template="/orders/{order-id}/receipt/"/>
     <!-- Methods omitted for brevity -->
   </resource>
   
   <resource name="Serving">
-    <location uri-template="/orders/{id}/serving/"/>
+    <location uri-template="/orders/{order-id}/serving/"/>
     <!-- Methods omitted for brevity -->
   </resource>
 </resource>]]></programlisting>
@@ -543,47 +547,66 @@
           like in RADL:
         </para>
         <programlisting><![CDATA[<link-relations>
-  <link-relation name="self">
+  <link-relation name="@id">
+    <specification href="http://www.w3.org/TR/json-ld/"/>
+    <transitions>
+      <transition ref="Wait"/>
+    </transitions>
+  </link-relation>
+
+  <link-relation name="RespondAction"> <!-- TODO: Look up correct link relation -->
     <specification href="http://tools.ietf.org/html/rfc4287"/>
     <transitions>
-      <transition name="Receive notification"/>
-    </transition>
+      <transition ref="Receive notification"/>
+    </transitions>
   </link-relation>
-  
-  <link-relation name="edit">
-    <specification href="http://tools.ietf.org/html/rfc5023"/>
+
+  <link-relation name="ReplaceAction">
+    <specification href="https://schema.org/ReplaceAction"/>
     <transitions>
-      <transition name="Change order"/>
-      <transition name="Cancel"/>
-      <transition name="Take serving"/>
+      <transition ref="Change"/>
     </transitions>
   </link-relation>
   
-  <link-relation name="payment">
-    <specification href="http://tools.ietf.org/html/rfc5988"/>
+  <link-relation name="DeleteAction">
+    <specification href="https://schema.org/DeleteAction"/>
     <transitions>
-      <transition name="Pay"/>
+      <transition ref="Cancel"/>
+    </transitions>
+  </link-relation>
+
+  <link-relation name="ReceiveAction">
+    <specification href="http://schema.org/ReceiveAction"/>
+    <transitions>
+      <transition ref="Take serving"/>
     </transitions>
   </link-relation>
   
-  <link-relation name="http://schema.org/menu">
+  <link-relation name="PayAction">
+    <specification href="https://schema.org/PayAction"/>
+    <transitions>
+      <transition ref="Pay"/>
+    </transitions>
+  </link-relation>
+
+  <link-relation name="menu">
     <specification href="http://schema.org/menu"/>
     <transitions>
-      <transition name="Read menu"/>
+      <transition ref="Read menu"/>
     </transitions>
   </link-relation>
-  
-  <link-relation name="http://schema.org/OrderAction">
+
+  <link-relation name="OrderAction">
     <specification href="http://schema.org/OrderAction"/>
     <transitions>
-      <transition name="Place order"/>
+      <transition ref="Place order"/>
     </transitions>
   </link-relation>
-  
-  <link-relation name="http://schema.org/Order">
+
+  <link-relation name="Order">
     <specification href="http://schema.org/Order"/>
     <transitions>
-      <transition name="Take receipt"/>
+      <transition ref="Take receipt"/>
     </transitions>
   </link-relation>
   
@@ -607,72 +630,48 @@
        </para>
        <programlisting><![CDATA[<property-groups>
   <property-group name="home"/>
-  
-  <property-group name="items">
-    <properties>
-      <property name="item">
-        <properties>
-          <property name="name"/>
-          <property name="size"/>
-          <property name="milk"/>
-          <property name="price"/>
-          <property name="currency"/>
-        </properties>
-      </property>
-    </properties>
-  </property-group>       
+
+  <property-group name="item">
+    <property name="name"/>
+    <property name="size"/>
+    <property name="milk"/>
+    <property name="price"/>
+    <property name="currency"/>
+  </property-group>
 
   <property-group name="menu">
-    <properties>
-      <property name="items">
-        <properties ref="items"/>
-      </property>
-    </properties>
-  </property-group>       
+    <property-group name="item" ref="item" repeats="true"/>
+  </property-group>
 
   <property-group name="order">
-    <properties>
-      <property name="items">
-        <properties ref="items"/>
-      </property>
-      <property name="customer"/>
-      <property name="total"/>
-      <property name="currency"/>
-    </properties>
-  </property-group>       
-
-  <property-group name="payment">
-    <properties>
-      <property name="amount"/>
-      <property name="currency"/>
-      <property name="paymentMethod"/>
-      <property name="cardholderName"/>
-      <property name="cardNumber"/>
-      <property name="expiryMotnh"/>
-      <property name="expiryYear"/>
-      <property name="cardSecurityCode"/>
-    </properties>
-  </property-group>       
+    <property-group name="item" ref="item" repeats="true"/>
+    <property name="customer"/>
+    <property name="total"/>
+    <property name="currency"/>
+  </property-group>
 
   <property-group name="receipt">
-    <properties>
-      <property name="dateTime"/>
-      <property name="shop"/>
-      <property name="items">
-        <properties ref="items"/>
-      </property>
-      <property name="total"/>
-      <property name="currency"/>
-      <property name="paymentMethod"/>
-    </properties>
-  </property-group>       
-  
+    <property name="dateTime"/>
+    <property name="shop"/>
+    <property-group name="item" ref="item" repeats="true"/>
+    <property name="total"/>
+    <property name="currency"/>
+    <property name="paymentMethod"/>
+  </property-group>
+
+  <property-group name="payment">
+    <property name="amount"/>
+    <property name="currency"/>
+    <property name="paymentMethod"/>
+    <property name="cardholderName"/>
+    <property name="cardNumber"/>
+    <property name="expiryMonth"/>
+    <property name="expiryYear"/>
+    <property name="cardSecurityCode"/>
+  </property-group>
+
   <property-group name="serving"/>
-</proeprty-groups>]]></programlisting>
-      <para>
-        Note that the property group <literal>items</literal> is not something that will ever be sent over the wire on
-        its own. It is part of several other property groups, and is extracted to avoid duplication.
-      </para>
+</property-groups>]]></programlisting>
       <para>
         The next step is to refer to the property groups from the states and transitions:
       </para>
@@ -724,8 +723,8 @@
       <para>
         At the time of writing, APIs at maturity level 4 (see <xref linkend="maturity"/>) unfortunately make up only a
         small minority of all APIs. So the RADL validation tool doesn't issue any warnings for missing semantics and
-        you'll have to remember yourself to assign meaning to your messages. (As an aside, any warnings can be
-        suppressed; this is true for both individual instances and whole classes of warnings.)
+        by default. You can change this through configuration. (As an aside, any warnings can be suppressed; this is
+        true for both individual instances and whole classes of warnings.)
       </para>
       <para>
         The semantics for RESTBucks are defined in <xref linkend="restbuck-semantics"/>. Here's what that looks like 
@@ -733,56 +732,44 @@
       </para>
       <programlisting><![CDATA[<property-groups>
   <property-group name="home" uri="http://schema.org/CafeOrCoffeeShop"/>
-  
-  <property-group name="items">
-    <property-group name="item" repeats="true"
-        uri="http://schema.org/Product">
-      <property name="name" uri="http://schema.org/name"/>
-      <property name="size" uri="http://schema.org/height"/>
-      <property name="milk"
-          uri="http://www.productontology.org/doc/Milk"/>
-      <property name="price" uri="http://schema.org/price"/>
-      <property name="currency" uri="http://schema.org/priceCurrency"/>
-    </property-group>
+
+  <property-group name="item" uri="http://schema.org/Product">
+    <property name="name" uri="http://schema.org/name"/>
+    <property name="size" uri="http://schema.org/height"/>
+    <property name="milk" uri="http://www.productontology.org/doc/Milk"/>
+    <property name="price" uri="http://schema.org/price" type="number"/>
+    <property name="currency" uri="http://schema.org/priceCurrency"/>
   </property-group>
 
   <property-group name="menu" uri="http://schema.org/menu">
-    <property-group name="items" ref="items"/>
+    <property-group name="item" ref="item" repeats="true"/>
   </property-group>
 
   <property-group name="order" uri="http://schema.org/Order">
-    <property-group name="items" ref="items"/>
+    <property-group name="item" ref="item" repeats="true"/>
     <property name="customer" uri="http://schema.org/customer"/>
-    <property name="total" uri="http://schema.org/totalPrice"/>
+    <property name="total" uri="http://schema.org/totalPrice" type="number"/>
     <property name="currency" uri="http://schema.org/priceCurrency"/>
   </property-group>
 
   <property-group name="receipt" uri="http://schema.org/Order">
-    <property name="dateTime" uri="http://schema.org/orderDate"/>
+    <property name="dateTime" uri="http://schema.org/orderDate" type="xsd:dateTime"/>
     <property name="shop" uri="http://schema.org/seller"/>
-    <property-group name="items" ref="items"/>
-    <property name="total" uri="http://schema.org/totalPrice"/>
+    <property-group name="item" ref="item" repeats="true"/>
+    <property name="total" uri="http://schema.org/totalPrice" type="number"/>
     <property name="currency" uri="http://schema.org/priceCurrency"/>
-    <property name="paymentMethod"
-        uri="http://schema.org/acceptedPaymentMethod"/>
+    <property name="paymentMethod" uri="http://schema.org/acceptedPaymentMethod"/>
   </property-group>
-  
-  <property-group name="payment"
-      uri="http://reference.data.gov.uk/def/payment#payment">
-    <property name="amount" uri="http://schema.org/totalPrice"/>
+
+  <property-group name="payment" uri="http://reference.data.gov.uk/def/payment#payment">
+    <property name="amount" uri="http://schema.org/totalPrice" type="number"/>
     <property name="currency" uri="http://schema.org/priceCurrency"/>
-    <property name="paymentMethod"
-        uri="http://schema.org/acceptedPaymentMethod"/>
-    <property name="cardholderName"
-        uri="https://w3id.org/creditcard/v1/name"/>
-    <property name="cardNumber"
-        uri="https://w3id.org/creditcard/v1/number"/>
-    <property name="expiryMotnh"
-        uri="https://w3id.org/creditcard/v1/expiryMonth"/>
-    <property name="expiryYear"
-        uri="https://w3id.org/creditcard/v1/expiryYear"/>
-    <property name="cardSecurityCode"
-        uri="https://w3id.org/creditcard/v1/verificationCode"/>
+    <property name="paymentMethod" uri="http://schema.org/acceptedPaymentMethod"/>
+    <property name="cardholderName" uri="https://w3id.org/creditcard/v1/name"/>
+    <property name="cardNumber" uri="https://w3id.org/creditcard/v1/number"/>
+    <property name="expiryMonth" uri="https://w3id.org/creditcard/v1/expiryMonth" type="number"/>
+    <property name="expiryYear" uri="https://w3id.org/creditcard/v1/expiryYear" type="number"/>
+    <property name="cardSecurityCode" uri="https://w3id.org/creditcard/v1/verificationCode"/>
   </property-group>
 
   <property-group name="serving" uri="http://schema.org/Order"/>
@@ -797,7 +784,7 @@
          serialized using some media type. The RADL validation tool issues a warning when they are not.
        </para>
        <para>
-         For RESTBucks we selected JSON-LD. Here's how that looks in RADL:
+         For RESTBucks we selected JSON-LD. Here's what that looks in RADL:
        </para>
        <programlisting><![CDATA[<media-types default="application/ld+json">
   <media-type name="application/ld+json">
@@ -985,8 +972,8 @@
     <title>Summary</title>
     <para>
       This chapter introduced the concept of an API description language, a machine-processable representation of an
-      API around which tooling can be built. We also saw what what an API description in RADL looks like. We'll see
-      more of RADL later on in the book.
+      API around which tooling can be built. We also saw what what an API description in RADL looks like. We'll talk
+      more about RADL later on in the book.
     </para>
     <para>
       This chapter concludes our advice about API design. In the next part of the book, we will turn our focus to the
