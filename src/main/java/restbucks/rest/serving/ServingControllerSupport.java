@@ -3,10 +3,10 @@
  */
 package restbucks.rest.serving;
 
-import org.springframework.stereotype.Service;
-import restbucks.rest.impl.RestResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import restbucks.rest.impl.RestResponse;
 
 
 @Service
