@@ -805,7 +805,7 @@
         </tr>
         <tr>
           <td>Receive notification</td>
-          <td><literal>self</literal></td>
+          <td><literal>https://schema.org/ListenAction</literal></td>
         </tr>
         <tr>
           <td>Take serving</td>
@@ -814,11 +814,7 @@
       </tbody>
     </table>
     <para>
-      The <literal>self</literal> standard link relation refers to the object itself, so we can use it to refresh a 
-      serving and "get notified" when its status changes.
-    </para>
-    <para>
-      For the other transitions we selected extension link relations. We decided to use concepts defined by
+      We selected extension link relations for all transitions, because we want to use concepts defined by
       <literal>schema.org</literal>. These may not be standard link relations, but they have a much bigger chance of 
       being familiar to a client developer than anything we invent ourselves. It also closely matches what we'll do in
       <xref linkend="semantics"/>.

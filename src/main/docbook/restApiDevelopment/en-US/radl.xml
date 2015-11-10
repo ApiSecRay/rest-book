@@ -204,7 +204,7 @@
       Most items in RADL, like states and transitions, support the <literal>&lt;documentation&gt;</literal> element that 
       contains information that is intended to be read by a human. Documentation is mostly meant for client developers 
       that program against the REST API, but it can also be used for other purposes, like giving information to server
-      developers. 
+      developers.
       Documentation may contain HTML markup by using the <literal>http://www.w3.org/1999/xhtml</literal> namespace.
     </para>
     <para>
@@ -554,8 +554,8 @@
     </transitions>
   </link-relation>
 
-  <link-relation name="RespondAction"> <!-- TODO: Look up correct link relation -->
-    <specification href="http://tools.ietf.org/html/rfc4287"/>
+  <link-relation name="ListenAction">
+    <specification href="https://schema.org/ListenAction"/>
     <transitions>
       <transition ref="Receive notification"/>
     </transitions>
@@ -753,23 +753,33 @@
   </property-group>
 
   <property-group name="receipt" uri="http://schema.org/Order">
-    <property name="dateTime" uri="http://schema.org/orderDate" type="xsd:dateTime"/>
+    <property name="dateTime" uri="http://schema.org/orderDate"
+        type="xsd:dateTime"/>
     <property name="shop" uri="http://schema.org/seller"/>
     <property-group name="item" ref="item" repeats="true"/>
     <property name="total" uri="http://schema.org/totalPrice" type="number"/>
     <property name="currency" uri="http://schema.org/priceCurrency"/>
-    <property name="paymentMethod" uri="http://schema.org/acceptedPaymentMethod"/>
+    <property name="paymentMethod"
+        uri="http://schema.org/acceptedPaymentMethod"/>
   </property-group>
 
-  <property-group name="payment" uri="http://reference.data.gov.uk/def/payment#payment">
-    <property name="amount" uri="http://schema.org/totalPrice" type="number"/>
+  <property-group name="payment"
+      uri="http://reference.data.gov.uk/def/payment#payment">
+    <property name="amount" uri="http://schema.org/totalPrice"
+        type="number"/>
     <property name="currency" uri="http://schema.org/priceCurrency"/>
-    <property name="paymentMethod" uri="http://schema.org/acceptedPaymentMethod"/>
-    <property name="cardholderName" uri="https://w3id.org/creditcard/v1/name"/>
-    <property name="cardNumber" uri="https://w3id.org/creditcard/v1/number"/>
-    <property name="expiryMonth" uri="https://w3id.org/creditcard/v1/expiryMonth" type="number"/>
-    <property name="expiryYear" uri="https://w3id.org/creditcard/v1/expiryYear" type="number"/>
-    <property name="cardSecurityCode" uri="https://w3id.org/creditcard/v1/verificationCode"/>
+    <property name="paymentMethod"
+        uri="http://schema.org/acceptedPaymentMethod"/>
+    <property name="cardholderName"
+        uri="https://w3id.org/creditcard/v1/name"/>
+    <property name="cardNumber"
+        uri="https://w3id.org/creditcard/v1/number"/>
+    <property name="expiryMonth"
+        uri="https://w3id.org/creditcard/v1/expiryMonth" type="number"/>
+    <property name="expiryYear"
+        uri="https://w3id.org/creditcard/v1/expiryYear" type="number"/>
+    <property name="cardSecurityCode"
+        uri="https://w3id.org/creditcard/v1/verificationCode"/>
   </property-group>
 
   <property-group name="serving" uri="http://schema.org/Order"/>
@@ -958,6 +968,7 @@
       <citation>RADL</citation>.
       Here's an impression of what the HTML documentation generated from that API description would look like:
     </para>
+    <!-- TODO: Capture picture of documentation -->
     <figure id="restbucks-api-doc">
       <mediaobject>
         <imageobject>

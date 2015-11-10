@@ -3,14 +3,12 @@
   <para>
     We now have a design for an API that meets the requirements, causes the least amount of surprise by reusing
     well-known design patterns, is helpful when things go wrong, gives good performance and scalability, and is secure.
-    But until we've implemented that design, we don't actually have anything at all. Remember:
+    But until we've implemented that design, we don't actually have anything at all. We need to implement the design
+    to derive value from it.
   </para>
-  <blockquote>
-    <attribution><citation>Agile Manifesto</citation></attribution>
-    <para>Working software over comprehensive documentation</para>
-  </blockquote>
   <para>
-    This chapter discusses how to build a REST server.
+    This chapter discusses how to build a REST server, while <xref linkend="client"/> shows how to build a client to
+    consumer the API.
   </para>
   
   <section id="server-arch">
@@ -81,7 +79,7 @@
             methods of the uniform interface.
           </para>
           <para>
-            Controllers make up an important part of a REST server. We'll discuss them in more depth below in 
+            Controllers make up an important part of a REST server. We'll discuss them in depth below in 
             <xref linkend="controller"/>.
           </para>
         </listitem>
@@ -187,9 +185,9 @@
             that we need to map the DTOs onto domain objects and back.
           </para>
           <para>
-            This mapping can be 1:1, and that's the best way to start. But when the need arises to change the message
-            structure for performance or other reasons, resist the temptation to modify your domain objects. Instead
-            put a mapping in place to translate from DTO to domain object and back.
+            This mapping can be 1:1, and that's generally the best way to start. But when the need arises to change the
+            message structure for performance or other reasons, resist the temptation to modify your domain objects.
+            Instead put a mapping in place to translate from DTO to domain object and back.
           </para>
           <para>
             Since this mapping is part of binding the "model" (domain) and "view" (data transfer object) parts of MVC,
@@ -203,14 +201,15 @@
           </para>
           <para>
             Domain-driven design distinguishes between different kinds of domain objects, like entities (something with
-            an identity, such as a person), value objects (something without identity, such as a dollar amount), and
-            services (an operation that doesn't conceptually belong in one object, such as paying an order). Like REST
-            services, domain services are stateless. They are often injected as dependencies into controllers.
+            an identity, such as a person), value objects (something without identity, such as a dollar amount, where
+            you don't care about individual coins or bills, just the amount), and services (an operation that transcends
+            a single object, such as the process of paying an order). Like REST services, domain services are stateless.
+            They are often injected as dependencies into controllers.
           </para>
           <para>
             <firstterm>Dependency injection</firstterm> is a design pattern where an object doesn't create or look up
-            its dependencies itself, but rather gets told from the outside what they are. This pattern works well for
-            adding domain services to controllers.
+            its dependencies itself, but rather gets told from the outside what they are. This pattern has many
+            benefits, and it works well for adding domain services to controllers.
           </para>
           <para>
             The domain model is what your application is really about. That makes it the logical place to add logging
@@ -245,14 +244,14 @@
       </varlistentry>
     </variablelist>
     <para>
-      <xref linkend="rest-server"/> shows the relationships between the components. Components in blue are standard
-      components, while those in yellow and red are specific to your project. The difference is that yellow components
-      can be generated, as we'll see in <xref linkend="radl-supports-implementation"/>, while red components must be
-      hand-coded. Green components may be either standard or project-specific. So in the best case scenario, you only
-      have to implement the domain model yourself.
+      <xref linkend="rest-server"/> shows the relationships between the server components. Components in blue are
+      standard components, while those in yellow and red are specific to your project. The difference is that yellow
+      components can be generated, as we'll see in <xref linkend="radl-supports-implementation"/>, while red components
+      must be hand-coded. Green components may be either standard or project-specific. So in the best case scenario, 
+      you only have to implement the domain model yourself.
     </para>
     <para>
-      For each standard component you can look for the best implementation for your specific situation.
+      For each standard component you can look for the best-of-breed implementation for your specific situation.
       Alternatively, you can use a suite of components that are proven to work well together. An example of the latter
       for Java is offered by the Spring community:
     </para>
@@ -283,7 +282,8 @@
       <listitem>
         <para>
           Finally, Spring's dependency injection glues everything together <citation>Spring Platform</citation>.
-          For instance, you can use annotations to automatically wire controllers to domain services.
+          For instance, you can use annotations to automatically wire controllers to domain services and domain services
+          to the DAL.
         </para>
       </listitem>
     </itemizedlist>
@@ -302,9 +302,9 @@
       down.
     </para>
     <para>
-      If you clearly distinguish the components described in the previous section, you're already in a good position,
-      but there is more you can do. The domain model is a good example: every concept from the problem domain should be
-      captured in one place in the code (e.g. in one class).
+      If you clearly distinguish the components described in the previous section, you're already in a good position to
+      prevent duplication, but there is more that you can do. The domain model is a good example: every concept from
+      the problem domain should be captured in one place in the code (e.g. in one class).
     </para>
     <para>
       The DRY guideline is helpful in controllers as well. Controllers bind code to resources and media types.
@@ -320,7 +320,7 @@ public HomeResource get() {
       This looks fine in isolation, but if you code all your controllers like this, the string
       <literal>"application/ld+json"</literal> will be all over the place. It's better to use a constant instead, e.g.
       <literal>produces = { Api.MEDIA_TYPE_APPLICATION_LD_JSON }</literal>.
-      Here we've created a new <literal>Api</literal> class to hold a constant for the media type. We'll get back to
+      Here we've created a new <literal>Api</literal> class to hold a constant for the media type. We'll come back to
       that class later.
     </para>
     <para>
@@ -340,12 +340,14 @@ public HomeResource get() {
     <programlisting>String MEDIA_TYPE_APPLICATION_LD_JSON = "application/ld+json";
 String MEDIA_TYPE_DEFAULT = MEDIA_TYPE_APPLICATION_LD_JSON;</programlisting>
     <para>
-      We can now use <literal>produces = { Api.MEDIA_TYPE_DEFAULT }</literal> in our controllers, and
-      they won't need to change if we decide to use a different media type.
+      We can now use <literal>produces = { Api.MEDIA_TYPE_DEFAULT }</literal> in our controllers, and they won't need
+      to change if we decide to use a different media type. Additionally, this code also clearly expresses that things
+      are business as usual with regard to the media type for this controller. That makes the cases where we use a
+      non-default media type stand out better.
     </para>
     <para>
       The use of media types is only one example of where we can apply the DRY principle. You should do something
-      similar for URLs, namespaces (if you use XML-based media types), link relations, error constants, etc.
+      similar for URLs, XLM namespaces (if you use XML-based media types), link relations, error constants, etc.
     </para>
     <para>
       Some of the identifiers in that list are part of your API, like link relations, while others are implementation
@@ -364,11 +366,11 @@ String MEDIA_TYPE_DEFAULT = MEDIA_TYPE_APPLICATION_LD_JSON;</programlisting>
       contains the other URLs.
     </para>
     <para>
-      Since URLs are hierarchical in nature, we can apply the DRY principle to them by defining one URL constant in
-      terms of another:
+      Since URLs are hierarchical in nature, we can apply the DRY principle to them as well by defining one URL
+      constant in terms of another:
     </para>
     <programlisting>String URL_ORDERS = "/orders/";
-String URL_ORDER = URL_ORDERS + "{id}/";</programlisting>
+String URL_ORDER = URL_ORDERS + "{order-id}/";</programlisting>
     <para>
       Sometimes duplication is a little harder to spot. A common place in REST servers where this happens is with error
       handling code. It's tempting to catch exceptions in your controllers and translate them to appropriate status
@@ -415,21 +417,20 @@ public class CentralErrorHandler {
       As the above example shows, it makes sense to define custom exception classes for each of the API's error
       conditions (see <xref linkend="error"/>). You should not, however, define new exceptions for cases that are
       already covered by standard exceptions. For instance, in Java <literal>IllegalArgumentException</literal> maps
-      naturally the <literal>400 Bad Request</literal> status, while <literal>IllegalStateException</literal>
+      naturally to the <literal>400 Bad Request</literal> status, while <literal>IllegalStateException</literal>
       corresponds to <literal>500 Internal Server Error</literal>.
     </para>
     <para>
       The central error handler maps exception classes onto HTTP status codes and translates them to something that can
       be serialized as an HTTP response body. In the example above that is a simple message string, but you serve your
-      clients better by more structured messages with additional details that can help the client recover, as we
-      discussed in <xref linkend="serialize-errors"/>:
+      clients better by poviding more structured messages with additional details that can help the client recover, as 
+      we discussed in <xref linkend="serialize-errors"/>:
     </para>
     <programlisting><![CDATA[public class ErrorResource {
 
   public String type;
   public String title;
-  // Any other fields you want to return to the client, 
-  // like details
+  // Any other fields you want to return to the client, like details
 
 }
 
@@ -476,9 +477,9 @@ public class CentralErrorHandler {
     <para>
       The solution is to capture the concept of a link in code, so different message converters can serialize it
       differently, depending on the rules of the media type. Spring HATEOAS provide the <literal>Link</literal> class
-      for this purpose, that you can build using a <literal>LinkBuilder</literal> <citation>Spring HATEOAS</citation>.
+      for this purpose <citation>Spring HATEOAS</citation>. You can build links using a <literal>LinkBuilder</literal>.
       The <literal>ControllerLinkBuilder</literal> is a <literal>LinkBuilder</literal> that points to the destination 
-      controller class/method rather than to the URI it handles. This reduces the impact of URL changes in your code.
+      controller class/method rather than to the URI it handles. This reduces the impact of URL changes on your code.
     </para>
     <para>
       Once you've built links, you have to add them to your DTO. You do this by deriving your DTO from the       
@@ -493,7 +494,7 @@ public class CentralErrorHandler {
 public class HomeController {
 
   @RequestMapping(method = RequestMethod.GET,
-      produces = { MEDIA_TYPE_DEFAULT })
+      produces = { Api.MEDIA_TYPE_DEFAULT })
   public HomeResource get() {
     HomeResource result = new HomeResource();
     Link link = ControllerLinkBuilder
@@ -525,9 +526,10 @@ public ResponseEntity<Void> delete() {
 }]]></programlisting>
     <para>
       If the controller method expects input, say one implementing <literal>PUT</literal>, then you must supply
-      something. For instance, if the method uses <literal>@PathVariable</literal> to extract an ID from the URI, then
-      you can supply it if you know it. If you don't know it, you can supply <literal>null</literal>, and a URI template 
-      will be returned rather than a URI. The client then has to fill in the URI template variable to get a URI.
+      that input during link building. For instance, if the method uses <literal>@PathVariable</literal> to extract an 
+      ID from the URI, then you can supply it if you know it. If you don't know it, you can supply
+      <literal>null</literal>, and a URI template will be returned rather than a URI. The client then has to fill in 
+      the URI template variable to get a URI.
     </para>
     <para>
       Remember that the response from the server is a menu for the client to choose from, so the server shouldn't return
@@ -547,9 +549,9 @@ public ResponseEntity<Void> delete() {
         <term><emphasis>Is the current user permitted to follow the link?</emphasis></term>
         <listitem>
           <para>
-            For instance, an unpaid order can be paid by the customer who ordered, but not by any other customer. The
-            threat model (see <xref linkend="threat-modeling"/>) should tell you what the current user can do at any 
-            given moment.
+            For instance, an unpaid order can be paid by the customer who placed the order, but not by any other
+            customer. The threat model should tell you what the current user can do at any given moment (see
+            <xref linkend="threat-modeling"/>).
           </para>
         </listitem>
       </varlistentry>
@@ -601,7 +603,7 @@ public class OrderResource extends ResourceSupport {
   public String currency;
   @Expose("http://schema.org/customer")
   public String customer;
-  public ItemResource[] item;
+  public ItemResource[] items;
   @Expose("http://schema.org/totalPrice")
   public double total;
 
@@ -626,7 +628,8 @@ public class OrderResource extends ResourceSupport {
     <para>
       We discussed security features in <xref linkend="security"/>. Security features address design flaws, which
       account for roughly half of all vulnerabilities. The other half are implementation bugs, and we'd do well to take
-      measures to prevent them. 
+      measures to prevent those as well. Below we'll take a close look at two complementary techniques that can help 
+      with that. 
     </para>
     
     <section id="input-validation">
@@ -644,8 +647,9 @@ public class OrderResource extends ResourceSupport {
       </para>
       <para>
         This approach only goes so far, of course. In a different domain, where a client would routinely add hundreds 
-        of the same item to an order, having to specify each one individually would be very annoying.
-        So at some point you need to verify that input supplied by the client meets the criteria you have set for it.
+        of the same item to an order, having to specify each one individually would be very wasteful in terms of both
+        space and time required for messages. So at some point you need to verify that input supplied by the client
+        meets the criteria that you have set for it.
       </para>
       <para>
         One example in RESTBucks is the <literal>payment</literal> message, which contains an <literal>amount</literal>
