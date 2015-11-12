@@ -461,8 +461,8 @@ public class CentralErrorHandler {
     </para>
     <para>
       You should define DTOs not just for error reporting, but for any data that you want to transfer (see 
-      <xref linkend="design-messages"/>). This includes returning data from the server to the client as well as 
-      accepting data from the client as input.
+      <xref linkend="design-messages"/>). This includes returning data to the client as well as accepting data from the 
+      client as input.
     </para>
     <para>
       Controllers don't just return data, or else we'd have a level 2 API (see <xref linkend="maturity"/>). They need
@@ -476,10 +476,11 @@ public class CentralErrorHandler {
     </para>
     <para>
       The solution is to capture the concept of a link in code, so different message converters can serialize it
-      differently, depending on the rules of the media type. Spring HATEOAS provide the <literal>Link</literal> class
-      for this purpose <citation>Spring HATEOAS</citation>. You can build links using a <literal>LinkBuilder</literal>.
-      The <literal>ControllerLinkBuilder</literal> is a <literal>LinkBuilder</literal> that points to the destination 
-      controller class/method rather than to the URI it handles. This reduces the impact of URL changes on your code.
+      differently, depending on the rules of the media type. Spring HATEOAS provides the <literal>Link</literal> class
+      for this purpose <citation>Spring HATEOAS</citation>, which you can build links using a 
+      <literal>LinkBuilder</literal>. The <literal>ControllerLinkBuilder</literal> is a <literal>LinkBuilder</literal>
+      that points to the destination controller class/method rather than to the URI it handles. This reduces the impact 
+      of URL changes on your code.
     </para>
     <para>
       Once you've built links, you have to add them to your DTO. You do this by deriving your DTO from the       
@@ -526,7 +527,7 @@ public ResponseEntity<Void> delete() {
 }]]></programlisting>
     <para>
       If the controller method expects input, say one implementing <literal>PUT</literal>, then you must supply
-      that input during link building. For instance, if the method uses <literal>@PathVariable</literal> to extract an 
+      that input during link building. For instance, if the method uses a <literal>@PathVariable</literal> to extract an 
       ID from the URI, then you can supply it if you know it. If you don't know it, you can supply
       <literal>null</literal>, and a URI template will be returned rather than a URI. The client then has to fill in 
       the URI template variable to get a URI.
@@ -575,11 +576,15 @@ public ResponseEntity<Void> delete() {
     <para>
       In some cases there could be many such if statements, because there could be many links. Each check might be 
       relatively expensive to perform, for instance when you have to call out to an external authorization system such 
-      as a XACML PDP. That is obviously not a happy combination, so from a performance perspective you may be better 
-      off with calculating all permitted actions in one go:
+      as a XACML PDP. This isn't a good combination from the performance perspective, so you may be better off with
+      calculating all permitted actions in one go:
     </para>
     <programlisting><![CDATA[Collection<String> permittedActions = getPermittedActions();
 if (permittedActions.contains(Actions.CANCEL)) {
+  // Build and add link ...
+}
+
+if (permittedActions.contains(...)) {
   // Build and add link ...
 }]]></programlisting>
     <para>
@@ -628,15 +633,14 @@ public class OrderResource extends ResourceSupport {
     <para>
       We discussed security features in <xref linkend="security"/>. Security features address design flaws, which
       account for roughly half of all vulnerabilities. The other half are implementation bugs, and we'd do well to take
-      measures to prevent those as well. Below we'll take a close look at two complementary techniques that can help 
-      with that. 
+      measures to prevent those too. We'll now take a look at two complementary techniques that can help with that.
     </para>
     
     <section id="input-validation">
       <title>Input Validation</title>
       <para>
         You should design your API such that it is easy to use (see <xref linkend="dx"/>). One aspect of that is to
-        make it difficult to use the API incorrectly.
+        make it difficult to use the API incorrectly so that developers are less likely to stray.
       </para>
       <para>
         For instance, in RESTBucks we decided that each item in the order must be listed separately. There is no
@@ -648,8 +652,8 @@ public class OrderResource extends ResourceSupport {
       <para>
         This approach only goes so far, of course. In a different domain, where a client would routinely add hundreds 
         of the same item to an order, having to specify each one individually would be very wasteful in terms of both
-        space and time required for messages. So at some point you need to verify that input supplied by the client
-        meets the criteria that you have set for it.
+        space and time required for transmitting and processing messages. So at some point you need to verify that the
+        input supplied by the client meets the criteria that you have set for it.
       </para>
       <para>
         One example in RESTBucks is the <literal>payment</literal> message, which contains an <literal>amount</literal>
@@ -692,8 +696,8 @@ public class PaymentController() {
         syntax rules governing the value in order to perform the validation.
         Syntactic validation is all about the syntax of the message, and should therefore be handled by the message
         converter. If it encounters the value <literal>foo</literal> for the <literal>amount</literal> property, it can
-        throw an <literal>IllegalArgumentException</literal>, which the central error handling will convert to a
-        <literal>400 Bad Request</literal> response to the client.
+        throw an <literal>IllegalArgumentException</literal>, which the central error handler will convert to a
+        <literal>400 Bad Request</literal> response.
       </para>
       <para>
         <firstterm>Semantic validation</firstterm> is the next step where you perform further checks based on knowledge 
@@ -777,14 +781,14 @@ public class OrderController {
   
   @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderResource update(@PathVariable("order-id") String id,
+  public OrderResource update(@PathVariable(Uris.VAR_ORDER_ID) String id,
       @Valid OrderResource order) {
     // ...
   }
   
   @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM, 
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderResource partialUpdate(@PathVariable("order-id") String id, 
+  public OrderResource partialUpdate(@PathVariable(Uris.VAR_ORDER_ID) String id, 
       @RequestPart("customer") @Name String customer) {
     // ...
   }
@@ -821,14 +825,14 @@ public class OrderController {
   
   @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderResource update(@PathVariable("order-id") String id,
+  public OrderResource update(@PathVariable(Uris.VAR_ORDER_ID) String id,
       OrderResource order) {
     // ...
   }
   
   @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderResource partialUpdate(@PathVariable("order-id") String id, 
+  public OrderResource partialUpdate(@PathVariable(Uris.VAR_ORDER_ID) String id, 
       @RequestPart("customer") Name customer) {
     // ...
   }
@@ -842,12 +846,14 @@ public class OrderController {
       <programlisting><![CDATA[public class OrderResource {
   
   public String customer;
+  // ...
   
   public OrderResource() {
   }
   
   public OrderResource(Order order) {
     customer = order.getCustomer().toString();
+    // ...
   }
   
 }
@@ -875,14 +881,14 @@ public class OrderController {
   
   @RequestMapping(method = PUT, consumes = Api.DEFAULT_MEDIA_TYPES,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderResource update(@PathVariable("order-id") String id,
+  public OrderResource update(@PathVariable(Uris.VAR_ORDER_ID) String id,
       OrderResource OrderResource) {
     // ...
   }
   
   @RequestMapping(method = PATCH, consumes = Api.MEDIA_FORM,
       produces = Api.DEFAULT_MEDIA_TYPES)
-  public OrderResource partialUpdate(@PathVariable("order-id") String id,
+  public OrderResource partialUpdate(@PathVariable(Uris.VAR_ORDER_ID) String id,
       @RequestPart("customer") String customer) {
     Order order = orderRepository.findOne(id);
     if (order == null) {
@@ -903,7 +909,26 @@ public class OrderController {
         Input validation is a good tool to prevent problems caused by illegal values being used. But legal values can
         sometimes also cause problems. For instance, an order may contain so many items that storing it in the database
         could take a long time. If the service accepts such an order, then it opens the door to a Denial of Service
-        attack (see <xref linkend="security"/>). The validation routines should therefore reject such input.
+        attack (see <xref linkend="security"/>). The validation routines should therefore also reject such input.
+      </para>
+      <para>
+        There are two approaches for implementing input validation: <firstterm>whitelisting</firstterm> and
+        <firstterm>blacklisting</firstterm>. The first specifies what constitutes valid input and rejects anything that 
+        doesn't match the specification. The latter works the other way around: it specifies what is invalid and accepts 
+        anything that isn't invalid. Both approaches can benefit greatly from using <firstterm>regular
+        expressions</firstterm>.
+      </para>
+      <para>
+        While both approaches can be made to work, blacklisting is much trickier to get right. If you miss a corner
+        case an attacker can get in, whereas with whitelisting a missing corner case leads to valid input being rejected.
+        Whitelisting thus errs on the side of security.
+      </para>
+      <para>
+        Many developers have trouble accepting that their blacklists are imperfect, but they often are. They simply
+        haven't been exposed to the kinds of tricks that hackers have in their bags, like using special Unicode
+        characters or doubly encoding input. This is one of those cases where you don't know what you don't know, so
+        beware. Just because <emphasis>you</emphasis> can't think of a way to break the blacklist doesn't mean that
+        someone else can't.
       </para>
     </section>
     
@@ -930,7 +955,7 @@ ResultSet results = statement.executeQuery(query);</programlisting>
       <para>
         This is incorrect and may lead to negative business outcomes. Suppose you were to build an API around Academy
         Award winners and wouldn't be able to accept Tatum O'Neal!
-        The problems is not that <literal>O'Neal</literal> is an invalid name, but rather that the name causes 
+        The problem is not that <literal>O'Neal</literal> is an invalid name, but rather that the name causes 
         problems <emphasis>when used in the context of SQL queries</emphasis>.
       </para>
       <para>
@@ -945,7 +970,7 @@ statement.setString(1, customer);
 ResultSet results = statement.executeQuery();</programlisting>
       <para>
         The <literal>setString()</literal> method clearly marks the value of <literal>customer</literal> as data, so
-        that it can never be treated as code.
+        that it can never be confused with code.
       </para>
       <para>
         Other injection attacks are based on the same idea of mixing code and data, and they can also be fixed using
@@ -973,7 +998,7 @@ ResultSet results = statement.executeQuery();</programlisting>
       </para>
       <para>
         Input validation and output encoding are simple enough tools, but the real trick is to apply them consistently 
-        everywhere. An attacker only needs to find one place where they are left out to breach your system. We'll 
+        across the board. An attacker only needs to find one place where they are left out to breach your system. We'll 
         discuss how to ensure that you've covered all your bases in <xref linkend="test-security"/>.
       </para>
     </section>
@@ -984,8 +1009,8 @@ ResultSet results = statement.executeQuery();</programlisting>
     <para>
       Some of the components of a REST server that we saw in <xref linkend="rest-server"/> are unique to the service
       the API is providing, but other parts are more or less boiler plate code. If you're following the design-first
-      approach with an API description language (see <xref linkend="radl"/>), you may be able to generate some or all
-      of the boilerplate code from your API description.
+      approach with an API description language (see <xref linkend="radl"/>), then you may be able to generate some or
+      all of the boilerplate code from your API description.
     </para>
     <para>
       For example, the Spring code generator for RADL creates the following classes for you:
@@ -1012,9 +1037,9 @@ ResultSet results = statement.executeQuery();</programlisting>
         <listitem>
           <para>
             The URI mapping, HTTP method handlers, and media type declarations for each resource. The handlers delegate
-            to support classes (see below) that are injected. The support class processes the input DTO, if any, and 
-            creates the DTO for the response. The controller adds those links and forms defined in RADL that the support
-            class reports as permitted for the current state and user.
+            to support classes (see below) that are injected. The support classes process the input DTOs, if any, and 
+            create the DTOs for the responses. The controllers add links and forms as defined in RADL, where the support
+            classes report what is permitted for the current state and user.
           </para>
         </listitem>
       </varlistentry>
@@ -1045,7 +1070,7 @@ ResultSet results = statement.executeQuery();</programlisting>
             translated to a DTO. If your media type supports links, then they are derived from
             <literal>ResourceSupport</literal>. If you use JSON-LD as the media type and add <literal>uri</literal>
             attributes to the <literal>property</literal> and/or <literal>property-group</literal> elements, then the 
-            DTOs and their fields are annotated with <literal>Expose</literal>.
+            DTOs and their fields are annotated with <literal>@Expose</literal>.
           </para>
         </listitem>
       </varlistentry>
@@ -1058,8 +1083,7 @@ ResultSet results = statement.executeQuery();</programlisting>
     </para>
     <para>
       This division makes it possible to add code generation to the automated build process. There are plugins for
-      build tools to make this even easier. At the time of writing there is support for Gradle, Maven, and command-line
-      builds.
+      build tools to make this even easier. At the time of writing there is support for Gradle and Maven.
     </para>
     <para>
       Generating code pays back some of the effort put into maintaining an API description. Still, manually writing an 
@@ -1078,8 +1102,13 @@ ResultSet results = statement.executeQuery();</programlisting>
   <section>
     <title>Summary</title>
     <para>
-      This chapter covers how to implement a REST API in such a way that it is secure and easy to maintain. We'll now
-      turn our attention to how to verify that this implementation meets the expectations of all stakeholders.
+      This chapter covers how to implement a REST API in such a way that it is both easy to maintain and secure.
+      The DRY and SOLID principles helps keep code in good shape over time. It helps to clearly identify the different
+      components that make up the server and honor the boundaries between them. To keep the code secure, we use the
+      tools of input validation and output encoding.
+    </para>
+    <para>
+      We'll now turn our attention to verification that the implementation meets the expectations of all stakeholders.
     </para>
   </section>
 </chapter>
