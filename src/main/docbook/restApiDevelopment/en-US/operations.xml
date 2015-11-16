@@ -1,7 +1,7 @@
 <chapter id="operations">
   <title>Operations</title>
   <para>
-    Now that we have a fully functional implementation of the API that is known to meet expectations, we're ready to
+    Now that we have a fully functional implementation of the API and we know it meets our expectations, we're ready to
     deploy the server into production and derive business value from it.
   </para>
   <para>
@@ -20,15 +20,15 @@
     a lot easier later on. Remember that most of a software product's life is spent running.
   </para>
   <para>
-    This chapter discusses some issues that often come up when running software with REST APIs in production.
+    This chapter discusses some issues that often come up when running REST APIs in production.
   </para>
   
-  <section>
+  <section id="separate-config-from-code">
     <title>Separating Configuration From Code</title>
     <para>
       One of the best practices for running software is to separate configuration from code. 
       <firstterm>Configuration</firstterm> encompasses information that is likely to differ from one environment to the 
-      next. By separating it from the code you prevent having to change your code for every deployment.
+      next. By separating it from the code you prevent having to change your code for different deployment environments.
     </para>
     <para>
       For programs with REST APIs, you should make the billboard URI part of the program's configuration, so that you

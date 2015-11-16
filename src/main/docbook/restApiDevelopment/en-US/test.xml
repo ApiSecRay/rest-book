@@ -147,7 +147,7 @@
       If you started your analysis using Behavior-Driven Development (BDD), as we suggested in <xref linkend="analysis"/>,
       then you're already halfway to an automated black-box test suite. All you need to do is write some glue code that
       translates the BDD scenarios into HTTP calls against your server (<literal>Given</literal>
-      and<literal>when</literal>) and that verifies the assertions (<literal>Then</literal>).
+      and <literal>when</literal>) and that verifies the assertions (<literal>Then</literal>).
     </para>
     <para>
       If you don't have any BDD scenarios, then you'll need some other method of creating test specifications. The 
@@ -186,16 +186,16 @@
   
 }</programlisting>
     <para>
-      The mapping from scenario line to Java method uses a sort of regular expression pattern matching, which enables
-      mapping variable parts of the scenario line onto method parameters. In the example above, that is the case
-      for the name of the customer. We either need that information in the method itself, or we save it for later use,
-      for instance when we're verifying expectations.
+      A scenario line consists of fixed and variable parts. The variable parts are prefixed with the
+      <literal>$</literal> sign and mapped to arguments of the Java method via a form of pattern matching much like. 
+      In the example above, that is the case for the name of the customer. We either need that information in the
+      method itself, or we save it for later use, for instance when we're verifying expectations.
     </para>
     <para>
       Parameterizing methods like this means we can write another scenario with a line like <literal>Given a customer
       Joe</literal>, and we wouldn't need a new method to match it. As you add more scenarios, you'll find that most
       lines in them can already be matched by existing methods, so your testing effort actually
-      <emphasis>decreases</emphasis> over time.
+      <emphasis>decreases</emphasis> over time!
     </para>
     <para>
       The next line is <literal>When she reads the menu</literal>, for which we add a method using the
@@ -220,9 +220,9 @@ public void getMenu() {
       environment (which may be different than the server team's).
     </para>
     <para>
-      Remember from <xref linkend="server-arch"/> that converting a response into a DTO is the responsibility of a 
-      message converter. You will need message converters on the client for the media type(s) that the client wants to
-      use, which may be a subset of the media types the server supports.
+      Remember from <xref linkend="server-arch"/> that converting a request or response into a DTO is the responsibility 
+      of a message converter. You will need message converters on the client for the media type(s) that the client wants 
+      to use, which may be a subset of the media types the server supports.
     </para>
     <para>
       If client and server are implemented using the same progamming language and HTTP framework, then they may share 
@@ -232,17 +232,18 @@ public void getMenu() {
       context.
     </para>
     <para>
-      The above code looks into the response for the menu link relation, which implies that at least one request has
-      been made. This is the request that jumpstarts every client, so it is performed as soon as the test class is
+      The above code looks into the response for the menu link relation, which implies that at least one request must
+      have been made. This is the request that jumpstarts every client, so it is performed as soon as the test class is
       created:
     </para>
     <programlisting>private ResourceSupport resource;
-private final Client client = new Client(BILLBOARD_URI, Api.DEFAULT_MEDIA_TYPE);</programlisting>
+private final Client client = new Client(BILLBOARD_URI, 
+    Api.DEFAULT_MEDIA_TYPE);</programlisting>
     <para>
       The <literal>Client</literal> class is responsible for communicating with the server. We tell it the server's
-      billboard URI so that it can issue a <literal>GET</literal> request to the server to start the client's process,
-      as depicted in <xref linkend="client-flow"/>. We'll come back to the <literal>Client</literal> class in the next
-      section, but let's finish the scenario first.
+      billboard URI so that it can retrieve a representation of the home resource, as depicted in
+      <xref linkend="client-flow"/>. We'll come back to the <literal>Client</literal> class in the next section, but
+      let's finish the scenario first.
     </para>
     <para>
       The next line of the scenario places an order:
@@ -256,33 +257,184 @@ public void order(String drink) {
   OrderResource order = new OrderResource();
   order.customer = customer;
   order.items = new ItemResource[] { item };
-  resource = client.post(order, Api.LINK_REL_ORDERACTION).toObject(OrderResource.class);
+  resource = client.post(order, Api.LINK_REL_ORDERACTION)
+      .toObject(OrderResource.class);
+}
+
+private ItemResource parseItem(String drink) {
+  ItemResource item = new ItemResource();
+  String[] parts = drink.split("\\s+");
+  item.size = parts[0];
+  item.milk = parts[1];
+  
+  Assert.assertEquals("No milk in drink", "milk", parts[2]);
+  item.name = parts[3] + ' ' + parts[4];
+  return item;
+}
+
+private ItemResource findMenuItem(ItemResource item) {
+  MenuResource menu = (MenuResource)resource;
+  if (menu == null || menu.items == null) {
+    return null;
+  }
+  for (ItemResource candidate : menu.items) {
+    if (candidate.name.equals(item.name)) {
+      return candidate;
+    }
+  }
+  return null;
 }</programlisting>
     <para>
       We parse the drink in the scenario line into its parts, so that we know what item to order. We then look through 
-      the menu to find it, create a order for it, and place the order witht the server.
+      the menu to find the item, create a order for the item, and place the order with the server. We use the customer's
+      name that we saved earlier.
+    </para>
+    <programlisting>@Then("she is due $currency $total")
+public void assertOrderTotal(String currency, double total) {
+  assertCreated();
+  OrderResource order = (OrderResource)resource;
+  assertEquals("Total", total, order.total, 0.01);
+  assertEquals("Currency", currency, order.currency);
+}
+
+private void assertCreated() {
+  assertEquals("Status", 201, client.getStatusCode());
+}</programlisting>
+    <para>
+      <literal>@Then</literal> methods typically check expectations through assertions. This is where your unit test
+      framework comes in. We use plain JUnit here.
+    </para>
+    <programlisting>@When("she pays")
+public void pay() {
+  PaymentResource payment = paymentForOrder();
+  paidAmount = payment.amount;
+  paidCurrency = payment.currency;
+  resource = client.post(payment, Api.LINK_REL_PAYACTION)
+      .toObject(ReceiptResource.class);
+}
+
+private PaymentResource paymentForOrder() {
+  OrderResource order = (OrderResource)resource;
+  PaymentResource result = new PaymentResource();
+  result.amount = order.total;
+  result.currency = order.currency;
+  result.paymentMethod = "creditcard";
+  result.cardholderName = "C.C. Conway";
+  result.cardNumber = "5525366617069778";
+  result.expiryYear = 2019;
+  result.expiryMonth = 6;
+  result.cardSecurityCode = "836";
+  return result;
+}</programlisting>
+    <para>
+      Here we hard-coded the credit card details, which makes the step less resuable. Don't worry about that too much;
+      as soon as you get more scenarios you can generalize the code. The code remembers how much to pay, so that it can 
+      verify the receipt:
+    </para>
+    <programlisting>@Then("she is handed a receipt")
+public void assertReceipt() {
+  assertCreated();
+  ReceiptResource receipt = (ReceiptResource)resource;
+  assertEquals("Currency", paidCurrency, receipt.currency);
+  assertEquals("Total", paidAmount, receipt.total, 0.01);
+  assertEquals("Shop", "RESTBucks", receipt.shop);
+}</programlisting>
+    <para>
+      It gets a little bit more interesting in the next step, when the customer has to wait for the barista to prepare
+      her order:
+    </para>
+    <programlisting>@When("she takes the receipt")
+public void takeReceipt() {
+  resource = client.get(Api.LINK_REL_ORDER)
+      .toObject(OrderResource.class);
+}
+
+@Then("she must wait for the barista")
+public void waitForServing() {
+  long start = System.currentTimeMillis();
+  while (isPreparing()) {
+    assertTrue("Waited too long for serving", 
+        System.currentTimeMillis() - start > MAX_WAIT_TIME);
+    waitAWhile();
+  }
+}
+
+private boolean isPreparing() {
+  return !resource.hasLink(Api.LINK_REL_RESPONDACTION);
+}
+
+private void waitAWhile() {
+  try {
+    Thread.sleep(INCREMENTAL_WAIT_TIME);
+  } catch (InterruptedException e) {
+    throw new RuntimeException(e);
+  }
+  resource = client.get(Api.LINK_REL_SELF)
+      .toObject(OrderResource.class);
+}</programlisting>
+    <para>
+      Remember that we implemented the barista's notification to the customer using polling, which is nothing more then
+      repeatedly refreshing the representation until a link appears that lets us continue (see
+      <xref linkend="polling"/>). Here's the remainder of the scenario implementation:
+    </para>
+    <programlisting>@When("the barista calls her name")
+public void served() {
+  resource = client.get(Api.LINK_REL_RESPONDACTION)
+      .toObject(ServingResource.class);
+}
+
+@Then("her serving is ready")
+public void assertServing() {
+  assertTrue("Missing link",
+      resource.hasLink(Api.LINK_REL_RECEIVEACTION));
+}
+
+@When("she takes her serving")
+public void takeServing() {
+  resource = client.delete(Api.LINK_REL_RECEIVEACTION)
+      .toObject(ResourceSupport.class);
+}
+
+@Then("she is happy")
+public void end() {
+  // Nothing to do
+}</programlisting>
+    <para>
+      Note that in the above code the client explicitly selects the HTTP methods to use, using
+      <literal>client.get()</literal>, <literal>client.post()</literal>, etc. This is the way to go if the server 
+      doesn't include this information in its responses. If the server uses a more mature media type like JSON-LD with
+      Hydra, then the client can refrain from hard-coding the HTTP methods. In that case, the <literal>Client</literal>
+      class would offer a generic <literal>follow()</literal> method that would retrieve the correct HTTP method from
+      the response.
     </para>
     <para>
-      TODO: Finish
-    </para>
-    <para>
-      We'll talk more about the relationship between testing and making changes in <xref linkend="consumer-contract"/>.
+      Tests prove that your code works as expected and prevent regressions from entering production. Since they
+      capture expectations, they must be updated when those expectations change. IOW, breaking API changes may lead to 
+      re-work in the tests. This is the same pain that the API users will experience when you change your API, so listen
+      carefully to the pain and look for ways to ease it. We'll talk more about the relationship between testing and 
+      making API changes in <xref linkend="consumer-contract"/>.
     </para>
   </section>
 
   <section id="sdk">
     <title>Building an SDK</title>
     <para>
-      The test code you write is just that: code. Therefore the same considerations apply to it as to the code that
+      The test code you write is just that: code. Therefore the same considerations apply as for the code that
       implements your API. You'll need to evolve your tests over time just like you need to evolve your implementation, 
-      and it pays to treat your test code with the same care.
-      In particular, keep your test code as DRY (see <xref linkend="controller"/>) as your implementation code. That will make 
-      it much less painful to change your tests later.
+      and it pays to treat your test code with the same care. In particular, keep your test code as DRY (see 
+      <xref linkend="controller"/>) as your implementation code. That will make it much less painful to change your
+      tests later.
     </para>
     <para>
       Since the tests exercise your API, they are in fact a client of it. Keeping your test code DRY has the interesting 
       side effect of building up a <firstterm>Software Development Kit</firstterm> (SDK) for your API. Remember from 
       <xref linkend="dx"/> that offering an SDK is a good way to improve the DX.
+    </para>
+    <para>
+      The <literal>Client</literal> class from the previous section can be seen as the core of an SDK. As you implement
+      more scenarios, you'll see common patterns of how you are using the API and thus the <literal>Client</literal>
+      class. Extract common code into methods and classes and move those into the SDK. The SDK will slowly move away
+      from low-level details like HTTP methods and link relations towards business domain processes.
     </para>
     <para>
       Since the tests play the role of API client, they should follow the guidelines for clients presented in 
@@ -301,18 +453,18 @@ public void order(String drink) {
       The SDK you're building up when implementing your tests will be written in whatever language you have chosen for
       automating your tests. If some clients are not written in that language, you may have to spend some 
       additional effort to port your SDK to the languages that your API users (i.e. the developers that build clients) 
-      want to use. This is additional work, but you have an existing SDK that you can start from. And while you're
-      porting your SDK, developers can look at the current SDK to see how to call your API.
+      want to use. This is additional work, but at least you'll have an existing SDK that you can start from.
     </para>
     <para>
       The SDK powers your functional tests, and hopefully delights your users. But it can do more. As discussed earlier,
       you will have different kinds of tests in addition to functional tests, like performance tests. These tests can
-      obviously benefit from the SDK as well.
+      obviously benefit from the SDK as well. Take this opportunity, because it will help you create an SDK that works
+      for as many different usage patterns as possible.
     </para>
     <para>
       An SDK can make using an API easier by hiding implementation details, like the specifics of a certain HTTP client
       library. The client developer then doesn't need to learn how to use a HTTP library; he can simply make method
-      calls. You have to be careful with this, however, so that you don't fall for any of the 8 Fallacies of Distributed
+      calls. You have to be careful with this, however, so that you don't fall for any of the Fallacies of Distributed
       Computing <citation>Rotem06</citation>. Especially the first two (the network is reliable, latency is zero) will
       get you into trouble.
     </para>
@@ -345,10 +497,10 @@ public void order(String drink) {
   <section id="test-security">
     <title>Security Testing</title>
     <para>
-      You will want to verify that your system meets the expectations with regard to security. Remember from
-      <xref linkend="security"/> that security problems split roughly evenly between design flaws and implementation
-      bugs. The first part of security testing deals with design flaws. This is really just testing the system's
-      security features, using the techniques for functional testing described above.
+      You will want to verify that your system meets the expectations with regard to security as well as functionality.
+      Remember from <xref linkend="security"/> that security problems split roughly evenly between design flaws and 
+      implementation bugs. The first part of security testing deals with design flaws. This is really just testing the 
+      system's security features, using the techniques for functional testing described above.
     </para>
     <para>
       Remember that we derived the system's security features during threat modeling.
@@ -368,11 +520,16 @@ public void order(String drink) {
       use a much lower number in our test environment than we would in production.
     </para>
     <para>
+      Externalizing such configuration from the code is a good practice <xref linkend="separate-config-from-code"/>
+      that will make your life easier in the future when the settings needs to be changed for non-code related reasons
+      like the deployment of more powerful hardware.
+    </para>
+    <para>
       Other security features may even be impossible to verify in a test environment. Maybe you're using a Hardware
-      Security Module (HSM) in production, for example, for managing and safeguarding cryptographic keys. 
-      You may not have budget to purchase another one just for testing purposes. Luckily, the features that are 
-      most expensive to replicate in a test environment are usually also least likely to change. So you can manually 
-      verify that they work before you launch and then, say, annually to verify they continue to do so.
+      Security Module (HSM) in production for managing and safeguarding cryptographic keys and don't have budget to 
+      purchase another one just for testing. Luckily, the features that are most expensive to replicate in a test 
+      environment are usually also the least likely to change. So you can manually verify that they work before you
+      launch and then periodically to verify they continue to do so.
     </para>
     <para>
       Some features may be too difficult for you to test because you lack the required security skills. You can opt to 
@@ -382,14 +539,15 @@ public void order(String drink) {
     </para>
     <para>
       Penetration testers are not cheap, but well worth the money. In some cases, they are virtually a must. For 
-      instance, as a cloud service provider, you probably don't want every customers to go into your data center to
+      instance, as a cloud service provider, you probably don't want every customer to go into your data center to
       perform an audit. You can still satisfy the customer's need to understand your security posture by handing them a
       report from a reputable pentesting company.
     </para>
     <para>
       Penetration testers can work with a black-box kind of approach, where they don't have much insight into your
       defenses, or you can provide them with as much detail as they want. The former gives them a level playing field
-      with real-world attackers, but it may limit what they can find. Therefore, we favor the white-box approach where
+      with real-world attackers, but it may limit what they can find. Motivated attackers are likely to have a lot more 
+      time to find holes than you're willing to pay pentesters. Therefore, we favor the white-box approach where
       the pentesters have access to architectural diagrams, the threat model, etc. Some companies even give pentesters
       access to source code.
     </para>
@@ -404,7 +562,7 @@ public void order(String drink) {
       any third party code that you embed in addition to your own code. Verifying external code is part of a larger
       <firstterm>supply chain management</firstterm> effort that is becoming ever more important for securing systems.
       It is estimated that roughly 70% of vulnerabilities are now caused by third party code. This is not surprising,
-      given our increased reliance on open source.
+      given the industry's increased reliance on open source.
     </para>
     <para>
       SAST tools are good at finding certain types of bugs that are very relevant for testing APIs, like the injection
@@ -416,11 +574,11 @@ public void order(String drink) {
       You don't need a pentester to operate a SAST tool, of course. While some of these tools may have somewhat of a 
       learning curve, any good developer can master them. The next step is to integrate the SAST tool into your
       Continuous Integration pipeline. These tools can take a long time to run, so you may not want to do so on every
-      commit, but rather once per day. 
+      commit, but rather once per day or week. 
     </para>
     <para>
       SAST tools do their magic without running the application. In contrast, <firstterm>Dynamic Application Security
-      Testing</firstterm> (DAST) works against a running instance of your software. Like SAST, DAST finds mostly
+      Testing</firstterm> (DAST) tools work against a running instance of your software. Like SAST, DAST finds mostly
       implementation bugs, but the types of bugs found are somewhat different. It therefore pays to perform both
       kinds of tests.
     </para>
@@ -431,20 +589,20 @@ public void order(String drink) {
     </para>
     <para>
       An interesting approach to security testing is <firstterm>BDD Security</firstterm>, which couples BDD with
-      security tools like ZAP <citation>BDD Security</citation>. It thus unifies functional and security testing through
+      SAST tools like ZAP <citation>BDD Security</citation>. It thus unifies functional and security testing through
       a single technique and toolchain.
     </para>
     <para>
       BDD Security also comes with a set of predefined scenarios to test various security features that are common
-      across applications. This is a nice application of the notion of attack library we saw in <xref linkend="tm"/>.
+      across applications. This is a nice application of the notion of an attack library that we discussed in
+      <xref linkend="threat-modeling"/>.
     </para>
     <para>
       One special type of DAST tool may be interesting for testing APIs. <firstterm>Fuzz testing</firstterm>
       or <firstterm>fuzzing</firstterm> involves providing invalid, unexpected, or random data as input. This data is
       usually generated from valid input. The program is then monitored for exceptions such as crashes, or other
-      unwanted behavior. This is a good way to verify the completeness of your input validation. Fuzz testing often 
-      finds odd oversights and defects which human testers would fail to find, and even careful human test designers
-      would fail to create tests for.
+      unwanted behavior. This is a good way to verify the completeness of your input validation. Fuzz testing can 
+      find odd oversights and defects which even careful human test designers would fail to create tests for.
     </para>
   </section>
   
@@ -459,7 +617,8 @@ public void order(String drink) {
     <para>
       Nevertheless, this can be helpful when implementing any client, including a test. The test can issue its requests 
       and inspect the responses. Any validations on those responses will fail, of course, since the server isn't really
-      implemented yet, but at least the tests can be written and verified to interact correctly with the server.
+      implemented yet, but at least the tests can be written and verified to interact correctly with the server. This is
+      particularly helpful when writing the tests before the server is complete.
     </para>
     <para>
       We can go a step further by adding examples to the API description. Remember that a RADL
