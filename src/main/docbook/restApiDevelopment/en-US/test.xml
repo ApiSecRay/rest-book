@@ -16,8 +16,8 @@
       <listitem>
         <para>
           The first question to ask is whose expectations we are checking. There are at least two answers to that
-          question: customers and developers, and so the Agile community talks about <firstterm>programmer 
-          tests</firstterm> and <firstterm>customer tests</firstterm>.
+          question: customers and developers, and so the Agile community talks about <firstterm>customer 
+          tests</firstterm> and <firstterm>programmer tests</firstterm>.
         </para>
         <para>
           As every writer knows, the audience shapes the form his message must take. So we'll write programmer tests
@@ -134,30 +134,30 @@
     </para>
     <para>
       We hope you already have unit tests in place to white-box test your implementation. We also hope you have a
-      Continuous Integration (CI) server in place, which runs the unit tests on every commit. The next step is to
-      create a suite of automated black-box tests against your API.
+      Continuous Integration (CI) server in place, which runs the unit tests on every change to the code. The next step 
+      is to create a suite of automated black-box tests against your API.
     </para>
     <para>
       While you certainly <emphasis>can</emphasis> write white-box tests at the API level, we suggest you write
-      black-box tests instead (or in addition to). The ultimate test of your system is that your clients can use the
+      black-box tests instead (or in addition). The ultimate test of your system is that your clients can use the
       API, and they won't be able to see your system's internals. If your API isn't sufficient to make black-box testing
       possible, chances are that it isn't complete enough for some clients to do their work.
     </para>
     <para>
       If you started your analysis using Behavior-Driven Development (BDD), as we suggested in <xref linkend="analysis"/>,
       then you're already halfway to an automated black-box test suite. All you need to do is write some glue code that
-      translates the BDD scenarios into HTTP calls against your server and that verifies the assertions made in the
-      <literal>Then</literal> parts of the scenarios.
+      translates the BDD scenarios into HTTP calls against your server (<literal>Given</literal>
+      and<literal>when</literal>) and that verifies the assertions (<literal>Then</literal>).
     </para>
     <para>
-      If you don't have BDD scenarios at all, then you'll need some other method of creating test specifications. The 
-      details of what follows will be different, but the idea remains the same: make calls into your API to verify that
-      the implementation matches expectations. 
+      If you don't have any BDD scenarios, then you'll need some other method of creating test specifications. The 
+      details of what follows will be different, but the idea remains the same: make a series of calls into your API to 
+      verify that the implementation matches expectations.
     </para>
     <para>
       It's very useful for debugging purposes to use a correlation ID (see <xref linkend="correlation"/>) so that the
       different requests and responses for a given test case can be related. This is otherwise non-trivial when you
-      run tests in parallel (as you should to get quicker feedback). The test case name makes a good candidate as the
+      run tests in parallel (which you should to get quicker feedback). The test case name makes a good candidate as the
       value of the correlation ID.
     </para>
     <para>
@@ -203,7 +203,65 @@
     </para>
     <programlisting>@When("she reads the menu")
 public void getMenu() {
+  resource = client.get(Api.LINK_REL_MENU).toObject(MenuResource.class);
 }</programlisting>
+    <para>
+      Here we use the <literal>client</literal> object to issue a <literal>GET</literal> request on the URI found by
+      following the link relation defined by the constant <literal>Api.LINK_REL_MENU</literal>. Remember from
+      <xref linkend="controller"/> that the <literal>Api</literal> class contains constants for various components that 
+      make up the API, like link relations. The server team publishes the <literal>Api</literal> class so client teams
+      can consume it.
+    </para>
+    <para>
+      The <literal>toObject()</literal> method in the above code converts the response to an instance of the
+      <literal>MenuResource</literal> class. This is the same Data Transfer Object (DTO) that the server uses and can
+      also be published by the server team. Alternatively, the server team can publish their API description (see
+      <xref linkend="radl"/>) and the client team can generate the appropriate DTO classes for their development 
+      environment (which may be different than the server team's).
+    </para>
+    <para>
+      Remember from <xref linkend="server-arch"/> that converting a response into a DTO is the responsibility of a 
+      message converter. You will need message converters on the client for the media type(s) that the client wants to
+      use, which may be a subset of the media types the server supports.
+    </para>
+    <para>
+      If client and server are implemented using the same progamming language and HTTP framework, then they may share 
+      the same libraries of message converters, but that is by no means a requirement. The goal of the REST 
+      architectural style is loose coupling, and it's perfectly fine to use a different HTTP framework or even
+      programming language on the client than on the server. Each team gets to make the best choice for their specific 
+      context.
+    </para>
+    <para>
+      The above code looks into the response for the menu link relation, which implies that at least one request has
+      been made. This is the request that jumpstarts every client, so it is performed as soon as the test class is
+      created:
+    </para>
+    <programlisting>private ResourceSupport resource;
+private final Client client = new Client(BILLBOARD_URI, Api.DEFAULT_MEDIA_TYPE);</programlisting>
+    <para>
+      The <literal>Client</literal> class is responsible for communicating with the server. We tell it the server's
+      billboard URI so that it can issue a <literal>GET</literal> request to the server to start the client's process,
+      as depicted in <xref linkend="client-flow"/>. We'll come back to the <literal>Client</literal> class in the next
+      section, but let's finish the scenario first.
+    </para>
+    <para>
+      The next line of the scenario places an order:
+    </para>
+    <programlisting>@When("she orders a $drink")
+public void order(String drink) {
+  ItemResource item = parseItem(drink);
+  ItemResource result = findMenuItem(item);
+  assertNotNull("Item not on the menu: " + item.name, result);
+
+  OrderResource order = new OrderResource();
+  order.customer = customer;
+  order.items = new ItemResource[] { item };
+  resource = client.post(order, Api.LINK_REL_ORDERACTION).toObject(OrderResource.class);
+}</programlisting>
+    <para>
+      We parse the drink in the scenario line into its parts, so that we know what item to order. We then look through 
+      the menu to find it, create a order for it, and place the order witht the server.
+    </para>
     <para>
       TODO: Finish
     </para>
