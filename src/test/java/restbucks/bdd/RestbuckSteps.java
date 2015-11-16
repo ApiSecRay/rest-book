@@ -62,17 +62,16 @@ public class RestbuckSteps {
   }
 
   private ItemResource findMenuItem(ItemResource item) {
-    ItemResource result = null;
     MenuResource menu = (MenuResource)resource;
     if (menu == null || menu.items == null) {
-      return result;
+      return null;
     }
     for (ItemResource candidate : menu.items) {
       if (candidate.name.equals(item.name)) {
-        result = candidate;
+        return candidate;
       }
     }
-    return result;
+    return null;
   }
 
   private ItemResource parseItem(String drink) {
@@ -80,7 +79,7 @@ public class RestbuckSteps {
     String[] parts = drink.split("\\s+");
     item.size = parts[0];
     item.milk = parts[1];
-    
+
     Assert.assertEquals("No milk in drink", "milk", parts[2]);
     item.name = parts[3] + ' ' + parts[4];
     return item;
