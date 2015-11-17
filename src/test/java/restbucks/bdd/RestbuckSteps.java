@@ -160,7 +160,7 @@ public class RestbuckSteps {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
-    resource = client.get(Api.LINK_REL_SELF).toObject(OrderResource.class);
+    resource = client.get(Api.LINK_REL_RESPONDACTION).toObject(OrderResource.class);
   }
 
   @When("the barista calls her name")
