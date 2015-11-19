@@ -1,7 +1,7 @@
 <chapter id="operations">
   <title>Operations</title>
   <para>
-    Now that we have a fully functional implementation of the API and we know it meets our expectations, we're ready to
+    Now that we have a fully functional implementation of the API that we know meets our expectations, we're ready to
     deploy the server into production and derive business value from it.
   </para>
   <para>
@@ -15,9 +15,9 @@
     <emphasis>operability</emphasis> to indicate how easy it is to operate a product.
   </para>
   <para>
-    Operability is one of the non-functional requirements that is often forgotten early on in the development lifecycle 
-    (see <xref linkend="non-functional-requirements"/>). Yet with a little bit of thinking ahead, we can make our lives
-    a lot easier later on. Remember that most of a software product's life is spent running.
+    Operability is one of the non-functional requirements that is often thought of only relatively late in the 
+    development lifecycle (see <xref linkend="non-functional-requirements"/>). Yet with a little bit of thinking ahead, 
+    we can make our lives a lot easier later on. Remember that most of a software product's life is spent running.
   </para>
   <para>
     This chapter discusses some issues that often come up when running REST APIs in production.
@@ -27,8 +27,9 @@
     <title>Separating Configuration From Code</title>
     <para>
       One of the best practices for running software is to separate configuration from code. 
-      <firstterm>Configuration</firstterm> encompasses information that is likely to differ from one environment to the 
-      next. By separating it from the code you prevent having to change your code for different deployment environments.
+      <firstterm>Configuration</firstterm> encompasses information that is likely to differ from one environment in
+      which the software runs to the next. By separating configuration from the code you prevent having to change your 
+      code for different environments.
     </para>
     <para>
       For programs with REST APIs, you should make the billboard URI part of the program's configuration, so that you
@@ -36,8 +37,12 @@
       different instances of your programming running for development, testing, and production. But you may also want
       different instances running in production, say for different SLAs, or for sales demos. You may even offer a
       sandbox where interested people can try out your program, or where partners may test their add-ons against your
-      API. This may be as simple as running the program on a different host, or it may involve configuring different
-      URIs on the same host.
+      API.
+    </para>
+    <para>
+      This may be as simple as running the program on a different host, or it may involve configuring different
+      URIs on the same host. In general, you should at least make the port on which the server listens for requests
+      configurable.
     </para>
     <para>
       If your program is part of a collection of microservices, then you will also want to make the locations of the
@@ -51,18 +56,18 @@
       from environment to environment, like other configuration, but additional considerations apply. In case of
       a breach, you want to be able to change compromised credentials quickly, and changing code, testing it, and 
       deploying it into production is simply not fast enough. Also, developers in many environments are not allowed to 
-      have access to production passwords, for external compliance or internal policy reasons.
+      have access to production passwords, for external compliance and/or internal security policy reasons.
     </para>
     <para>
-      There are several ways to separate configuration from code. One way of doing that is using environment 
-      variables, as is recommended for so-called twelve-factor apps <citation>12factor</citation>. Environment variables
-      are a low-tech solution that is available on any conceivable platform. For this reason, this approach works well
-      when deploying software into a Platform-as-a-Service (PaaS) solution like CloudFoundry or Heroku.
+      There are several ways to separate configuration from code. One way is to use environment variables, as is
+      recommended for so-called twelve-factor apps <citation>12factor</citation>. Environment variables are a low-tech
+      solution available on any conceivable platform. For this reason, this approach works well when deploying
+      software into a <firsterm>Platform-as-a-Service</firsterm> (PaaS) solution like CloudFoundry, Azure, or Heroku.
     </para>
     <para>
       Other solutions can work as well. Configuration files that the program reads on startup or when it needs
       information offer a bit more structure than environment variables. Structured data formats like XML, JSON, or YAML 
-      work well for configuration files. Another solution would be to use the Windows registry.
+      work well for configuration files.
     </para>
     <para>
       There also exists a class of tools known as <firstterm>configuration management software</firstterm> that can
@@ -91,19 +96,19 @@
     <title>Logging and Monitoring</title>
     <para>
       <firstterm>Logging</firstterm> is the act of sending out information about the state of the application while it 
-      runs. While in theory one can write log output to any medium, in practice logging goes to either the console or 
-      to file. The former is the simplest and is favored in twelve-factor apps, because the PaaS in which these apps
+      is running. While in theory one can write log output to any medium, in practice logging goes to either the console 
+      or to file. The former is the simplest and is favored in twelve-factor apps, because the PaaS in which these apps
       run provides facilities to further process the output.
     </para>
     <para>
-      For instance, log output from multiple apps and multiple instances of the same app can be combined into a central
-      log database that can be queried. Some of these queries can even happen automatically and the information thus 
-      obtained can power statistics and graphs in production dashboards.
+      Log output from multiple apps and multiple instances of the same app can be combined into a central log database
+      that can be queried. Some of these queries can even happen automatically and the information thus obtained can
+      power statistics and graphs in production dashboards.
     </para>
     <para>
-      Log files can be more convenient than the console if you don't have access to such log 
-      infrastructure. They are a sink in which information is collected, so the developer can analyze them at a later 
-      time rather than having to watch the output fly by in real time.
+      Log files can be more convenient than the console if you don't have access to such log infrastructure. They are a 
+      sink in which information is collected, so the developer can analyze them during a post mortem rather than having 
+      to watch the output fly by in real time.
     </para>
     <para>
       There exists several logging frameworks that can output to either the console, log files, or both. You should use 
@@ -129,9 +134,9 @@
     </para>
     <para>
       Logging can aid a developer in debugging an issue, which is an ad-hoc way of using log output. It can be very 
-      instructive to use correlation IDs, especially in a microservices architecture (see <xref linkend="correlation"/>). 
+      instructive to use correlation IDs (see <xref linkend="correlation"/>), especially in a microservices architecture. 
       This allows you to see the connection between otherwise distinct messages and build up a global understanding of 
-      how the system behaves when used by real users.
+      how the system behaves at runtime.
     </para>
     <para>
       Hopefully this pictures matches the expectations, but that isn't always going to be the case. It's certainly 
@@ -148,22 +153,24 @@
     <para>
       Alerts can take many forms. They can be emails or pager messages that prompt a human to look at the event and 
       determine the appropriate course of action. You must take care to configure the alerts appropriately; if the tool 
-      acts as the boy who cried wolf, then in time human operators will learn to ignore the alerts.
+      acts as the boy who cried wolf, then in time human operators will learn to ignore the alerts and the most of the
+      value of monitoring is lost.
     </para>
     <para>
       Some monitoring tools can also take automatic action without any human intervention. The tool could recognize that 
-      an application has crashed and automatically restart it, for instance (although this is usually the job of a 
-      PaaS). The monitoring tool can even analyze and correlate multiple events and draw conclusions from emerging 
-      patterns and deviations from normal, as in the case of fraud detection tools.
+      an application has crashed and automatically restart it, for instance (as a PaaS usually does for you). The 
+      monitoring tool can even analyze and correlate multiple events and draw conclusions from emerging patterns and
+      deviations from normal, as in the case of fraud detection tools.
     </para>
     <para>
       Debugging and alerting are reactive activities, prompted by seeing undesired events. But logging can also play a
       more proactive role by making measurements that show problems before they arise or that fuel future improvement 
-      initiatives.
+      initiatives. For instance, a monitoring tool could detect that memory usage is increasing and pre-emptively
+      restart the application to avoid an out of memory error.
     </para>
     <para>
       You should define a couple of <firstterm>Key Performance Indicators</firstterm> (KPIs) for your API, numbers that 
-      ideally clearly express how well the application is doing in a certain dimension. For instance, the 
+      clearly express how well the application is doing in a certain dimension. For instance, the 
       <firstterm>Apdex</firstterm> value concisely captures the performance of the application from the user's 
       perspective <citation>Apdex</citation>. Advanced organizations can even automatically roll back changes when a
       drop in Apdex is detected.
@@ -179,7 +186,7 @@
       important for reporting purposes, those numbers are not very actionable.
     </para>
     <para>
-      You need to decompose the global KPIs into other KPIs that are more forward looking and predictive. For instance,
+      You should decompose the global KPIs into other KPIs that are more forward looking and predictive. For instance,
       revenue can be decomposed into number of users and Average Revenue Per User (ARPU). Increasing either of these
       numbers will increase revenue, but you go about increasing them in different ways. Making the distinction yields
       more actionable KPIs.
@@ -191,16 +198,16 @@
     </para>
     <para>
       Each stage of the funnel may have its own KPIs. For instance, in the awareness stage you may want to track where
-      users come from, while NPS is a more relevant KPI in the later stages. Since you'll have users in all stages,
-      you need many different KPIs. One particularly important KPI for the early stages is <emphasis>Time To First
-      Hello World</emphasis>, which measure the time it takes a developer to write their first simple client of your API.
+      users come from, while Net Promoter Score (NPS) is a more relevant KPI in the later stages. Since you'll have 
+      users in all stages, you need many different KPIs. One particularly important KPI for the early stages is 
+      <emphasis>Time To First Hello World</emphasis>, which measures the time it takes a developer to write their first 
+      simple client of your API.
     </para>
     <para>
       Users can get stuck at each stage of the funnel, so measuring the <firstterm>conversion rate</firstterm> at
-      each stage is important to get insight into how to increase adoption. We can do that by logging the events of 
-      users moving to a new stage. The resulting measurements can help drive improvements. For instance, you can use 
-      the relative conversion rates to identify the phase of the Hook model of user adoption that requires more 
-      attention <citation>Eyal14</citation>.
+      each stage is important to get insight into how to increase adoption. The resulting measurements can help drive 
+      improvements. For instance, you can use the relative conversion rates to identify the phase of the Hook model of 
+      user adoption that requires more attention <citation>Eyal14</citation>.
     </para>
     <para>
       Users of your API are developers. While developers share many characteristics, they are not a homogeneous group
@@ -232,8 +239,10 @@
   <section id="sec-ops">
     <title>Vulnerability Disclosure</title>
     <para>
-      We discussed vulnerabilities in some detail in <xref linkend="security"/>, but there is an operational side to 
-      them as well that we should look at.
+      We discussed vulnerabilities and how to prevent them in <xref linkend="security"/>. However hard we try to prevent
+      them, there is always a chance of them showing up in production and we should be prepared to handle them swiftly.
+      This is one of those situations where you want to practice the playbook so that everybody knows what to do when
+      things get nasty.
     </para>
 	  <para>
 	    Vulnerabilities may be known or unknown. The latter are called <firstterm>zero-day</firstterm> vulnerabilities,
@@ -254,10 +263,10 @@
 	    they find immediately. This means that the vulnerabilities can now be exploited by anyone, and users are at risk.
 	    For this very reason, other people prefer to keep the vulnerabilities a secret until a fix is available. The
 	    middle ground is taken by people who will give providers a certain amount of time, say 90 days, after which
-	    they will disclose their findings  .
+	    they will disclose their findings. This is to make sure providers actually do provide fixes in a timely manner.
 	  </para>
 	  <para>
-	    At the very least, you should offer a way for people to report vulnerabilities. If you don't you risk that
+	    At the very least, you should offer a way for people to report vulnerabilities, or else you risk that
 	    any vulnerabilities that are found are made public before you get a chance to protect your customers' data.
 	    Our advice is to follow the convention of setting up an email address named 
 	    <literal>security@yourcompany.com</literal> where vulnerabilities can be reported. Always thank anyone
@@ -278,10 +287,10 @@
 	    easier for attackers to find a new hole in your defenses.
 	  </para>
 	  <para>
-	    To counterbalance the financial rewards of the zero-day black market, you can start your own <firstterm>bug 
-      bounty</firstterm> program, where they pay people who report vulnerabilities to them, so they can fix them before
-      they are exploited. This may or may not make sense for your API, depending on a lot of factors such as how widely 
-      your API is used and how valuable the data is that flows through it.
+	    To counterbalance the financial rewards of the zero-day black market, you could start your own <firstterm>bug 
+      bounty</firstterm> program, where you pay people who report vulnerabilities, so you can fix them before they are
+      exploited. This may or may not make sense for your API, depending on a lot of factors, such as how widely your API
+      is used and how valuable the data is that flows through it.
 	  </para>
   </section>
   
@@ -294,10 +303,10 @@
     </para>
     <para>
       Your users will want answers to their questions. Remember that the users of your API are developers. These people
-      may be a little different from what you're used to a end users, and may require a different approach. For 
-      instance, many developers will sooner look at <emphasis>StackOverflow</emphasis> that at your website. That 
-      doesn't mean you shouldn't have a section of your sebsite dedicated to support, but it does mean you need to also
-      use alternatives like StackOverflow and Twitter.
+      may be a little different from what you're used to as end users, and may require a different approach. For 
+      instance, many developers will rather look at StackOverflow than at your website. That doesn't mean you shouldn't
+      have a section of your website dedicated to support, but it does mean you need to <emphasis>also</emphasis> use
+      alternatives like StackOverflow and Twitter.
     </para>
     <para>
       It helps to think of support not as a reactive response to problems, but as a proactive enabler for users. Take
@@ -327,11 +336,11 @@
       learning cycle.
     </para>
     <para>
-      The <firstterm>Getting Started Guide</firstterm> should give a high-level overview of what the system is for and
-      why the client developer may want to build a client for it. It should be as short as possible and contain links
-      to more detailed documentation. It should tell the client how to perform one-time actions like acquiring an API
-      key if the API requires one. Finally, it should describe how to build the simplest program that can work with the
-      API, the equivalent of the infamous <literal>Hello, world!</literal> application.
+      The <firstterm>Getting Started Guide</firstterm> should provide a high-level overview of what the system is for
+      and why the client developer may want to build a client for it. It should be as short as possible and contain
+      links to more detailed documentation. It should tell the client how to perform one-time actions like acquiring an 
+      API key if the API requires one. Finally, it should describe how to build the simplest program that can work with 
+      the API, the equivalent of the infamous <literal>Hello, world!</literal> application.
     </para>
     <para>
       The next level is a <firstterm>Collection of Common Use Cases</firstterm>, with code examples that walk the client
@@ -345,7 +354,11 @@
     <para>
       Developers consistently cite SDKs (see <xref linkend="sdk"/>) and code samples in the top three resources that 
       make them successful, so you should really have one. The Collection of Common Use Cases should show the client 
-      developer how to use the SDK. One way of capturing these examples is to have the SDK log its actions, both in 
+      developer how to use the SDK.
+    </para>
+    <para>
+      <!-- TODO: bit more detail -->
+      One way of capturing these examples is to have the SDK log its actions, both in 
       terms of the programming language API it provides and in terms of plain HTTP (e.g. using <literal>curl</literal>), 
       since there may not be a version of the SDK in the client developer's preferred programming language.
     </para>
