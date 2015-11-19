@@ -416,6 +416,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Hydra Console</abbrev>
+    <biblioid class="uri">TODO: URL</biblioid>
+  </biblioentry>
+    
+  <biblioentry>
     <abbrev>IANA</abbrev>
     <biblioid class="uri">http://www.iana.org/</biblioid>
   </biblioentry>

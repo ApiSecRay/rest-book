@@ -47,16 +47,16 @@
         <term>Adding a new link to a response</term>
         <listitem>
           <para>
-            Adding new links in similar to adding new optional properties. The new links may point to new resources that
+            Adding new links is similar to adding new optional properties. The new links may point to new resources that
             the old clients know nothing about. Those clients can still discover the new resources via the new links.
             Depending on the client's capabilities and the richness of the media type (see
             <xref linkend="media-types"/>), old clients may even be able to use the new resources! This is the power of
             hypermedia at work.
           </para>
           <para>
-            You can add new links to any response you deem fit. Big chunks of new functionality should be added 
-            to the home resource (see <xref linkend="home"/>), unless you have a good reason to place them
-            somewhere else.
+            You can add new links to any response you deem fit. If there isn't a natural place to add links because
+            the new resource isn't related to existing resources, then it makes sense to add the link to the home 
+            resource (see <xref linkend="home"/>).
           </para>
         </listitem>
       </varlistentry>
@@ -92,6 +92,7 @@
             An old client will not know to use the new name of the property. It will provide values under the old name,
             which the new server won't pick up. If the property is mandatory, the request will be rejected and the
             client is broken. If the property is optional, it will be ignored, which may be okay or may be disastrous.
+            Either way, the behavior is different from before and thus may violate expectations.
           </para>
         </listitem>
       </varlistentry>
@@ -109,8 +110,8 @@
         <listitem>
           <para>
             And old client may still set the property. The server should ignore the now-unknown property. This may be
-            fine for the client, or it may not be. Some clients may rely on the provided value being there later and
-            may break if it isn't there.
+            fine for the client, or it may not be. Some clients may rely on the provided value being there and may
+            break if it isn't.
           </para>        
         </listitem>
       </varlistentry>
@@ -127,15 +128,15 @@
         <term>Removing a link</term>
         <listitem>
           <para>
-            The effects of this change are similar to changing the link's relation.
+            This is similar to changing the link's relation.
           </para>
         </listitem>
       </varlistentry>
     </variablelist>
     <para>
-      Backwards compatible changes are always safe. They are very limited in scope, however, as the above list shows.
-      In practice, we may get away with a change that is not backwards compatible in theory. The trick is to know your
-      clients. Let's see how we can acquire such knowledge.
+      Backwards compatible changes are always safe, but the above list shows that they are very limited in scope.
+      In practice, we may get away with a change in practice that is not backwards compatible in theory. The trick is 
+      to know your clients. Let's see how we can acquire such knowledge.
     </para>
   </section>
   
@@ -211,7 +212,7 @@
     <para>
       In this situation, you may rely on the consumer contract and hope for the best, or you may play safe and limit
       yourself to only backwards compatible changes. But at some point you will probably have to introduce a breaking
-      change, so let's see how we can manage those.
+      change, so let's see how we can manage that.
     </para>
   </section>
 
@@ -225,7 +226,7 @@
     <para>
       This obviously has a cost associated with it, which is why you should always try to avoid it using the techniques
       described earlier. You should be aware of these costs and also of the benefits and make an informed decision on
-      how to proceed. Now let's assume you want to go through with multiple versions of your API. 
+      how to proceed. In the following we assume you want to go through with supporting multiple versions of your API. 
     </para>
     <para>
       One particularly widespread approach to implementing the idea of multiple versions of an API is to add a version
@@ -245,7 +246,7 @@
           Versioning the entire API as a whole also means that a client must adapt to all the changes of the new version
           at the same time. This is more work for the client developer, which makes it less likely that the client will
           move to the new version. With clients hesitant to move to newer versions, you'll end up maintaining more
-          versions in parallel than perhaps needed.
+          versions in parallel than you would like.
         </para>
         <para>
           In short, this approach rewards precisely the sort of big bang releases (in both servers and clients) that the 
@@ -264,7 +265,7 @@
       <listitem>
         <para>
           It's more work to implement. REST frameworks map URIs to code, so if the URI changes then that mapping must
-          be updated. And this needs to happen for resources that don't change, as per the first point.
+          be updated. And this needs to happen as well for resources that don't change, as per the first point.
         </para>
       </listitem>
     </itemizedlist>

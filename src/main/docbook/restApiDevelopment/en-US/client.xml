@@ -25,7 +25,8 @@
     Unlike browsers, most REST clients today are specifically built to consume a single API. The main reason for that
     is it's currently extremely difficult to write a client that can handle multiple APIs and do useful work with them.
     There exist some browser-like clients that can consume any level 3 API (see <xref linkend="maturity"/>), but they
-    usually don't offer the kind of user experience that is expected today <citation>Siren Browser</citation>.
+    usually don't offer the kind of user experience that is expected today <citation>Siren Browser</citation>
+    <citation>Hydra Console</citation>.
   </para>
   <para>
     REST clients might become more generic in the future, if more REST APIs move to level 4. It's conceivable that a
@@ -40,10 +41,11 @@
   <section id="implement-client">
     <title>Implementing Clients</title>
     <para>
-      With all the documentation at hand to help out, the next step in building a REST client is to implement the
-      general flow of <xref linkend="client-flow"/> for the API at hand. This requires using an SDK or a general
-      purpose HTTP client library for your programming language. There are also libraries that support generic REST
-      clients at an abstraction level above HTTP.
+      To implement a client, we need to know how to communicate with the server. The server's API documentation should
+      provide this information (see <xref linkend="support"/>). Armed with this knowledge, we can set out to implement
+      the general flow of <xref linkend="client-flow"/>. This requires using an SDK (see <xref linkend="sdk"/>) or a 
+      general purpose HTTP client library for your programming language. There are even libraries that support generic 
+      REST clients at a higher abstraction level than HTTP.
     </para>
     <para>
       The first step is to retrieve the home resource by issuing a <literal>GET</literal> on the billboard URI. This
@@ -54,7 +56,7 @@
       It's likely that the service is accessible over HTTPS rather than plain HTTP. It may even support both, in which
       case you should pick the safer HTTPS option. Make sure you validate the server's certificate properly (see
       <xref linkend="cryptography"/>) and report any problems you may find with it (see <xref linkend="support"/>).
-      Your HTTP library should have documentation on how to handle TLS connections.
+      The SDK or HTTP library should have documentation on how to handle TLS connections.
     </para>
     <para>
       It's also likely that your client needs to authenticate with the server. As we saw in 
@@ -64,17 +66,19 @@
     <para>
       Many HTTP client libraries will handle Basic and Digest authentication for you, while OAuth2 is usually
       implemented by specific libraries or frameworks <citation>Spring Security OAuth</citation>. Use such libraries or 
-      frameworks and only create your own implementation if you absolutely have to. In that case, the Decorator pattern
-      is applicable to wrap an authenticating client around a standard client <citation>GammaEtAl94</citation>.
+      frameworks and only create your own implementation if you absolutely have to. In that case, apply the Decorator 
+      pattern and wrap an authenticating client around a standard client <citation>GammaEtAl94</citation>.
     </para>
     <para>
       If your client requires credentials for authenticating (other then a human user's credentials), then you must
-      store that securely. Don't store any credentials in source code, because that makes the credentials hard to
-      change. It may also a security risk; there have been documented cases where hackers used credentials they found in
+      store that securely. Don't ever store credentials in source code, because that makes the credentials hard to
+      change. It's also a security risk; there have been documented cases where hackers used credentials they found in
       source code on GitHub to breach systems. 
     </para>
     <para>
-      TODO: be more helpful about how to store credentials securely
+      The least you can do is store the credentials in a configuration file with the appropriate restrictions in 
+      permissions. You can also use any of the other configuration options discussed in
+      <xref linkend="separate-config-from-code"/>, but pay extra special care to securing access to the configuration.
     </para>
     <para>
       Once the client has connected to the server's billboard URI, it gets a response. This will usually be a home
@@ -94,10 +98,16 @@
     <para>
       Once the client has received a response from the server, it must extract data, links, and forms from it.
       This requires the client to parse the media type. For lots of media types there are libraries available that
-      unmarshall the response into a programming language object. If there is no such library for the API's media type,
-      you can probably get by with a library for a more generic media type. For instance, if you can't find a library
-      that handles JSON-LD, you can use one that supports plain JSON. You can use the same library for marshalling
-      programming language objects into requests.
+      unmarshall the response into a programming language object.
+    </para>
+    <para>
+      If there is no such library for the API's media type, you can probably get by with a library for a more generic
+      media type. For instance, if you can't find a library that handles JSON-LD, you can use one that supports plain
+      JSON.
+    </para>
+    <para>
+      You can usually use the same library for marshalling programming language objects into requests as for
+      unmarshalling responses into objects.
     </para>
     <para>
       To make evolution of services easier, clients should follow the <firstterm>must-ignore</firstterm> pattern when
@@ -106,39 +116,38 @@
     </para>
     <para>
       The opposite of <emphasis>must-ignore</emphasis> is <firstterm>must-understand</firstterm>, where the client
-      must raise and error and stop processing when it encounters something it doesn't understand. There is definitely
+      must raise an error and stop processing when it encounters something it doesn't understand. There is definitely
       a place for <emphasis>must-understand</emphasis>, but in RESTful systems we try to minimize it as much as
       possible because it is a form of tight coupling between client and server.
     </para>
     <para>
       Faithful Hypermedia Clients will render the response and let the user pick a link. The links in the home
-      resource are usually rendered as a menu of choices that the user can select from. In the generic case, however,
-      a link may also be rendered as a button. For a media type that doesn't support forms, like HAL, a link may
-      also be rendered as a form. How the FHC will render a link depends on its understanding of it, as programmed in
-      by the client developer. 
+      resource are usually rendered as a menu of choices that the user can select from. A link may also be rendered as 
+      a button. For media types that don't support forms, like HAL, a link may also be rendered as a form. How the
+      FHC will render a link depends on its understanding of it, as programmed in by the client developer.
     </para>
     <para>
-      Autonomous Clients pick a link to follow themselves based on some criteria that were coded in by the client
-      developer. They may or may not render responses along the way, but when they do, its usually not in the form of
-      HTML, since they require no human interaction to reach their goals.
+      Autonomous Clients select a link by themselves based on some criteria that were coded in by the client
+      developer. They may or may not render responses along the way, for instance the form of log records of what they
+      did. Such renderings are usually not interactive, since Autonomous Clients require no human interaction to reach 
+      their goals.
     </para>
     <para>
-      Following a link means issuing a new HTTP request. This means selecting a new HTTP method, a new URI, and
-      optionally URI query string parameters and a method body. For a level 3b API, all this information will be in the
-      response, and the client can be fairly dumb. For a lower-level API, this information must be programmed in based
-      on the link relation and the current URI.
+      Following a link means issuing a new HTTP request. This means selecting a new HTTP method, a new URI, optionally
+      URI query string parameters, and a method body. For a level 3b API, all this information will be in the
+      response, and the client can simply retrieve this information. For a lower-level API, this information must be 
+      programmed in based on an understanding of the current state and the link relation to follow.
     </para>
     <para>
       For truly RESTful APIs, i.e. level 3a and above, the new URI will be in the response. Actually, the response will 
       contain a <firstterm>URI reference</firstterm> rather than a URI <citation>RFC 3986</citation>. When servers make
-      reference to a URI in a response, they do not always use the full or <firstterm>absolute URI</firstterm>. To save
-      space and take advantage of hierarchical locality, many servers return an abbreviation of a URI known as a
-      <firstterm>relative URI</firstterm>.
+      reference to a URI in a response, they do not always use the full or <firstterm>absolute URI</firstterm>. Many 
+      servers return an abbreviation of a URI known as a <firstterm>relative URI</firstterm>.
     </para>
     <para>
       A relative URI doesn't contain the <firstterm>scheme</firstterm> of a URI. For instance, the scheme of the URI
       <literal>http://www.example.com/foo/</literal> is <literal>http</literal>. An example of a relative URI is
-      <literal>/bar/</literal>. A relative reference takes advantage of the hierarchical syntax of URIs to express a URI
+      <literal>/bar/</literal>. A relative URI takes advantage of the hierarchical syntax of URIs to express a URI
       reference relative to the name space of another hierarchical URI.
     </para>
     <para>
@@ -154,8 +163,8 @@ URI resolvedUri = baseUri.resolve("baz/");
 assert URI.create("http://www.example.com/foo/bar/baz/")
     .equals(resolvedUri);</programlisting>
     <para>
-      The client should use those existing facilities rather than attempting its own implementation, because
-      there is a considerable chance that you will get it wrong. Compare the above code with the following, for
+      The client should use existing facilities for URI resolution rather than attempting its own implementation, 
+      because there is a considerable chance that you will get it wrong. Compare the above code with the following, for
       instance:
     </para>
     <programlisting>URI baseUri = URI.create("http://www.example.com/foo/bar");
