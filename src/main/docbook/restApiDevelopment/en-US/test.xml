@@ -624,7 +624,7 @@ public void end() {
       We can go a step further by adding examples to the API description. Remember that a RADL
       <literal>property-group</literal> describes the data that is transferred between client and server. You can add
       example values for the properties in a <literal>property-group</literal> and those will then be used by the
-      generated dummy implementation. If you're using BDD, then you can use the examples in the scenarios.
+      generated dummy implementation. If you're using BDD, then you can simply use the examples from the scenarios.
     </para>
     <para>
       There is also help for testing the server. You can add usage scenarios, like BDD scenarios, to RADL and the
