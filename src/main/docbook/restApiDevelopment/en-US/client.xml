@@ -110,7 +110,7 @@
       unmarshalling responses into objects.
     </para>
     <para>
-      To make evolution of services easier, clients should follow the <firstterm>must-ignore</firstterm> pattern when
+      To make evolution of services easier, clients should follow the <firstterm>must-ignore</firstterm> rule when
       processing data and links. This means that anything that the client encounters that it doesn't understand should
       be treated as if it weren't there.
     </para>

@@ -73,7 +73,23 @@
     </variablelist>
     <para>
       This is a very short list. You can really only change an API in a backwards compatible way by adding to it and
-      by relaxing constraints. Here's why other changes are not backwards compatible:
+      by relaxing constraints.
+    </para>
+    <para>
+      If you describe your representation with an XML or JSON Schema, then you can use the extensibility features of the
+      schema language to define a place where you can add properties. In XML Schema you can use the 
+      <literal>&lt;any&gt;</literal> element to allow any element, while JSON Schema accomplishes the same using the 
+      <literal>additionalProperties</literal> keyword.
+    </para>
+    <para>
+      Note that we argued against the use of schemas to validate representations in <xref linkend="input-validation"/>.
+      We mention schemas here only to show you how to formalize the notion that the server can add properties. If
+      you're not using a schema, you need some other way to convey to your clients that you reserve the right to add
+      properties and that clients must ignore them if they don't understand them (see the must-ignore rule in
+      <xref linkend="implement-client"/>).
+    </para>
+    <para>
+      Here's why other changes are not backwards compatible:
     </para>
     <variablelist>
       <varlistentry>
@@ -135,8 +151,9 @@
     </variablelist>
     <para>
       Backwards compatible changes are always safe, but the above list shows that they are very limited in scope.
-      In practice, we may get away with a change in practice that is not backwards compatible in theory. The trick is 
-      to know your clients. Let's see how we can acquire such knowledge.
+      While some changes are breaking in theory, they may be non-breaking in practice. For instance, removing a 
+      property that nobody uses is not really a problem. The trick is to know your clients. Let's see how we can
+      acquire such knowledge.
     </para>
   </section>
   
@@ -255,32 +272,67 @@
       </listitem>
       <listitem>
         <para>
-          It violates the best practice that "cool URIs don't change" <citation>CoolUris</citation>. This has very real
-          consequences, for example for performance. With multiple URIs pointing to the same resource, caching proxies
-          (see <xref linkend="caching"/>) will need more memory to store all the links, or store less resources in the
-          same amount of memory. The cache hit ratio may decrease as well, especially when the client is the one of
-          first or last to move to a new version.
+          Resources are identified by URIs. Removing a property doesn't usually mean you fundamentally change the
+          resource, so it follows that changing the URI is not a natural way to deal with such changes.
+        </para>
+        <para>
+          In particular, this approach violates the best practice that "cool URIs don't change"
+          <citation>CoolUris</citation>. This has very real consequences, for example for performance. With multiple 
+          URIs pointing to the same resource, caching proxies (see <xref linkend="caching"/>) will need more memory to 
+          store all the links, or store less resources in the same amount of memory. The cache hit ratio may decrease 
+          as well, especially when the client is the one of first or last to move to a new version.
         </para>
       </listitem>
       <listitem>
         <para>
           It's more work to implement. REST frameworks map URIs to code, so if the URI changes then that mapping must
-          be updated. And this needs to happen as well for resources that don't change, as per the first point.
+          be updated. And this needs to happen as well for resources that don't change, as per the first point. (If
+          you define your URIs in a single place, then you can limit the impact of such changes, as we saw in 
+          <xref linkend="controller"/>).
         </para>
       </listitem>
     </itemizedlist>
     <para>
-      Introducing new media types is one way to evolve your REST API when you must make backwards incompatible changes.
-      You can continue to serve old clients with the old media type, while new clients can take advantage of the new 
-      media type.
+      The root of the problem with the versioned URI approach is that a URI identifies a resource, and the resource
+      doesn't change. It's the representation of the resource that changes, so it makes more sense to look at
+      mechanisms at that level.
+    </para>
+    <para>
+      The client interacts with representation of the resource by requesting a certain media type through the process
+      of content negotiation using the <literal>Accept</literal> header. The server can support multiple media types 
+      for the same resource, so this process is very well suited to solve the versioning problem. You can continue to 
+      serve old clients with the old media type, while new clients can take advantage of the new media type.
+    </para>
+    <para>
+      To implement versioning, you can either come up with an entirely new media type, or you can parameterize the 
+      existing one. The HTTP specification allows the use of media type parameters in the <literal>Accept</literal> and 
+      <literal>Content-Type</literal> headers. An example is <literal>charset</literal> for <literal>text/html</literal>.
+      <!-- TODO: Validate and provide reference -->
+    </para>
+    <para>
+      We can introduce a media type parameter called <literal>version</literal> to distinguish the different versions
+      of our media type. The media type for XACML does this for instance: there exist
+      <literal>application/xacml+xml; version 2</literal> and <literal>application/xacml+xml; version 3</literal>
+      <citation>XACML Media Type</citation>.
+    </para>
+    <para>
+      An alternative versioning approach is to use different profiles with the same media type. This is especially
+      natural for media types that already use profiles to indicate semantics, like JSON-LD. Different JSON-LD contexts
+      can indicate the different versions of the API.
     </para>
   </section>
 
   <section>
-    <title>Extensibility</title>
-  </section>
-  
-  <section>
     <title>Summary</title>
+    <para>
+      This chapter discussed what changes to an API are always safe to make, what changes are safe in practice and
+      how you can use consumer-driven contracts to know which they are, and how you can prevent breaking your clients
+      when you want to introduce changes that are definitely not safe.
+    </para>
+    <para>
+      Whether clients break due to server changes depends as much on the client as on the server. Both sides must take
+      care to decouple themselves as much as possible from each other. Let's now turn our attention to the client to
+      see how they can do that.
+    </para>
   </section>
 </chapter>

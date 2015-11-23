@@ -933,6 +933,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>XACML Media Type</abbrev>
+    <biblioid class="uri">TODO</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>XML-RPC</abbrev>
     <biblioid class="uri">http://xmlrpc.scripting.com/default.html</biblioid>
   </biblioentry>
