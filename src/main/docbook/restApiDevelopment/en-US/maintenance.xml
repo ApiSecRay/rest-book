@@ -8,7 +8,7 @@
   <para>
     Along the way of that journey, we'll be asked to make changes to our system. We'll gain new insights into the
     problem by observing how clients use our API. We'll get bug reports and feature requests. We'll see our competitors
-    innovate. For all these reasons and more, we need to adapt.
+    innovate. For all these reasons and more, we'll need to adapt.
   </para>
   <para>
     The problem with changing an API is that clients may depend on the old behavior and break when you change it. The
@@ -32,9 +32,9 @@
         <listitem>
           <para>
             The new element won't be used by older clients, but that's okay because it is optional. New clients may
-            start using it, which can lead to older clients seeing it. If they validate using a strict schema, they will
-            break. If, however, they follow the general guideline to ignore unknown elements (see 
-            <xref linkend="implement-client"/>), they should be fine.
+            start using it, which can lead to older clients seeing it. If they validate using a strict schema, they
+            will break. If, however, they follow the general guideline to ignore unknown elements (see the must-ignore
+            rule in <xref linkend="implement-client"/>), they should be fine.
           </para>
           <para>
             You can add a new property anywhere you like; the order of properties shouldn't impact well-behaved clients.
@@ -72,21 +72,21 @@
       </varlistentry>
     </variablelist>
     <para>
-      This is a very short list. You can really only change an API in a backwards compatible way by adding to it and
-      by relaxing constraints.
+      This is a very short list. You can really only change an API in a backwards compatible way by adding information
+      to it and by relaxing constraints.
     </para>
     <para>
       If you describe your representation with an XML or JSON Schema, then you can use the extensibility features of the
       schema language to define a place where you can add properties. In XML Schema you can use the 
-      <literal>&lt;any&gt;</literal> element to allow any element, while JSON Schema accomplishes the same using the 
-      <literal>additionalProperties</literal> keyword.
+      <literal>&lt;any&gt;</literal> element to allow any element, while JSON Schema accomplishes the same using  
+      <literal>additionalProperties = true</literal>.
     </para>
     <para>
       Note that we argued against the use of schemas to validate representations in <xref linkend="input-validation"/>.
       We mention schemas here only to show you how to formalize the notion that the server can add properties. If
       you're not using a schema, you need some other way to convey to your clients that you reserve the right to add
-      properties and that clients must ignore them if they don't understand them (see the must-ignore rule in
-      <xref linkend="implement-client"/>).
+      properties and that clients must ignore what they don't understand. Usually adding a statement like that to your
+      documentation will suffice. 
     </para>
     <para>
       Here's why other changes are not backwards compatible:
@@ -125,7 +125,7 @@
         <term>Removing a property</term>
         <listitem>
           <para>
-            And old client may still set the property. The server should ignore the now-unknown property. This may be
+            An old client may still set the property. The server should ignore the now-unknown property. This may be
             fine for the client, or it may not be. Some clients may rely on the provided value being there and may
             break if it isn't.
           </para>        
@@ -151,6 +151,8 @@
     </variablelist>
     <para>
       Backwards compatible changes are always safe, but the above list shows that they are very limited in scope.
+    </para>
+    <para>
       While some changes are breaking in theory, they may be non-breaking in practice. For instance, removing a 
       property that nobody uses is not really a problem. The trick is to know your clients. Let's see how we can
       acquire such knowledge.
@@ -179,13 +181,8 @@
     </para>
     <para>
       If you do know exactly what your clients need, you're in a much better position. If you know for sure that
-      nobody is using property X, for instance, you can safely delete it. That will be safe in practice even though it's
-      a breaking change in theory.
-    </para>
-    <para>
-      Here's another example where knowledge of the clients helps with server evolution. Suppose that the server has
-      many clients, but only one of them is using a particular link relation. You may then be able to coordinate an 
-      incompatible change with the people that build that client.
+      nobody is using property X, for instance, you can safely delete it. If only client Y is using property X, you may 
+      be able to coordinate the property's removal with the team responsible for client Y.
     </para>
     <para>
       We saw in <xref linkend="state-diagrams"/> that we can capture our client's requirements in state diagrams. 
@@ -202,7 +199,7 @@
       To support automation, the consumer contract has to be an exectuable specification, just as BDD scenarios are.
       On top of that, we also need to be able to automatically <emphasis>generate</emphasis> them.
       Automatically generating consumer contracts can only be done by observing real clients as they interact with
-      your API.
+      the API.
     </para>
     <para>
       If you build the clients as well as the API, then a good place to capture client interactions is in the
@@ -228,8 +225,8 @@
     </para>
     <para>
       In this situation, you may rely on the consumer contract and hope for the best, or you may play safe and limit
-      yourself to only backwards compatible changes. But at some point you will probably have to introduce a breaking
-      change, so let's see how we can manage that.
+      yourself to only backwards compatible changes. But at some point neither of those options will be acceptable
+      and you will have to introduce a breaking change. Let's see how we can manage that.
     </para>
   </section>
 
@@ -243,59 +240,64 @@
     <para>
       This obviously has a cost associated with it, which is why you should always try to avoid it using the techniques
       described earlier. You should be aware of these costs and also of the benefits and make an informed decision on
-      how to proceed. In the following we assume you want to go through with supporting multiple versions of your API. 
+      how to proceed. In the remainder of this section we assume you have done your homework and decided to support
+      multiple versions of your API. 
     </para>
     <para>
       One particularly widespread approach to implementing the idea of multiple versions of an API is to add a version
       identifier to the URLs under which resources are available. For instance, your billboard URI would change from 
-      <literal>http://api.example.com/v1/</literal> to <literal>http://api.example.com/v1/</literal>. There are several
+      <literal>http://api.example.com/v1/</literal> to <literal>http://api.example.com/v2/</literal>. There are several
       problems with this approach:
     </para>
-    <itemizedlist>
+    <orderedlist>
+      <listitem>
+        <para>
+          Resources are identified by URIs. Changes like removing a property don't usually mean you fundamentally change 
+          the resource, and therefore you shouldn't issue a new identity for the resource.
+        </para>
+        <para>
+          In particular, this approach violates the best practice that "cool URIs don't change"
+          <citation>CoolUris</citation>. This may sounds like a theoretical argument, but it has very practical 
+          consequences, for example for performance. With multiple URIs pointing to the same resource, caching proxies
+          (see <xref linkend="caching"/>) will need more memory to store all the links, or store less resources in the
+          same amount of memory. The cache hit ratio may decrease as well, especially when the client is the one of
+          first or last to move to a new version.
+        </para>
+      </listitem>
       <listitem>
         <para>
           It versions the entire API. If the API consists of a couple of hundred resources and you change one, all URLs
           must change. In theory you could keep some constant, but at least all paths to the changed resource must
-          change. Little changes thus have big consequences, which makes it less likely that you'll want to bother
-          improving the API.
+          change.
+        </para>
+        <para>
+          This is more work to implement than necessary. REST frameworks map URIs to code, so if a URI changes then the 
+          mapping for it must be updated. And this needs to happen for all parent resources as well, unless you define 
+          your URIs as constants and define URIs for child resources in terms of those of their parents, as we saw in 
+          <xref linkend="controller"/>).
+        </para>
+        <para>
+          With this approach, little changes may thus have big consequences, which makes it less likely that you'll 
+          want to bother improving the API. Or you may decide to "save up" a number of such changes, delaying some until
+          you feel the benefit is worth the cost.
         </para>
         <para>
           Versioning the entire API as a whole also means that a client must adapt to all the changes of the new version
           at the same time. This is more work for the client developer, which makes it less likely that the client will
-          move to the new version. With clients hesitant to move to newer versions, you'll end up maintaining more
-          versions in parallel than you would like.
+          move to the new version. With clients hesitant to move to newer versions, you may very well end up 
+          maintaining more versions in parallel than would otherwise be necessary.
         </para>
         <para>
           In short, this approach rewards precisely the sort of big bang releases (in both servers and clients) that the 
-          industry has spent the last several years trying to get away from. We need an approach that is more agile.
+          industry has spent the last several years trying to get away from. We need an approach that is more agile than
+          that.
         </para>
       </listitem>
-      <listitem>
-        <para>
-          Resources are identified by URIs. Removing a property doesn't usually mean you fundamentally change the
-          resource, so it follows that changing the URI is not a natural way to deal with such changes.
-        </para>
-        <para>
-          In particular, this approach violates the best practice that "cool URIs don't change"
-          <citation>CoolUris</citation>. This has very real consequences, for example for performance. With multiple 
-          URIs pointing to the same resource, caching proxies (see <xref linkend="caching"/>) will need more memory to 
-          store all the links, or store less resources in the same amount of memory. The cache hit ratio may decrease 
-          as well, especially when the client is the one of first or last to move to a new version.
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          It's more work to implement. REST frameworks map URIs to code, so if the URI changes then that mapping must
-          be updated. And this needs to happen as well for resources that don't change, as per the first point. (If
-          you define your URIs in a single place, then you can limit the impact of such changes, as we saw in 
-          <xref linkend="controller"/>).
-        </para>
-      </listitem>
-    </itemizedlist>
+    </orderedlist>
     <para>
       The root of the problem with the versioned URI approach is that a URI identifies a resource, and the resource
-      doesn't change. It's the representation of the resource that changes, so it makes more sense to look at
-      mechanisms at that level.
+      itself doesn't change. It's the <emphasis>representation</emphasis> of the resource that changes, so it makes 
+      more sense to look at solutions at that level.
     </para>
     <para>
       The client interacts with representation of the resource by requesting a certain media type through the process
@@ -304,20 +306,25 @@
       serve old clients with the old media type, while new clients can take advantage of the new media type.
     </para>
     <para>
-      To implement versioning, you can either come up with an entirely new media type, or you can parameterize the 
-      existing one. The HTTP specification allows the use of media type parameters in the <literal>Accept</literal> and 
-      <literal>Content-Type</literal> headers. An example is <literal>charset</literal> for <literal>text/html</literal>.
-      <!-- TODO: Validate and provide reference -->
+      There are two implementations of this idea. You can introduce an entirely new media type, or you can parameterize
+      the existing one. In most cases the second approach makes more sense, but it is a little bit more difficult to
+      implement.
     </para>
     <para>
-      We can introduce a media type parameter called <literal>version</literal> to distinguish the different versions
-      of our media type. The media type for XACML does this for instance: there exist
-      <literal>application/xacml+xml; version 2</literal> and <literal>application/xacml+xml; version 3</literal>
+      There are two ways to parameterize a media type. This first is to use a <firstterm>media type
+      parameter</firstterm> in the <literal>Accept</literal> and <literal>Content-Type</literal> headers. An example of
+      a media type parameter is the <literal>charset</literal> parameter of the <literal>text/html</literal> media type
+      <citation>HTML</citation>.
+    </para>
+    <para>
+      We can use this mechanism for versioning by introducing a media type parameter called <literal>version</literal>
+      to distinguish the different versions of our API. The media type for XACML does this for instance: there exist
+      <literal>application/xacml+xml; version=2</literal> and <literal>application/xacml+xml; version=3</literal>
       <citation>XACML Media Type</citation>.
     </para>
     <para>
-      An alternative versioning approach is to use different profiles with the same media type. This is especially
-      natural for media types that already use profiles to indicate semantics, like JSON-LD. Different JSON-LD contexts
+      The second way to parameterize a media type is to use different profiles with the same media type (see 
+      <xref linkend="maturity"/>). This approach is especially natural for media types that already use profiles to indicate semantics, like JSON-LD. Different JSON-LD contexts
       can indicate the different versions of the API.
     </para>
   </section>
