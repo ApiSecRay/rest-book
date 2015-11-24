@@ -245,8 +245,8 @@ CloseableHttpClient client = CachingHttpClients.custom()
     <para>
       The HTTP specification clearly states that a client must be able to handle any status code
       <citation>HTTP</citation>. If you encounter an unknown status code, then you should treat it as a generic status
-      code. For instance, should you encounter a <literal>482</literal> status code (which isn't currently defined),
-      you should treat it as a <literal>400</literal>.
+      code. For instance, should you run into something exotic like <literal>482</literal> (which isn't currently
+      defined), you should treat it as you would a <literal>400</literal> status code.
     </para>
     <para>
       For more information on building REST clients, see <citation>Amundsen15</citation>.
