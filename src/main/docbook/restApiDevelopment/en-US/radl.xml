@@ -966,7 +966,8 @@
     <para>
       The complete RADL description for RESTBucks can be found in the examples section of the RADL website
       <citation>RADL</citation>.
-      Here's an impression of what the HTML documentation generated from that API description would look like:
+      Here's an impression of what the HTML documentation generated from that API description look likes at the time of
+      writing:
     </para>
     <figure id="radl-doc-first">
       <mediaobject>

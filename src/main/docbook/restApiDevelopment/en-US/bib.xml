@@ -107,7 +107,12 @@
       <month>December</month>
     </copyright>
   </biblioentry>
-      
+
+  <biblioentry>
+    <abbrev>Apache HttpComponents</abbrev>
+    <biblioid class="uri">https://hc.apache.org/</biblioid>
+  </biblioentry>
+    
   <biblioentry>
     <abbrev>API Blueprint</abbrev>
     <biblioid class="uri">https://github.com/apiaryio/api-blueprint/blob/master/API%20Blueprint%20Specification.md</biblioid>

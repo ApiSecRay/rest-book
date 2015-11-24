@@ -1,7 +1,5 @@
 <chapter id="client">
   <title>REST Clients</title>
-  <!-- TODO: Talk about storing application state -->
-  <!-- TODO: Client must be able to handle any status code -->
   <para>
     A <firstterm>REST client</firstterm> uses a REST API to achieve its goals by following the general flow depicted in
     <xref linkend="client-flow"/>. This model is a generalization of the traditional Web. On the web, a human user
@@ -10,11 +8,11 @@
   <para>
     The same model can work for REST clients. The billboard URI is hardcoded or, better yet, read from some
     configuration source. But otherwise the process is very much the same. The client renders the server's response and
-    allows the user to pick a link from it. This kind of client is also known as a <firstterm>Faithful Hypermedia
+    allows the user to pick a link from it. This kind of client is known as a <firstterm>Faithful Hypermedia
     Client</firstterm> <citation>FHC</citation>.
   </para>
   <para>
-    The generalized model also allows for the use case of an <firstterm>Autonomous Client</firstterm>, which makes
+    The generalized model also allows for the use case of an <firstterm>Autonomous Client</firstterm> that makes
     decisions without being directly guided by a human. In other words, the program chooses links based on criteria 
     that were coded in.
     As long as we're not talking about true Artificial Intelligence, the human guidance is still there, of course, but
@@ -22,9 +20,9 @@
   </para>
   <para>
     Unlike browsers, most REST clients today are specifically built to consume a single API. The main reason for that
-    is it's currently extremely difficult to write a client that can handle multiple APIs and do useful work with them.
-    There exist some browser-like clients that can consume any level 3 API (see <xref linkend="maturity"/>), but they
-    usually don't offer the kind of user experience that is expected today <citation>Siren Browser</citation>
+    is that it's currently extremely difficult to write a client that can handle multiple APIs and do useful work with 
+    them. There exist some browser-like clients that can consume any level 3 API (see <xref linkend="maturity"/>), but 
+    they usually don't offer the kind of user experience that is expected today <citation>Siren Browser</citation>
     <citation>Hydra Console</citation>.
   </para>
   <para>
@@ -33,7 +31,7 @@
     that domain.
   </para>
   <para>
-    We think the state of the art will firmly remain with dedicated REST clients for the near future. This chapter
+    We believe that dedicated REST clients will remain state of the art for the near future. This chapter
     explains how to develop such clients.
   </para>
 
@@ -42,9 +40,12 @@
     <para>
       To implement a client, we need to know how to communicate with the server. The server's API documentation should
       provide this information (see <xref linkend="support"/>). Armed with this knowledge, we can set out to implement
-      the general flow of <xref linkend="client-flow"/>. This requires using an SDK (see <xref linkend="sdk"/>) or a 
-      general purpose HTTP client library for your programming language. There are even libraries that support generic 
-      REST clients at a higher abstraction level than HTTP.
+      the general flow of <xref linkend="client-flow"/>.
+    </para>
+    <para>
+      Executing API requests requires using an SDK (see <xref linkend="sdk"/>) for the API. If there isn't an SDK, or
+      not one for you programming environment, you can use a general purpose HTTP client library like <citation>Apache 
+      HttpComponents</citation>.
     </para>
     <para>
       The first step is to retrieve the home resource by issuing a <literal>GET</literal> on the billboard URI. This
@@ -55,7 +56,8 @@
       It's likely that the service is accessible over HTTPS rather than plain HTTP. It may even support both, in which
       case you should pick the safer HTTPS option. Make sure you validate the server's certificate properly (see
       <xref linkend="cryptography"/>) and report any problems you may find with it (see <xref linkend="support"/>).
-      The SDK or HTTP library should have documentation on how to handle TLS connections.
+      The SDK or HTTP library should have documentation on how to handle TLS connections. Hopefully the SDK or HTTP
+      library will handle the gory details for you.
     </para>
     <para>
       It's also likely that your client needs to authenticate with the server. As we saw in 
@@ -64,29 +66,28 @@
     </para>
     <para>
       Many HTTP client libraries will handle Basic and Digest authentication for you, while OAuth2 is usually
-      implemented by specific libraries or frameworks <citation>Spring Security OAuth</citation>. Use such libraries or 
-      frameworks and only create your own implementation if you absolutely have to. In that case, apply the Decorator 
-      pattern and wrap an authenticating client around a standard client <citation>GammaEtAl94</citation>.
+      implemented by specific libraries or frameworks like <citation>Spring Security OAuth</citation>. Use such
+      libraries or frameworks and only create your own implementation if you absolutely have to. In that case, apply
+      the <firstterm>Decorator pattern</firstterm> and wrap an authenticating client around a standard client
+      <citation>GammaEtAl94</citation>.
     </para>
     <para>
       If your client requires credentials for authenticating (other then a human user's credentials), then you must
       store that securely. Don't ever store credentials in source code, because that makes the credentials hard to
       change. It's also a security risk; there have been documented cases where hackers used credentials they found in
-      source code on GitHub to breach systems. 
+      source code on GitHub to break into systems. 
     </para>
     <para>
-      The least you can do is store the credentials in a configuration file with the appropriate restrictions in 
-      permissions. You can also use any of the other configuration options discussed in
-      <xref linkend="separate-config-from-code"/>, but pay extra special care to securing access to the configuration.
+      The least you can do is store the credentials in a configuration file with restrictive file permissions. You can
+      also use any of the other configuration options discussed in <xref linkend="separate-config-from-code"/>, but pay 
+      extra special care to securing access to the configuration.
     </para>
     <para>
       Once the client has connected to the server's billboard URI, it gets a response. This will usually be a home
-      resource (see <xref linkend="home"/>) containing nothing but links.
-    </para>
-    <para>
-      While developing your client, it is often useful to compare the responses the client gets from the server with
-      those received by another client. This tells you whether you're using the HTTP library or SDK correctly. You can 
-      use any kind of client that can handle the types of requests that you have to make.
+      resource (see <xref linkend="home"/>). It's often useful to compare the responses the client gets from the server
+      with those received by another client or with those in the documentation. This tells you whether you're using the
+      HTTP library or SDK correctly. You can use any kind of client that can handle the types of requests that you have 
+      to make.
     </para>
     <para>
       Browsers are unfortunately not very suitable for this purpose, since they support only the <literal>GET</literal>
@@ -111,7 +112,7 @@
     <para>
       To make evolution of services easier, clients should follow the <firstterm>must-ignore</firstterm> rule when
       processing data and links. This means that anything that the client encounters that it doesn't understand should
-      be treated as if it weren't there.
+      be treated as if it weren't there. See <xref linkend="maintentance"/> for information about API evolution.
     </para>
     <para>
       The opposite of <emphasis>must-ignore</emphasis> is <firstterm>must-understand</firstterm>, where the client
@@ -126,8 +127,8 @@
       FHC will render a link depends on its understanding of it, as programmed in by the client developer.
     </para>
     <para>
-      Autonomous Clients select a link by themselves based on some criteria that were coded in by the client
-      developer. They may or may not render responses along the way, for instance the form of log records of what they
+      Autonomous Clients select a link by themselves based on some criteria that were coded in by the client developer.
+      They may or may not render responses along the way, for instance in the form of log records of what they
       did. Such renderings are usually not interactive, since Autonomous Clients require no human interaction to reach 
       their goals.
     </para>
@@ -194,7 +195,7 @@ assert URI.create("http://www.example.com/foo/baz/")
       During the course of a session, the client may have to visit the same resource repeatedly, like the home resource.
       In those situations it may pay to use client-side caching, as discussed in <xref linkend="caching"/>. Many HTTP 
       client libraries implement caching, so if the server follows the standard HTTP caching mechanisms, then you may
-      get all this for free. For example, here's how to set up caching with Apache HttpClient:
+      get all this for free. For example, here's how to set up caching with Apache HttpComponents:
     </para>
     <programlisting>CacheConfig cacheConfig = CacheConfig.custom()
     .setMaxCacheEntries(1000)
@@ -240,6 +241,12 @@ CloseableHttpClient client = CachingHttpClients.custom()
       A special case is <literal>400 Bad Request</literal>. For an Autonomous Client, this is a logic error and should
       definitely be logged. For Faithful Hypermedia Clients, however, the error is likely caused by a human entering
       invalid data into a form. In that case, logging the error may not be all that helpful.
+    </para>
+    <para>
+      The HTTP specification clearly states that a client must be able to handle any status code
+      <citation>HTTP</citation>. If you encounter an unknown status code, then you should treat it as a generic status
+      code. For instance, should you encounter a <literal>482</literal> status code (which isn't currently defined),
+      you should treat it as a <literal>400</literal>.
     </para>
     <para>
       For more information on building REST clients, see <citation>Amundsen15</citation>.
