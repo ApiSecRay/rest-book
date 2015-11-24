@@ -385,7 +385,8 @@
     </para>
     <para>
       Given the need for completeness and correctness, the reference manual is best generated from the API description.
-      We saw an example of a Reference Manual in HTML for the RESTBucks API in <xref linkend="restbucks-api-doc"/>.
+      We saw an example of a Reference Manual in HTML for the RESTBucks API in <xref linkend="radl-doc-first"/> through
+      <xref linkend="radl-doc-last"/>.
     </para>
     <para>
       If the API is for one hosted service only, then that's all the documentation that is required. If the API is for

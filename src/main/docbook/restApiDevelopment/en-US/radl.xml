@@ -968,14 +968,37 @@
       <citation>RADL</citation>.
       Here's an impression of what the HTML documentation generated from that API description would look like:
     </para>
-    <!-- TODO: Capture picture of documentation -->
-    <figure id="restbucks-api-doc">
+    <figure id="radl-doc-first">
       <mediaobject>
         <imageobject>
-          <imagedata fileref="images/restbucks-api-doc.png" scale="68" align="center"/>
+          <imagedata fileref="images/radl-doc-states.png" scale="41" align="center"/>
         </imageobject>
       </mediaobject>
-      <title>HTML documentation generated from RADL describing the RESTBucks API.</title>
+      <title>HTML documentation generated from the RESTBucks RADL - States</title>
+    </figure>
+    <figure>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/radl-doc-state.png" scale="41" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <title>HTML documentation generated from the RESTBucks RADL - State</title>
+    </figure>
+    <figure>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/radl-doc-linkrels.png" scale="41" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <title>HTML documentation generated from the RESTBucks RADL - Link relations</title>
+    </figure>
+    <figure id="radl-doc-last">
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/radl-doc-resources.png" scale="41" align="center"/>
+        </imageobject>
+      </mediaobject>
+      <title>HTML documentation generated from the RESTBucks RADL - Resources</title>
     </figure>
   </section>
 
