@@ -619,7 +619,6 @@
         The server validates the signature using the procedure described in <xref linkend="cryptography"/>. See
         <xref linkend="digest-auth"/>.
       </para>
-      <!-- TODO: Fix spelling in image -->
       <figure id="digest-auth">
         <mediaobject>
           <imageobject>
@@ -717,7 +716,6 @@
         operates with the same permissions irrespective of the user it operates on behalf of. Unfortunately, there are
         many situations where that is not acceptable.
       </para>
-      <!-- TODO: FIDO -->
     </section>
 
     <section id="oauth">

@@ -357,10 +357,11 @@
       developer how to use the SDK.
     </para>
     <para>
-      <!-- TODO: bit more detail -->
-      One way of capturing these examples is to have the SDK log its actions, both in 
-      terms of the programming language API it provides and in terms of plain HTTP (e.g. using <literal>curl</literal>), 
-      since there may not be a version of the SDK in the client developer's preferred programming language.
+      One way of capturing these examples is to have the SDK log its actions. You can log them in a structured format
+      and then translate them into all the languages/frameworks you want to support, or you can have the SDK output all
+      those languages directly. Additionally, you should show how to perform the requests with a plain HTTP tool like
+      <literal>curl</literal>), to support those client developers whose  preferred programming language is not
+      supported by the SDK.
     </para>
     <para>
       If the SDK is available in multiple languages, the documentation should make it easy for the client developer to

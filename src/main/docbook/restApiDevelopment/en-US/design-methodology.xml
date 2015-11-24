@@ -1651,18 +1651,6 @@
       <literal>type</literal> property. But UBER doesn't provide anything in the way of data types, like Siren does.
     </para>
 
-    <!-- TODO    
-    <section>
-      <title>JSON API</title>
-      <para>
-        JSON API is a personal standard <citation>JSON API</citation>.
-      </para>
-      <para>
-        TODO: describe
-      </para>
-    </section>
-     -->
-    
     <section>
       <title>JSON-LD &amp; Hydra</title>
     </section>
@@ -1868,17 +1856,6 @@
             <entry><para>Using <literal>Link</literal> header</para></entry>
             <entry><para>Low</para></entry>
           </row>
-          <!-- TODO
-          <row>
-            <entry><para>JSON API</para></entry>
-            <entry><para>Personal standard</para></entry>
-            <entry><para>TODO</para></entry>
-            <entry><para>TODO</para></entry>
-            <entry><para>TODO</para></entry>
-            <entry><para>TODO</para></entry>
-            <entry><para>TODO</para></entry>
-          </row>
-           -->
           <row>
             <entry><para>JSON-LD with Hydra</para></entry>
             <entry><para>JSON-LD is an open standard; Hydra a corporate standard</para></entry>

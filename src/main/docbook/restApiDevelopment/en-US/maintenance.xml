@@ -320,7 +320,7 @@
       We can use this mechanism for versioning by introducing a media type parameter called <literal>version</literal>
       to distinguish the different versions of our API. The media type for XACML does this for instance: there exist
       <literal>application/xacml+xml; version=2</literal> and <literal>application/xacml+xml; version=3</literal>
-      <citation>XACML Media Type</citation>.
+      <citation>RFC 7061</citation>.
     </para>
     <para>
       The second way to parameterize a media type is to use different profiles with the same media type (see 

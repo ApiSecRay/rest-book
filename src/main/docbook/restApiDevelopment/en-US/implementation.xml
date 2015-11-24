@@ -619,12 +619,13 @@ public class OrderResource extends ResourceSupport {
       another server, so all the advice for building clients applies (see <xref linkend="client"/>).
     </para>
     <!-- 
-      TODO: one-thread-per-connection vs one-thread-per-event
+      TODO: Reactive programming 
+      
+      one-thread-per-connection vs one-thread-per-event
 
       <firstterm>Reactive programming</firstterm> is an emerging discipline which combines concurrency and event-based
       and asynchronous systems <citation>Reactive Manifesto</citation>. It is at the core of many high-performance
       concurrent systems.
-      TODO: Explain more and show in action.
     -->
   </section>
 

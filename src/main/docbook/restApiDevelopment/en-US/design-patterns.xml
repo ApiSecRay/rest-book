@@ -571,7 +571,7 @@ Link: &lt;/context/>; rel="http://www.w3.org/ns/json-ld#context";
       <para>
         There are alternatives to using HTTP for implementing notifications. For instance, communication could take
         place using asynchronous messages, where the client subscribes to an event that the server later publishes. 
-        Such non-HTTP solutions are out of scope of this book; you can find an overview in <citation>EIP</citation>.
+        Such non-HTTP solutions are out of scope of this book; you can find an overview in <citation>EIP03</citation>.
       </para>
     </simplesect>
     <simplesect>

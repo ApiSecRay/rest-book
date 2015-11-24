@@ -174,20 +174,25 @@
     <biblioid class="uri">http://dublincore.org/specifications/</biblioid>
   </biblioentry>
 
-  <!-- TODO: Fill in the details -->
   <biblioentry>
-    <abbrev>EIP</abbrev>
-    <citetitle>Enterpise Integration Patterns</citetitle>
+    <abbrev>EIP03</abbrev>
+    <citetitle>Enterprise Integration Patterns: Designing, Building, and Deploying Messaging Solutions</citetitle>
     <authorgroup>
       <author>
         <personname>
-          <firstname>?</firstname>
-          <surname>?</surname>
+          <firstname>Gregor</firstname>
+          <surname>Hohpe</surname>
+        </personname>
+      </author>
+      <author>
+        <personname>
+          <firstname>Bobby</firstname>
+          <surname>Woolf</surname>
         </personname>
       </author>
     </authorgroup>
     <copyright>
-      <year>?</year>
+      <year>2003</year>
     </copyright>
   </biblioentry>
 
@@ -418,7 +423,7 @@
   
   <biblioentry>
     <abbrev>Hydra Console</abbrev>
-    <biblioid class="uri">TODO: URL</biblioid>
+    <biblioid class="uri">http://www.markus-lanthaler.com/hydra/console/</biblioid>
   </biblioentry>
     
   <biblioentry>
@@ -576,13 +581,13 @@
   
   <biblioentry>
     <abbrev>Owasp</abbrev>
-    <biblioid class="uri">TODO</biblioid>
+    <biblioid class="uri">https://www.owasp.org/index.php/Category:OWASP_Top_Ten_Project</biblioid>
     <citetitle>OWASP Top 10</citetitle>
   </biblioentry>
   
   <biblioentry>
     <abbrev>Pact</abbrev>
-    <biblioid class="uri">TODO</biblioid>
+    <biblioid class="uri">https://github.com/DiUS/pact-jvm</biblioid>
   </biblioentry>
   
   <biblioentry>
@@ -653,6 +658,12 @@
     <abbrev>RFC 6906</abbrev>
     <biblioid class="uri">http://tools.ietf.org/html/rfc6906</biblioid>
     <citetitle>The 'profile' Link Relation Type</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>RFC 7061</abbrev>
+    <biblioid class="uri">https://tools.ietf.org/html/rfc7061</biblioid>
+    <citetitle>eXtensible Access Control Markup Language (XACML) XML Media Type</citetitle>
   </biblioentry>
   
   <biblioentry>
@@ -747,7 +758,7 @@
   <biblioentry>
     <abbrev>Sans</abbrev>
     <biblioid class="uri">TODO</biblioid>
-    <citetitle>SANS Top 25</citetitle>
+    <citetitle>https://www.sans.org/top25-software-errors/</citetitle>
   </biblioentry>
   
   <biblioentry>
@@ -808,7 +819,6 @@
   
   <biblioentry>
     <abbrev>Spring Data REST</abbrev>
-    <!-- TODO: Check URI -->
     <biblioid class="uri">http://projects.spring.io/spring-data-rest/</biblioid>
   </biblioentry>
   
@@ -931,11 +941,6 @@
     <abbrev>XACML</abbrev>
     <biblioid class="uri">http://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html</biblioid>
     <citetitle>eXtensible Access Control Markup Language (XACML) Version 3.0</citetitle>
-  </biblioentry>
-  
-  <biblioentry>
-    <abbrev>XACML Media Type</abbrev>
-    <biblioid class="uri">TODO</biblioid>
   </biblioentry>
   
   <biblioentry>
