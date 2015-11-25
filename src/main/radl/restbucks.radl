@@ -98,63 +98,63 @@
 
   <link-relations>
     <link-relation name="@id">
-      <specification href="http://www.w3.org/TR/json-ld/"/>
+      <specification href="http://www.w3.org/TR/json-ld/#node-identifiers"/>
       <transitions>
         <transition ref="Wait"/>
       </transitions>
     </link-relation>
 
-    <link-relation name="RespondAction"> <!-- TODO: Look up correct link relation -->
-      <specification href="http://tools.ietf.org/html/rfc4287"/>
+    <link-relation name="http://schema.org/ListenAction">
+      <specification href="http://schema.org/ListenAction"/>
       <transitions>
         <transition ref="Receive notification"/>
       </transitions>
     </link-relation>
 
-    <link-relation name="ReplaceAction">
-      <specification href="https://schema.org/ReplaceAction"/>
+    <link-relation name="http://schema.org/ReplaceAction">
+      <specification href="http://schema.org/ReplaceAction"/>
       <transitions>
         <transition ref="Change"/>
       </transitions>
     </link-relation>
     
-    <link-relation name="DeleteAction">
-      <specification href="https://schema.org/DeleteAction"/>
+    <link-relation name="http://schema.org/DeleteAction">
+      <specification href="http://schema.org/DeleteAction"/>
       <transitions>
         <transition ref="Cancel"/>
       </transitions>
     </link-relation>
   
-    <link-relation name="ReceiveAction">
-      <specification href="http://schema.org/ReceiveAction"/>
+    <link-relation name="http://schema.org/TakeAction">
+      <specification href="http://schema.org/TakeAction"/>
       <transitions>
         <transition ref="Take serving"/>
       </transitions>
     </link-relation>
     
-    <link-relation name="PayAction">
-      <specification href="https://schema.org/PayAction"/>
+    <link-relation name="http://schema.org/PayAction">
+      <specification href="http://schema.org/PayAction"/>
       <transitions>
         <transition ref="Pay"/>
       </transitions>
     </link-relation>
   
-    <link-relation name="menu">
-      <specification href="http://schema.org/menu"/>
+    <link-relation name="http://schema.org/ReadAction">
+      <specification href="http://schema.org/ReadAction"/>
       <transitions>
         <transition ref="Read menu"/>
       </transitions>
     </link-relation>
 
-    <link-relation name="OrderAction">
+    <link-relation name="http://schema.org/OrderAction">
       <specification href="http://schema.org/OrderAction"/>
       <transitions>
         <transition ref="Place order"/>
       </transitions>
     </link-relation>
 
-    <link-relation name="Order">
-      <specification href="http://schema.org/Order"/>
+    <link-relation name="http://schema.org/ReceiveAction">
+      <specification href="http://schema.org/ReceiveAction"/>
       <transitions>
         <transition ref="Take receipt"/>
       </transitions>
@@ -207,7 +207,9 @@
   </property-groups>
 
   <media-types default="application/hal+json">
-    <media-type name="application/hal+json"/>
+    <media-type name="application/hal+json">
+      <specification href="https://tools.ietf.org/html/draft-kelly-json-hal-07"/>
+    </media-type>
   </media-types>
 
   <errors>
