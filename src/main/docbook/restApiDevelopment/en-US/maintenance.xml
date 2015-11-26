@@ -77,16 +77,16 @@
     </para>
     <para>
       If you describe your representation with an XML or JSON Schema, then you can use the extensibility features of the
-      schema language to define a place where you can add properties. In XML Schema you can use the 
-      <literal>&lt;any&gt;</literal> element to allow any element, while JSON Schema accomplishes the same using  
-      <literal>additionalProperties = true</literal>.
+      schema language to define a place where you can add properties. In XML Schema you can use
+      <literal>&lt;any&gt;</literal> to allow any element <citation>XML Schema</citation>, while JSON Schema
+      accomplishes the same using <literal>additionalProperties = true</literal> <citation>JSON Schema</citation>.
     </para>
     <para>
       Note that we argued against the use of schemas to validate representations in <xref linkend="input-validation"/>.
       We mention schemas here only to show you how to formalize the notion that the server can add properties. If
       you're not using a schema, you need some other way to convey to your clients that you reserve the right to add
       properties and that clients must ignore what they don't understand. Usually adding a statement like that to your
-      documentation will suffice. 
+      documentation will suffice (see <xref linkend="support"/>).
     </para>
     <para>
       Here's why other changes are not backwards compatible:
@@ -108,7 +108,8 @@
             An old client will not know to use the new name of the property. It will provide values under the old name,
             which the new server won't pick up. If the property is mandatory, the request will be rejected and the
             client is broken. If the property is optional, it will be ignored, which may be okay or may be disastrous.
-            Either way, the behavior is different from before and thus may violate expectations.
+            Either way, the behavior is different from before and thus may violate expectations. The client may also
+            depend on the property being in the response.
           </para>
         </listitem>
       </varlistentry>
@@ -127,7 +128,7 @@
           <para>
             An old client may still set the property. The server should ignore the now-unknown property. This may be
             fine for the client, or it may not be. Some clients may rely on the provided value being there and may
-            break if it isn't.
+            break if it isn't. This is especially likely if the property was required.
           </para>        
         </listitem>
       </varlistentry>
@@ -150,12 +151,9 @@
       </varlistentry>
     </variablelist>
     <para>
-      Backwards compatible changes are always safe, but the above list shows that they are very limited in scope.
-    </para>
-    <para>
-      While some changes are breaking in theory, they may be non-breaking in practice. For instance, removing a 
-      property that nobody uses is not really a problem. The trick is to know your clients. Let's see how we can
-      acquire such knowledge.
+      While some of the above changes are breaking in theory, they may be non-breaking in practice. For instance,
+      removing a property that nobody uses is not really a problem. The trick is to know what parts of your API your
+      clients depend on. Let's see how we can acquire such knowledge.
     </para>
   </section>
   
@@ -164,7 +162,7 @@
     <para>
       There may be different types of clients, each with their own goals they're trying to reach through the API.
       This is especially likely in a microservices architecture. In that situation it's also likely that both your 
-      API and your clients are changing often.
+      API and your clients are changing frequently.
     </para>
     <para>
       In one way, this changes nothing: you still need to know what parts of your API your clients use and you still
@@ -177,12 +175,13 @@
     <para>
       It's imperative that you have this overview. If you don't know what part of the API your clients are using, you 
       can't really change it in a backwards-incompatible way. There are some things you can do in that situation to 
-      keep your ability to innovate, and we will discuss those below, but your options will be fairly limited.
+      keep your ability to innovate, and we will discuss those in the next section, but none of your options in those
+      situations are particularly attractive.
     </para>
     <para>
       If you do know exactly what your clients need, you're in a much better position. If you know for sure that
-      nobody is using property X, for instance, you can safely delete it. If only client Y is using property X, you may 
-      be able to coordinate the property's removal with the team responsible for client Y.
+      nobody is using property X, for instance, you can safely delete it. or if only client Y is using property X, you
+      may be able to coordinate the property's removal with the team responsible for client Y.
     </para>
     <para>
       We saw in <xref linkend="state-diagrams"/> that we can capture our client's requirements in state diagrams. 
@@ -191,7 +190,7 @@
     </para>
     <para>
       But in a situation with many different, rapidly evolving clients, it becomes rather unwieldly to update the state 
-      diagrams by hand. We should be looking at automation to help us out. Such automation is made possible by 
+      diagrams by hand, and we should be looking at automation to help us out. Such automation is made possible by 
       <firstterm>consumer contracts</firstterm>, the contract between the server/producer and one particular
       client/consumer.
     </para>
@@ -202,19 +201,19 @@
       the API.
     </para>
     <para>
-      If you build the clients as well as the API, then a good place to capture client interactions is in the
-      Continuous Integration pipeline of the client. The black-box tests for the client will run against your API and
-      we can intercept the client's calls at this point and capture them into an automatically generated consumer
-      contract.
-    </para>
-    <para>
-      Correlation IDs help to link related requests and responses together (see <xref linkend="correlation"/>), 
-      especially when you run multiple tests in parallel (as you should to shorten the feedback cycle).
+      If you build the clients as well as the API, as in a microservices architecture, then a good place to capture
+      client interactions is in the Continuous Integration pipeline of the client. The black-box tests for the client
+      will run against your API and we can intercept the client's calls at this point and capture them into an
+      automatically generated consumer contract.
     </para>
     <para>
       There are a couple of open source tools to support consumer contracts. We'll discuss Pact-JVM here
       <citation>Pact</citation>.
       TODO: Example
+    </para>
+    <para>
+      Correlation IDs help to link related requests and responses together (see <xref linkend="correlation"/>), 
+      especially when you run multiple tests in parallel (as you should to shorten the feedback cycle).
     </para>
     <para>
       If you don't control your clients, for example when your API fronts a hosted service, you most likely are not in
@@ -233,7 +232,7 @@
   <section id="breaking-changes">
     <title>Breaking Changes</title>
     <para>
-      There actually is a way to introduce breaking changes without breaking existing clients: maintain two separate
+      There is a way to introduce breaking changes without actually breaking existing clients: maintain two separate
       versions of the API at the same time. Old clients can talk to the old version, while new clients can take
       advantage of all the cool new features that the new API offers.
     </para>
@@ -246,18 +245,18 @@
     <para>
       One particularly widespread approach to implementing the idea of multiple versions of an API is to add a version
       identifier to the URLs under which resources are available. For instance, your billboard URI would change from 
-      <literal>http://api.example.com/v1/</literal> to <literal>http://api.example.com/v2/</literal>. There are several
-      problems with this approach:
+      <literal>http://api.example.com/v1/</literal> to <literal>http://api.example.com/v2/</literal>. There are, 
+      however, some serious problems with this approach:
     </para>
     <orderedlist>
       <listitem>
         <para>
           Resources are identified by URIs. Changes like removing a property don't usually mean you fundamentally change 
-          the resource, and therefore you shouldn't issue a new identity for the resource.
+          the resource, and therefore you shouldn't issue a new identity for the resource. In particular, this approach
+          violates the best practice that "cool URIs don't change" <citation>CoolUris</citation>.
         </para>
         <para>
-          In particular, this approach violates the best practice that "cool URIs don't change"
-          <citation>CoolUris</citation>. This may sounds like a theoretical argument, but it has very practical 
+          This may sound like a theoretical argument, but it has very practical 
           consequences, for example for performance. With multiple URIs pointing to the same resource, caching proxies
           (see <xref linkend="caching"/>) will need more memory to store all the links, or store less resources in the
           same amount of memory. The cache hit ratio may decrease as well, especially when the client is the one of
@@ -273,8 +272,8 @@
         <para>
           This is more work to implement than necessary. REST frameworks map URIs to code, so if a URI changes then the 
           mapping for it must be updated. And this needs to happen for all parent resources as well, unless you define 
-          your URIs as constants and define URIs for child resources in terms of those of their parents, as we saw in 
-          <xref linkend="controller"/>).
+          your URIs as constants and define URIs for child resources in terms of those of their parents (as we
+          recommended in <xref linkend="controller"/>).
         </para>
         <para>
           With this approach, little changes may thus have big consequences, which makes it less likely that you'll 
@@ -300,15 +299,16 @@
       more sense to look at solutions at that level.
     </para>
     <para>
-      The client interacts with representation of the resource by requesting a certain media type through the process
-      of content negotiation using the <literal>Accept</literal> header. The server can support multiple media types 
-      for the same resource, so this process is very well suited to solve the versioning problem. You can continue to 
-      serve old clients with the old media type, while new clients can take advantage of the new media type.
+      The client interacts with representations of the resource by requesting a certain media type through the process
+      of content negotiation using the <literal>Accept</literal> header <citation>HTTP</citation>. The server can
+      support multiple media types for the same resource, so this process is very well suited to solve the versioning
+      problem. You can continue to serve old clients with the old media type, while new clients can take advantage of 
+      the new media type.
     </para>
     <para>
-      There are two implementations of this idea. You can introduce an entirely new media type, or you can parameterize
-      the existing one. In most cases the second approach makes more sense, but it is a little bit more difficult to
-      implement.
+      There are two implementations of this basic idea. You can introduce an entirely new media type, or you can
+      parameterize the existing one. In most cases the second approach makes more sense, but it is a little bit more 
+      difficult to implement.
     </para>
     <para>
       There are two ways to parameterize a media type. This first is to use a <firstterm>media type
@@ -339,7 +339,7 @@
     <para>
       Whether clients break due to server changes depends as much on the client as on the server. Both sides must take
       care to decouple themselves as much as possible from each other. Let's now turn our attention to the client to
-      see how they can do that.
+      see how it can do that.
     </para>
   </section>
 </chapter>

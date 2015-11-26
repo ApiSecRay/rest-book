@@ -112,7 +112,7 @@
     <para>
       To make evolution of services easier, clients should follow the <firstterm>must-ignore</firstterm> rule when
       processing data and links. This means that anything that the client encounters that it doesn't understand should
-      be treated as if it weren't there. See <xref linkend="maintentance"/> for information about API evolution.
+      be treated as if it weren't there. See <xref linkend="maintenance"/> for information about API evolution.
     </para>
     <para>
       The opposite of <emphasis>must-ignore</emphasis> is <firstterm>must-understand</firstterm>, where the client

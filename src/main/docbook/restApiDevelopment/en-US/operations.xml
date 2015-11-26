@@ -352,9 +352,9 @@
       your API before signing up and getting an API key.
     </para>
     <para>
-      Developers consistently cite SDKs (see <xref linkend="sdk"/>) and code samples in the top three resources that 
-      make them successful, so you should really have one. The Collection of Common Use Cases should show the client 
-      developer how to use the SDK.
+      Developers consistently cite SDKs (see <xref linkend="sdk"/>) and code samples as the top resources that make
+      them successful, so you should really have them. The Collection of Common Use Cases should be code samples that
+      show the client developer how to use the SDK.
     </para>
     <para>
       One way of capturing these examples is to have the SDK log its actions. You can log them in a structured format
@@ -387,6 +387,12 @@
       Given the need for completeness and correctness, the reference manual is best generated from the API description.
       We saw an example of a Reference Manual in HTML for the RESTBucks API in <xref linkend="radl-doc-first"/> through
       <xref linkend="radl-doc-last"/>.
+    </para>
+    <para>
+      ou should probably have a section on future changes, where you explain the sort of changes most likely to happen
+      and how the developer can prevent having his client broken in those cases. This includes things like the
+      must-ignore rule that we'll discuss in see <xref linkend="implement-client"/>. We'll talk more about API evolution
+      in <xref linkend="maintenance"/>.
     </para>
     <para>
       If the API is for one hosted service only, then that's all the documentation that is required. If the API is for

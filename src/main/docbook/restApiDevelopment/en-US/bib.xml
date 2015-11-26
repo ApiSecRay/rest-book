@@ -463,6 +463,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>JSON Schema</abbrev>
+    <biblioid class="uri">TODO</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>JSR 303</abbrev>
     <biblioid class="uri">http://beanvalidation.org/1.1/spec/</biblioid>
     <citetitle>Bean Validation specification</citetitle>
@@ -951,6 +956,11 @@
   <biblioentry>
     <abbrev>XML-RPC</abbrev>
     <biblioid class="uri">http://xmlrpc.scripting.com/default.html</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>XML Schema</abbrev>
+    <biblioid class="uri">TODO</biblioid>
   </biblioentry>
   
   <biblioentry>

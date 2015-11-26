@@ -74,7 +74,7 @@
       <para>
         We saw in <xref linkend="implementation"/> that a server may be a client to another server. In order to fully
         understand how to build a REST server, we should know how to build a REST client. 
-        In the final part of the book we come full circle by switching the perspective back from the server to the
+        In this final part of the book we thus come full circle by switching the perspective back from the server to the
         client and from building an API to consuming it (<xref linkend="client"/>).
       </para>
     </partintro>
