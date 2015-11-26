@@ -6,7 +6,7 @@
     enters the billboard URI in the browser's address bar and chooses which links to follow.
   </para>
   <para>
-    The same model can work for REST clients. The billboard URI is hardcoded or, better yet, read from some
+    The same model can work for REST clients. The billboard URI is usually hardcoded or, better yet, read from some
     configuration source. But otherwise the process is very much the same. The client renders the server's response and
     allows the user to pick a link from it. This kind of client is known as a <firstterm>Faithful Hypermedia
     Client</firstterm> <citation>FHC</citation>.
@@ -15,8 +15,8 @@
     The generalized model also allows for the use case of an <firstterm>Autonomous Client</firstterm> that makes
     decisions without being directly guided by a human. In other words, the program chooses links based on criteria 
     that were coded in.
-    As long as we're not talking about true Artificial Intelligence, the human guidance is still there, of course, but
-    it's now indirect, in the form of a client developer programming in goals and how to achieve them by following links.
+    As long as we're not talking about true Artificial Intelligence, the human guidance is still there, but it's now
+    indirect, in the form of a client developer programming in goals and how to achieve them by following links.
   </para>
   <para>
     Unlike browsers, most REST clients today are specifically built to consume a single API. The main reason for that
@@ -31,7 +31,7 @@
     that domain.
   </para>
   <para>
-    We believe that dedicated REST clients will remain state of the art for the near future. This chapter
+    We believe that, for the near future, dedicated REST clients will remain state of the art. This chapter
     explains how to develop such clients.
   </para>
 
@@ -44,20 +44,20 @@
     </para>
     <para>
       Executing API requests requires using an SDK (see <xref linkend="sdk"/>) for the API. If there isn't an SDK, or
-      not one for you programming environment, you can use a general purpose HTTP client library like <citation>Apache 
-      HttpComponents</citation>.
+      not one for your preferred programming environment, you can use a general purpose HTTP client library like
+      <citation>Apache HttpComponents</citation>.
     </para>
     <para>
-      The first step is to retrieve the home resource by issuing a <literal>GET</literal> on the billboard URI. This
-       URI is one of those things that may change over time, so it should be stored in the client's configuration
-       rather than hardcoded.
+      The first step is to retrieve the home resource by issuing a <literal>GET</literal> request on the billboard URI.
+      This URI is one of those things that may change over time, so it should be stored in the client's configuration
+      rather than hardcoded.
     </para>
     <para>
       It's likely that the service is accessible over HTTPS rather than plain HTTP. It may even support both, in which
       case you should pick the safer HTTPS option. Make sure you validate the server's certificate properly (see
       <xref linkend="cryptography"/>) and report any problems you may find with it (see <xref linkend="support"/>).
-      The SDK or HTTP library should have documentation on how to handle TLS connections. Hopefully the SDK or HTTP
-      library will handle the gory details for you.
+      Hopefully the SDK or HTTP library will handle the gory details for you. If not, it should have documentation on 
+      how to handle TLS connections.
     </para>
     <para>
       It's also likely that your client needs to authenticate with the server. As we saw in 
@@ -72,7 +72,7 @@
       <citation>GammaEtAl94</citation>.
     </para>
     <para>
-      If your client requires credentials for authenticating (other then a human user's credentials), then you must
+      If your client requires credentials for authenticating (other than a human user's credentials), then you must
       store that securely. Don't ever store credentials in source code, because that makes the credentials hard to
       change. It's also a security risk; there have been documented cases where hackers used credentials they found in
       source code on GitHub to break into systems. 
@@ -92,7 +92,7 @@
     <para>
       Browsers are unfortunately not very suitable for this purpose, since they support only the <literal>GET</literal>
       and <literal>POST</literal> methods, balk at most authentication schemes, and don't allow you to set headers.
-      There are several browser plugins available, however, that let you do all of those things, e.g.
+      There are several browser plugins available, however, that let you do most or all of those things, e.g.
       <citation>Postman</citation>.
     </para>
     <para>
@@ -106,13 +106,13 @@
       JSON.
     </para>
     <para>
-      You can usually use the same library for marshalling programming language objects into requests as for
-      unmarshalling responses into objects.
+      The same library that you use for unmarshalling responses into objects can usually also be used for the reverse
+      process of marshalling programming language objects into requests.
     </para>
     <para>
       To make evolution of services easier, clients should follow the <firstterm>must-ignore</firstterm> rule when
       processing data and links. This means that anything that the client encounters that it doesn't understand should
-      be treated as if it weren't there. See <xref linkend="maintenance"/> for information about API evolution.
+      be treated as if it weren't there. See <xref linkend="maintenance"/> for more information about API evolution.
     </para>
     <para>
       The opposite of <emphasis>must-ignore</emphasis> is <firstterm>must-understand</firstterm>, where the client
@@ -123,18 +123,18 @@
     <para>
       Faithful Hypermedia Clients will render the response and let the user pick a link. The links in the home
       resource are usually rendered as a menu of choices that the user can select from. A link may also be rendered as 
-      a button. For media types that don't support forms, like HAL, a link may also be rendered as a form. How the
-      FHC will render a link depends on its understanding of it, as programmed in by the client developer.
+      a button or other UI widget. For media types that don't support forms, like HAL, a link may also be rendered as a 
+      form. How the FHC will render a link depends on its understanding of it, as programmed in by the client developer.
     </para>
     <para>
       Autonomous Clients select a link by themselves based on some criteria that were coded in by the client developer.
       They may or may not render responses along the way, for instance in the form of log records of what they
-      did. Such renderings are usually not interactive, since Autonomous Clients require no human interaction to reach 
-      their goals.
+      did. Such renderings are usually not interactive, since by definition Autonomous Clients require no human
+      interaction to reach their goals.
     </para>
     <para>
-      Following a link means issuing a new HTTP request. This means selecting a new HTTP method, a new URI, optionally
-      URI query string parameters, and a method body. For a level 3b API, all this information will be in the
+      Following a link means issuing a new HTTP request. This means selecting a new HTTP method and URI, and optionally
+      URI query string parameters and method body. For a level 3b API, all this information will be in the
       response, and the client can simply retrieve this information. For a lower-level API, this information must be 
       programmed in based on an understanding of the current state and the link relation to follow.
     </para>
@@ -164,8 +164,8 @@ assert URI.create("http://www.example.com/foo/bar/baz/")
     .equals(resolvedUri);</programlisting>
     <para>
       The client should use existing facilities for URI resolution rather than attempting its own implementation, 
-      because there is a considerable chance that you will get it wrong. Compare the above code with the following, for
-      instance:
+      because there is a considerable chance that you will get it wrong. For instance, compare the previous example
+      with the following:
     </para>
     <programlisting>URI baseUri = URI.create("http://www.example.com/foo/bar");
 URI resolvedUri = baseUri.resolve("baz/");
@@ -176,8 +176,21 @@ assert URI.create("http://www.example.com/foo/baz/")
       "<xref linkend="uris"/>" in <xref linkend="name-resources"/>.
     </para>
     <para>
+      Sometimes the server doesn't have enough information to present the full URI for a link. For instance, the server
+      can't provide a link for every term the client might want to search on. In those cases, the server will return
+      a URI template rather than a URI or URI reference <citation>URI Template</citation>. The client has to resolve 
+      (TODO: is that the correct term?) the URI template into a URI by filling in values for URI template parameters.
+    </para>
+    <!-- TODO: Show example of resolving a URI template into a URI. -->
+    <para>
+      The media type may indicate when a URI template is returned rather than a URI. For instance, HAL uses the
+      <literal>templated</literal> boolean property on link objects for this purpose. In other cases, the client is
+      supposed to know from the documentation of the media type or link relation that it has to deal with a URI
+      template.
+    </para>
+    <para>
       As the client continues getting responses from the server and following link relations, it will usually have to
-      build up some internal state to help it along it path to achieving its goal. This is especially true for
+      build up some internal state to help it along the path to achieving its goal. This is especially true for
       Autonomous Clients.
     </para>
     <para>
@@ -186,7 +199,7 @@ assert URI.create("http://www.example.com/foo/baz/")
       receives from the server, a phenomenon known as Hypermedia As The Engine Of Application State (HATEAOS).
     </para>
     <para>
-      There are various ways to store application state, like in RAM, in a database, etc. Which method is appropriate
+      There are various ways to store application state, such as in RAM, in a database, etc. Which method is appropriate
       depends on the situation, but quite often the client can simply maintain data structures in RAM. If you don't
       have any specific requirements about picking up where you left off in a previous session, you should default to
       simply storing state in memory.
@@ -210,14 +223,13 @@ CloseableHttpClient client = CachingHttpClients.custom()
     .setDefaultRequestConfig(requestConfig)
     .build();</programlisting>
     <para>
-      The caching client is a drop-in replacement of a regular HTTP client, thanks to the Decorator pattern. If your
-      client doesn't provide caching and you're forced to implement it yourself, then you should definitely use this
-      approach as well.
+      The caching client is a drop-in replacement for a regular HTTP client, thanks to the Decorator pattern. If your
+      client doesn't provide caching and you're forced to implement it yourself, then you should use the same approach.
     </para>
     <para>
       Most HTTP libraries will be able to recover from certain errors automatically. For instance, if a network error
       occurs for an idempotent HTTP method (see the sidebar "<xref linkend="http-methods"/>" in
-      <xref linkend="maturity"/>), the library may safely retry the request. But most errors you will need to handle
+      <xref linkend="maturity"/>), the library may safely retry the request. But you will need to handle most errors 
       yourself.
     </para>
     <para>
@@ -230,8 +242,9 @@ CloseableHttpClient client = CachingHttpClients.custom()
       The best way to handle errors is to have a central location where they are processed, just as we recommended for
       the server. If your HTTP library has a facility for plugging in a generic error handler for all requests, then
       that's a good place. If not, catch any errors and route them into a central handler yourself. The Decorator
-      pattern may be helpful here yet again.
+      pattern may be helpful yet again here.
     </para>
+    <!-- TODO: Give example of error handling with Apache HttpComponents. -->
     <para>
       A client should always log any errors it encounters. The logs can be used to discover design flaws and
       implementation bugs in the client and aid in correcting them. You may go a step further and log all requests, so
@@ -258,8 +271,8 @@ CloseableHttpClient client = CachingHttpClients.custom()
     <para>
       An important non-functional requirement is resiliency, the ability to continue to function in the face of
       errors. In a loosely coupled system such as one based on the REST architectural pattern, the client should assume 
-      as little as much about the server as it can get away with. It shouldn't even assume that the server is always 
-      going to be available.
+      as little about the server as it can get away with. It shouldn't even assume that the server is always going to
+      be available.
     </para>
     <para>
       The client's options are of course limited when the server isn't available, but one thing it definitely must 
@@ -281,7 +294,8 @@ CloseableHttpClient client = CachingHttpClients.custom()
     <para>
       The circuit breaker pattern reduces the load on the troubled server. If the server's troubles were caused by an
       inability to scale to the current load, than reducing the load may be enough to let it recover. If there's
-      something more perminent going wrong, then at least reducing calls to it will help the log files from overflowing.
+      something more perminent going wrong, then at least reducing calls to it will help prevent the log files from
+      overflowing.
     </para>
     <para>
       The circuit breaker pattern also helps the client. There is no point in repeatedly waiting for a non-responsive
@@ -291,26 +305,42 @@ CloseableHttpClient client = CachingHttpClients.custom()
       Circuit breakers limit the total amount of damage.
     </para>
     <para>
-      When the circuit breaker is closed the client should provide <firstterm>graceful degragation</firstterm> of its 
+      When the circuit breaker is closed the client should provide <firstterm>graceful degradation</firstterm> of its 
       service using a <firstterm>fallback method</firstterm>. There are a couple of options, that may or may not make
       sense for a given situation:
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          Return an error. This makes sense for a client that acts on behalf of a human user, but not so much for an
-          autonomous client. The client lets the user figure out how to proceed. This is often an unsatifactory
-          approach for the user, because there is no recovery option offered and the user may not understand the
-          underlying problem. User eXperience experts sometimes call this approach <firstterm>passing the
-          buck</firstterm> and warn against it.
+          Return an error. This makes sense for a Faithful Hypermedia Client, but not so much for an Autonomous Client.
+          The client lets the user figure out how to proceed. This is often an unsatifactory approach for the user,
+          because there is no recovery option offered and the user may not understand the underlying problem. User
+          eXperience experts sometimes call this approach <firstterm>passing the buck</firstterm> and generally warn
+          against it.
         </para>
       </listitem>
       <listitem>
         <para>
-          If the operation was to look up or calculate an answer, the client might opt to return a default answer.
+          If the operation was to look up or calculate an answer, the client might opt to return a default answer. This
+          could be a static value that the client developer programs in, or it could be a cached value from a similar
+          previous call. In many cases it is perfectly fine to show old data, but in some specific cases it may be
+          disastrous, so carefully consider your situation.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The client might use an alternative route to get at the same answer. There may be several different servers
+          that provide basically the same service, for instance, in which case the client can switch from the preferred
+          provider to an alternative one.
         </para>
       </listitem>
     </itemizedlist>
+    <para>
+      When implementing these options, it helps to use the Command pattern <citation>GammaEtAl94</citation>. The code
+      that makes the HTTP request is wrapped in a Command object that contains all the information needed to make the
+      request. This Command object can be wrapped with a recovery object using the Decorator pattern. The recovery
+      object then handles the fallback or alternative command.
+    </para>
     <para>
       TODO: command pattern, Hystrix
     </para>
