@@ -148,6 +148,12 @@
   </biblioentry>
 
   <biblioentry>
+    <abbrev>Charset</abbrev>
+    <biblioid class="uri">https://tools.ietf.org/html/rfc6657</biblioid>
+    <citetitle>Update to MIME regarding "charset" Parameter Handling in Textual Media Types</citetitle>
+  </biblioentry>
+    
+  <biblioentry>
     <abbrev>Cj</abbrev>
     <biblioid class="uri">https://github.com/collection-json/spec</biblioid>
     <citetitle>Collection+JSON</citetitle>

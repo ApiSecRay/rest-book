@@ -313,8 +313,8 @@
     <para>
       There are two ways to parameterize a media type. This first is to use a <firstterm>media type
       parameter</firstterm> in the <literal>Accept</literal> and <literal>Content-Type</literal> headers. An example of
-      a media type parameter is the <literal>charset</literal> parameter of the <literal>text/html</literal> media type
-      <citation>HTML</citation>.
+      a media type parameter is the <literal>charset</literal> parameter supported by all <literal>text/*</literal>
+      media types <citation>Charset</citation>.
     </para>
     <para>
       We can use this mechanism for versioning by introducing a media type parameter called <literal>version</literal>
