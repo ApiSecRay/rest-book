@@ -234,9 +234,7 @@ CloseableHttpClient client = CachingHttpClients.custom()
     </para>
     <para>
       The API documentation will tell you what errors to expect, and you should be prepared to handle them. Hopefully
-      the documentation will give hints on how to recover from those errors as well. Make sure the client can handle 
-      any error, not just the documented ones. You never know when the server is updated, and when (not if) that 
-      happens, you don't want to have to rush out a new version of the client to replace the old broken one.
+      the documentation will give hints on how to recover from those errors as well.
     </para>
     <para>
       The best way to handle errors is to have a central location where they are processed, just as we recommended for
@@ -256,10 +254,21 @@ CloseableHttpClient client = CachingHttpClients.custom()
       invalid data into a form. In that case, logging the error may not be all that helpful.
     </para>
     <para>
+      Make sure the client can handle any error, not just the documented ones. You never know when the server is
+      updated, and when (not if) that happens, you don't want to have to rush out a new version of the client to
+      replace the old broken one.
+    </para>
+    <para>
+      An additional reason to be prepared for more than is documented is that the status code may come from an 
+      intermediary component like a load balancer or caching proxy. These can return 408, 502, 504, or 511 without the
+      request even reaching the API server.
+    </para>
+    <para>
       The HTTP specification clearly states that a client must be able to handle any status code
-      <citation>HTTP</citation>. If you encounter an unknown status code, then you should treat it as a generic status
-      code. For instance, should you run into something exotic like <literal>482</literal> (which isn't currently
-      defined), you should treat it as you would a <literal>400</literal> status code.
+      <citation>HTTP</citation>. It doesn't have to understand all of them, but it must understand all
+      <emphasis>classes</emphasis> of status codes. Remember from <xref linkend="status-codes"/> that the class is
+      indicated by the first digit of the code. So if you run into something exotic like <literal>482</literal> (which
+      isn't currently defined), you must treat it as you would a <literal>400</literal> status code.
     </para>
     <para>
       For more information on building REST clients, see <citation>Amundsen15</citation>.

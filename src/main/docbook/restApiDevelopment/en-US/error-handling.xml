@@ -6,7 +6,7 @@
     usability of an API, and they are the subjects of this chapter.
   </para>
 
-  <section>
+  <section id="status-codes">
     <title>Error Conditions</title>
     <para>
       The way the HTTP protocol deals with failure and success is very simple: each response starts with a status
@@ -18,7 +18,7 @@
       A client should therefore only look at the numeric codes.
     </para>
     <para>
-      Status codes exist in five different ranges:
+      Status codes exist in five different ranges called <firstterm>classes</firstterm>:
     </para>
     <variablelist>
       <varlistentry>
