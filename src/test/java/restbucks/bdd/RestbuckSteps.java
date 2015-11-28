@@ -46,7 +46,7 @@ public class RestbuckSteps {
 
   @When("she reads the menu")
   public void getMenu() throws IOException {
-    resource = client.get(Api.LINK_REL_MENU).toObject(MenuResource.class);
+    resource = client.get(Api.LINK_REL_READACTION).toObject(MenuResource.class);
   }
 
   @When("she orders a $drink")
@@ -138,7 +138,7 @@ public class RestbuckSteps {
 
   @When("she takes the receipt")
   public void takeReceipt() {
-    resource = client.get(Api.LINK_REL_ORDER).toObject(OrderResource.class);
+    resource = client.get(Api.LINK_REL_TAKEACTION).toObject(OrderResource.class);
   }
 
   @Then("she must wait for the barista")
@@ -151,7 +151,7 @@ public class RestbuckSteps {
   }
 
   private boolean isPreparing() {
-    return !resource.hasLink(Api.LINK_REL_RESPONDACTION);
+    return !resource.hasLink(Api.LINK_REL_LISTENACTION);
   }
 
   private void waitAWhile() {
@@ -160,12 +160,12 @@ public class RestbuckSteps {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
-    resource = client.get(Api.LINK_REL_RESPONDACTION).toObject(OrderResource.class);
+    resource = client.get(Api.LINK_REL_LISTENACTION).toObject(OrderResource.class);
   }
 
   @When("the barista calls her name")
   public void served() {
-    resource = client.get(Api.LINK_REL_RESPONDACTION).toObject(ServingResource.class);
+    resource = client.get(Api.LINK_REL_LISTENACTION).toObject(ServingResource.class);
   }
 
   @Then("her serving is ready")
