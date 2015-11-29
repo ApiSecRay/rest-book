@@ -138,7 +138,7 @@ public class RestbuckSteps {
 
   @When("she takes the receipt")
   public void takeReceipt() {
-    resource = client.get(Api.LINK_REL_TAKEACTION).toObject(OrderResource.class);
+    resource = client.get(Api.LINK_REL_RECEIVEACTION).toObject(OrderResource.class);
   }
 
   @Then("she must wait for the barista")
@@ -170,12 +170,12 @@ public class RestbuckSteps {
 
   @Then("her serving is ready")
   public void assertServing() {
-    assertTrue("Missing link", resource.hasLink(Api.LINK_REL_RECEIVEACTION));
+    assertTrue("Missing link", resource.hasLink(Api.LINK_REL_TAKEACTION));
   }
 
   @When("she takes her serving")
   public void takeServing() {
-    resource = client.delete(Api.LINK_REL_RECEIVEACTION).toObject(ResourceSupport.class);
+    resource = client.delete(Api.LINK_REL_TAKEACTION).toObject(ResourceSupport.class);
   }
 
   @Then("she is happy")

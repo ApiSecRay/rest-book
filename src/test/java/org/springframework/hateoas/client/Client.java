@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.LinkDiscoverer;
 import org.springframework.hateoas.LinkDiscoverers;
 import org.springframework.hateoas.MediaTypes;
@@ -186,7 +187,11 @@ public class Client {
     if (response == null) {
       response = call(baseUri, GET, null, ResourceSupport.class);
     }
-    return response.getBody().getLink(rel).getHref();
+    Link link = response.getBody().getLink(rel);
+    if (link == null) {
+      throw new IllegalStateException("Missing link with relation " + rel);
+    }
+    return link.getHref();
   }
 
   private <T extends ResourceSupport> ResponseEntity<T> call(String uri, HttpMethod method, Object input,
