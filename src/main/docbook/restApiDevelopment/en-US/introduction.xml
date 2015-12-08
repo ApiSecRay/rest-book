@@ -245,7 +245,7 @@
       </para>
       <para>
         In 2008, Leonard Richardson published his Maturity Heuristic <citation>Richardson08</citation> that classified 
-        web services into three levels based on their use of URI, HTTP, and hypermedia. As is common with maturity 
+        web services into four levels based on their use of URI, HTTP, and hypermedia. As is common with maturity 
         models, the levels build on each other.
       </para>
       <figure>
@@ -486,7 +486,7 @@
         media type, and its meaning specified in a separate semantic profile.
       </para>
       <para>
-        We propose to add a fourth level to Richardson's maturity model that is defined by the use of semantic 
+        We propose to add a fifth level to Richardson's maturity model that is defined by the use of semantic 
         profiles, whether in the form of semantic web technology, ALPS, or anything else that serves the same 
         purpose.
       </para>
