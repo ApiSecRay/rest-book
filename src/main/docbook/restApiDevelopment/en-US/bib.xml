@@ -1,8 +1,5 @@
 <bibliography>
   <title>Bibliography</title>
-  <para>
-    TODO: Add authors for RFCs, etc.
-  </para>
 
   <biblioentry>
     <abbrev>12factor</abbrev>
@@ -12,7 +9,7 @@
   
   <biblioentry>
     <abbrev>Adzic09</abbrev>
-    <citetitle>Bridging the communication gap: specification by example</citetitle>
+    <citetitle>Bridging the Communication Gap: Specification By Example</citetitle>
     <authorgroup>
       <author>
         <personname>
@@ -28,7 +25,7 @@
 
   <biblioentry>
     <abbrev>AIS+77</abbrev>
-    <citetitle>A pattern language</citetitle>
+    <citetitle>A Pattern Language</citetitle>
     <authorgroup>
       <author>
         <personname>
@@ -436,7 +433,12 @@
     <abbrev>Hydra Console</abbrev>
     <biblioid class="uri">http://www.markus-lanthaler.com/hydra/console/</biblioid>
   </biblioentry>
-    
+
+  <biblioentry>
+    <abbrev>Hystrix</abbrev>
+    <biblioid class="uri">https://github.com/Netflix/Hystrix</biblioid>
+  </biblioentry>    
+  
   <biblioentry>
     <abbrev>IANA</abbrev>
     <biblioid class="uri">http://www.iana.org/</biblioid>
@@ -470,7 +472,7 @@
   
   <biblioentry>
     <abbrev>JSON Schema</abbrev>
-    <biblioid class="uri">TODO</biblioid>
+    <biblioid class="uri">http://json-schema.org/documentation.html</biblioid>
   </biblioentry>
   
   <biblioentry>
@@ -773,8 +775,8 @@
   
   <biblioentry>
     <abbrev>Sans</abbrev>
-    <biblioid class="uri">TODO</biblioid>
-    <citetitle>https://www.sans.org/top25-software-errors/</citetitle>
+    <biblioid class="uri">https://www.sans.org/top25-software-errors/</biblioid>
+    <citetitle>CWE/SANS Top 25 Most Dangerous Software Errors</citetitle>
   </biblioentry>
   
   <biblioentry>
@@ -966,7 +968,7 @@
   
   <biblioentry>
     <abbrev>XML Schema</abbrev>
-    <biblioid class="uri">TODO</biblioid>
+    <biblioid class="uri">http://www.w3.org/XML/Schema</biblioid>
   </biblioentry>
   
   <biblioentry>

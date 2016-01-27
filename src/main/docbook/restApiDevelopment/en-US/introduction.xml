@@ -517,80 +517,74 @@
        RESTBucks.
     </para>
     
-    <section>
-      <title>The RESTBucks Domain</title>
-	    <para>
-	      RESTBucks is a coffee shop modeled after Starbucks<trademark class="trade"/> that serves its customers hot and
-	      cold beverages, pastries and other treats, and collectibles like coffe mugs.
-      </para>
-      <para>
-	      RESTBucks assigns different roles to their employees 
-	      to make sure they can serve as many customers as possible. A <firstterm>cashier</firstterm> takes orders and 
-	      payments from a customer, while a <firstterm>barista</firstterm> prepares the order. 
-	      A <firstterm>manager</firstterm> is in charge of a smooth operation, and a <firstterm>supplier</firstterm> 
-	      provides the ingredients necessary to fulfill the orders.
-	    </para>
-	    <para>
-	      In this book we'll replace those humans (including the customers) with computer programs. Each program is a 
-	      service that offers a REST API and that may use the REST APIs of other services.
-	    </para>
-	    <para>
-	      The RESTBucks service needs to scale up quickly when demand peaks, for example when people are going to work. 
-	      At the same time, RESTBucks needs to continuously improve and expand their offerings to keep customers 
-	      satisfied, and to attract new customers. So evolvability is also a concern. Whenever we see a combined need for
-	      scalability and evolvability, we know we have a good case for a REST API.
-	    </para>
-    </section>
-  
-	  <section>
-	    <title>Software Development At RESTBucks</title>
-	    <para>
-	      RESTBuck isn't a real company, but a teaching tool. Nowhere is that more apparent than in our choice of
-	      software development method. We're going to follow the Waterfall method <citation>Royce75</citation> here,
-	      because it is extremely well-known, and cleanly separates the activities into neat phases that are easy to 
-	      follow. We understand that in practice these phases blend into each other, but in this book we can give them 
-	      focused treatment in different chapters.
-	    </para>
-	    <para>
-	      If RESTBucks were a real company, we probably would have chosen a more Agile way of developing software, so 
-	      please don't get distracted by our current choice. We believe that more Agile methods in general work better 
-	      than more traditional Waterfall-like methods, but for the most part we'll ignore that in this book. 
-      </para>
-      <para>
-	      The exception is that we will present some Agile practices that we think add specific value for building REST 
-	      APIs. You are, of course, free to use these practices or ignore them. We'll try to make sure you'll get value 
-	      out of this book either way. In the end, this book is not about software development per se, but about
-	      developing REST APIs, and we think you can do that with any method.
-	    </para>
-	    <para>
-	      We'll sometimes use an term from Agile methods, like <firstterm>Product Owner</firstterm>. We'll only do that in 
-	      the context of a specific Agile practice, like in <xref linkend="bdd"/>. This doesn't necessarily mean you can 
-	      only use that practice if you completely adopt the Agile method. There is usually a different term used for the
-	      same concept in other methods, but it seems more natural to use Agile terminology when we talk about Agile
-	      practices. Again, we won't do that too often.
-	    </para>
-	    <para>
-	      REST APIs lend themselves well to incremental and iterative development. Client and server teams can
-	      work in parallel during an iteration and the API can grow by increments between iterations. We will not assume
-	      an incremental and iterative software development process in this book, but we do recommend it. If you build up
-	      your API over time, you can simply follow the chapters in this book within a single iteration.
-	    </para>
-	    <para>
-	      We grant ourselves the luxury to start from scratch with RESTBuck, because we think that makes the text easier
-	      to follow. You may not be so lucky and may have to work with legacy code. Even in greenfield projects you may 
-	      be restricted because you have to work from existing industry standards.
-	    </para>
-	    <para>
-	      While these constraints may limit what you can do, the essence of building a REST API remains the same. We are 
-	      confident that the techniques presented in the following chapters will work for you as well, although it may 
-	      sometimes require a bit of creativity. We'll talk specifically about the differences between starting with 
-	      design versus starting with code in <xref linkend="api-description"/>.
-	    </para>
-	    <para>
-	      With all these preliminaries out the the way, let's get started building a business that can serve our customers 
-	      the hot beverages that fuel their days.
-	    </para>
-	  </section>
+    <para>
+      RESTBucks is a coffee shop modeled after Starbucks<trademark class="trade"/> that serves its customers hot and
+      cold beverages, pastries and other treats, and collectibles like coffe mugs.
+     </para>
+     <para>
+      RESTBucks assigns different roles to their employees 
+      to make sure they can serve as many customers as possible. A <firstterm>cashier</firstterm> takes orders and 
+      payments from a customer, while a <firstterm>barista</firstterm> prepares the order. 
+      A <firstterm>manager</firstterm> is in charge of a smooth operation, and a <firstterm>supplier</firstterm> 
+      provides the ingredients necessary to fulfill the orders.
+    </para>
+    <para>
+      In this book we'll replace those humans (including the customers) with computer programs. Each program is a 
+      service that offers a REST API and that may use the REST APIs of other services.
+    </para>
+    <para>
+      The RESTBucks service needs to scale up quickly when demand peaks, for example when people are going to work. 
+      At the same time, RESTBucks needs to continuously improve and expand their offerings to keep customers 
+      satisfied, and to attract new customers. So evolvability is also a concern. Whenever we see a combined need for
+      scalability and evolvability, we know we have a good case for a REST API.
+    </para>
+
+    <para>
+      RESTBuck isn't a real company, but a teaching tool. Nowhere is that more apparent than in our choice of
+      software development method. We're going to follow the Waterfall method <citation>Royce75</citation> here,
+      because it is extremely well-known, and cleanly separates the activities into neat phases that are easy to 
+      follow. We understand that in practice these phases blend into each other, but in this book we can give them 
+      focused treatment in different chapters.
+    </para>
+    <para>
+      If RESTBucks were a real company, we probably would have chosen a more Agile way of developing software, so 
+      please don't get distracted by our current choice. We believe that more Agile methods in general work better 
+      than more traditional Waterfall-like methods, but for the most part we'll ignore that in this book. 
+     </para>
+     <para>
+      The exception is that we will present some Agile practices that we think add specific value for building REST 
+      APIs. You are, of course, free to use these practices or ignore them. We'll try to make sure you'll get value 
+      out of this book either way. In the end, this book is not about software development per se, but about
+      developing REST APIs, and we think you can do that with any method.
+    </para>
+    <para>
+      We'll sometimes use an term from Agile methods, like <firstterm>Product Owner</firstterm>. We'll only do that in 
+      the context of a specific Agile practice, like in <xref linkend="bdd"/>. This doesn't necessarily mean you can 
+      only use that practice if you completely adopt the Agile method. There is usually a different term used for the
+      same concept in other methods, but it seems more natural to use Agile terminology when we talk about Agile
+      practices. Again, we won't do that too often.
+    </para>
+    <para>
+      REST APIs lend themselves well to incremental and iterative development. Client and server teams can
+      work in parallel during an iteration and the API can grow by increments between iterations. We will not assume
+      an incremental and iterative software development process in this book, but we do recommend it. If you build up
+      your API over time, you can simply follow the chapters in this book within a single iteration.
+    </para>
+    <para>
+      We grant ourselves the luxury to start from scratch with RESTBuck, because we think that makes the text easier
+      to follow. You may not be so lucky and may have to work with legacy code. Even in greenfield projects you may 
+      be restricted because you have to work from existing industry standards.
+    </para>
+    <para>
+      While these constraints may limit what you can do, the essence of building a REST API remains the same. We are 
+      confident that the techniques presented in the following chapters will work for you as well, although it may 
+      sometimes require a bit of creativity. We'll talk specifically about the differences between starting with 
+      design versus starting with code in <xref linkend="api-description"/>.
+    </para>
+    <para>
+      With all these preliminaries out the the way, let's get started building a business that can serve our customers 
+      the hot beverages that fuel their days.
+    </para>
   </section>
   
   <section>

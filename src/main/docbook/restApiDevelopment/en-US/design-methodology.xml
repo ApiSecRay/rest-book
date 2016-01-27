@@ -1274,6 +1274,8 @@
       <xref linkend="implementation"/>. With that caveat, let's look at some of the contenders.
     </para>
     
+    <!-- TODO: JSON API http://jsonapi.org/ -->
+    
     <section>
       <title>HAL</title>
     </section>

@@ -178,10 +178,14 @@ assert URI.create("http://www.example.com/foo/baz/")
     <para>
       Sometimes the server doesn't have enough information to present the full URI for a link. For instance, the server
       can't provide a link for every term the client might want to search on. In those cases, the server will return
-      a URI template rather than a URI or URI reference <citation>URI Template</citation>. The client has to resolve 
-      (TODO: is that the correct term?) the URI template into a URI by filling in values for URI template parameters.
+      a URI template rather than a URI or URI reference <citation>URI Template</citation>. The client has to expand 
+      the URI template into a URI by filling in values for URI template parameters.
     </para>
-    <!-- TODO: Show example of resolving a URI template into a URI. -->
+    <para>
+      For instance, the URI template <literal>/users/{user-id}/</literal> expands to <literal>/users/1/</literal> if the
+      value of <literal>user-id</literal> is set to <literal>1</literal>. There are many subtleties involved with URI
+      template expansion, but this example of variable expansion covers the most common case.
+    </para>
     <para>
       The media type may indicate when a URI template is returned rather than a URI. For instance, HAL uses the
       <literal>templated</literal> boolean property on link objects for this purpose. In other cases, the client is
@@ -242,7 +246,27 @@ CloseableHttpClient client = CachingHttpClients.custom()
       that's a good place. If not, catch any errors and route them into a central handler yourself. The Decorator
       pattern may be helpful yet again here.
     </para>
-    <!-- TODO: Give example of error handling with Apache HttpComponents. -->
+    <para>
+      For example, here's how to handle response status codes with Apache HTTP Components:    
+    </para>
+    <programlisting><![CDATA[HttpGet get = new HttpGet("http://example.org/");
+ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+  @Override
+  public String handleResponse(HttpResponse response) throws IOException {
+    int status = response.getStatusLine().getStatusCode();
+    if (status >= 200 && status < 300) {
+      HttpEntity entity = response.getEntity();
+      return entity != null ? EntityUtils.toString(entity) : null;
+    } else if (status >= 400 && status < 500) {
+      throw new IllegalArgumentException();
+    } else if (status >= 500) {
+      throw new IllegalStateException();
+    } else {
+      throw new IllegalStateException("Unexpected response status: " + status);
+    }
+  }
+};
+String responseBody = httpClient.execute(get, responseHandler);]]></programlisting>
     <para>
       A client should always log any errors it encounters. The logs can be used to discover design flaws and
       implementation bugs in the client and aid in correcting them. You may go a step further and log all requests, so
@@ -278,14 +302,14 @@ CloseableHttpClient client = CachingHttpClients.custom()
   <section id="resilience">
     <title>Resilience</title>
     <para>
-      An important non-functional requirement is resiliency, the ability to continue to function in the face of
+      An important non-functional requirement is resilience, the ability to continue to function in the face of
       errors. In a loosely coupled system such as one based on the REST architectural pattern, the client should assume 
       as little about the server as it can get away with. It shouldn't even assume that the server is always going to
       be available.
     </para>
     <para>
       The client's options are of course limited when the server isn't available, but one thing it definitely must 
-      <emphasis>not</emphasis> do is crash. Imagine your browser crashing everytime you tried to access a non-existing
+      <emphasis>not</emphasis> do is crash. Imagine your browser crashing every time you tried to access a non-existing
       URL! A client should be able to degrade functionality gracefully when the server doesn't respond at all, or when 
       it responds in erroneous or unexpected ways.
     </para>
@@ -351,7 +375,40 @@ CloseableHttpClient client = CachingHttpClients.custom()
       object then handles the fallback or alternative command.
     </para>
     <para>
-      TODO: command pattern, Hystrix
+      One library that implements this for you is <citation>Hystrix</citation>. It offers 
+      <literal>HystrixCommand</literal>:
+    </para>
+    <programlisting><![CDATA[public class HelloWorldCommand extends HystrixCommand<String> {
+
+  private final String name;
+
+  public HelloWorldCommand(String name) {
+    super(HystrixCommandGroupKey.Factory.asKey("ExampleGroup"));
+    this.name = name;
+  }
+
+  @Override
+  protected String run() {
+    // This is where you would issue an HTTP request and extract the
+    // return value from the response
+    return "Hello " + name + "!";
+  }
+ 
+  @Override
+  protected String getFallback() {
+    return "Hello Failure " + name + "!";
+  }
+  
+}]]></programlisting>
+    <para>
+      The <literal>run()</literal> method performs the actual work. When this method throws an exception, the
+      <literal>getFallback()</literal> method is called. The fallback method can do anything it wants, including
+      executing another Hystrix command. This could be used to retrieve an alternative value from a backup system like
+      a cache, for instance.
+    </para>
+    <para>
+      Hystrix is a very complete library with additional functionality like asynchronous calls and is well worth
+      checking out.
     </para>
   </section>  
 

@@ -93,7 +93,7 @@
   </section>
   
   <section id="logging">
-    <title>Logging and Monitoring</title>
+    <title>Logging &amp; Monitoring</title>
     <para>
       <firstterm>Logging</firstterm> is the act of sending out information about the state of the application while it 
       is running. While in theory one can write log output to any medium, in practice logging goes to either the console 
