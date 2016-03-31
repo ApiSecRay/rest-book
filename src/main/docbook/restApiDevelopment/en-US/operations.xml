@@ -62,7 +62,7 @@
       There are several ways to separate configuration from code. One way is to use environment variables, as is
       recommended for so-called twelve-factor apps <citation>12factor</citation>. Environment variables are a low-tech
       solution available on any conceivable platform. For this reason, this approach works well when deploying
-      software into a <firsterm>Platform-as-a-Service</firsterm> (PaaS) solution like CloudFoundry, Azure, or Heroku.
+      software into a <firstterm>Platform-as-a-Service</firstterm> (PaaS) solution like CloudFoundry, Azure, or Heroku.
     </para>
     <para>
       Other solutions can work as well. Configuration files that the program reads on startup or when it needs
@@ -161,6 +161,16 @@
       an application has crashed and automatically restart it, for instance (as a PaaS usually does for you). The 
       monitoring tool can even analyze and correlate multiple events and draw conclusions from emerging patterns and
       deviations from normal, as in the case of fraud detection tools.
+    </para>
+    <para>
+      Testing and monitoring are both means to discover issues with software. The advantage of testing is that it gives
+      you more time to fix issues, because the code isn't in production yet. The advantage of monitoring is that it
+      works on the real environment rather than a close approximation of it.
+    </para>
+    <para>
+      You can combine both approaches using <firstterm>synthetic monitoring</firstterm>, where you run so-called
+      <firstterm>synthetic transactions</firstterm> in production. These transactions are not initiated by real-world
+      users, but by test scripts. They give you a chance to find issues in production before real users run into them.
     </para>
     <para>
       Debugging and alerting are reactive activities, prompted by seeing undesired events. But logging can also play a
