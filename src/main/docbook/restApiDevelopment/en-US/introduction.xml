@@ -28,8 +28,8 @@
       we need a <firstterm>server</firstterm> that stores the data and multiple <firstterm>clients</firstterm> that 
       live on the different devices.
       The kinds of conversations possible between the many clients and the one server are determined by the 
-      capabilities of the latter. We call this language the <firstterm>Application Programming Interface</firstterm>, 
-      or API.
+      capabilities of the latter, by the language it speaks. We call this language the 
+      <firstterm>Application Programming Interface</firstterm>, or API.
     </para>
     <para>
       The breakdown in server and clients is the minimum we can get away with, but further dividing up modules may
@@ -41,13 +41,13 @@
     <para>
       A single company may be responsible for both the producer and consumer of an API, as with most microservices.
       However, an API may also be publicly available to others. Public APIs allow third parties to unleash 
-      their creativity in ways the providers could never have imagined. The API allows provider and consumer to 
+      their creativity in ways the API providers could never have imagined. The API allows provider and consumer to 
       innovate independently.
     </para>
     <para>
       Companies like eBay, Amazon, Salesforce, Google, and Twitter provide valuable services via APIs, and software 
       developers are using those APIs to create new kinds of applications that run on a variety of devices.
-      These services are valuable enough that API consumers are willing to pay for them.
+      These services are valuable enough that API consumers are willing to pay for them. 
       We now live in the <firstterm>API Economy</firstterm>.
     </para>
     <para>
@@ -89,7 +89,7 @@
         For instance, the client can be a browser and the server a web application. We can then further divide the 
         web application into a web server for the CPU-intensive processing and a database server for I/O-intensive 
         processing. Distributing capabilities over multiple modules provides us with the opportunity to give each the 
-        resources it needs, without wasting money by giving it too much.
+        resources it needs, without wasting money by giving it too much of the things its needs little of.
       </para>
       <para>
         The <emphasis>layered system constraint</emphasis> additionally requires that the client cannot see beyond its 
@@ -118,9 +118,15 @@
       </para>
       <para>
         The <emphasis>uniform interface constraint</emphasis> is the one that really distinguishes REST from other 
-        approaches. It mandates that we stick to a predefined set of standard operations. Anybody who has played with 
-        Legos knows the power of a universal interface. Since the uniform interface is so central to REST, we will now 
-        look into it in more detail.
+        approaches. It mandates that we stick to a predefined set of standard operations. For HTTP-based RESTful
+        systems, these operations are the standard HTTP methods: <literal>GET</literal>, <literal>POST</literal>, etc.
+        More information on the HTTP methods is provided in sidebar "<xref linkend="http-methods"/>" in
+        <xref linkend="maturity"/>.
+      </para>
+      <para>
+        Anybody who has played with <productname class="trade">Lego</productname> blocks knows that a universal
+        interface may seem limiting, but is in fact very powerful. Since the uniform interface is so central to REST,
+        we will now take a closer look at it.
       </para>
     </section>
     
@@ -163,7 +169,8 @@
               </blockquote>
               A representation of a resource is an encoding of the information contained in the resource. It allows us
               to transmit the information from client to server and vice versa. The data format of a representation is 
-              known as its <firstterm>media type</firstterm> <citation>RFC 6838</citation>.
+              known as its <firstterm>media type</firstterm> <citation>RFC 6838</citation>.  We'll talk more about
+              media types that are useful for REST APIs in <xref linkend="media-types"/>.
             </para>
             <para>
               Next to the data of the resource itself, a representation may also contain
@@ -177,7 +184,7 @@
           <listitem>
             <para>
               To implement the stateless constraint, it's important that the server doesn't need to remember
-              application state. A clients that wants the server to do something on its behalf must therefore give the
+              application state. A client that wants the server to do something on its behalf must therefore give the
               server all the information it needs to do its job. In other words, the message that the client sends to 
               the server must be self-contained and self-descriptive, because the server has no memory of previous
               interactions beyond the resource state it stores.
@@ -336,11 +343,34 @@
             <para>
               Since some media types stop short at links and forget about forms, we think it makes sense to split this 
               level into 3a and 3b. At level 3a, a media type is used that supports links, but not forms. At level 3b, 
-              forms are also supported. We'll talk more about hypermedia types in <xref linkend="media-types"/>.
+              forms are also supported.
             </para>
           </listitem>
         </varlistentry>
       </variablelist>      
+      <para>
+        Note that the amount of out-of-band communication steadily decreases as we move up the levels. This is a
+        good thing, as it reduces the amount of coupling between clients and servers. It also makes clients
+        easier to build, since we have to encode less knowledge into them.
+      </para>
+      <para>
+        We believe that level 3 isn’t the final destination, however. Even with the inclusion in the message of things 
+        like what method and protocol to use to follow a link, and what media type to encode the request in, we still 
+        need some out-of-band communication. Which links to follow is based on the client's goal and what the data items
+        and link relations of the links in the message <emphasis>mean</emphasis>.
+      </para>
+      <para>
+        A REST client driven by a human user can navigate a level 3 API, since it can present the data items and link 
+        relations in its user interface and let the user select the next link. But for true 
+        <firstterm>machine-to-machine</firstterm> (M2M) communication we need something more: semantics. The client 
+        needs to <emphasis>understand</emphasis> what to do without a human directing it.
+      </para>
+      <para>
+        One way of making the client understand the semantics of the messages is to program that knowledge directly 
+        into the client. This is what most people currently do. The downside of this approach is that it's not very
+        efficient: Every service requires a new client to be written, and many changes in the service require
+        an update of the client.
+      </para>
       
       <sidebar id="http-methods">
         <title>HTTP Methods</title>
@@ -355,7 +385,9 @@
           optimize their use. For instance, we know that a <literal>GET</literal> method should never change the
           resource to which it is sent, so we can cache the response and use the cached representation on the next
           call to save us a network round trip.
-          A couple of properties of the HTTP methods are crucial to understand when building REST APIs:
+        </para>
+        <para>
+          A couple of properties of HTTP methods are crucial to understand when building REST APIs:
         </para>
         <variablelist>
           <varlistentry>
@@ -411,29 +443,6 @@
       </sidebar>
       
       <para>
-        The amount of out-of-band communication steadily decreases as we move up the levels. This is a
-        good thing, as it reduces the amount of coupling between clients and servers. It also makes clients
-        easier to build, since we have to encode less knowledge into them.
-      </para>
-      <para>
-        We believe that level 3 isn’t the final destination, however. Even with the inclusion in the message of things 
-        like what method and protocol to use to follow a link, and what media type to encode the request in, we still 
-        need some out-of-band communication. Which links to follow is based on the client's goal and what the data items
-        and link relations of the links in the message <emphasis>mean</emphasis>.
-      </para>
-      <para>
-        A REST client driven by a human user can navigate a level 3 API, since it can present the data items and link 
-        relations in its user interface and let the user select the next link. But for true 
-        <firstterm>machine-to-machine</firstterm> (M2M) communication we need something more: semantics. The client 
-        needs to <emphasis>understand</emphasis> what to do without a human directing it.
-      </para>
-      <para>
-        One way of making the client understand the semantics of the messages is to program that knowledge directly 
-        into the client. This is what most people currently do. The downside of this approach is that it's not very
-        efficient. Every service requires a new client to be written, and many changes in the service require
-        an update of the client.
-      </para>
-      <para>
         The alternative is to write a client that can reason from known semantics. 
         There is a big effort under way to teach semantics to machines <citation>Semantic Web</citation>.
         Semantic Web technology involves relating disparate pieces of data, assigning meaning to data using 
@@ -462,9 +471,10 @@
       </blockquote>
       <para>
         A profile doesn't change what the resource means; a user resource is still about a user. But a profile can
-        help with making sense of the resource's representation. If a client retrieves an HTML representation of a
-        user, then the vCard profile defines that the <literal>tel</literal> value of a <literal>class</literal>
-        attribute in the representation means that the element contains a telephone number <citation>vCard</citation>. 
+        help with making sense of the resource's representation. For instance, if a client retrieves an HTML
+        representation of a user, then the vCard profile defines that the <literal>tel</literal> value of a
+        <literal>class</literal> attribute in the representation means that the element contains a telephone number
+        <citation>vCard</citation>.
       </para>
       <para>
         The Semantic Web effort uses profiles based on the Resource Description Framework <citation>RDF</citation> to 
@@ -527,8 +537,6 @@
 	      RESTBucks assigns different roles to their employees 
 	      to make sure they can serve as many customers as possible. A <firstterm>cashier</firstterm> takes orders and 
 	      payments from a customer, while a <firstterm>barista</firstterm> prepares the order. 
-	      A <firstterm>manager</firstterm> is in charge of a smooth operation, and a <firstterm>supplier</firstterm> 
-	      provides the ingredients necessary to fulfill the orders.
 	    </para>
 	    <para>
 	      In this book we'll replace those humans (including the customers) with computer programs. Each program is a 
@@ -565,7 +573,7 @@
 	    <para>
 	      We'll sometimes use an term from Agile methods, like <firstterm>Product Owner</firstterm>. We'll only do that in 
 	      the context of a specific Agile practice, like in <xref linkend="bdd"/>. This doesn't necessarily mean you can 
-	      only use that practice if you completely adopt the Agile method. There is usually a different term used for the
+	      only use that practice if you completely adopt an Agile method. There is usually a different term used for the
 	      same concept in other methods, but it seems more natural to use Agile terminology when we talk about Agile
 	      practices. Again, we won't do that too often.
 	    </para>
@@ -601,8 +609,8 @@
       we call the Application Programming Interface (API).
     </para>
     <para>
-      Each module must be able to evolve and scale independently. This means that some forms of APIs are more suitable 
-      for comminication between modules than others. One style that meets all our needs is that of Representational 
+      Each module must be able to evolve and scale independently. Some forms of APIs are more suitable for
+      communication between modules than others. One style that meets all our needs is that of Representational
       State Transfer (REST).
     </para>
     <para>
