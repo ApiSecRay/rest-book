@@ -158,7 +158,7 @@
   </section>
   
   <section id="consumer-contract">
-    <title>Consumer contracts</title>
+    <title>Consumer Contracts</title>
     <para>
       There may be different types of clients, each with their own goals they're trying to reach through the API.
       This is especially likely in a microservices architecture. In that situation it's also likely that both your 
@@ -207,9 +207,9 @@
       automatically generated consumer contract.
     </para>
     <para>
-      There are a couple of open source tools to support consumer contracts. We'll discuss Pact-JVM here, which is a
-      port of the Ruby program Pact for the JVM <citation>Pact</citation>. A pact is "a formal agreement between 
-      individuals or parties", which is exactly what a consumer-driven contract is.
+      There are a couple of open source tools to support consumer contracts, like Pact-JVM, a port of the Ruby program
+      Pact for the JVM <citation>Pact</citation>. A pact is "a formal agreement between individuals or parties", which
+      is exactly what a consumer-driven contract is.
     </para>
     <para>
       Correlation IDs help to link related requests and responses together (see <xref linkend="correlation"/>), 

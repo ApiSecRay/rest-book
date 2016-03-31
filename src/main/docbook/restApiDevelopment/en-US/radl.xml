@@ -278,7 +278,7 @@
   </section>
   
   <section>
-    <title>RESTBucks in RADL</title>
+    <title>Describing RESTBucks</title>
     <para>
       The structure of RADL guides the API designer through the process of designing an API, from requirements captured
       by the state model to the resources and error conditions. We'll show you how that works by going through the steps

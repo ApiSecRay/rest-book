@@ -1123,7 +1123,7 @@
   </section>
 
   <section id="dos">
-    <title>Protecting Against Denial of Service (DoS) Attacks</title>
+    <title>Denial of Service</title>
     <para>
       DoS attacks are a major annoyance, because they are difficult to protect against. The good news is that it takes
       some muscle to perform such an attack and there are no direct rewards. This means only highly motivated people 
