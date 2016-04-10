@@ -83,9 +83,14 @@
         In this final part of the book we thus come full circle by switching the perspective back from the server to the
         client and from building an API to consuming it (<xref linkend="client"/>).
       </para>
+      <para>
+        In recent years the term REST has come to be synonymous to HTTP-based API. In the final chapter of this book
+        we look at some alternative protocols and why one would want to use them rather than HTTP.
+      </para>
     </partintro>
     
     <xi:include href="client.xml"/>
+    <xi:include href="beyond-http.xml"/>
   </part>  
 
   <xi:include href="bib.xml"/>>

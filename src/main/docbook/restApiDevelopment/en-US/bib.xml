@@ -255,7 +255,7 @@
 
   <biblioentry>
     <abbrev>Fielding00</abbrev>
-    <biblioid class="uri">http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm/</biblioid>
+    <biblioid class="uri">https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm</biblioid>
     <citetitle>Architectural Styles and the Design of Network-based Software Architectures</citetitle>
     <authorgroup>
       <author>
@@ -460,6 +460,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Kafka</abbrev>
+    <biblioid class="uri">http://kafka.apache.org/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>McKenzie10</abbrev>
     <biblioid class="uri">http://www.kalzumeus.com/2010/06/17/falsehoods-programmers-believe-about-names/</biblioid>
     <citetitle>Falsehoods Programmers Believe About Names</citetitle>
@@ -634,6 +639,11 @@
     <abbrev>RDF</abbrev>
     <biblioid class="uri">http://www.w3.org/RDF/</biblioid>
     <citetitle>Resource Description Framework</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Reactive Manifesto</abbrev>
+    <biblioid class="uri">http://www.reactivemanifesto.org/</biblioid>
   </biblioentry>
   
   <biblioentry>
