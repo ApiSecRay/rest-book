@@ -216,7 +216,7 @@ public void getMenu() {
       The <literal>toObject()</literal> method in the above code converts the response to an instance of the
       <literal>MenuResource</literal> class. This is the same Data Transfer Object (DTO) that the server uses and can
       also be published by the server team. Alternatively, the server team can publish their API description (see
-      <xref linkend="radl"/>) and the client team can generate the appropriate DTO classes for their development 
+      <xref linkend="api-description"/>) and the client team can generate the appropriate DTO classes for their development 
       environment (which may be different than the server team's).
     </para>
     <para>

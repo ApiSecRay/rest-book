@@ -1,10 +1,9 @@
 <chapter id="beyond-http">
   <title>Beyond HTTP</title>
   <para>
-    So far in this book we have used HTTP as the protocol over which we send our requests and responses, and this is
+    For most of this book we will use HTTP as the protocol over which we send our requests and responses, because this is
     certainly what most people do today. There is nothing in the definition of the REST architectural style that ties
-    it to HTTP, however. Roy Fielding's dissertation doesn't mention HTTP in chapter 5, where REST is formally defined
-    <citation>Fielding00</citation>. He does explicitly mention HTTP in section 6.3, "REST applied to HTTP".
+    it to HTTP, however <citation>Fielding00</citation>.
   </para>
   <para>
     It's good to make a distinction between the REST architectural style and its application to the HTTP protocol.

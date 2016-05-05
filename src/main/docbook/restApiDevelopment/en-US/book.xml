@@ -45,8 +45,11 @@
         This part of the book talks about all the different aspects of designing a REST API. We explain in detail how to
         design a REST API (<xref linkend="design"/>), including using common design constructs
         (<xref linkend="patterns"/>), handling exceptional cases (<xref linkend="error"/>), and designing for good
-        performance (<xref linkend="performance"/>) and security (<xref linkend="security"/>). We end with a discussion
-        on API design tooling (<xref linkend="radl"/>).
+        performance (<xref linkend="performance"/>) and security (<xref linkend="security"/>).
+      </para>
+      <para>
+        In recent years the term REST has come to be synonymous to HTTP-based API. In the final chapter of this part of the book
+        we look at some alternative protocols and why one would want to use them rather than HTTP.
       </para>
     </partintro>
     
@@ -55,7 +58,7 @@
     <xi:include href="error-handling.xml"/>
     <xi:include href="performance.xml"/>
     <xi:include href="security.xml"/>
-    <xi:include href="radl.xml"/>
+    <xi:include href="beyond-http.xml"/>
   </part>
 
   <part>
@@ -83,14 +86,9 @@
         In this final part of the book we thus come full circle by switching the perspective back from the server to the
         client and from building an API to consuming it (<xref linkend="client"/>).
       </para>
-      <para>
-        In recent years the term REST has come to be synonymous to HTTP-based API. In the final chapter of this book
-        we look at some alternative protocols and why one would want to use them rather than HTTP.
-      </para>
     </partintro>
     
     <xi:include href="client.xml"/>
-    <xi:include href="beyond-http.xml"/>
   </part>  
 
   <xi:include href="bib.xml"/>>
