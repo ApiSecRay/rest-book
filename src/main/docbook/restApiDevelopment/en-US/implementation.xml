@@ -246,7 +246,8 @@
     <para>
       <xref linkend="rest-server"/> shows the relationships between the server components. Components in blue are
       standard components, while those in yellow and red are specific to your project. The difference is that yellow
-      components can be generated, as we'll see in <xref linkend="radl-supports-implementation"/>, while red components
+      components could be generated if you use sufficiently powerful tools in combination with an
+      API description language (see <xref linkend="api-description"/>), while red components
       must be hand-coded. Green components may be either standard or project-specific. So in the best case scenario, 
       you only have to implement the domain model yourself.
     </para>

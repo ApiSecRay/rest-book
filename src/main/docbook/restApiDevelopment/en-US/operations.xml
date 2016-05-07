@@ -394,12 +394,11 @@
       wealth of information that it contains. 
     </para>
     <para>
-      Given the need for completeness and correctness, the reference manual is best generated from the API description.
-      We saw an example of a Reference Manual in HTML for the RESTBucks API in <xref linkend="radl-doc-first"/> through
-      <xref linkend="radl-doc-last"/>.
+      Given the need for completeness and correctness, the reference manual is best generated from an
+      API description (see <xref linkend="api-description"/>).
     </para>
     <para>
-      ou should probably have a section on future changes, where you explain the sort of changes most likely to happen
+      You should probably have a section on future changes, where you explain the sort of changes most likely to happen
       and how the developer can prevent having his client broken in those cases. This includes things like the
       must-ignore rule that we'll discuss in see <xref linkend="implement-client"/>. We'll talk more about API evolution
       in <xref linkend="maintenance"/>.

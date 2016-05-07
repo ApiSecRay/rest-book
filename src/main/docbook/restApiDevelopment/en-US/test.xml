@@ -486,12 +486,6 @@ public void end() {
       developers and easy for you to update. As a bonus, this invites client developers to submit bug fixes, or even
       ports of the SDK into a programming language that you don't currently support.
     </para>
-    <para>
-      At the time of writing, RADL has no tooling to generate SDKs, but it's not hard to conceive of such help.
-      A big part of the SDK consists of following link relations and (de)serializing programming language objects 
-      into HTTP messages. The API description contains all the information necessary to perform these tasks, so it's
-      just a matter of putting the work in to build the tooling.
-    </para>
   </section>
   
   <section id="test-security">
@@ -603,33 +597,6 @@ public void end() {
       usually generated from valid input. The program is then monitored for exceptions such as crashes, or other
       unwanted behavior. This is a good way to verify the completeness of your input validation. Fuzz testing can 
       find odd oversights and defects which even careful human test designers would fail to create tests for.
-    </para>
-  </section>
-  
-  <section>
-    <title>RADL Support During Testing</title>
-    <para>
-      The RADL tools can generate a dummy implementation of the server that implements the REST design as captured in
-      the API description. This implementation is functional in the sense that it implements all the methods on all
-      the resources, but it obviously doesn't contain the correct business logic. It returns mostly empty responses, 
-      and ignores any input sent by a client.
-    </para>
-    <para>
-      Nevertheless, this can be helpful when implementing any client, including a test. The test can issue its requests 
-      and inspect the responses. Any validations on those responses will fail, of course, since the server isn't really
-      implemented yet, but at least the tests can be written and verified to interact correctly with the server. This is
-      particularly helpful when writing the tests before the server is complete.
-    </para>
-    <para>
-      We can go a step further by adding examples to the API description. Remember that a RADL
-      <literal>property-group</literal> describes the data that is transferred between client and server. You can add
-      example values for the properties in a <literal>property-group</literal> and those will then be used by the
-      generated dummy implementation. If you're using BDD, then you can simply use the examples from the scenarios.
-    </para>
-    <para>
-      There is also help for testing the server. You can add usage scenarios, like BDD scenarios, to RADL and the
-      tooling can generate the BDD stories and JBehave steps to implement them. You can also start with BDD scenarios
-      and generate the RADL usage scenarios. 
     </para>
   </section>
   

@@ -2292,7 +2292,7 @@ Accept: application/ld+json
     <para>
       It's perfectly possible to implement the design approach presented in this chapter manually.
       However, it can be helpful to have support from tools, especially when you're new to the game,
-      or have a large API, or a large number of APIs to develop. 
+      or have a large API or a large number of APIs to develop. 
     </para>
     <para>
       One tool could produce human-readable documentation, say in HTML or PDF form, that supports client developers.
