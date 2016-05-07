@@ -864,6 +864,11 @@
     <abbrev>Spring Hydra</abbrev>
     <biblioid class="uri">https://github.com/dschulten/hydra-java</biblioid>
   </biblioentry>
+
+  <biblioentry>
+    <abbrev>Spring REST Docs</abbrev>
+    <biblioid class="uri">http://projects.spring.io/spring-restdocs/</biblioid>
+  </biblioentry>  
   
   <biblioentry>
     <abbrev>Spring Security OAuth</abbrev>

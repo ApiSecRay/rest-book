@@ -2290,8 +2290,9 @@ Accept: application/ld+json
   <section id="api-description">
     <title>API Description Languages</title>
     <para>
-      The ever increasing number of APIs makes it worthwhile to develop an ecosystem of tools that aid humans in
-      working with APIs.
+      It's perfectly possible to implement the design approach presented in this chapter manually.
+      However, it can be helpful to have support from tools, especially when you're new to the game,
+      or have a large API, or a large number of APIs to develop. 
     </para>
     <para>
       One tool could produce human-readable documentation, say in HTML or PDF form, that supports client developers.
@@ -2311,14 +2312,16 @@ Accept: application/ld+json
       machine-processable way. A language for doing so is known as an <firstterm>API description language</firstterm>.
     </para>
     <para>
-      There have been several attempts at API description languages. Web Service Description Language is the standard 
-      description language for SOAP-based APIs <citation>WSDL</citation>. We've recently seen a bunch of new description 
-      languages pop up that vie for the same status in the REST space <citation>API Blueprint</citation>
-      <citation>RADL</citation> <citation>RAML</citation> <citation>Swagger</citation> <citation>WADL</citation>.
+     There have been several attempts at API description languages. Web Service Description Language
+     is the standard description language for SOAP-based APIs <citation>WSDL</citation>.
+     We've recently seen a bunch of new description languages pop up that vie for the same status in
+     the REST space <citation>API Blueprint</citation> <citation>RADL</citation>
+     <citation>RAML</citation> <citation>Swagger</citation> <citation>WADL</citation>.
+     Of these, Swagger and RAML have gained the most support to date.
     </para>
-    <para>
-      The sheer number of them makes it difficult to choose. We propose the following criteria that
-      API description languages must meet, in order of importance:
+    <para> 
+      So how do we choose from among this list? We propose the following criteria that API description 
+      languages must meet, in order of importance:
     </para>
     <orderedlist>
       <listitem>
@@ -2352,6 +2355,10 @@ Accept: application/ld+json
         </para>
       </listitem>
       <listitem>
+        The language should be an open standard supported by open source tools. Both should be
+        maintained by a large enough community. 
+      </listitem>
+      <listitem>
         <para>
           The language should take the API designer by the hand and guide them into making the right choices. It should
           be easy to do the right thing, even if the designer isn't 100% up to speed with what the right thing actually
@@ -2363,20 +2370,22 @@ Accept: application/ld+json
       </listitem>
     </orderedlist>
     <para>
-      It is also important that the API description language is an open standard and that the tooling around it is open
-      source. Since this is the case for all contenders, we won't discuss this criterion any further. 
+     <xref linkend="api-description-languages"/>
+     shows how the existing API description languages score on these requirements. Technically, RADL
+     is the best option, but its community is so small that it presents a real risk. None of the other
+     contenders meet our most important criterion of being able to describe hypermedia APIs.
     </para>
     <para>
-      <xref linkend="api-description-languages"/> shows how the existing API description languages score on these
-      requirements. Only RADL supports semantic profiles and only RADL guides the API designer. It scores about
-      the same as other API description languages on the other criteria. In our view that makes it the winner, but we
-      are RADL contributors so we may be biased. Hopefully the criteria listed above will help you make your own
-      informed decision.
+      We hope the situation will improve as the hypermedia aspect of APIs become better understood
+      by the API community at large. In the meantime, you'll have to work with sub-optimal tools
+      or communities, or do without an API description language altogether.
     </para>
     <para>
-      One potential downside of RADL is that its community is much smaller than that of some of the others, in
-      particular RAML and Swagger. You'll have to weigh the pros and cons to make the best choice for your situation.
-      In the remainder of this book we'll use RADL.
+      An alternative for a full-blown API description language is Spring REST Docs,
+      which combines hand-written documentation with auto-generated snippets produced by Spring MVC
+      Test <citation>Spring REST Docs</citation>. This approach is particularly interesting if you're
+      using Spring and have good test coverage (see <xref linkend="test"/>). It ensures the code
+      samples in your documentation are always up-to-date.
     </para>
     <table pgwide="1" id="api-description-languages">
       <title>Comparison Of API Description Languages</title>
@@ -2393,7 +2402,7 @@ Accept: application/ld+json
       <tbody>
         <tr>
           <td>Supported maturity levels</td>
-          <td>0-3</td>
+          <td>0-2/3</td>
           <td>0-4</td>
           <td>0-2</td>
           <td>0-2</td>
@@ -2422,6 +2431,14 @@ Accept: application/ld+json
           <td>JAX-RS (RAML for JAX-RS)</td>
           <td>JAX-RS (JAX-RS analyzer)</td>
           <td>JAX-RS (Jersey)</td>
+        </tr>
+        <tr>
+          <td>Community</td>
+          <td>Medium</td>
+          <td>Very small</td>
+          <td>Large</td>
+          <td>Large</td>
+          <td>Small</td>
         </tr>
         <tr>
           <td>Guides designer</td>
