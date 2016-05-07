@@ -1875,14 +1875,20 @@
     <para>
       From the table we can see that the JSON-LD / Hydra combination beats every other media type on most if not all 
       criteria. Specifically for REST APIs, market penetration by HAL is better, but since HAL has no support for forms 
-      we don't think it can be a real contender in the long run. We'll see more clearly why in
-      <xref linkend="authorization"/>.
+      we don't think it can be a real contender in the long run. We'll see more clearly why we need
+      form support in <xref linkend="authorization"/>.
     </para>
     <para>
-      All in all, we think that JSON-LD with Hydra is the winner. However, since the market hasn't settled on any one 
-      approach yet, we have to be careful. It wouldn't be the first time in history that an inferior standard wins. 
-      We'll go with JSON-LD and Hydra in the remainder of the book, but we'll show you how to make that choice easy to 
-      change should the market decide otherwise.
+      There is a recent attempt to create a backward-compatible, non-standard extension to HAL
+      called HAL-FORMS <citation>HAL-FORMS</citation>, which at the time of writing seems likely to
+      be supported by Spring <citation>Spring HATEAOS</citation>. However, this specification is
+      not nearly as elegant as JSON-LD with Hydra and still lacks builtin support for semantics.
+    </para>
+    <para>
+      All in all, we think that JSON-LD with Hydra is the winner. However, since the market hasn't 
+      settled on any one approach yet, we have to be careful. We'll go with JSON-LD and Hydra in the 
+      remainder of the book, but we'll show you how to make that choice easy to change should the
+      market decide otherwise.
     </para>
   </section>
 

@@ -362,6 +362,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>HAL-FORMS</abbrev>
+    <biblioid class="uri">https://github.com/mamund/hal-forms</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>HIPAA</abbrev>
     <biblioid class="uri">http://www.legalarchiver.org/hipaa.htm</biblioid>
     <citetitle>Health Insurance Portability and Accountability Act of 1996</citetitle>
