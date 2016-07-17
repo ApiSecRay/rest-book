@@ -3,9 +3,6 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 
 buildscript {
-  ext {
-    springBootVersion = '1.2.7'
-  }
   repositories {
     jcenter { 
       url 'http://dl.bintray.com/radl/RADL'
@@ -13,6 +10,7 @@ buildscript {
     mavenCentral()
     maven { url 'https://repo.spring.io/milestone' }
     maven { url 'http://repository.jboss.org/nexus/content/groups/public/' }
+    maven { url 'http://repo.spring.io/plugins-release' }
   }
   
   dependencies {
@@ -21,7 +19,8 @@ buildscript {
               "org.apache.xmlgraphics:batik-transcoder:$batikVersion",
               "org.apache.xmlgraphics:batik-codec:$batikVersion",
               "radl:radl-gradle:$radlGradleVersion",
-              "org.springframework.boot:spring-boot-gradle-plugin:1.2.6.RELEASE"
+              "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion",
+              'io.spring.gradle:docbook-reference-plugin:0.3.1'
   }
 }
 
@@ -30,6 +29,8 @@ apply plugin: 'java'
 sourceCompatibility = 1.8
 group = 'com.github.apisecray'
 version = '1.0.0'
+
+defaultTasks 'build'
 
 repositories {
   maven { url 'https://repo.spring.io/snapshot' }
@@ -44,15 +45,15 @@ apply plugin: 'spring-boot'
 dependencies {
   compile 'org.springframework.boot:spring-boot-starter-web',
       'org.springframework.boot:spring-boot-starter-data-jpa',
-      'org.springframework.hateoas:spring-hateoas:0.20.0.BUILD-SNAPSHOT',
-      'com.fasterxml.jackson.core:jackson-core:2.5.4',
+      'org.springframework.hateoas:spring-hateoas:0.20.0.RELEASE',
+      'com.fasterxml.jackson.core:jackson-core:2.8.0',
       'com.jayway.jsonpath:json-path',
-      'commons-io:commons-io:2.4',
+      'commons-io:commons-io:2.5',
       'commons-lang:commons-lang:2.6',
       'de.escalon.hypermedia:hydra-spring:0.2.0-beta2',
       'org.json:json:20141113',
-      'org.javamoney:moneta:1.0'
-  testCompile 'junit:junit:4.12','org.jbehave:jbehave-core:4.0.3', 
+      'org.javamoney:moneta:1.1'
+  testCompile 'junit:junit:4.12','org.jbehave:jbehave-core:4.0.5', 
       'org.springframework.boot:spring-boot-starter-test'
   runtime("com.h2database:h2")
 }
@@ -84,6 +85,7 @@ test {
     def numTested = 0
     def numFailed = 0
     def numPending = 0
+    def failingScenarios = []
     resultDir.listFiles().findAll { it.name.endsWith('.xml') && !it.name.endsWith('Stories.xml') }.each {
       new XmlSlurper().parse(it).scenario.each {
         def failed = false
@@ -98,6 +100,8 @@ test {
         numTested++
         if (failed) {
           numFailed++
+          failingScenarios.add it.@title
+          it.failure.each { failingScenarios.add "- ${it.toString().split('\n')[0]}" }
         } else if (pending) {
           numPending++
         }
@@ -106,7 +110,7 @@ test {
     def message = "Acceptance tests: $numTested scenarios, $numFailed failed, $numPending pending"
     ant.delete(dir: file('target').path, failonerror: false)
     if (numFailed > 0) {
-      throw new GradleException(message)
+      throw new GradleException(message + '\n' + failingScenarios.join('\n'))
     }
     println message
   }
@@ -132,6 +136,18 @@ radl {
 }
 
 
+apply plugin: 'docbook-reference'
+
+reference {
+  sourceDir = file('src/main/docbook')
+  pdfFilename = 'restbook.pdf'
+  epubFilename = 'restbook.epub'
+}
+
+assemble.dependsOn reference
+
+
+/* OTHER DOCBOOK PLUGIN
 apply plugin: 'jdocbook'
 
 jdocbook {
@@ -159,46 +175,8 @@ tasks.findAll { it.name.toLowerCase().contains('docbook') }.each {
 
 build.dependsOn 'buildDocs'
 defaultTasks 'buildDocs'
-
-
-/*
-gradle.taskGraph.whenReady { graph ->
-  graph.allTasks.findAll { it.name.startsWith('renderDocBook_') }.each { task ->
-    task.inputs.dir file('src/main/docbook')
-    task.dependsOn 'generateImages'
-  }
-}
-
-task generateImages {
-  def baseDir = file('src/main/docbook/restApiDevelopment/en-US')
-  def svgDir = new File(baseDir, 'figures') 
-  def imagesDir = new File(baseDir, 'images')
-  doLast {
-    svgDir.listFiles().findAll { it.name.endsWith('.svg') }.each { source ->
-      def target = new File(imagesDir, source.name.substring(0, source.name.lastIndexOf('.') + 1) + 'png')
-      exportToPng(source, target)
-    }
-  }
-}
-
-def exportToPng(source, target) {
-  try {
-    def input = new TranscoderInput(source.toURL().toString())
-    def stream = new FileOutputStream(target.path)
-    def output = new TranscoderOutput(stream)
-    try {
-      new PNGTranscoder().transcode(input, output)
-    } finally {  
-      stream.flush();
-      stream.close();
-    }
-  } catch (Exception e) {
-    target.delete()
-    throw new GradleException("Error exporting $source.name to $target.name:\n$e.message", e)
-  }
-}
 */
 
 task wrapper(type: Wrapper) {
-  gradleVersion = 2.7
+  gradleVersion = 2.14
 }
