@@ -1,0 +1,129 @@
+<chapter id="beyond-http">
+  <title>Beyond HTTP</title>
+  <para>
+    For most of this book we will use HTTP as the protocol over which we send our requests and responses, because this is
+    certainly what most people do today. There is nothing in the definition of the REST architectural style that ties
+    it to HTTP, however <citation>Fielding00</citation>.
+  </para>
+  <para>
+    It's good to make a distinction between the REST architectural style and its application to the HTTP protocol.
+    Clearly separating the two opens the door to apply REST principles to other protocols. In this chapter we will look
+    at some of those other protocols and why you may want to use them in a RESTful system.
+  </para>
+  
+  <section>
+    <title>Limitations of the HTTP Protocol</title>
+    <para>
+      HTTP is an enormously successful protocol, but it does have it shortcomings. In many situations, these limitations
+      are something that we can live with, but in some cases they make the protocol a poor choice for meeting the
+      system's requirements.
+    </para>
+    <para>
+      The major problems that people face with HTTP have to do with synchronicity, bandwith usage, and latency. When
+      people are bitten by these limitations, they often find that all of them conspire to make HTTP less attractive
+      than some of the alternatives.
+    </para>
+    <para>
+      The HTTP protocol is inherently synchronous: for every request that the client sends, the server is supposed to
+      send a corresponding response. One can build asynchronous solutions on top of synchronous solutions, as we've
+      seen in <xref linkend="async"/>, but from a performance perspective that usually doesn't make much sense.
+      Therefore, if all or most of your use cases call for asynchronous communication, then HTTP is a poor fit.
+    </para>
+    <para>
+      For instance, a massively multiplayer online game (MMOG or MMO) is an online game which is capable of supporting
+      large numbers of players simultaneously in the same instance or world. As each player makes moves, these need to
+      take effect in other player's visualizations. Such moves are inherently one-way and don't require a response.
+    </para>
+    <para>
+      HTTP may also be too expensive in terms of memory and/or bandwidth usage. In <firstterm>Internet of
+      Things</firstterm> (IoT) scenarios, for example, simple electronic devices need to send messages to a
+      central location. The bigger the messages, the more memory and power the devices need, making them economically
+      less attractive for deployment in millions of homes.
+    </para>
+    <para>
+      If you work in an enterprise setting, you may think that gaming systems and IoT are edge cases that don't really
+      concern you, and you may very well be right. But consider that asynchronicity and small messages add up
+      to less bytes sent over the network, resulting in lower latency. <firstterm>Latency</firstterm> is the time
+      between initiating a request and retrieving a response. Low latency may be a requirement in enterprise systems
+      as well, particularly in environments where systems are comprised of many microservices.
+    </para>
+    <para>
+      Suppose your system consists of dozens or hundreds of microservices and each one of those on average needs to
+      call ten other microservices to fulfill a request. If a round-trip between two microservices takes 100ms, then a
+      single request will take at least one second if all the calls are done serially. As the number of microservices
+      grows, the total latency can easily become more than clients are willing to wait for.
+    </para>
+    <para>
+      Parallelizing those requests can reduce the total latency to that of the slowest response. 
+      With synchronous requests, you would have to create a thread for each request. Threads are scarce resources and
+      can easily become a bottleneck when they are pooled, as is usually the case. This phenomenon is referred to as
+      <firstterm>contention</firstterm>. To add injury to insult, most of the threads will do nothing but wait for I/O
+      to complete.
+    </para>
+    <para>
+      With asynchronous requests, however, only one thread is required. Once I/O completes, a callback is called to
+      process the response on the single thread. This pattern is becoming increasingly popular under the name
+      <firstterm>Reactive System</firstterm> <citation>Reactive Manifesto</citation>. 
+    </para>
+    <para>
+      Some of the requests to the microservices will be to merely tell them that something happened rather than to ask
+      them for information. In these cases, the client microservice doesn't need a response. Having to provide a
+      callback that does nothing wastes development time but, more importantly, it also holds sockets open. Like
+      threads, sockets are scarce resources that can become a source of contention.
+    </para>
+    <para>
+      For these reasons, current advice for building large-scale microservices-based systems is to use messaging
+      systems rather than HTTP-based communication. Not the bloated <firstterm>Enterprise Service Bus</firstterm> (ESB)
+      behemoths we've come to dislike from the SOA days, but nimble ones like Apache Kafka that do one thing and do it
+      well <citation>Kafka</citation>. We'll talk more about messaging in <xref linkend="messaging"/>.
+    </para>
+    <para>
+      Now that we've seen the limitations of HTTP, we should look at some of the alternatives. At the same time, we
+      should not forget the lessons from the previous chapters. We can enjoy the benefits of the REST architectural
+      style with non-HTTP protocols.
+    </para>
+  </section>
+  
+  <section>
+    <title>Alternative Protocols</title>
+    <section>
+      <title>The Constrained Application Protocol (CoAP)</title>
+      <para>
+        TODO
+      </para>
+    </section>
+    
+    <section>
+      <title>The WebSocket Protocol</title>
+      <para>
+        TODO
+      </para>
+    </section>
+    
+    <section id="messaging">
+      <title>Message-based Protocols</title>
+      <para>
+        TODO
+      </para>
+    </section>
+  </section>
+  
+  <section>
+    <title>Messages</title>
+    <para>
+      As we've seen, there are alternative protocols that we can use for our RESTful systems instead of HTTP.
+      Many of those protocols give you complete freedom over how you structure your messages. This gives you the
+      opportunity to design the best possible message structure and format for your specific situation, but it does beg
+      the question how to best do so. Let's look at a couple of standardized formats that you can consider before you
+      embark on designing your own.
+    </para>
+  </section>
+
+  <section>
+    <title>Summary</title>
+    <para>
+      TODO
+    </para>
+  </section>  
+  
+</chapter>

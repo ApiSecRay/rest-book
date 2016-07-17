@@ -246,7 +246,8 @@
     <para>
       <xref linkend="rest-server"/> shows the relationships between the server components. Components in blue are
       standard components, while those in yellow and red are specific to your project. The difference is that yellow
-      components can be generated, as we'll see in <xref linkend="radl-supports-implementation"/>, while red components
+      components could be generated if you use sufficiently powerful tools in combination with an
+      API description language (see <xref linkend="api-description"/>), while red components
       must be hand-coded. Green components may be either standard or project-specific. So in the best case scenario, 
       you only have to implement the domain model yourself.
     </para>
@@ -1005,101 +1006,6 @@ ResultSet results = statement.executeQuery();</programlisting>
     </section>
   </section>
   
-  <section id="radl-supports-implementation">
-    <title>RADL Support During Implementation</title>
-    <para>
-      Some of the components of a REST server that we saw in <xref linkend="rest-server"/> are unique to the service
-      the API is providing, but other parts are more or less boiler plate code. If you're following the design-first
-      approach with an API description language (see <xref linkend="radl"/>), then you may be able to generate some or
-      all of the boilerplate code from your API description.
-    </para>
-    <para>
-      For example, the Spring code generator for RADL creates the following classes for you:
-    </para>
-    <variablelist>
-      <varlistentry>
-        <term><literal>Api</literal></term>
-        <listitem>
-          <para>
-            Constants for the billboard URI, link relations, media types, and error conditions.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term><literal>Uris</literal></term>
-        <listitem>
-          <para>
-            Constants for the URIs that identify the resources.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Controllers</term>
-        <listitem>
-          <para>
-            The URI mapping, HTTP method handlers, and media type declarations for each resource. The handlers delegate
-            to support classes (see below) that are injected. The support classes process the input DTOs, if any, and 
-            create the DTOs for the responses. The controllers add links and forms as defined in RADL, where the support
-            classes report what is permitted for the current state and user.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Controller support</term>
-        <listitem>
-          <para>
-            Skeleton code for controllers to separate the tool-controlled part from the developer-controlled part (see
-            below). The support classes are responsible for processing request DTOs, talking to the domain model, 
-            building response DTOs, and determining whether actions are permitted for the current state and user.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Errors</term>
-        <listitem>
-          <para>
-            Custom exceptions for the defined error conditions, a DTO for transferring errors, and a central error
-            handler that translates exceptions into error DTOs and returns the appropriate status codes.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Data transfer objects</term>
-        <listitem>
-          <para>
-            Any data exchanged between client and server that is described using <literal>property-group</literal>s is
-            translated to a DTO. If your media type supports links, then they are derived from
-            <literal>ResourceSupport</literal>. If you use JSON-LD as the media type and add <literal>uri</literal>
-            attributes to the <literal>property</literal> and/or <literal>property-group</literal> elements, then the 
-            DTOs and their fields are annotated with <literal>@Expose</literal>.
-          </para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-    <para>
-      The code is divided into two parts. The first part is completely specified by the API description and is under
-      control of the code generator: any changes to this code will be overwritten. The second part is skeleton code
-      that the developer is supposed to implement. These files are under control of the developer and once generated
-      will never be overwritten.
-    </para>
-    <para>
-      This division makes it possible to add code generation to the automated build process. There are plugins for
-      build tools to make this even easier. At the time of writing there is support for Gradle and Maven.
-    </para>
-    <para>
-      Generating code pays back some of the effort put into maintaining an API description. Still, manually writing an 
-      API description for a large existing service is tedious. Fortunately, there is also RADL tooling that is useful 
-      in a code-first approach. At the time of writing, either Spring or JAX-RS code can be analyzed and turned into a
-      (partial) RADL file, although the tooling isn't as mature yet as for the design-first approach. Documentation for 
-      resources, etc. is extracted from JavaDoc comments, so developers can stay close to the code.
-    </para>
-    <para>
-      RADL extraction doesn't have to be a one-time event either. You can generate code, manually update the code and 
-      then run the extraction tool to update the RADL file. Any manual updates to the developer-controlled part of the 
-      API description are preserved.
-    </para>
-  </section>
-
   <section>
     <title>Summary</title>
     <para>

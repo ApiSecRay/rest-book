@@ -207,8 +207,9 @@
       automatically generated consumer contract.
     </para>
     <para>
-      There are a couple of open source tools to support consumer contracts, like Pact-JVM <citation>Pact</citation>.
-      <!-- TODO: Example -->
+      There are a couple of open source tools to support consumer contracts, like Pact-JVM, a port of the Ruby program
+      Pact for the JVM <citation>Pact</citation>. A pact is "a formal agreement between individuals or parties", which
+      is exactly what a consumer-driven contract is.
     </para>
     <para>
       Correlation IDs help to link related requests and responses together (see <xref linkend="correlation"/>), 

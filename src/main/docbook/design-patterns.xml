@@ -1674,8 +1674,7 @@ Transaction-Id: fc852df2-4582-4447-8249-7fcba1fff63c
     <para>
       This chapter presents some design patterns that you'll see over and over again in REST APIs. If you apply these
       patterns judiciously in the context of the methodology of <xref linkend="design"/> then you should be in good 
-      shape to meet most functional requirements. In <xref linkend="radl"/>, we'll show how tooling can support this
-      methodology.
+      shape to meet most functional requirements.
     </para>
     <para>
       Some non-functional requirements have a big impact on an API's chances of success. We will look at 

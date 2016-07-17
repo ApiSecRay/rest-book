@@ -255,7 +255,7 @@
 
   <biblioentry>
     <abbrev>Fielding00</abbrev>
-    <biblioid class="uri">http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm/</biblioid>
+    <biblioid class="uri">https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm</biblioid>
     <citetitle>Architectural Styles and the Design of Network-based Software Architectures</citetitle>
     <authorgroup>
       <author>
@@ -362,6 +362,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>HAL-FORMS</abbrev>
+    <biblioid class="uri">https://github.com/mamund/hal-forms</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>HIPAA</abbrev>
     <biblioid class="uri">http://www.legalarchiver.org/hipaa.htm</biblioid>
     <citetitle>Health Insurance Portability and Accountability Act of 1996</citetitle>
@@ -457,6 +462,11 @@
   <biblioentry>
     <abbrev>JBehave</abbrev>
     <biblioid class="uri">http://jbehave.org/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Kafka</abbrev>
+    <biblioid class="uri">http://kafka.apache.org/</biblioid>
   </biblioentry>
   
   <biblioentry>
@@ -634,6 +644,11 @@
     <abbrev>RDF</abbrev>
     <biblioid class="uri">http://www.w3.org/RDF/</biblioid>
     <citetitle>Resource Description Framework</citetitle>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Reactive Manifesto</abbrev>
+    <biblioid class="uri">http://www.reactivemanifesto.org/</biblioid>
   </biblioentry>
   
   <biblioentry>
@@ -854,6 +869,11 @@
     <abbrev>Spring Hydra</abbrev>
     <biblioid class="uri">https://github.com/dschulten/hydra-java</biblioid>
   </biblioentry>
+
+  <biblioentry>
+    <abbrev>Spring REST Docs</abbrev>
+    <biblioid class="uri">http://projects.spring.io/spring-restdocs/</biblioid>
+  </biblioentry>  
   
   <biblioentry>
     <abbrev>Spring Security OAuth</abbrev>

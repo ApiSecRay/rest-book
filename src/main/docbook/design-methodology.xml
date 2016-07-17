@@ -15,7 +15,7 @@
   <procedure id="state-diagram-to-resource-model">
     <title>Design a REST API</title>
     <step>
-      <para>Document requirements with state diagrams.</para>
+      <para>Define requirements with state diagrams.</para>
     </step>
     <step>
       <para>Discover resources and methods from state transitions.</para>
@@ -30,7 +30,7 @@
       <para>Design data.</para>
     </step>
     <step>
-      <para>Document semantics.</para>
+      <para>Define semantics.</para>
     </step>
     <step>
       <para>Select a media type to serialize messages.</para>
@@ -46,7 +46,7 @@
   </para>
   
   <section>
-    <title>Document Requirements With State Diagrams</title>
+    <title>Define Requirements With State Diagrams</title>
     <para>
       We covered this in <xref linkend="state-diagrams"/>. A state diagram consists of all the
       possible states a client can be in and the transitions that the client can make between them. Note that a single
@@ -831,9 +831,9 @@
     <para>
       You may not be in a domain as generic as e-commerce. In that case you will have to invent your own extension link
       relations.
-			The alternative to defining extension link relations is to start a standardization process of some sort, for 
-			instance an IETF Internet Draft or similar document that defines reusable link relations. If you're striving to 
-			be a thought leader in your domain, then that could be a good opportunity to demonstrate that ambition.
+      The alternative to defining extension link relations is to start a standardization process of some sort, for 
+      instance an IETF Internet Draft or similar document that defines reusable link relations. If you're striving to 
+      be a thought leader in your domain, then that could be a good opportunity to demonstrate that ambition.
     </para>
   </section>
 
@@ -1030,7 +1030,7 @@
   </section>
   
   <section id="semantics">
-    <title>Document Semantics</title>
+    <title>Define Semantics</title>
     <para>
       Now that we've identified our messages, we must get a bit more specific about what the various data items in them
       mean and what values are acceptable for them.
@@ -1875,14 +1875,20 @@
     <para>
       From the table we can see that the JSON-LD / Hydra combination beats every other media type on most if not all 
       criteria. Specifically for REST APIs, market penetration by HAL is better, but since HAL has no support for forms 
-      we don't think it can be a real contender in the long run. We'll see more clearly why in
-      <xref linkend="authorization"/>.
+      we don't think it can be a real contender in the long run. We'll see more clearly why we need
+      form support in <xref linkend="authorization"/>.
     </para>
     <para>
-      All in all, we think that JSON-LD with Hydra is the winner. However, since the market hasn't settled on any one 
-      approach yet, we have to be careful. It wouldn't be the first time in history that an inferior standard wins. 
-      We'll go with JSON-LD and Hydra in the remainder of the book, but we'll show you how to make that choice easy to 
-      change should the market decide otherwise.
+      There is a recent attempt to create a backward-compatible, non-standard extension to HAL
+      called HAL-FORMS <citation>HAL-FORMS</citation>, which at the time of writing seems likely to
+      be supported by Spring <citation>Spring HATEAOS</citation>. However, this specification is
+      not nearly as elegant as JSON-LD with Hydra and still lacks builtin support for semantics.
+    </para>
+    <para>
+      All in all, we think that JSON-LD with Hydra is the winner. However, since the market hasn't 
+      settled on any one approach yet, we have to be careful. We'll go with JSON-LD and Hydra in the 
+      remainder of the book, but we'll show you how to make that choice easy to change should the
+      market decide otherwise.
     </para>
   </section>
 
@@ -2287,6 +2293,171 @@ Accept: application/ld+json
     </orderedlist>
   </section>
   
+  <section id="api-description">
+    <title>API Description Languages</title>
+    <para>
+      It's perfectly possible to implement the design approach presented in this chapter manually.
+      However, it can be helpful to have support from tools, especially when you're new to the game,
+      or have a large API or a large number of APIs to develop. 
+    </para>
+    <para>
+      One tool could produce human-readable documentation, say in HTML or PDF form, that supports client developers.
+      Another tool could produce skeleton code for a server implementing the API, a client consuming it, or an SDK 
+      for developing a client for it (see <xref linkend="sdk"/>). Yet another tool could test whether a server 
+      implements the documented API correctly. Another one could fuzz requests
+      to test input validation (see <xref linkend="input-validation"/> and <xref linkend="test-security"/>).
+      There are many possibilities.
+    </para>
+    <para>
+      These tools can significantly increase the speed of the development process. Some shorten or reduce manual
+      activities, while others run completely autonomously and thus can be included in a continuous integration or
+      deployment pipeline <citation>HumbleFarley10</citation>.
+    </para>
+    <para>
+      All these tools need to understand the APIs they work with, which means we need to be able to describe APIs in a
+      machine-processable way. A language for doing so is known as an <firstterm>API description language</firstterm>.
+    </para>
+    <para>
+     There have been several attempts at API description languages. Web Service Description Language
+     is the standard description language for SOAP-based APIs <citation>WSDL</citation>.
+     We've recently seen a bunch of new description languages pop up that vie for the same status in
+     the REST space <citation>API Blueprint</citation> <citation>RADL</citation>
+     <citation>RAML</citation> <citation>Swagger</citation> <citation>WADL</citation>.
+     Of these, Swagger and RAML have gained the most support to date.
+    </para>
+    <para> 
+      So how do we choose from among this list? We propose the following criteria that API description 
+      languages must meet, in order of importance:
+    </para>
+    <orderedlist>
+      <listitem>
+        <para>
+          The API description language must be able to describe APIs on the highest levels (3 and 4) of the maturity 
+          model (see <xref linkend="maturity"/>). It would be nice if it can also describe lower levels, but that
+          doesn't have much priority for us since we want to encourage higher-level APIs.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The description language must be machine-processable, so that it can support tools. It would be nice if the
+          language is also somewhat human-readable, but that is not a priority since editing tools can hide most
+          (if not all) of the syntax.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The language must allow for capturing both structured and unstructured data. Ideally most of the data is
+          stored in a structured way, so that tools can more easily process it, but there will always be a need to
+          store free-form documentation to capture more subtle points about the API.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The language should support both the design-first and the code-first style of API development. In this book, 
+          we're focusing on design-first, because that's a more convenient approach to teach. It is not the only way, 
+          however, or the best way in every situation. For existing projects, it can be much more convenient to work 
+          your way back from the code that already exists to arrive at a design and then improve or expand the design.
+          This is especially true when there is no design documentation, or when that documentation is out-of-date.
+        </para>
+      </listitem>
+      <listitem>
+        The language should be an open standard supported by open source tools. Both should be
+        maintained by a large enough community. 
+      </listitem>
+      <listitem>
+        <para>
+          The language should take the API designer by the hand and guide them into making the right choices. It should
+          be easy to do the right thing, even if the designer isn't 100% up to speed with what the right thing actually
+          is.
+          In particular, it would be great if the description language would guide people through the API design process
+          of <xref linkend="design"/>, or a similarly detailed process. This guidance must not, however, restrict more
+          experienced API designers. Nor must it get in the way of a code-first approach.
+        </para>
+      </listitem>
+    </orderedlist>
+    <para>
+     <xref linkend="api-description-languages"/>
+     shows how the existing API description languages score on these requirements. Technically, RADL
+     is the best option, but its community is so small that it presents a real risk. None of the other
+     contenders meet our most important criterion of being able to describe hypermedia APIs.
+    </para>
+    <para>
+      We hope the situation will improve as the hypermedia aspect of APIs become better understood
+      by the API community at large. In the meantime, you'll have to work with sub-optimal tools
+      or communities, or do without an API description language altogether.
+    </para>
+    <para>
+      An alternative for a full-blown API description language is Spring REST Docs,
+      which combines hand-written documentation with auto-generated snippets produced by Spring MVC
+      Test <citation>Spring REST Docs</citation>. This approach is particularly interesting if you're
+      using Spring and have good test coverage (see <xref linkend="test"/>). It ensures the code
+      samples in your documentation are always up-to-date.
+    </para>
+    <table pgwide="1" id="api-description-languages">
+      <title>Comparison Of API Description Languages</title>
+      <thead>
+        <tr>
+          <th>Criterion</th>
+          <th>API Blueprint</th>
+          <th>RADL</th>
+          <th>RAML</th>
+          <th>Swagger</th>
+          <th>WADL</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Supported maturity levels</td>
+          <td>0-2/3</td>
+          <td>0-4</td>
+          <td>0-2</td>
+          <td>0-2</td>
+          <td>0-2</td>
+        </tr>
+        <tr>
+          <td>Machine-processable</td>
+          <td>Markdown has limited support, but API Blueprint AST has JSON and YAML serializations</td>
+          <td>XML is widely supported</td>
+          <td>YAML has decent support</td>
+          <td>JSON is widely supported; YAML has decent support</td>
+          <td>XML is widely supported</td>
+        </tr>
+        <tr>
+          <td>Structured vs unstructured</td>
+          <td>GitHub Flavored Markdown for structured and unstructured data</td>
+          <td>Mostly structured, can add free-form text and HTML in <literal>&lt;documentation&gt;</literal> elements</td>
+          <td>YAML for structured data; Markdown for documentation</td>
+          <td>JSON or YAML for structured data; GitHub-flavored Markdown for documentation</td>
+          <td>Mostly structured, can add free-form text in <literal>&lt;doc&gt;</literal> elements</td>
+        </tr>
+        <tr>
+          <td>Supports code-first</td>
+          <td>Grape (GrapeApiary)</td>
+          <td>JAX-RS and Spring (radl-java)</td>
+          <td>JAX-RS (RAML for JAX-RS)</td>
+          <td>JAX-RS (JAX-RS analyzer)</td>
+          <td>JAX-RS (Jersey)</td>
+        </tr>
+        <tr>
+          <td>Community</td>
+          <td>Medium</td>
+          <td>Very small</td>
+          <td>Large</td>
+          <td>Large</td>
+          <td>Small</td>
+        </tr>
+        <tr>
+          <td>Guides designer</td>
+          <td>No</td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+  
   <section>
     <title>Summary</title>
     <para>
@@ -2295,7 +2466,7 @@ Accept: application/ld+json
     <orderedlist>
       <listitem>
 		    <para>
-		      We start from the requirements, documented 
+		      We start from the requirements, captured 
 		      as state diagrams. From the transitions between states, we can discover the resources and methods that will help
 		      us meet the requirements. 
 		    </para>
@@ -2318,10 +2489,6 @@ Accept: application/ld+json
 		    </para>
       </listitem>
     </orderedlist>
-    <para>
-      While this process is easy to do by hand, we will show that it's even easier with some help of tooling in
-      <xref linkend="radl"/>.
-    </para>
     <para>
       While designing a REST API, we'll encounter similar patterns over and over again. Understanding these patterns
       and when to apply them makes it a lot easier to answer the myriad of design questions that invariably come up. 
