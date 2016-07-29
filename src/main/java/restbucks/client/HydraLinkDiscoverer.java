@@ -2,6 +2,7 @@ package restbucks.client;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -36,7 +37,7 @@ public class HydraLinkDiscoverer implements LinkDiscoverer {
   @Override
   public List<Link> findLinksWithRel(String rel, InputStream representation) {
     try {
-      return findLinksWithRel(rel, IOUtils.toString(representation));
+      return findLinksWithRel(rel, IOUtils.toString(representation, StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

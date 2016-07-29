@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,14 +51,14 @@ public class RestbucksMessageConverter extends HydraMessageConverter {
 
   private void addLinks(ResourceSupport object, InputStream inputStream) {
     try {
-      String content = IOUtils.toString(inputStream);
+      String content = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
       hydraLinks.add(object, content);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  
+
   private static class RepeatableHttpInputMessage implements HttpInputMessage {
 
     private final HttpInputMessage wrapped;
@@ -86,7 +87,7 @@ public class RestbucksMessageConverter extends HydraMessageConverter {
     @Override
     public String toString() {
       try {
-        return IOUtils.toString(getBody());
+        return IOUtils.toString(getBody(), StandardCharsets.UTF_8);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }

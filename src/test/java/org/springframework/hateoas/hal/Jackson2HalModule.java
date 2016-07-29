@@ -76,7 +76,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Jackson 2 module implementation to render {@link Link} and {@link ResourceSupport} instances in HAL compatible JSON.
- * 
+ *
  * @author Alexander Baetz
  * @author Oliver Gierke
  */
@@ -96,7 +96,7 @@ public class Jackson2HalModule extends SimpleModule {
 
   /**
    * Returns whether the module was already registered in the given {@link ObjectMapper}.
-   * 
+   *
    * @param mapper must not be {@literal null}.
    * @return
    */
@@ -108,7 +108,7 @@ public class Jackson2HalModule extends SimpleModule {
 
   /**
    * Custom {@link JsonSerializer} to render Link instances in HAL compatible JSON.
-   * 
+   *
    * @author Alexander Baetz
    * @author Oliver Gierke
    */
@@ -124,7 +124,7 @@ public class Jackson2HalModule extends SimpleModule {
     public HalLinkListSerializer() {
       this(null, null, null);
     }
-    
+
     public HalLinkListSerializer(CurieProvider curieProvider, EmbeddedMapper mapper,
         MessageSourceAccessor messageSource) {
       this(null, curieProvider, mapper, messageSource);
@@ -206,7 +206,7 @@ public class Jackson2HalModule extends SimpleModule {
 
     /**
      * Wraps the given link into a HAL specifc extension.
-     * 
+     *
      * @param link must not be {@literal null}.
      * @return
      */
@@ -225,7 +225,7 @@ public class Jackson2HalModule extends SimpleModule {
     /**
      * Returns the title for the given local link relation resolved through the configured {@link MessageSourceAccessor}
      * .
-     * 
+     *
      * @param localRel must not be {@literal null} or empty.
      * @return
      */
@@ -282,6 +282,7 @@ public class Jackson2HalModule extends SimpleModule {
      * (non-Javadoc)
      * @see com.fasterxml.jackson.databind.JsonSerializer#isEmpty(com.fasterxml.jackson.databind.SerializerProvider, java.lang.Object)
      */
+    @Override
     public boolean isEmpty(SerializerProvider provider, List<Link> value) {
       return value.isEmpty();
     }
@@ -307,7 +308,7 @@ public class Jackson2HalModule extends SimpleModule {
 
   /**
    * Custom {@link JsonSerializer} to render {@link Resource}-Lists in HAL compatible JSON. Renders the list as a Map.
-   * 
+   *
    * @author Alexander Baetz
    * @author Oliver Gierke
    */
@@ -330,7 +331,7 @@ public class Jackson2HalModule extends SimpleModule {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codehaus.jackson.map.ser.std.SerializerBase#serialize(java.lang.Object, org.codehaus.jackson.JsonGenerator,
      * org.codehaus.jackson.map.SerializerProvider)
      */
@@ -373,6 +374,7 @@ public class Jackson2HalModule extends SimpleModule {
       return isEmpty(null, value);
     }
 
+    @Override
     public boolean isEmpty(SerializerProvider provider, Collection<?> value) {
       return value.isEmpty();
     }
@@ -391,7 +393,7 @@ public class Jackson2HalModule extends SimpleModule {
   /**
    * Custom {@link JsonSerializer} to render Link instances in HAL compatible JSON. Renders the {@link Link} as
    * immediate object if we have a single one or as array if we have multiple ones.
-   * 
+   *
    * @author Alexander Baetz
    * @author Oliver Gierke
    */
@@ -407,7 +409,7 @@ public class Jackson2HalModule extends SimpleModule {
 
     /**
      * Creates a new {@link OptionalListJackson2Serializer} using the given {@link BeanProperty}.
-     * 
+     *
      * @param property
      */
     public OptionalListJackson2Serializer(BeanProperty property) {
@@ -496,7 +498,7 @@ public class Jackson2HalModule extends SimpleModule {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.fasterxml.jackson.databind.ser.ContainerSerializer#hasSingleElement(java.lang.Object)
      */
     @Override
@@ -517,13 +519,14 @@ public class Jackson2HalModule extends SimpleModule {
      * (non-Javadoc)
      * @see com.fasterxml.jackson.databind.JsonSerializer#isEmpty(com.fasterxml.jackson.databind.SerializerProvider, java.lang.Object)
      */
+    @Override
     public boolean isEmpty(SerializerProvider provider, Object value) {
       return false;
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.fasterxml.jackson.databind.ser.ContextualSerializer#createContextual(com.fasterxml.jackson.databind.SerializerProvider,
      * com.fasterxml.jackson.databind.BeanProperty)
      */
@@ -576,7 +579,7 @@ public class Jackson2HalModule extends SimpleModule {
       // links is an object, so we parse till we find its end.
       while (!JsonToken.END_OBJECT.equals(jp.nextToken())) {
         if (!JsonToken.FIELD_NAME.equals(jp.getCurrentToken())) {
-          throw new JsonParseException("Expected relation name", jp.getCurrentLocation());
+          throw new JsonParseException(jp, "Expected relation name", jp.getCurrentLocation());
         }
 
         // save the relation in case the link does not contain it
@@ -652,7 +655,7 @@ public class Jackson2HalModule extends SimpleModule {
       // links is an object, so we parse till we find its end.
       while (!JsonToken.END_OBJECT.equals(jp.nextToken())) {
         if (!JsonToken.FIELD_NAME.equals(jp.getCurrentToken())) {
-          throw new JsonParseException("Expected relation name", jp.getCurrentLocation());
+          throw new JsonParseException(jp, "Expected relation name", jp.getCurrentLocation());
         }
 
         if (JsonToken.START_ARRAY.equals(jp.nextToken())) {
@@ -757,7 +760,7 @@ public class Jackson2HalModule extends SimpleModule {
 
   /**
    * {@link JsonSerializer} to only render {@link Boolean} values if they're set to {@literal true}.
-   * 
+   *
    * @author Oliver Gierke
    * @since 0.9
    */
@@ -780,6 +783,7 @@ public class Jackson2HalModule extends SimpleModule {
      * (non-Javadoc)
      * @see com.fasterxml.jackson.databind.JsonSerializer#isEmpty(com.fasterxml.jackson.databind.SerializerProvider, java.lang.Object)
      */
+    @Override
     public boolean isEmpty(SerializerProvider provider, Boolean value) {
       return value == null || Boolean.FALSE.equals(value);
     }
@@ -830,7 +834,7 @@ public class Jackson2HalModule extends SimpleModule {
     /**
      * Creates a new {@link EmbeddedMapper} for the given {@link RelProvider}, {@link CurieProvider} and flag whether to
      * prefer collection relations.
-     * 
+     *
      * @param relProvider must not be {@literal null}.
      * @param curieProvider can be {@literal null}.
      * @param preferCollectionRels
@@ -846,7 +850,7 @@ public class Jackson2HalModule extends SimpleModule {
 
     /**
      * Maps the given source elements as embedded values.
-     * 
+     *
      * @param source must not be {@literal null}.
      * @return
      */
@@ -865,7 +869,7 @@ public class Jackson2HalModule extends SimpleModule {
 
     /**
      * Returns whether the given source elements will be namespaced.
-     * 
+     *
      * @param source must not be {@literal null}.
      * @return
      */
