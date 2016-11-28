@@ -27,8 +27,12 @@ buildscript {
 apply plugin: 'java'
 
 sourceCompatibility = 1.8
-group = 'com.github.apisecray'
+group = 'com.github.remonsinnema'
 version = '1.0.0'
+
+task wrapper(type: Wrapper) {
+  gradleVersion = 3.2
+}
 
 defaultTasks 'build'
 
@@ -150,38 +154,3 @@ reference {
 }
 
 assemble.dependsOn reference
-
-
-/* OTHER DOCBOOK PLUGIN
-apply plugin: 'jdocbook'
-
-jdocbook {
-  restApiDevelopment {
-    masterSourceDocumentName = 'book.xml'
-    transformerParameters([
-      'section.autolabel': '1',
-      'section.label.includes.component.label': '1',
-      'generate.toc': 'appendix nop  book toc,title  part nop'
-    ])
-    format {
-      name = 'html_single'
-      finalName = 'restApiDevelopment.html'
-    }
-    format {
-      name = 'pdf'
-      finalName = 'restApiDevelopment.pdf'
-    }
-  }
-}
-
-tasks.findAll { it.name.toLowerCase().contains('docbook') }.each {
-  it.inputs.dir file('src/main/docbook')
-}
-
-build.dependsOn 'buildDocs'
-defaultTasks 'buildDocs'
-*/
-
-task wrapper(type: Wrapper) {
-  gradleVersion = 3.2
-}

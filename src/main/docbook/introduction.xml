@@ -5,7 +5,7 @@
     <title>Application Programming Interfaces (APIs)</title>
     <para>
       Our society depends more and more on software. Some people even claim that in today's world every company is a 
-      software company.
+      software company <citation>Andreesen11</citation>, <citation>Techonomy11</citation>.
       At the same time, the number of ways people use software is increasing. The traditional mainframe (1st platform) 
       and client/sever (2nd platform) applications are now flanked by applications running in browsers, on mobile 
       phones and tablets, in game consoles, in cars, etc. (3rd platform).
@@ -48,13 +48,14 @@
       Companies like eBay, Amazon, Salesforce, Google, and Twitter provide valuable services via APIs, and software 
       developers are using those APIs to create new kinds of applications that run on a variety of devices.
       These services are valuable enough that API consumers are willing to pay for them. 
-      We now live in the <firstterm>API Economy</firstterm>.
+      We now live in the <firstterm>API Economy</firstterm> <citation>Forbes12</citation>.
     </para>
     <para>
       With a public API, providers may have little knowledge of the clients that use them, but they need to ensure 
       that these clients can continue to function as they evolve their servers. At the same time, API providers may 
-      need to support large numbers of users, so their APIs must scale well. Providers must thus design their APIs to 
-      simultaneously support evolvability and scalablility in their distributed systems. That is not an easy task.
+      need to support large numbers of users, so their APIs must scale well. Providers must thus design their
+      distributed systems to simultaneously support both evolvability and scalablility. This is not an easy task by
+      any measure.
     </para>
     <para>
       Fortunately, this is precisely the problem that the REST architectural style was designed to solve.
@@ -71,8 +72,25 @@
     <section id="rest">
       <title>What is REST?</title>
       <para>
-        REST is an architectural style, modeled after the World Wide Web. It is formally defined in Roy Fielding's 
-        thesis <citation>Fielding00</citation> by the following six constraints:
+        REST is an architectural style modeled after the World Wide Web, the largest distributed system ever built by
+        humans.
+      </para>
+      <blockquote>
+        <attribution>Roy Fielding <citation>Fielding00</citation></attribution>
+        <para>
+          An architectural style is a coordinated set of architectural constraints that restricts the roles/features of
+          architectural elements and the allowed relationships among those elements within any architecture that 
+          conforms to that style.
+        </para>
+      </blockquote>
+      <para>
+        In other words, an architectural style constraints what architectures can be built within that style. These
+        constraints are what ensure that an architecture delivers the desirable properties of scalability and
+        evolvability that we're after.
+      </para>
+      <para>
+        The REST architectural style is formally defined in Roy Fielding's thesis <citation>Fielding00</citation> by 
+        the following six constraints:
         <orderedlist>
           <listitem>Client/Server</listitem>
           <listitem>Stateless</listitem>
@@ -85,6 +103,8 @@
       <para>
         The <emphasis>client/server constraint</emphasis> demands that we divide our system in multiple modules, since 
         monolithic applications are confined to the limits of a single machine and thus cannot scale arbitrarily.
+      </para>
+      <para>
         As we've already seem, each module can be further divided as needed. 
         For instance, the client can be a browser and the server a web application. We can then further divide the 
         web application into a web server for the CPU-intensive processing and a database server for I/O-intensive 
@@ -100,15 +120,15 @@
         We can further improve scalability by moving some of the load from the server to the client. The
         <emphasis>stateless constraint</emphasis> moves the responsibility for maintaining some data to the client so 
         that the server no longer needs to worry about it. We can't just move any data to the client, however, since 
-        certain data needs to be available from multiple clients and between client sessions. We call that data
+        certain data needs to be available to multiple clients and between client sessions. We call that data
         <firstterm>resource state</firstterm>. But there is other data associated with the path the client has taken
         in pursuit of its goal. We call this data <firstterm>application state</firstterm>. The stateless constraint
         deals only with application state. We'll talk more about statelessness in <xref linkend="stateless"/>.
       </para>
       <para>
         The <emphasis>code-on-demand constraint</emphasis> additionally pushes processing to the client. We see this 
-        when web servers send JavaScript to the browser for local execution. This optional constraint is very common on 
-        the Web, but mostly absent from REST APIs.
+        when web servers send JavaScript to the browser for local execution, for instance. This optional constraint is
+        very common on the Web, but mostly absent from REST APIs.
       </para>
       <para>
         The <emphasis>cache constraint</emphasis> also helps with scalability. The server indicates how long data that 
@@ -121,12 +141,17 @@
         approaches. It mandates that we stick to a predefined set of standard operations. For HTTP-based RESTful
         systems, these operations are the standard HTTP methods: <literal>GET</literal>, <literal>POST</literal>, etc.
         More information on the HTTP methods is provided in sidebar "<xref linkend="http-methods"/>" in
-        <xref linkend="maturity"/>.
+        <xref linkend="maturity"/>. Please note, however, that the REST architectural style is not limited to HTTP-based
+        APIs. We'll look at non-HTTP APIs in <xref linkend="beyond-http"/>.
       </para>
       <para>
-        Anybody who has played with <productname class="trade">Lego</productname> blocks knows that a universal
-        interface may seem limiting, but is in fact very powerful. Since the uniform interface is so central to REST,
-        we will now take a closer look at it.
+        A uniform interface may seem limiting at first, but it is actually very powerful, as is proven by 
+        <productname class="trade">Lego</productname> blocks and power outlets. In fact, this constraint is central to
+        the REST architectural style. While the other constraints drive scalability, this constraint is the major motor
+        behind evolvability.
+      </para>
+      <para>
+        Let's take closer look at this most misunderstood of REST constraints.
       </para>
     </section>
     
@@ -209,8 +234,11 @@
             </para>
             <para>
               For this scheme to work, the client has to be able to understand and differentiate between the provided 
-              links. The mechanism that powers that is the <firstterm>link relation</firstterm>. Link relations can be
-              explicit, like in this piece of HTML:
+              links. One mechanism to facilitate such shared semantics is the <firstterm>link relation</firstterm>
+              <citation>RFC 5988</citation>.
+            </para>
+            <para>
+              Link relations can be explicit, like in this piece of HTML:
               <code>&lt;link rel="stylesheet" type="text/css" href="foo.css"/></code>, where the <literal>rel</literal>
               attribute contains the link relation. Link relations can also be implicit, like in this piece of HTML:
               <code>&lt;script type="text/javascript" src="bar.js"></code>, where the <literal>script</literal> element
@@ -238,22 +266,24 @@
       <title>REST Maturity</title>
       <para>
         The REST architectural style was defined in a PhD thesis, and as such it is both abstract and generic.
-        Unfortunately, that has led to some confusion about how to apply the constraints concretely in software development 
-        projects. The HATEOAS part in particular has proven difficult to digest. The end result is that there are now 
-        published APIs that call themselves RESTful, but adhere to the REST constraints with varying levels of 
-        strictness.
+        Unfortunately, that has led to some confusion about how to apply the constraints concretely in software
+        development projects. The HATEOAS part in particular has proven difficult to digest for some people. The end
+        result is that there are now published APIs that call themselves RESTful, but adhere to the REST constraints
+        with varying levels of strictness.
       </para>
       <para>
-        Some people seem to think that if your API is accessible over HTTP, then it must be a REST API. In fact, none 
-        of the REST constraints mention HTTP (or any other communication protocol, for that matter). They deal with
-        self-descriptive and hyperlinked messages, but not with the mode of transport of these messages. While today HTTP
-        is the default choice, it helps to remember that there is nothing inherently HTTP-ish about REST. Some people
-        try to make a distinction by calling services that are accessed over HTTP <firstterm>web services</firstterm>.
+        Some people seem to think that if your API is accessible over HTTP, then it must be a REST API. The truth, 
+        however, is that none of the REST constraints mention HTTP (or any other communication protocol, for that
+        matter). They deal with self-descriptive and hyperlinked messages, but not with the mode of transport of these
+        messages. While today HTTP is the default choice, it helps to remember that there is nothing inherently 
+        HTTP-ish about REST. To drive this point home, we'll look at some non-HTTP REST examples in
+        <xref linkend="beyond-http"/>.
       </para>
       <para>
-        In 2008, Leonard Richardson published his Maturity Heuristic <citation>Richardson08</citation> that classified 
-        web services into four levels based on their use of URI, HTTP, and hypermedia. As is common with maturity 
-        models, the levels build on each other.
+        Some people try to make a distinction by calling services that are accessed over HTTP <firstterm>web
+        services</firstterm>. In 2008, Leonard Richardson published his Maturity Heuristic
+        <citation>Richardson08</citation> that classified web services into four levels based on their use of URI, HTTP,
+        and hypermedia. As is common with maturity models, the levels build on each other.
       </para>
       <figure>
         <mediaobject>
@@ -336,9 +366,9 @@
               from the default.
             </para>
             <para>
-              There are different form technologies, like HTML Forms, URI Templates <citation>RFC 6570</citation>, 
-              and XForms. Which one to use doesn't matter much for this discussion, as long as the media type is able 
-              to express forms.
+              There are separate form technologies, like XForms <citation>XForms</citation>, and there are form
+              technologies that are part of more generic media types, like HTML Forms. Which kind to use doesn't matter
+              much for this discussion, as long as the media type is able to express forms.
             </para>
             <para>
               Since some media types stop short at links and forget about forms, we think it makes sense to split this 
@@ -350,8 +380,8 @@
       </variablelist>      
       <para>
         Note that the amount of out-of-band communication steadily decreases as we move up the levels. This is a
-        good thing, as it reduces the amount of coupling between clients and servers. It also makes clients
-        easier to build, since we have to encode less knowledge into them.
+        good thing, as it reduces the amount of coupling between clients and servers and thus improved evolvability of
+        both server and client.
       </para>
       <para>
         We believe that level 3 isn’t the final destination, however. Even with the inclusion in the message of things 
@@ -369,7 +399,7 @@
         One way of making the client understand the semantics of the messages is to program that knowledge directly 
         into the client. This is what most people currently do. The downside of this approach is that it's not very
         efficient: Every service requires a new client to be written, and many changes in the service require
-        an update of the client.
+        an update of the client. This hurts evolvability.
       </para>
       
       <sidebar id="http-methods">
@@ -478,9 +508,8 @@
       </para>
       <para>
         The Semantic Web effort uses profiles based on the Resource Description Framework <citation>RDF</citation> to 
-        assign meaning to data, for instance using <citation>JSON-LD</citation>.
-        Mike Amundsen has defined an alternative called <firstterm>Application-Level Profile Semantics</firstterm> 
-        <citation>ALPS</citation>.
+        assign meaning to data, for instance using <citation>JSON-LD</citation>. Mike Amundsen has defined an
+        alternative called <firstterm>Application-Level Profile Semantics</firstterm> <citation>ALPS</citation>.
       </para>
       <blockquote>
         <attribution><citation>ALPS</citation></attribution>
@@ -556,7 +585,7 @@
 	      RESTBuck isn't a real company, but a teaching tool. Nowhere is that more apparent than in our choice of
 	      software development method. We're going to follow the Waterfall method <citation>Royce75</citation> here,
 	      because it is extremely well-known, and cleanly separates the activities into neat phases that are easy to 
-	      follow. We understand that in practice these phases blend into each other, but in this book we can give them 
+	      digest. We understand that in practice these phases blend into each other, but in this book we can give them 
 	      focused treatment in different chapters.
 	    </para>
 	    <para>
@@ -605,8 +634,8 @@
     <title>Summary</title>
     <para>
       This chapter establishes the need for software that is divided into modules. To work together towards a shared 
-      goal, modules must communicate with each other. Communication between modules takes the form of a language that 
-      we call the Application Programming Interface (API).
+      goal, modules must communicate with each other in a language that we call the Application Programming Interface
+      (API).
     </para>
     <para>
       Each module must be able to evolve and scale independently. Some forms of APIs are more suitable for
@@ -614,8 +643,8 @@
       State Transfer (REST).
     </para>
     <para>
-      The defining element of REST is hypermedia, where modules exchange self-descriptive messages that contain links 
-      to further information and/or operations.
+      The defining element of REST is hypermedia, where modules exchange self-descriptive messages that contain typed
+      links to further information and/or operations.
     </para>
     <para>
       In our journey through REST land, we'll pretend to run a company called RESTBucks that serves virtual coffee via 

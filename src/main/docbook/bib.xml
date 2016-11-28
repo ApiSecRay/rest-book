@@ -78,7 +78,7 @@
   <biblioentry>
     <abbrev>Agile Manifesto</abbrev>
     <biblioid class="uri">http://www.agilemanifesto.org/</biblioid>
-  </biblioentry>  
+  </biblioentry>
   
   <biblioentry>
     <abbrev>ALPS</abbrev>
@@ -105,6 +105,17 @@
     </copyright>
   </biblioentry>
 
+  <biblioentry>
+    <abbrev>Andreesen11</abbrev>
+    <biblioid class="uri">http://www.wsj.com/articles/SB10001424053111903480904576512250915629460</biblioid>
+    <citetitle>Why Software Is Eating The World</citetitle>
+    <copyright>
+      <year>2011</year>
+      <month>August</month>
+      <day>20</day>
+    </copyright>
+  </biblioentry>
+  
   <biblioentry>
     <abbrev>Apache HttpComponents</abbrev>
     <biblioid class="uri">https://hc.apache.org/</biblioid>
@@ -273,6 +284,16 @@
   <biblioentry>
     <abbrev>FOAF</abbrev>
     <biblioid class="uri">http://xmlns.com/foaf/spec/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
+    <abbrev>Forbes12</abbrev>
+    <biblioid class="uri">http://www.forbes.com/sites/ciocentral/2012/08/29/welcome-to-the-api-economy/#4faeb4ec6d39</biblioid>
+    <copyright>
+      <year>2012</year>
+      <month>August</month>
+      <day>29</day>
+    </copyright>
   </biblioentry>
   
   <biblioentry>
@@ -664,10 +685,10 @@
   </biblioentry>
   
   <biblioentry>
-    <abbrev>RFC 6570</abbrev>
-    <biblioid class="uri">http://tools.ietf.org/html/rfc6570</biblioid>
-    <citetitle>URI Templates</citetitle>
-  </biblioentry>
+    <abbrev>RFC 5988</abbrev>
+    <biblioid class="uri">https://tools.ietf.org/html/rfc5988</biblioid>
+    <citetitle>Web Linking</citetitle>
+  </biblioentry>  
   
   <biblioentry>
     <abbrev>RFC 6648</abbrev>
@@ -902,6 +923,17 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Techonomy11</abbrev>
+    <biblioid class="uri">http://techonomy.com/conf/11-tucson/the-corporation/every-company-is-a-software-company/</biblioid>
+    <citetitle>Every Company Is a Software Company</citetitle>
+    <copyright>
+      <year>2011</year>
+      <month>November</month>
+      <day>14</day>
+    </copyright>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>Test Pyramid</abbrev>
     <biblioid class="uri">http://martinfowler.com/bliki/TestPyramid.html</biblioid>
   </biblioentry>
@@ -953,7 +985,7 @@
     </publisher>
     <citetitle>REST In Practice</citetitle>
   </biblioentry>
-  
+
   <biblioentry>
     <abbrev>WhiteHatSec12</abbrev>
     <biblioid class="uri">http://blog.whitehatsec.com/root-of-the-issue/</biblioid>
@@ -980,6 +1012,12 @@
     <biblioid class="uri">http://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html</biblioid>
     <citetitle>eXtensible Access Control Markup Language (XACML) Version 3.0</citetitle>
   </biblioentry>
+
+  <biblioentry>
+    <abbrev>XForms</abbrev>
+    <biblioid class="uri">https://www.w3.org/TR/2009/REC-xforms-20091020/</biblioid>
+    <citetitle>XForms 1.1</citetitle>
+  </biblioentry>  
   
   <biblioentry>
     <abbrev>XML-RPC</abbrev>
