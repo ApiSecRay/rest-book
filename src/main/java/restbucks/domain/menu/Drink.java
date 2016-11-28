@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2016 Remon Sinnema. All rights reserved.
+ */
 package restbucks.domain.menu;
 
 import java.util.Currency;
@@ -13,16 +16,18 @@ import restbucks.domain.DomainObject;
 @Entity
 public class Drink extends DomainObject {
 
+  private static final long serialVersionUID = 1194254126612887060L;
+
   private String name;
   private String milk;
   private String size;
   private double price;
   private String currency;
-  
+
   protected Drink() {
     // For JPA
   }
-  
+
   public Drink(String name, Milk milk, Size size, double price, String currency) {
     this.name = name;
     this.milk = milk.toString();
@@ -50,7 +55,7 @@ public class Drink extends DomainObject {
   public Currency getCurrency() {
     return Currency.getInstance(currency);
   }
-  
+
   public MonetaryAmount getCost() {
     return Monetary.getDefaultAmountFactory()
         .setCurrency(currency)
@@ -63,5 +68,5 @@ public class Drink extends DomainObject {
     return size.toLowerCase(Locale.getDefault()) + ' ' + milk.toLowerCase(Locale.getDefault())
         + " milk " + name;
   }
-  
+
 }

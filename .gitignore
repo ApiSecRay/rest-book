@@ -10,3 +10,4 @@ src/main/docbook/restApiDevelopment/en-US/images/*.png
 gradle-app.setting
 /bin/
 target/
+/.checkstyle

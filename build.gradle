@@ -41,6 +41,11 @@ repositories {
 }
 
 apply plugin: 'spring-boot'
+apply plugin: 'checkstyle'
+
+checkstyle {
+  toolVersion = '7.2'
+}
 
 dependencies {
   compile 'org.springframework.boot:spring-boot-starter-web',
@@ -178,5 +183,5 @@ defaultTasks 'buildDocs'
 */
 
 task wrapper(type: Wrapper) {
-  gradleVersion = 2.14
+  gradleVersion = 3.2
 }

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2016 Remon Sinnema. All rights reserved.
+ */
 package restbucks.bdd;
 
 import java.util.Arrays;
@@ -34,8 +37,7 @@ public class AcceptanceTests extends JUnitStories {
         .doIgnoreFailureInStories(true)
         .doIgnoreFailureInView(true)
         .doVerboseFailures(true)
-        .doVerboseFiltering(true)
-        ;
+        .doVerboseFiltering(true);
   }
 
   @Override

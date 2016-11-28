@@ -87,9 +87,8 @@ public class Client {
     setRestOperations(createDefaultTemplate(this.mediaTypes));
   }
 
-  private static final RestOperations createDefaultTemplate(List<MediaType> mediaTypes) {
-
-    List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
+  private static RestOperations createDefaultTemplate(List<MediaType> mediaTypes) {
+    List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new StringHttpMessageConverter(Charset.forName("UTF-8")));
 
     if (mediaTypes.contains(MediaTypes.HAL_JSON)) {
@@ -107,8 +106,7 @@ public class Client {
    *
    * @return
    */
-  private static final HttpMessageConverter<?> getHalConverter() {
-
+  private static HttpMessageConverter<?> getHalConverter() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new Jackson2HalModule());
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -125,12 +123,11 @@ public class Client {
    * Configures the {@link RestOperations} to use. If {@literal null} is provided a default {@link RestTemplate} will be
    * used.
    *
-   * @param operations
+   * @param restOperations
    * @return
    */
-  public Client setRestOperations(RestOperations operations) {
-
-    this.operations = operations == null ? createDefaultTemplate(mediaTypes) : operations;
+  public Client setRestOperations(RestOperations restOperations) {
+    this.operations = restOperations == null ? createDefaultTemplate(mediaTypes) : restOperations;
     return this;
   }
 
@@ -142,7 +139,6 @@ public class Client {
    * @return
    */
   public Client setLinkDiscoverers(List<? extends LinkDiscoverer> discoverer) {
-
     this.discoverers = discoverers == null ? DEFAULT_LINK_DISCOVERERS
         : new LinkDiscoverers(OrderAwarePluginRegistry.create(discoverer));
 
@@ -168,10 +164,9 @@ public class Client {
     return new Action(rel, DELETE);
   }
 
-  private HttpEntity<?> prepareRequest(HttpHeaders headers, Object input) {
-
+  private HttpEntity<?> prepareRequest(HttpHeaders httpHeaders, Object input) {
     HttpHeaders toSend = new HttpHeaders();
-    toSend.putAll(headers);
+    toSend.putAll(httpHeaders);
 
     if (toSend.getAccept().isEmpty()) {
       toSend.setAccept(mediaTypes);
@@ -180,7 +175,7 @@ public class Client {
       toSend.setContentType(mediaTypes.get(0));
     }
 
-    return new HttpEntity<Object>(input, toSend);
+    return new HttpEntity<>(input, toSend);
   }
 
   private String getUriForRel(String rel) {

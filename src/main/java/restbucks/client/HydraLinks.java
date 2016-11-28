@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2016 Remon Sinnema. All rights reserved.
+ */
 package restbucks.client;
 
 import java.util.ArrayList;
@@ -85,7 +88,7 @@ public class HydraLinks {
     private final String rel;
     private final JSONObject operation;
 
-    public LinkObject(String rel, JSONObject operation) {
+    LinkObject(String rel, JSONObject operation) {
       this.rel = rel;
       this.operation = operation;
     }
@@ -97,7 +100,7 @@ public class HydraLinks {
     public JSONObject getOperation() {
       return operation;
     }
-    
+
   }
 
 }

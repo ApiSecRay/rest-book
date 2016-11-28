@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2016 Remon Sinnema. All rights reserved.
+ */
 package restbucks.domain.order;
 
 import java.util.Collection;
@@ -30,7 +33,7 @@ public class Order extends DomainObject {
   protected Order() {
     // For JPA
   }
-  
+
   public Order(String customer, Collection<Drink> drinks) {
     if (customer == null) {
       throw new MissingCustomerException();
@@ -82,7 +85,7 @@ public class Order extends DomainObject {
     }
     paidAmount += payingAmount;
   }
-  
+
   @Override
   public String toString() {
     return customer + " ordered " + drinks;

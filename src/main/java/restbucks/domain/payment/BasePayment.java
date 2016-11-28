@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2016 Remon Sinnema. All rights reserved.
+ */
 package restbucks.domain.payment;
 
 
 public class BasePayment implements Payment {
-  
+
   private final String currencyCode;
   private final double amount;
 

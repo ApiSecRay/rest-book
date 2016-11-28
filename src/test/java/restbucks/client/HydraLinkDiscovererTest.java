@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2016 Remon Sinnema. All rights reserved.
+ */
 package restbucks.client;
 
 import static org.junit.Assert.assertEquals;
@@ -5,8 +8,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.LinkDiscoverer;
-
-import restbucks.client.HydraLinkDiscoverer;
 
 
 public class HydraLinkDiscovererTest {

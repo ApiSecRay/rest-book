@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2016 Remon Sinnema. All rights reserved.
+ */
 package restbucks.client;
 
 import java.io.ByteArrayInputStream;
@@ -64,7 +67,7 @@ public class RestbucksMessageConverter extends HydraMessageConverter {
     private final HttpInputMessage wrapped;
     private ByteArrayInputStream cached;
 
-    public RepeatableHttpInputMessage(HttpInputMessage inputMessage) {
+    RepeatableHttpInputMessage(HttpInputMessage inputMessage) {
       this.wrapped = inputMessage;
     }
 

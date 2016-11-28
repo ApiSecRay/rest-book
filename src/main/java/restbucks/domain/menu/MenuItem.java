@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2016 Remon Sinnema. All rights reserved.
+ */
 package restbucks.domain.menu;
 
 import java.util.ArrayList;
@@ -37,5 +40,5 @@ public class MenuItem {
   public Milk getMilk() {
     return milk;
   }
-  
+
 }

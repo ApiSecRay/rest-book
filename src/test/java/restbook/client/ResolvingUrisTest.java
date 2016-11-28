@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2016 Remon Sinnema. All rights reserved.
+ */
 package restbook.client;
 
 import static org.junit.Assert.assertEquals;
@@ -19,5 +22,5 @@ public class ResolvingUrisTest {
     resolvedUri = baseUri.resolve("baz/");
     assertEquals(URI.create("http://www.example.com/foo/baz/"), resolvedUri);
   }
-  
+
 }

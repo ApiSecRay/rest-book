@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2016 Remon Sinnema. All rights reserved. 
+ */
 package restbucks.domain;
 
 import java.io.Serializable;
@@ -9,7 +12,7 @@ import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
 public abstract class DomainObject implements Serializable {
-  
+
   private static final long serialVersionUID = 1L;
 
   @Id
@@ -39,8 +42,8 @@ public abstract class DomainObject implements Serializable {
     if (!(obj instanceof DomainObject)) {
       return false;
     }
-    DomainObject other = (DomainObject) obj;
+    DomainObject other = (DomainObject)obj;
     return id.equals(other.id);
   }
-  
+
 }
