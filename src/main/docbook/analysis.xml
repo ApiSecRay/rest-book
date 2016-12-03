@@ -124,7 +124,7 @@
           </tr>
           <tr>
             <td>Accepting state</td>
-            <td>Any state in which the client has achieved a goal</td>
+            <td>A state in which the client has achieved its goal</td>
           </tr>
         </tbody>
       </informaltable>
@@ -179,7 +179,7 @@
       </figure>
       <para>
         As you can see, the process is mostly linear for the customer, focused on achieving a single goal: to get her
-        coffee. This is typical for workflow type of interactions, which we'll discuss in more detail in 
+        coffee. This is typical for workflow-like interactions, which we'll discuss in more detail in 
         <xref linkend="workflow"/>. 
       </para>
       <para>
@@ -311,7 +311,7 @@ Then she is happy
         deliver software that brings value to the business.
       </para>
       <para>
-        This process is made possible by the <emphasis>executable</emphasis> requirements that BDD gives use. You 
+        This process is made possible by the <emphasis>executable</emphasis> requirements that BDD gives us. You 
         write scenarios in Gherkin format, and they are run by a computer program to test whether the system behaves as 
         desired. This is made possible by a scenario parser that translates the Gherkin syntax into
          method calls in your programming language. For instance, <citation>JBehave</citation> is a BDD framework for 
@@ -325,7 +325,7 @@ Then she is happy
         menu</literal>.
         We can't know from looking at a state diagram what's on the menu or what is selected in the customer's order.
         In a BDD scenario, however, everything is spelled out explicitly. The customer orders a latte rather than a hot 
-        tea, for example. These concrete values can be checked by a computer program.
+        tea, for example. These concrete values can be entered and/or checked by a computer program.
       </para>
       <para>
         Note that the concrete nature of the examples includes providing a name for the customer. This isn't actually
@@ -336,7 +336,7 @@ Then she is happy
         But even if we don't really need the name of the customer, it is still a good idea to include it. It gives
         us a clear focus on who we are doing this for. Usability experts use the term <firstterm>personas</firstterm> 
         for fictional characters created to represent the different user types that might use the product in a similar 
-        way. Using the same personas in your BDD scenarios promotes shared understanding.
+        way <cite>Persona</cite>. Using the same personas in your BDD scenarios promotes shared understanding.
       </para>
       <para>
         The interesting part about Gherkin syntax is that there are very few constraints. There are only four keywords, 
@@ -597,7 +597,8 @@ Then she is happy
     </para>
 
     <para>
-      Non-functional requirements are sometimes referred to as the qualities or, more informally, the ilities:
+      Non-functional requirements are sometimes referred to as the <emphasis>qualities</emphasis> or, more informally,
+      the <emphasis>ilities</emphasis>:
     </para>
     <simplelist type='vert' columns="3">
       <member>Accessibility</member>
@@ -688,7 +689,7 @@ Then she is happy
       <para>
         If you can provide client developers with a sandbox environment that they can play with before they even sign
         up for your service, that would be ideal. This could be a separate service that you make available, or it could 
-        be an integrated part of the documentation.
+        be an integrated part of the documentation, so-called <firstterm>interactive documentation</firstterm>.
 	    </para>
 	    <para>
 	      Once developers start to use your API, they'll run into stumble blocks. Make sure your error reporting
@@ -713,9 +714,10 @@ Then she is happy
       Development (BDD).
     </para>
     <para>
-      While functional requirements state what the system should do, non-functional requirements describe how the system
-      should be. There are various non-functional requirements, including Developer eXperience (DX). The goal of DX is
-      to make the API and the surrounding ecosystem as easy and pleasant to use as possible to foster adoption.
+      While functional requirements state what the system should <emphasis>do</emphasis>, non-functional requirements
+      describe how the system should <emphasis>be</emphasis>. There are various non-functional requirements, including 
+      Developer eXperience (DX). The goal of DX is to make the API and the surrounding ecosystem as easy and pleasant 
+      to use as possible to foster adoption.
     </para>
   </section>  
 </chapter>

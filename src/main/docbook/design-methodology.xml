@@ -7,7 +7,7 @@
   </para>
   <para>
     We believe design should always be informed by an understanding of the problem you're designing a solution for. 
-    That's why we start where we left off previously (<xref linkend="analysis"/>). 
+    That's why we start this chapter where we left off in <xref linkend="analysis"/>. 
   </para>
   <para>
     Here are the steps you should follow:
@@ -27,10 +27,10 @@
       <para>Name state transitions with link relations.</para>
     </step>
     <step>
-      <para>Design data.</para>
+      <para>Define the data model.</para>
     </step>
     <step>
-      <para>Define semantics.</para>
+      <para>Define the semantics.</para>
     </step>
     <step>
       <para>Select a media type to serialize messages.</para>
@@ -42,7 +42,7 @@
   <para>
     Note that this is a variation of the design process described in <citation>Richardson07</citation>. It's adapted to
     make explicit use of state diagrams and also to incorporate application semantics.
-    Let's look at each of the steps in details.
+    Let's look at each of the steps in detail.
   </para>
   
   <section>
@@ -74,12 +74,9 @@
     </para>
     <para>
       So for each transition, we have to decide on two things: which HTTP method to execute, and against which URI to
-      execute it. We'll take an intermediary step here on our way to that goal. We'll first look at the HTTP methods 
-      and push out the decisions on URIs until the next step. Instead, we'll just use a simple placeholder name for the 
-      resource.
-      You can certainly combine these two steps, but we think it's better to first focus on the interaction dynamics, 
-      since that's the essence of the API. We need to focus to get that right, so we'll leave the decision on how to 
-      identify the resources with URIs for later.
+      execute it. In this step, we'll discover the resources and pick the HTTP methods they support; the next step
+      deals with naming resources with URIs. While you can certainly combine these two steps, we think it's better to
+      focus on the interaction dynamics first, since that's the essence of the API.
     </para>
     <para>
       Here's how to build up the resource model from the state diagram:
@@ -522,7 +519,7 @@
       </listitem>
       <listitem>
         <para>
-          We've now gone through all states and transitions, and we have discovered all resources model required to
+          We've now gone through all states and transitions, and we have discovered all resources required to
           implement the state diagram.
         </para>
       </listitem>
@@ -745,7 +742,7 @@
   <section>
     <title>Name State Transitions With Link Relations</title>
     <para>
-      A REST client follows transitions in the state diagram by discovering the URIs we just invented in the messages
+      A REST client follows transitions in the state diagram by discovering the URIs we just invented from the messages
       that the server sends.
       This discovery process is made possible by <firstterm>link relations</firstterm>. Link relations decouple the 
       client from the URIs that the server uses, giving the server the freedom to change its URI structure at will 
@@ -838,7 +835,7 @@
   </section>
 
   <section id="design-messages">
-    <title>Design Data</title>
+    <title>Design the Data Model</title>
     <para>
       At this point we are done with the interaction part of our resource model. All that is left to do is address the
       data part. In other words, we have to design our representations.
@@ -1030,7 +1027,7 @@
   </section>
   
   <section id="semantics">
-    <title>Define Semantics</title>
+    <title>Define the Semantics</title>
     <para>
       Now that we've identified our messages, we must get a bit more specific about what the various data items in them
       mean and what values are acceptable for them.

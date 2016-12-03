@@ -35,14 +35,15 @@
     <title>Designing REST APIs</title>
     <partintro>
       <para>
-        This part of the book talks about all the different aspects of designing a REST API. We explain in detail how to
+        This part of the book talks about the different aspects of designing a REST API. We explain in detail how to
         design a REST API (<xref linkend="design"/>), including using common design constructs
-        (<xref linkend="patterns"/>), handling exceptional cases (<xref linkend="error"/>), and designing for good
-        performance (<xref linkend="performance"/>) and security (<xref linkend="security"/>).
+        (<xref linkend="patterns"/>), handling exceptional cases (<xref linkend="error"/>), designing for good
+        performance (<xref linkend="performance"/>) and securing the API (<xref linkend="security"/>).
       </para>
       <para>
-        In recent years the term REST has come to be synonymous to HTTP-based API. In the final chapter of this part of the book
-        we look at some alternative protocols and why one would want to use them rather than HTTP.
+        In recent years the term REST has come to be almost synonymous with HTTP-based API. In the final chapter of
+        this part of the book we look at some alternative protocols and why one would use them to transfer messages
+        rather than HTTP.
       </para>
     </partintro>
     

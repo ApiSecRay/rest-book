@@ -640,6 +640,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>Persona</abbrev>
+    <biblioid class="uri">https://www.usability.gov/how-to-and-tools/methods/personas.html</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>Postman</abbrev>
     <biblioid class="uri">https://www.getpostman.com/</biblioid>
   </biblioentry>
