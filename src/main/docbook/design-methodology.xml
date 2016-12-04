@@ -1231,9 +1231,10 @@
       <citation>IANA</citation>. This makes them easy to discover. Registered media types are of the form
       type<literal>/</literal>sub-type, where the number of types is fixed. For REST APIs, most media types will fall
       within the <literal>application</literal> type. 
-      The IANA registry is made up of several trees. The so-called vendor tree is for registering personal and corporate 
-      standards, while the standards tree contains open standards. Media types in the vendor tree start the sub-type
-      with the <literal>vnd.</literal> prefix.
+      The IANA registry is made up of several trees. The so-called personal tree is for registering personal standards,
+      the vendor tree is for registering corporate standards, and the standards tree contains open standards. Media
+      types in the vendor tree start the sub-type with the <literal>vnd.</literal> prefix; those in the personal tree
+      with <literal>prs.</literal>.
     </para>
     <para>
       Ideally, you would select a general purpose media type defined as an open standard. This choice means
@@ -1298,15 +1299,18 @@
     "self": { 
       "href": "http://api.restbucks.com/orders/1234/"
     },
-    "payment": {
+    "https://schema.org/PayAction": {
       "href": "http://api.restbucks.com/orders/1234/payments/"
-    }
-    "edit": { 
+    },
+    "https://schema.org/ReplaceAction": { 
+      "href": "http://api.restbucks.com/orders/1234/"
+    },
+    "https://schema.org/DeleteAction": { 
       "href": "http://api.restbucks.com/orders/1234/"
     }
   },
   "_embedded": {
-    "item": [{
+    "items": [{
       "name": "caffe latte",
       "size": "tall",
       "milk": "whole",
@@ -1329,9 +1333,18 @@
     <para>
       Remember that a level 3b REST API must support both links and forms. While HAL provides hyperlinking capabilities 
       using the <literal>_links</literal> property, it doesn't have anything for handling forms. So with HAL you can 
-      only build level 3a APIs. Yet HAL is a big improvement over plain JSON, and
-      it is quite popular. For instance, it is used by default in Spring <citation>Spring HATEAOS</citation>.
-      HAL's popularity no doubt is due to its simplicity.
+      only build level 3a APIs. There are no HTTP methods in the example above. The client simply has to know that
+      <literal>PUT</literal> is used with <literal>https://schema.org/ReplaceAction</literal> and
+      <literal>DELETE</literal> with <literal>https://schema.org/DeleteAction</literal>. In practice, this means that 
+      the client developer has to hard-code this knowledge.
+    </para>
+    <para>
+      Despite these limitations, HAL is a big improvement over plain JSON, and it is quite popular. For instance, it is 
+      used by default in <citation>Spring HATEAOS</citation>. HAL's popularity no doubt is due to its simplicity.
+    </para>
+    <para>
+      There is a recent attempt to create a backward-compatible, non-standard extension to HAL called
+      <citation>HAL-FORMS</citation>. This specification is still a draft and not nearly as well accepted as HAL.
     </para>
     
     <section>
@@ -1362,12 +1375,12 @@
     }
   },
   "@actions": {
-    "edit": { 
+    "https://schema.org/DeleteAction": { 
       "href": "http://api.restbucks.com/orders/1234/",
       "type": "void",
       "method": "DELETE"
     },
-    "edit": { 
+    "https://schema.org/ReplaceAction": { 
       "href": "http://api.restbucks.com/orders/1234/",
       "type": "any",
       "method": "PUT",
@@ -1383,7 +1396,7 @@
         "currency": "USD"
       }
     },
-    "payment": {
+    "https://schema.org/PayAction": {
       "href": "http://api.restbucks.com/orders/1234/payments/",
       "title": "Pay the order",
       "type": "any",
@@ -1420,6 +1433,11 @@
       <literal>void</literal>, <literal>json</literal>, <literal>json-files</literal>, or <literal>any</literal>.
       One would have expected a media type there instead.
     </para>
+    <para>
+      Mason doesn't provide any hooks for adding semantics. If you want to use something like ALPS to define meaning,
+      the client will have to figure out on its own how to map data in a message to its definition in a semantic
+      profile. So Mason doesn't lend itself very well to building level 4 APIs.
+    </para>
     
     <section>
       <title>Siren</title>
@@ -1454,13 +1472,14 @@
     }
   }],
   "actions": [{
-    "name": "edit",
-    "class": [ "http://schema.org/UpdateAction" ],
+    "name": "update",
+    "class": [ "http://schema.org/DeleteAction" ],
     "title": "Cancel the order",
     "method": "DELETE",
     "href": "http://api.restbucks.com/orders/1234/"
   }, {
-    "name": "edit",
+    "name": "delete",
+    "class": [ "http://schema.org/ReplaceAction" ],
     "href": "http://api.restbucks.com/orders/1234/",
     "method": "PUT",
     "type": "application/vnd.siren.json"
@@ -1578,11 +1597,11 @@
       "value": "USD"
     } ]
   }, {
-    "rel": "edit",
+    "rel": "http://schema.org/DeleteAction",
     "url": "http://api.restbucks.com/orders/1234/",
     "action": "remove"
   }, {
-    "rel": "edit",
+    "rel": "http://schema.org/ReplaceAction",
     "url": "http://api.restbucks.com/orders/1234/",
     "action": "replace",
     "sending": "application/vnd.uber.json",
@@ -1606,7 +1625,7 @@
       }]
     }]
   }, {
-    "rel": "payment",
+    "rel": "http://schema.org/PayAction",
     "url": "http://api.restbucks.com/orders/1234/payments/",
     "action": "append",
     "sending": "application/vnd.uber+json",
@@ -1641,8 +1660,8 @@
       There is nothing in the REST architectural style that ties it to HTTP, although that is the most commonly used
       protocol for transmitting the messages. UBER acknowledges this fact by abstracting away the HTTP methods.
       In the above example, we don't specify <literal>PUT</literal> for changing the order, but rather 
-      <literal>replace</literal>. When you use a protocol like CoAP <citation>CoAP</citation> instead of HTTP, that may 
-      make sense, but the vast majority of REST APIs don't need that.
+      <literal>replace</literal>. Most REST APIs today are HTTP-based, and this would be overkill for those APIs. But
+      we'll see some interesting cases where this may come in handy in <xref linkend="beyond-http"/>.
     </para>
     <para>
       UBER makes a distinction between the media types used in the request and response, using the 
@@ -1792,8 +1811,15 @@
       This has two advantages. First, it adheres to the Single Responsibility Principle <citation>SOLID</citation> by
       giving your messages a single reason to change (either semantics for the profile or structure for the resources). 
       Second, the semantic context is very likely the same for many, if not all, of your resources. A separate resource 
-      can be cached, reducing the load on the server.
+      can be cached, reducing the load on the server and maybe even semantic processing on the client.
     </para>
+    
+    <section>
+      <title>JSON API</title>
+      <para>
+        TODO: Add description and example of <citation>JSON API</citation>.
+      </para>
+    </section>
     
     <section>
       <title>Making a Choice</title>
@@ -1870,22 +1896,36 @@
       </tgroup>
     </table>
     <para>
-      From the table we can see that the JSON-LD / Hydra combination beats every other media type on most if not all 
-      criteria. Specifically for REST APIs, market penetration by HAL is better, but since HAL has no support for forms 
-      we don't think it can be a real contender in the long run. We'll see more clearly why we need
-      form support in <xref linkend="authorization"/>.
+      From the table we can see that there really are only two contenders: HAL and the JSON-LD / Hydra combination.
+      In the long run, we hope to see support for forms and semantics in REST APIs become the norm. When that happens,
+      JSON-LD and Hydra would be the obvious choice. We hesitate to recommend this media type at this point in time,
+      however, for a couple of reasons.
     </para>
     <para>
-      There is a recent attempt to create a backward-compatible, non-standard extension to HAL
-      called HAL-FORMS <citation>HAL-FORMS</citation>, which at the time of writing seems likely to
-      be supported by Spring <citation>Spring HATEAOS</citation>. However, this specification is
-      not nearly as elegant as JSON-LD with Hydra and still lacks builtin support for semantics.
+      First, HAL is supported a lot better in tools and libraries. This is to be expected, given that it's much simpler
+      than the alternatives. If you live in a Spring world, you practically get HAL support for free.
+      When faced with tight deadlines, it's hard to argue against such practicalities.
     </para>
     <para>
-      All in all, we think that JSON-LD with Hydra is the winner. However, since the market hasn't 
-      settled on any one approach yet, we have to be careful. We'll go with JSON-LD and Hydra in the 
-      remainder of the book, but we'll show you how to make that choice easy to change should the
-      market decide otherwise.
+      Second, while JSON-LD is a mature and well-supported standard, the same is not true for Hydra. At the time of
+      writing, important design patterns like collections are still being debated. And tying back to the previous point,
+      it's hard to support a specification that is still a moving target.
+    </para>
+    <para>
+      Third, market adoption of forms and semantics in REST APIs is currently still quite low. While we are convinced
+      these are good things to have, they also increase complexity of the media type and this goes against our goal to
+      provide a good DX, as discussed in <xref linkend="dx"/>. As the forms and semantics become more commonly
+      supported, this will become less of an argument, but at the moment it is.
+    </para>
+    <para>
+      Finally, the more self-describing messages are, the more bytes they contain. In some case of severely constrained
+      connectivity, this might get in the way of decent performance. If you live in such a world, you may want to opt
+      for a less verbose media type, most likely a binary one. For most REST APIs, however, this is not of great concern.
+    </para>
+    <para>
+      All in all, we think that the prudent thing to do at this point in time is to go with HAL, but be prepared for a
+      future with JSON-LD and Hydra. We'll use HAL in the remainder of the book, but we'll also show you how to make
+      that choice easy to change should the market move forward.
     </para>
   </section>
 
@@ -1893,13 +1933,11 @@
     <title>Validate The Design</title>
     <para>
       We've now completed the creative part of the design process. To validate that we did a good job, we should always 
-      look at the result in the form that ultimately matters the most:
-      the HTTP messages exchanged between client and server. We'll leave out some uninteresting headers, like 
-      <literal>Date</literal> and <literal>Content-Length</literal>, to save space.
+      look at the result in the form that ultimately matters the most: the messages exchanged between client and server.
     </para>
     <para>
       Here is the whole sequence of HTTP messages for <xref linkend="bdd-customer-happy-path"/>:
-      <!-- TODO: Validate -->
+      <!-- TODO: Use Spring RESTDocs to generate these messages -->
     </para>
     <orderedlist>
       <listitem>

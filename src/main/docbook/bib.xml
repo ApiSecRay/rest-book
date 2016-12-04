@@ -379,12 +379,12 @@
   
   <biblioentry>
     <abbrev>HAL</abbrev>
-    <biblioid class="uri">http://tools.ietf.org/html/draft-kelly-json-hal-06</biblioid>
+    <biblioid class="uri">http://tools.ietf.org/html/draft-kelly-json-hal-08</biblioid>
   </biblioentry>
   
   <biblioentry>
     <abbrev>HAL-FORMS</abbrev>
-    <biblioid class="uri">https://github.com/mamund/hal-forms</biblioid>
+    <biblioid class="uri">http://rwcbook.github.io/hal-forms/</biblioid>
   </biblioentry>
   
   <biblioentry>
@@ -497,6 +497,11 @@
   </biblioentry>
   
   <biblioentry>
+    <abbrev>JSON API</abbrev>
+    <biblioid class="uri">http://jsonapi.org/</biblioid>
+  </biblioentry>
+  
+  <biblioentry>
     <abbrev>JSONPath</abbrev>
     <biblioid class="uri">http://goessner.net/articles/JsonPath/</biblioid>
   </biblioentry>
@@ -551,7 +556,7 @@
   
   <biblioentry>
     <abbrev>Mason</abbrev>
-    <biblioid class="uri">https://github.com/JornWildt/Mason/blob/master/Documentation/Mason-draft-1.md</biblioid>
+    <biblioid class="uri">https://github.com/JornWildt/Mason/blob/master/Documentation/Mason-draft-2.md</biblioid>
   </biblioentry>
   
   <biblioentry>
