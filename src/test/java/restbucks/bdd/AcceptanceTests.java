@@ -19,16 +19,14 @@ import org.jbehave.core.steps.InjectableStepsFactory;
 import org.jbehave.core.steps.InstanceStepsFactory;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.hateoas.HypermediaAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import restbucks.Application;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = { Application.class, HypermediaAutoConfiguration.class })
-@WebIntegrationTest
+@SpringBootTest(classes = { Application.class, HypermediaAutoConfiguration.class })
 public class AcceptanceTests extends JUnitStories {
 
   public AcceptanceTests() {

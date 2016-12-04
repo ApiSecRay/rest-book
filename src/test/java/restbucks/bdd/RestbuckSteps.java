@@ -16,7 +16,6 @@ import org.jbehave.core.annotations.When;
 import org.junit.Assert;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.ResourceSupport;
-import org.springframework.hateoas.client.Client;
 
 import restbucks.rest.api.Api;
 import restbucks.rest.item.ItemResource;

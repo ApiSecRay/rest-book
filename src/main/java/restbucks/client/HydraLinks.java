@@ -14,6 +14,7 @@ import org.springframework.hateoas.ResourceSupport;
 
 import de.escalon.hypermedia.affordance.ActionDescriptor;
 import de.escalon.hypermedia.affordance.Affordance;
+import de.escalon.hypermedia.spring.SpringActionDescriptor;
 
 
 public class HydraLinks {
@@ -67,7 +68,7 @@ public class HydraLinks {
     for (int i = 0; i < operations.length(); i++) {
       JSONObject operation = operations.getJSONObject(i);
       String method = operation.getString(METHOD_MEMBER);
-      actionDescriptors.add(new ActionDescriptor(method, method));
+      actionDescriptors.add(new SpringActionDescriptor(method, method));
     }
     result.setActionDescriptors(actionDescriptors);
     return result;
