@@ -55,21 +55,21 @@ public class RestbuckSteps {
   public void order(String drink) {
     ItemResource item = parseItem(drink);
     ItemResource result = findMenuItem(item);
-    assertNotNull("Item not on the menu: " + item.name, result);
+    assertNotNull("Item not on the menu: " + item.getName(), result);
 
     OrderResource order = new OrderResource();
-    order.customer = customer;
-    order.items = new ItemResource[] { item };
+    order.setCustomer(customer);
+    order.setItems(new ItemResource[] { item });
     resource = client.post(order, Api.LINK_REL_ORDERACTION).toObject(OrderResource.class);
   }
 
   private ItemResource findMenuItem(ItemResource item) {
     MenuResource menu = (MenuResource)resource;
-    if (menu == null || menu.items == null) {
+    if (menu == null || menu.getItems() == null) {
       return null;
     }
-    for (ItemResource candidate : menu.items) {
-      if (candidate.name.equals(item.name)) {
+    for (ItemResource candidate : menu.getItems()) {
+      if (candidate.getName().equals(item.getName())) {
         return candidate;
       }
     }
@@ -79,11 +79,11 @@ public class RestbuckSteps {
   private ItemResource parseItem(String drink) {
     ItemResource item = new ItemResource();
     String[] parts = drink.split("\\s+");
-    item.size = parts[0];
-    item.milk = parts[1];
+    item.setSize(parts[0]);
+    item.setMilk(parts[1]);
 
     Assert.assertEquals("No milk in drink", "milk", parts[2]);
-    item.name = parts[3] + ' ' + parts[4];
+    item.setName(parts[3] + ' ' + parts[4]);
     return item;
   }
 
@@ -91,8 +91,8 @@ public class RestbuckSteps {
   public void assertOrderTotal(String currency, double total) {
     assertCreated();
     OrderResource order = (OrderResource)resource;
-    assertEquals("Total", total, order.total, 0.01);
-    assertEquals("Currency", currency, order.currency);
+    assertEquals("Total", total, order.getTotal(), 0.01);
+    assertEquals("Currency", currency, order.getCurrency());
   }
 
   private void assertCreated() {
@@ -102,22 +102,22 @@ public class RestbuckSteps {
   @When("she pays")
   public void pay() {
     PaymentResource payment = paymentForOrder();
-    paidAmount = payment.amount;
-    paidCurrency = payment.currency;
+    paidAmount = payment.getAmount();
+    paidCurrency = payment.getCurrency();
     resource = client.post(payment, Api.LINK_REL_PAYACTION).toObject(ReceiptResource.class);
   }
 
   private PaymentResource paymentForOrder() {
     OrderResource order = (OrderResource)resource;
     PaymentResource result = new PaymentResource();
-    result.amount = order.total;
-    result.currency = order.currency;
-    result.paymentMethod = "creditcard";
-    result.cardholderName = "C.C. Conway";
-    result.cardNumber = "5525366617069778";
-    result.expiryYear = 2019;
-    result.expiryMonth = 6;
-    result.cardSecurityCode = "836";
+    result.setAmount(order.getTotal());
+    result.setCurrency(order.getCurrency());
+    result.setPaymentMethod("creditcard");
+    result.setCardholderName("C.C. Conway");
+    result.setCardNumber("5525366617069778");
+    result.setExpiryYear(2019);
+    result.setExpiryMonth(6);
+    result.setCardSecurityCode("836");
     return result;
   }
 
@@ -125,9 +125,9 @@ public class RestbuckSteps {
   public void assertReceipt() {
     assertCreated();
     ReceiptResource receipt = (ReceiptResource)resource;
-    assertEquals("Currency", paidCurrency, receipt.currency);
-    assertEquals("Total", paidAmount, receipt.total, 0.01);
-    assertEquals("Shop", "RESTBucks", receipt.shop);
+    assertEquals("Currency", paidCurrency, receipt.getCurrency());
+    assertEquals("Total", paidAmount, receipt.getTotal(), 0.01);
+    assertEquals("Shop", "RESTBucks", receipt.getShop());
 
     /* TODO:
     Calendar today = Calendar.getInstance();

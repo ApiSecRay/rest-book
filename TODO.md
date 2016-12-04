@@ -6,6 +6,5 @@
 
 # Build
 
-- Remove RADL tooling from build
 - Convert to AsciiDoc
 - Use Spring RESTDocs to generate HTTP messages for section 3.8

@@ -30,15 +30,15 @@ public class OrdersControllerSupport {
   private OrderRepository orders;
 
   public RestResponse<OrderResource> post(OrderResource input) {
-    Order order = new Order(input.customer, toDrinks(input));
+    Order order = new Order(input.getCustomer(), toDrinks(input));
     order = orders.save(order);
 
     MonetaryAmount cost = order.getCost();
     OrderResource payload = new OrderResource();
-    payload.customer = input.customer;
-    payload.items = input.items;
-    payload.total = cost.getNumber().doubleValue();
-    payload.currency = cost.getCurrency().getCurrencyCode();
+    payload.setCustomer(input.getCustomer());
+    payload.setItems(input.getItems());
+    payload.setTotal(cost.getNumber().doubleValue());
+    payload.setCurrency(cost.getCurrency().getCurrencyCode());
 
     RestResponse<OrderResource> result = new RestResponse<>(payload);
     result.setParameter("orderId", order.getId());
@@ -48,14 +48,14 @@ public class OrdersControllerSupport {
 
   private Collection<Drink> toDrinks(OrderResource order) {
     Collection<Drink> result = new ArrayList<>();
-    for (ItemResource item : order.items) {
+    for (ItemResource item : order.getItems()) {
       result.add(toDrink(item));
     }
     return result;
   }
 
   private Drink toDrink(ItemResource item) {
-    Drink result = drinks.findByName(item.name);
+    Drink result = drinks.findByName(item.getName());
     if (result == null) {
       throw new UnknownItemException();
     }

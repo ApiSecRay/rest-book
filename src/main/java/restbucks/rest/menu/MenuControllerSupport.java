@@ -28,7 +28,7 @@ public class MenuControllerSupport {
 
   private MenuResource getMenu() {
     MenuResource result = new MenuResource();
-    result.items = getItems();
+    result.setItems(getItems());
     return result;
   }
 
@@ -44,11 +44,11 @@ public class MenuControllerSupport {
 
   private ItemResource toItemResource(MenuItem menuItem) {
     ItemResource result = new ItemResource();
-    result.currency = menuItem.getDrink().getCurrency().getDisplayName();
-    result.milk = menuItem.getMilk().toString();
-    result.name = menuItem.getDrink().getName();
-    result.price = menuItem.getDrink().getPrice();
-    result.size = menuItem.getSize().toString();
+    result.setCurrency(menuItem.getDrink().getCurrency().getDisplayName());
+    result.setMilk(menuItem.getMilk().toString());
+    result.setName(menuItem.getDrink().getName());
+    result.setPrice(menuItem.getDrink().getPrice());
+    result.setSize(menuItem.getSize().toString());
     return result;
   }
 

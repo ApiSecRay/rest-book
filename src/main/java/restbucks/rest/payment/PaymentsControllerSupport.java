@@ -32,10 +32,10 @@ public class PaymentsControllerSupport {
     orders.save(order);
 
     ReceiptResource result = new ReceiptResource();
-    result.currency = input.currency;
-    result.paymentMethod = input.paymentMethod;
-    result.shop = "RESTBucks";
-    result.total = order.getPaidAmount();
+    result.setCurrency(input.getCurrency());
+    result.setPaymentMethod(input.getPaymentMethod());
+    result.setShop("RESTBucks");
+    result.setTotal(order.getPaidAmount());
 
     RestResponse<ReceiptResource> response = new RestResponse<>(result);
     response.setStatus(HttpStatus.CREATED);
@@ -43,8 +43,8 @@ public class PaymentsControllerSupport {
   }
 
   private Payment newPayment(PaymentResource input) {
-    if ("creditcard".equals(input.paymentMethod)) {
-      return new CreditcardPayment(input.currency, input.amount);
+    if ("creditcard".equals(input.getPaymentMethod())) {
+      return new CreditcardPayment(input.getCurrency(), input.getAmount());
     }
     throw new InvalidPaymentException();
   }
